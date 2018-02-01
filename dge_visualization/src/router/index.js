@@ -1,0 +1,42 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import MainBody from '@/components/MainBody'
+import Deseq2Main from '@/components/DESeq2/Deseq2Main'
+import Deseq2Upload from '@/components/DESeq2/Deseq2Upload'
+import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
+import MaSigPro from '@/components/MaSigPro'
+
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      name: 'Main',
+      component: MainBody
+    },
+    {
+      path: '/deseq2',
+      redirect: {name: 'Deseq2_upload'},
+      name: 'Deseq2',
+      component: Deseq2Main,
+      children: [
+        {
+          path: 'upload',
+          name: 'Deseq2_upload',
+          component: Deseq2Upload
+        },
+        {
+          path: 'overview',
+          name: 'Deseq2_overview',
+          component: Deseq2Overview
+        }
+      ]
+    },
+    {
+      path: '/masigpro',
+      name: 'maSigPro',
+      component: MaSigPro
+    }
+  ]
+})
