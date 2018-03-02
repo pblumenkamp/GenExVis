@@ -1,1 +1,1 @@
-export const PARSE_DESEQ2_STATISTICS = "parse_deseq2_statistics"
+export const STORE_DESEQ2_STATISTICS = 'store_deseq2_statistics'
