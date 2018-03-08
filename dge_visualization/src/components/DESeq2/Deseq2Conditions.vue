@@ -24,8 +24,6 @@
 <script>
   import {STORE_DESEQ2_STATISTICS} from '../../store/action_constants'
 
-  import {parseDeseq2} from '../../utilities/deseq2'
-
   export default {
     name: 'deseq2-conditions',
     props: ['files'],
@@ -33,7 +31,7 @@
       return {
         dataObject: [],  // [{file: <file_obj>, conditions: [<cond1 as string>, <cond2 as string>], index: <unique identifier>}, ...]
         importingFiles: false,
-        parsedDeseqData: [],
+        parsedDeseq2Data: [],
         progress: {counter: 0, max: 1000, done: true}
       }
     },
@@ -49,9 +47,9 @@
 
         Promise.all(promises)
           .then(values => {
-            vueData.$store.dispatch(STORE_DESEQ2_STATISTICS, {deseq2Objects: values, progress: vueData.progress})
+            vueData.$store.dispatch(STORE_DESEQ2_STATISTICS, {deseq2Contents: values, progress: vueData.progress})
               .then(() => {
-                console.log(vueData.$store.state.deseq2Objects)
+                console.log(vueData.$store.state.dgeData)
                 vueData.importingFiles = false
               })
           }, reason => {
@@ -68,8 +66,7 @@
           }
 
           reader.onload = () => {
-            let text = reader.result
-            resolve(parseDeseq2(text, conditions))
+            resolve({content: reader.result, conditions: conditions})
           }
           reader.readAsText(file)
         })
