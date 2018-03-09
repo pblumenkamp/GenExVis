@@ -9,19 +9,32 @@ export class DGE {
     /**
      *
      * @type {Set<string>}
+     * @private
      */
-    this.genes = new Set() // List of Gene instances
+    this._genes = new Set() // List of Gene instances
     /**
      * @type {Array<ConditionPair>}
+     * @private
      */
     this._conditionPairs = []
     /**
      *
      * @type {object} Contains Gene instances with gene name as property
+     * @private
      */
-    this.data = {}
+    this._data = {}
   }
 
+  /**
+   * @return {Set<string>}
+   */
+  get genes () {
+    return this._genes
+  }
+
+  /**
+   * @return {Array<ConditionPair>}
+   */
   get conditionPairs () {
     return this._conditionPairs
   }
@@ -49,7 +62,7 @@ export class DGE {
    */
   _addGene (gene) {
     this.genes.add(gene.name)
-    this.data[gene.name] = gene
+    this._data[gene.name] = gene
   }
 
   /**
@@ -64,7 +77,7 @@ export class DGE {
     let condPair = this._registerConditionPair(new ConditionPair(condition1, condition2))
 
     if (this.genes.has(geneName)) {
-      this.data[geneName].addDESEQ2Analysis(condPair, data)
+      this._data[geneName].addDESEQ2Analysis(condPair, data)
       return this
     }
 
@@ -95,9 +108,9 @@ export class DGE {
 
     for (let geneName of other.genes) {
       if (this.genes.has(geneName)) {
-        this.data[geneName].mergeGenes(other.data[geneName])
+        this._data[geneName].mergeGenes(other._data[geneName])
       } else {
-        this._addGene(other.data[geneName])
+        this._addGene(other._data[geneName])
       }
     }
   }
@@ -116,7 +129,7 @@ export class DGE {
 
     if (adjustedValues) {
       for (let gene of this.genes) {
-        for (let analysis of this.data[gene].getDESeq2Analyses()) {
+        for (let analysis of this._data[gene].getDESeq2Analyses()) {
           if (analysis.hasEqualConditions(conditions)) {
             if (analysis.pAdj <= maxP) {
               genes.push(gene)
@@ -126,12 +139,33 @@ export class DGE {
       }
     } else {
       for (let gene of this.genes) {
-        for (let analysis of this.data[gene].getDESeq2Analyses()) {
+        for (let analysis of this._data[gene].getDESeq2Analyses()) {
           if (analysis.hasEqualConditions(conditions)) {
             if (analysis.pValue <= maxP) {
               genes.push(gene)
             }
           }
+        }
+      }
+    }
+
+    return genes
+  }
+
+  /**
+   *
+   * @param {string} condition1
+   * @param {string} condition2
+   * @return {Array<string>}
+   */
+  getAllGenesFromDESeq2 (condition1, condition2) {
+    let genes = []
+    let conditions = new ConditionPair(condition1, condition2)
+
+    for (let gene of this.genes) {
+      for (let analysis of this._data[gene].getDESeq2Analyses()) {
+        if (analysis.hasEqualConditions(conditions)) {
+          genes.push(gene)
         }
       }
     }
