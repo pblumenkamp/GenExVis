@@ -38,20 +38,60 @@
             text: 'Fruit Consumption'
           },
           xAxis: {
-            categories: ['Apples', 'Bananas', 'Oranges']
+            title: {
+              enabled: true,
+              text: 'Height (cm)'
+            },
+            startOnTick: true,
+            endOnTick: true,
+            showLastLabel: true
           },
           yAxis: {
             title: {
-              text: 'Fruit eaten'
+              text: 'Weight (kg)'
+            }
+          },
+          legend: {
+            layout: 'vertical',
+            align: 'left',
+            verticalAlign: 'top',
+            x: 100,
+            y: 70,
+            floating: true,
+            backgroundColor: '#FFFFFF',
+            borderWidth: 1
+          },
+          plotOptions: {
+            scatter: {
+              marker: {
+                radius: 5,
+                states: {
+                  hover: {
+                    enabled: true,
+                    lineColor: 'rgb(100,100,100)'
+                  }
+                }
+              },
+              states: {
+                hover: {
+                  marker: {
+                    enabled: false
+                  }
+                }
+              },
+              tooltip: {
+                headerFormat: '<b>{series.name}</b><br>',
+                pointFormat: '{point.x} cm, {point.y} kg'
+              }
             }
           },
           series: [{
             name: 'Jane',
-            data: [1, 0, 4]
+            data: [[11, 5], [13, 1]]
           },
           {
             name: 'John',
-            data: [5, 7, 3]
+            data: [[5, 7], [6, 8]]
           }]
         }
       }
