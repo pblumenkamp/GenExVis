@@ -26,6 +26,14 @@ export class DGE {
     return this._conditionPairs
   }
 
+  get length () {
+    return this.genes.size
+  }
+
+  get size () {
+    return this.length
+  }
+
   /**
    * Register condition pairs for fast access on all existing conditions. Also reuse existing condition pairs to save memory
    *
@@ -57,19 +65,24 @@ export class DGE {
    * @param {string} geneName
    * @param {string} condition1
    * @param {string} condition2
-   * @param {Object} data Analysis-Object (must contain properties baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
-   * @returns {DGE}
+   * @param {number} baseMean
+   * @param {number} log2FoldChange
+   * @param {number} lfcSE
+   * @param {number} stat
+   * @param {number} pValue
+   * @param {number} pAdj
+   * @return {DGE}
    */
-  addDESeq2Data (geneName, condition1, condition2, data) {
+  addDESeq2Data (geneName, condition1, condition2, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj) {
     let condPair = this._registerConditionPair(new ConditionPair(condition1, condition2))
 
     if (this.genes.has(geneName)) {
-      this.data[geneName].addDESEQ2Analysis(condPair, data)
+      this.data[geneName].addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
       return this
     }
 
     let gene = new Gene(geneName)
-    gene.addDESEQ2Analysis(condPair, data)
+    gene.addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
     this._addGene(gene)
     return this
   }
@@ -143,7 +156,7 @@ export class DGE {
 /**
  *
  */
-class Gene {
+export class Gene {
   /**
    * @constructor
    * @param {string} name Gene name
@@ -163,13 +176,25 @@ class Gene {
   /**
    *
    * @param {ConditionPair} conditionPair
-   * @param {Object} data Analysis-Object (must contain properties baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
+   * @param {number} baseMean
+   * @param {number} log2FoldChange
+   * @param {number} lfcSE
+   * @param {number} stat
+   * @param {number} pValue
+   * @param {number} pAdj
    */
-  addDESEQ2Analysis (conditionPair, data) {
+  addDESEQ2Analysis (conditionPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj) {
     if (!this.hasOwnProperty('_deseq2')) {
       this._deseq2 = []
     }
-    this._deseq2.push(new DESeq2Data(conditionPair, data.baseMean, data.log2FoldChange, data.lfcSE, data.stat, data.pValue, data.pAdj))
+
+    for (let thisAnalysis of this._deseq2) {
+      if (thisAnalysis.hasEqualConditions(conditionPair)) {
+        throw new AnalysisDuplicateError(conditionPair)
+      }
+    }
+
+    this._deseq2.push(new DESeq2Data(conditionPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj))
   }
 
   /**
@@ -181,7 +206,7 @@ class Gene {
     for (let otherAnalysis of gene._deseq2) {
       for (let thisAnalysis of this._deseq2) {
         if (otherAnalysis.hasEqualConditions(thisAnalysis.conditions)) {
-          throw new AnalysisDuplicateError(`Analysis (Cond: ${[...otherAnalysis.conditions]}) found more than ones`)
+          throw new AnalysisDuplicateError(otherAnalysis.conditions)
         }
       }
       this._deseq2.push(otherAnalysis)
@@ -251,7 +276,7 @@ class DESeq2Data {
   }
 }
 
-class ConditionPair {
+export class ConditionPair {
   /**
    * @param {string} condition1
    * @param {string} condition2
@@ -287,5 +312,16 @@ class ConditionPair {
 /**
  *
  */
-class AnalysisDuplicateError extends Error {
+export class AnalysisDuplicateError extends Error {
+  constructor (conditionPair) {
+    super(`Analysis (Cond: ${conditionPair.condition1}, ${conditionPair.condition2}) found more than ones`);
+    this.name = this.constructor.name;
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, this.constructor);
+    } else {
+      this.stack = (new Error(message)).stack;
+    }
+  }
 }
+
+export default {DGE}
