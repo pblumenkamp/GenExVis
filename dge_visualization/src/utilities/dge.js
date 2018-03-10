@@ -190,7 +190,7 @@ export class Gene {
 
     for (let thisAnalysis of this._deseq2) {
       if (thisAnalysis.hasEqualConditions(conditionPair)) {
-        throw new AnalysisDuplicateError('Analysis (Cond: ' + Array.from(conditionPair) + ') found more than ones')
+        throw new AnalysisDuplicateError(conditionPair)
       }
     }
 
@@ -206,7 +206,7 @@ export class Gene {
     for (let otherAnalysis of gene._deseq2) {
       for (let thisAnalysis of this._deseq2) {
         if (otherAnalysis.hasEqualConditions(thisAnalysis.conditions)) {
-          throw new AnalysisDuplicateError('Analysis (Cond: ' + Array.from(otherAnalysis.conditions) + ') found more than ones')
+          throw new AnalysisDuplicateError(otherAnalysis.conditions)
         }
       }
       this._deseq2.push(otherAnalysis)
@@ -313,8 +313,8 @@ export class ConditionPair {
  *
  */
 export class AnalysisDuplicateError extends Error {
-  constructor (message) {
-    super(message);
+  constructor (conditionPair) {
+    super(`Analysis (Cond: ${conditionPair.condition1}, ${conditionPair.condition2}) found more than ones`);
     this.name = this.constructor.name;
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, this.constructor);
