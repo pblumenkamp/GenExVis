@@ -12,19 +12,11 @@ function parseDeseq2 (content, conditions, deseqResult = new DGE()) {
     let line = content[i].split('\t')
 
     let name = line[0]
-    if (name.charAt(0) === '"' && name.charAt(str.length -1) === '"')
-    {
-      name = name.substr(1,str.length -2)
+    if (name.charAt(0) === '"' && name.charAt(name.length - 1) === '"') {
+      name = name.substr(1, name.length - 2)
     }
 
-    deseqResult.addDESeq2Data(name, conditions[0], conditions[1], {
-      baseMean: line[1],
-      log2FoldChange: line[2],
-      lfcSE: line[3],
-      stat: line[4],
-      pValue: line[5],
-      pAdj: line[6]
-    })
+    deseqResult.addDESeq2Data(name, conditions[0], conditions[1], line[1], line[2], line[3], line[4], line[5], line[6])
   }
 
   return deseqResult
