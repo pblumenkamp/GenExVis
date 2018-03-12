@@ -47,6 +47,11 @@ export class DGE {
     return this.length
   }
 
+  /**
+   * Get Gene object to gene name
+   * @param {string} geneName
+   * @return {Gene}
+   */
   getGene (geneName) {
     return this._data[geneName]
   }
