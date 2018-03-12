@@ -47,7 +47,7 @@ export class DGE {
     return this.length
   }
 
-  getGene(geneName) {
+  getGene (geneName) {
     return this._data[geneName]
   }
 
