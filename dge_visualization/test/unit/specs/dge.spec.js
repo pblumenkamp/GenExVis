@@ -1,4 +1,4 @@
-import {DGE, Gene, ConditionPair, AnalysisDuplicateError} from '@/utilities/dge'
+import {DGE, Gene, DESeq2Analysis, ConditionPair, AnalysisDuplicateError} from '@/utilities/dge'
 
 describe('Tests with empty DGE object', () => {
   test('add two analyses with the same gene and the same condition', () => {
@@ -31,7 +31,7 @@ describe('Tests with empty DGE object', () => {
     }).not.toThrow()
   })
 
-  test('add 100,000 analysis to DGEs', () => {
+  test('add 100,000 genes to DGEs', () => {
     let dge = new DGE()
     for (let i = 0; i < 100000; i++) {
       dge.addDESeq2Data('gene_' + i, 'wt', 'mut', 100, 2, 0.1, 0.2, 0.001, 0.002)
@@ -66,17 +66,61 @@ describe('Tests for DGE access', () => {
     dge.addDESeq2Data('gene_6', 'wt', 'mut2', 325, 2, 0.1, 0.2, 0.02, 0.4)
   });
 
+  test('get specific gene', () => {
+    expect(dge.getGene('gene_1').name).toBe('gene_1')
+    expect(dge.getGene('gene_2').name).toBe('gene_2')
+    expect(dge.getGene('gene_3').name).toBe('gene_3')
+    expect(dge.getGene('gene_4').name).toBe('gene_4')
+    expect(dge.getGene('gene_5').name).toBe('gene_5')
+    expect(dge.getGene('gene_6').name).toBe('gene_6')
+
+    expect(dge.getGene('gene_1').deseq2Analyses).toHaveLength(1)
+    expect(dge.getGene('gene_2').deseq2Analyses).toHaveLength(1)
+    expect(dge.getGene('gene_3').deseq2Analyses).toHaveLength(1)
+    expect(dge.getGene('gene_4').deseq2Analyses).toHaveLength(2)
+    expect(dge.getGene('gene_5').deseq2Analyses).toHaveLength(1)
+    expect(dge.getGene('gene_6').deseq2Analyses).toHaveLength(1)
+  })
+
   test('get significant DESeq2 genes', () => {
-    expect(dge.getSignificantGenesFromDESeq2(0.05, 'wt', 'mut1')).toHaveLength(2)
-    expect(dge.getSignificantGenesFromDESeq2(0.5, 'wt', 'mut1')).toHaveLength(4)
-    expect(dge.getSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1')).toHaveLength(0)
-    expect(dge.getSignificantGenesFromDESeq2(0.01, 'wt', 'mut1')).toHaveLength(2)
-    expect(dge.getSignificantGenesFromDESeq2(0.05, 'wt', 'mut1', true)).toHaveLength(2)
-    expect(dge.getSignificantGenesFromDESeq2(0.5, 'wt', 'mut1', true)).toHaveLength(4)
-    expect(dge.getSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1', true)).toHaveLength(0)
-    expect(dge.getSignificantGenesFromDESeq2(0.02, 'wt', 'mut1', true)).toHaveLength(2)
-    expect(dge.getSignificantGenesFromDESeq2(0.5, 'wt', 'mut2')).toHaveLength(3)
-    expect(dge.getSignificantGenesFromDESeq2(0.01, 'wt', 'mut2')).toHaveLength(1)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.05, 'wt', 'mut1').size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut1').size).toBe(4)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1').size).toBe(0)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.01, 'wt', 'mut1').size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.05, 'wt', 'mut1', true).size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut1', true).size).toBe(4)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1', true).size).toBe(0)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.02, 'wt', 'mut1', true).size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut2').size).toBe(3)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.01, 'wt', 'mut2').size).toBe(1)
+  })
+
+  test('get all DESeq2 gene names', () => {
+    let geneNames = dge.getNamesOfAllGenesFromDESeq2('wt', 'mut1')
+    expect(geneNames.size).toBe(4)
+    expect(geneNames.has('gene_1')).toBe(true)
+    expect(geneNames.has('gene_2')).toBe(true)
+    expect(geneNames.has('gene_3')).toBe(true)
+    expect(geneNames.has('gene_4')).toBe(true)
+    geneNames = dge.getNamesOfAllGenesFromDESeq2('wt', 'mut2')
+    expect(geneNames.size).toBe(3)
+    expect(geneNames.has('gene_4')).toBe(true)
+    expect(geneNames.has('gene_5')).toBe(true)
+    expect(geneNames.has('gene_6')).toBe(true)
+  })
+
+  test('get all DESeq2 genes', () => {
+    let smallDGE = dge.getAllGenesFromDESeq2('wt', 'mut1')
+    expect(smallDGE.conditionPairs).toHaveLength(2)
+    expect(smallDGE.geneNames.size).toBe(4)
+    expect(smallDGE).toHaveLength(4)
+    for (let geneName of smallDGE.geneNames) {
+      let gene = smallDGE.getGene(geneName)
+      let analysis = gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut1'))
+      expect(analysis.conditions.condition1).toBe('wt')
+      expect(analysis.conditions.condition2).toBe('mut1')
+    }
+
   })
 })
 
@@ -84,10 +128,10 @@ describe('Tests with Gene objects', () => {
   test('add DESeq2 analysis to gene', () => {
     let gene = new Gene('gene_1')
     gene.addDESEQ2Analysis(new ConditionPair('wt', 'mut1'), 100, 2, 0.1, 0.2, 0.001, 0.002)
-    expect(gene.hasOwnProperty('_deseq2')).toBe(true)
-    expect(gene.getDESeq2Analyses()).toHaveLength(1)
+    expect(gene.hasOwnProperty('_deseq2_analyses')).toBe(true)
+    expect(gene.deseq2Analyses).toHaveLength(1)
     gene.addDESEQ2Analysis(new ConditionPair('wt', 'mut2'), 100, 2, 0.1, 0.2, 0.1, 0.2)
-    expect(gene.getDESeq2Analyses()).toHaveLength(2)
+    expect(gene.deseq2Analyses).toHaveLength(2)
   })
 
   test('add two identical DESeq2 analysis to gene', () => {
@@ -106,8 +150,8 @@ describe('Tests with Gene objects', () => {
     gene2.addDESEQ2Analysis(new ConditionPair('wt', 'mut3'), 100, 2, 0.1, 0.2, 0.001, 0.002)
     gene2.addDESEQ2Analysis(new ConditionPair('wt', 'mut4'), 100, 2, 0.1, 0.2, 0.1, 0.2)
     gene1.mergeGenes(gene2)
-    expect(gene1.hasOwnProperty('_deseq2')).toBe(true)
-    expect(gene1.getDESeq2Analyses()).toHaveLength(4)
+    expect(gene1.hasOwnProperty('_deseq2_analyses')).toBe(true)
+    expect(gene1.deseq2Analyses).toHaveLength(4)
     expect(gene1.name).toBe('gene_1')
   })
 
@@ -122,6 +166,42 @@ describe('Tests with Gene objects', () => {
     expect(() => {gene1.mergeGenes(gene2)}).toThrow()
   })
 
+  test('register ConditionPairs for DESeq2 in Genes', () => {
+    let gene1 = new Gene('gene_1')
+    expect(gene1.deseq2ConditionPairs).toHaveLength(0)
+    gene1.addDESEQ2Analysis(new ConditionPair('wt', 'mut1'), 100, 2, 0.1, 0.2, 0.001, 0.002)
+    expect(gene1.deseq2ConditionPairs).toHaveLength(1)
+    gene1.addDESEQ2Analysis(new ConditionPair('wt', 'mut2'), 100, 2, 0.1, 0.2, 0.1, 0.2)
+    expect(gene1.deseq2ConditionPairs).toHaveLength(2)
+  })
+
+  test('get Analysis to specific conditions', () => {
+    let gene = new Gene('gene_1')
+    gene.addDESEQ2Analysis(new ConditionPair('wt', 'mut1'), 100, 2, 0.1, 0.2, 0.001, 0.002)
+    gene.addDESEQ2Analysis(new ConditionPair('wt', 'mut2'), 100, 2, 0.1, 0.2, 0.1, 0.1)
+    gene.addDESEQ2Analysis(new ConditionPair('mut1', 'mut2'), 100, 2, 0.1, 0.2, 0.1, 0.2)
+
+    expect(gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut1')).pAdj).toBe(0.002)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut2')).pAdj).toBe(0.1)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'mut2')).pAdj).toBe(0.2)
+
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut2', 'mut1'))).toBeNull()
+  })
+
+})
+
+describe('Test DESeq2Analysis', () => {
+  test('create and access DESeq2Analysis', () => {
+    let analysis = new DESeq2Analysis(new ConditionPair('wt', 'mut'), 100, 2, 0.1, 0.2, 0.001, 0.002)
+    expect(analysis.conditions.condition1).toBe('wt')
+    expect(analysis.conditions.condition2).toBe('mut')
+    expect(analysis.baseMean).toBe(100)
+    expect(analysis.log2FoldChange).toBe(2)
+    expect(analysis.lfcSE).toBe(0.1)
+    expect(analysis.stat).toBe(0.2)
+    expect(analysis.pValue).toBe(0.001)
+    expect(analysis.pAdj).toBe(0.002)
+  })
 })
 
 describe('Test ConditionPairs', () => {

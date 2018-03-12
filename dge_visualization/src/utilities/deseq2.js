@@ -19,19 +19,6 @@ function parseDeseq2 (content, conditions, deseqResult = new DGE()) {
       pValue: line[5],
       pAdj: line[6]
     })
-
-    /* deseqResult.push({
-          gene_name: line[0],
-          _deseq2: [{d
-            conditions: new Set(conditions),
-            baseMean: line[1],
-            log2FoldChange: line[2],
-            lfcSE: line[3],
-            stat: line[4],
-            pValue: line[5],
-            pAdj: line[6]
-          }]
-        }) */
   }
 
   return deseqResult

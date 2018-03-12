@@ -30,27 +30,6 @@ const store = new Vuex.Store({
           progress.counter++
         }
 
-/*
-        let deseq2Statistics = [deseq2Content[0]]
-        let countGenes = 0
-        for (let i = 1; i < deseq2Content.length; i++) {
-          countGenes += deseq2Content[i].length
-        }
-        progress.max = countGenes
-
-        for (let i = 1; i < deseq2Content.length; i++) {
-          let deseq2Obj = deseq2Content[i]
-          for (let newGene of deseq2Obj) {
-            for (let existingGene of deseq2Statistics[0]) {
-              if (newGene.gene_name === existingGene.gene_name) {
-                existingGene._deseq2.push(newGene._deseq2[0])
-                progress.counter++
-                break
-              }
-            }
-          }
-        }
-*/
         progress.done = true
         progress.counter = 0
         resolve()
