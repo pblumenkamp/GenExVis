@@ -12,11 +12,15 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   strict: true,
   state: {
-    dgeData: new DGE()
+    dgeData: new DGE(),
+    filelist: []
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
       state.dgeData.mergeDGEs(dgeData)
+    },
+    ADD_FILE (filelist) {
+      this.$store.filelist.commit(filelist)
     }
   },
   actions: {
@@ -26,6 +30,8 @@ const store = new Vuex.Store({
 
         for (let {content, conditions} of deseq2Contents) {
           let dge = parseDeseq2(content, conditions)
+          console.log(content)
+          console.log('----')
           commit(ADD_DATA, dge)
           progress.counter++
         }

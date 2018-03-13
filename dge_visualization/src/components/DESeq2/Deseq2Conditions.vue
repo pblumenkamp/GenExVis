@@ -23,6 +23,7 @@
 
 <script>
   import {STORE_DESEQ2_STATISTICS} from '../../store/action_constants'
+  // import ADD_FILE from '../../store/store'
 
   export default {
     name: 'deseq2-conditions',
@@ -41,9 +42,12 @@
         this.importingFiles = true
         this.progress.done = false
         let promises = []
+        let filelist = []
         for (let {file, conditions} of this.dataObject) {
           promises.push(this.readDeseq2FileAsText(file, conditions))
+          filelist.push(file.name)
         }
+        // vueData.$store.commit(ADD_FILE, filelist)
 
         Promise.all(promises)
           .then(values => {
