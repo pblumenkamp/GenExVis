@@ -14,8 +14,8 @@
       </b-col>
       <b-col v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="col" cols="2">
         --- ANCHOR UPLOAD ---
-        <b-card>
-          <li v-for="item in this.$store.state.dgeData.conditionPairs">
+        <b-card class="text-left">
+          <li v-for="item in this.$store.state.filelist">
             <small>{{ item }}</small>
           </li>
         </b-card>

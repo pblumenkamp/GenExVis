@@ -1,9 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS} from './action_constants'
-import {ADD_DATA} from './mutation_constants'
-
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST} from './action_constants'
+import {ADD_DATA, ADD_FILE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -19,8 +18,8 @@ const store = new Vuex.Store({
     [ADD_DATA] (state, dgeData) {
       state.dgeData.mergeDGEs(dgeData)
     },
-    ADD_FILE (filelist) {
-      this.$store.filelist.commit(filelist)
+    [ADD_FILE] (state, file) {
+      state.filelist.push(file)
     }
   },
   actions: {
@@ -30,8 +29,6 @@ const store = new Vuex.Store({
 
         for (let {content, conditions} of deseq2Contents) {
           let dge = parseDeseq2(content, conditions)
-          console.log(content)
-          console.log('----')
           commit(ADD_DATA, dge)
           progress.counter++
         }
@@ -41,6 +38,10 @@ const store = new Vuex.Store({
         resolve()
       })
     }
+  },
+  [EXTEND_FILE_LIST] ({commit, state}, {filelist}) {
+    commit(ADD_FILE, filelist)
+    console.log((filelist))
   }
 })
 
