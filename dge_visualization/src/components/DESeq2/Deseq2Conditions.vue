@@ -38,6 +38,8 @@
     },
     methods: {
       parseDataObject () {
+        console.log('--- WATCH HERE ---')
+        console.log(this.dataObject.type)
         var vueData = this
         this.importingFiles = true
         this.progress.done = false
