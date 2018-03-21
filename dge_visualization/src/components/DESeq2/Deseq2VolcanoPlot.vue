@@ -59,6 +59,9 @@
             type: 'scatter',
             zoomType: 'xy'
           },
+          title: {
+            text: `${this.selectedCondition1} vs. ${this.selectedCondition2}`
+          },
           xAxis: {
             title: {
               enabled: true,
