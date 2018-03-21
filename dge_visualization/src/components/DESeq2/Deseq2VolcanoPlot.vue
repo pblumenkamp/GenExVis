@@ -11,7 +11,7 @@
       <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" @input="getDataPoints" :disabled="selectedCondition1 === ''">
+    <b-form-select v-model="selectedCondition2" style="width: auto" @input="drawData" :disabled="selectedCondition1 === ''">
       <template slot="first">
         <option :value="''" disabled>-- Please select the second condition --</option>
       </template>
@@ -26,9 +26,9 @@
       <b-container fluid>
         <b-row class="my-1">
           <b-col sm="3"><label>p-value threshold</label></b-col>
-          <b-col sm="9"><b-form-input type="number" v-model="pThreshold" step="0.001" max="1" min="0" style="width: auto;" @input="updatePThreshold"></b-form-input></b-col>
+          <b-col sm="9"><b-form-input type="number" v-model="pThreshold" step="0.001" max="1" min="0" style="width: auto;" @change="updatePThreshold"></b-form-input></b-col>
           <b-col sm="3"><label>use adjusted p-value</label></b-col>
-          <b-col sm="9"><b-form-checkbox v-model="useAdjPValue" @input="getDataPoints"></b-form-checkbox></b-col>
+          <b-col sm="9"><b-form-checkbox v-model="useAdjPValue" @input="drawData"></b-form-checkbox></b-col>
         </b-row>
       </b-container>
 
@@ -53,7 +53,7 @@
       }
     },
     methods: {
-      getDataPoints () {
+      drawData () {
         this.options = {
           chart: {
             type: 'scatter',
@@ -67,6 +67,7 @@
               enabled: true,
               text: 'log2 (fold change)'
             },
+            color: 'black',
             startOnTick: true,
             endOnTick: true,
             showLastLabel: true
@@ -76,7 +77,7 @@
               text: '-log10 (p-value)'
             },
             plotLines: [{
-              value: -Math.log10(0.01),
+              value: -Math.log10(this.pThreshold),
               color: 'black',
               dashStyle: 'shortdash',
               width: 1,
@@ -160,11 +161,11 @@
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
           let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          let y = (this.useAdjPValue) ? -Math.log10(analysis.pAdj) : -Math.log10(analysis.pValue)
+          let y = (this.useAdjPValue) ? analysis.pAdj : analysis.pValue
           let dataPoint = {
             gene: geneName,
             x: analysis.log2FoldChange,
-            y: y,
+            y: -Math.log10(y),
             yTooltip: y.toExponential(2)
           }
 
@@ -178,7 +179,8 @@
         }
       },
       updatePThreshold () {
-        let chart = this.$refs.highcharts.chart
+        this.drawData()
+        /* let chart = this.$refs.highcharts.chart
         chart.update({
           yAxis: {
             plotLines: [{
@@ -203,7 +205,7 @@
               id: 0
             }
           ]
-        })
+        }) */
       }
     },
     computed: {
