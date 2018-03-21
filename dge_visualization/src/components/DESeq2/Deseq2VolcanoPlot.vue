@@ -41,6 +41,8 @@
 <script>
   import {ConditionPair} from '@/utilities/dge'
 
+  const AXIS_COLOR = '#000000'
+
   export default {
     name: 'DESeq2VolcanoPlot',
     data () {
@@ -64,17 +66,33 @@
           },
           xAxis: {
             title: {
-              enabled: true,
-              text: 'log2 (fold change)'
+              text: 'log2 (fold change)',
+              style: {
+                color: AXIS_COLOR
+              }
             },
-            color: 'black',
+            lineColor: AXIS_COLOR,
+            tickColor: AXIS_COLOR,
+            labels: {
+              style: {
+                color: AXIS_COLOR
+              }
+            },
             startOnTick: true,
             endOnTick: true,
             showLastLabel: true
           },
           yAxis: {
             title: {
-              text: '-log10 (p-value)'
+              text: '-log10 (p-value)',
+              style: {
+                color: AXIS_COLOR
+              }
+            },
+            labels: {
+              style: {
+                color: AXIS_COLOR
+              }
             },
             plotLines: [{
               value: -Math.log10(this.pThreshold),
