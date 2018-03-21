@@ -9,29 +9,51 @@ export class DGE {
     /**
      *
      * @type {Set<string>}
+     * @private
      */
-    this.genes = new Set() // List of Gene instances
+    this._geneNames = new Set() // List of Gene instances
     /**
      * @type {Array<ConditionPair>}
+     * @private
      */
     this._conditionPairs = []
     /**
      *
      * @type {object} Contains Gene instances with gene name as property
+     * @private
      */
-    this.data = {}
+    this._data = {}
   }
 
+  /**
+   * @return {Set<string>}
+   */
+  get geneNames () {
+    return this._geneNames
+  }
+
+  /**
+   * @return {Array<ConditionPair>}
+   */
   get conditionPairs () {
     return this._conditionPairs
   }
 
   get length () {
-    return this.genes.size
+    return this.geneNames.size
   }
 
   get size () {
     return this.length
+  }
+
+  /**
+   * Get Gene object to gene name
+   * @param {string} geneName
+   * @return {Gene}
+   */
+  getGene (geneName) {
+    return this._data[geneName]
   }
 
   /**
@@ -56,8 +78,8 @@ export class DGE {
    * @private
    */
   _addGene (gene) {
-    this.genes.add(gene.name)
-    this.data[gene.name] = gene
+    this.geneNames.add(gene.name)
+    this._data[gene.name] = gene
   }
 
   /**
@@ -76,8 +98,8 @@ export class DGE {
   addDESeq2Data (geneName, condition1, condition2, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj) {
     let condPair = this._registerConditionPair(new ConditionPair(condition1, condition2))
 
-    if (this.genes.has(geneName)) {
-      this.data[geneName].addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
+    if (this.geneNames.has(geneName)) {
+      this.getGene(geneName).addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
       return this
     }
 
@@ -106,11 +128,11 @@ export class DGE {
       }
     }
 
-    for (let geneName of other.genes) {
-      if (this.genes.has(geneName)) {
-        this.data[geneName].mergeGenes(other.data[geneName])
+    for (let geneName of other.geneNames) {
+      if (this.geneNames.has(geneName)) {
+        this.getGene(geneName).mergeGenes(other.getGene(geneName))
       } else {
-        this._addGene(other.data[geneName])
+        this._addGene(other.getGene(geneName))
       }
     }
   }
@@ -122,27 +144,28 @@ export class DGE {
    * @param {string} condition1
    * @param {string} condition2
    * @param {boolean} [adjustedValues=false]
+   * @return {Set<string>} Gene names
    */
-  getSignificantGenesFromDESeq2 (maxP, condition1, condition2, adjustedValues = false) {
-    let genes = []
+  getNamesOfSignificantGenesFromDESeq2 (maxP, condition1, condition2, adjustedValues = false) {
+    let genes = new Set()
     let conditions = new ConditionPair(condition1, condition2)
 
     if (adjustedValues) {
-      for (let gene of this.genes) {
-        for (let analysis of this.data[gene].getDESeq2Analyses()) {
+      for (let geneName of this.geneNames) {
+        for (let analysis of this.getGene(geneName).deseq2Analyses) {
           if (analysis.hasEqualConditions(conditions)) {
             if (analysis.pAdj <= maxP) {
-              genes.push(gene)
+              genes.add(geneName)
             }
           }
         }
       }
     } else {
-      for (let gene of this.genes) {
-        for (let analysis of this.data[gene].getDESeq2Analyses()) {
+      for (let geneName of this.geneNames) {
+        for (let analysis of this.getGene(geneName).deseq2Analyses) {
           if (analysis.hasEqualConditions(conditions)) {
             if (analysis.pValue <= maxP) {
-              genes.push(gene)
+              genes.add(geneName)
             }
           }
         }
@@ -150,6 +173,51 @@ export class DGE {
     }
 
     return genes
+  }
+
+  /**
+   *
+   * @param {string} condition1
+   * @param {string} condition2
+   * @return {Set<string>}
+   */
+  getNamesOfAllGenesFromDESeq2 (condition1, condition2) {
+    let genes = new Set()
+    let conditions = new ConditionPair(condition1, condition2)
+
+    for (let geneName of this.geneNames) {
+      for (let analysis of this.getGene(geneName).deseq2Analyses) {
+        if (analysis.hasEqualConditions(conditions)) {
+          genes.add(geneName)
+        }
+      }
+    }
+
+    return genes
+  }
+
+  /**
+   *
+   * @param {string} condition1
+   * @param {string} condition2
+   * @return {DGE}
+   */
+  getAllGenesFromDESeq2 (condition1, condition2) {
+    let dge = new DGE()
+    let conditions = new ConditionPair(condition1, condition2)
+
+    for (let geneName of this.geneNames) {
+      for (let analysis of this.getGene(geneName).deseq2Analyses) {
+        if (analysis.hasEqualConditions(conditions)) {
+          dge._addGene(this.getGene(geneName))
+          for (let conditionPair of this.getGene(geneName).deseq2ConditionPairs) {
+            dge._registerConditionPair(conditionPair)
+          }
+        }
+      }
+    }
+
+    return dge
   }
 }
 
@@ -162,15 +230,52 @@ export class Gene {
    * @param {string} name Gene name
    */
   constructor (name) {
+    /**
+     *
+     * @type {string} gene name
+     * @private
+     */
     this._name = name
+    /**
+     * @type {Array<ConditionPair>}
+     * @private
+     */
+    this._deseq2_conditionPairs = []
+    /**
+     *
+     * @type {Array<DESeq2Analysis>}
+     * @private
+     */
+    this._deseq2_analyses = []
   }
 
   get name () {
     return this._name
   }
 
-  getDESeq2Analyses () {
-    return this._deseq2
+  get deseq2ConditionPairs () {
+    return this._deseq2_conditionPairs
+  }
+
+  get deseq2Analyses () {
+    return this._deseq2_analyses
+  }
+
+  /**
+   * Register condition pairs for fast access on all existing conditions. Also reuse existing condition pairs to save memory
+   *
+   * @param {ConditionPair} conditionPair
+   * @return {ConditionPair} If conditionPair is already registered, return registered object, else return conditionPair parameter
+   * @private
+   */
+  _registerDeseq2ConditionPair (conditionPair) {
+    for (let pair of this.deseq2ConditionPairs) {
+      if (conditionPair.isEqual(pair)) {
+        return pair
+      }
+    }
+    this._deseq2_conditionPairs.push(conditionPair)
+    return conditionPair
   }
 
   /**
@@ -184,17 +289,30 @@ export class Gene {
    * @param {number} pAdj
    */
   addDESEQ2Analysis (conditionPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj) {
-    if (!this.hasOwnProperty('_deseq2')) {
-      this._deseq2 = []
-    }
+    this._registerDeseq2ConditionPair(conditionPair)
 
-    for (let thisAnalysis of this._deseq2) {
+    for (let thisAnalysis of this._deseq2_analyses) {
       if (thisAnalysis.hasEqualConditions(conditionPair)) {
         throw new AnalysisDuplicateError(conditionPair)
       }
     }
 
-    this._deseq2.push(new DESeq2Data(conditionPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj))
+    this._deseq2_analyses.push(new DESeq2Analysis(conditionPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj))
+  }
+
+  /**
+   * Returns the corresponding DESeg2Analysis to a condition pair
+   * @param {ConditionPair} conditionPair
+   * @return {DESeq2Analysis|null} Returns a DESeq2Analysis object if conditionPair was found, else null
+   */
+  getDESEQ2Analysis (conditionPair) {
+    for (let thisAnalysis of this._deseq2_analyses) {
+      if (thisAnalysis.hasEqualConditions(conditionPair)) {
+        return thisAnalysis
+      }
+    }
+
+    return null
   }
 
   /**
@@ -203,13 +321,27 @@ export class Gene {
    * @throws {AnalysisDuplicateError}
    */
   mergeGenes (gene) {
-    for (let otherAnalysis of gene._deseq2) {
-      for (let thisAnalysis of this._deseq2) {
+    // merge conditionPair lists
+    for (let otherPair of gene.deseq2ConditionPairs) {
+      let found = false
+      for (let thisPair of this.deseq2ConditionPairs) {
+        if (thisPair.isEqual(otherPair)) {
+          found = true
+          break
+        }
+      }
+      if (!found) {
+        this._deseq2_conditionPairs.push(otherPair)
+      }
+    }
+
+    for (let otherAnalysis of gene._deseq2_analyses) {
+      for (let thisAnalysis of this._deseq2_analyses) {
         if (otherAnalysis.hasEqualConditions(thisAnalysis.conditions)) {
           throw new AnalysisDuplicateError(otherAnalysis.conditions)
         }
       }
-      this._deseq2.push(otherAnalysis)
+      this._deseq2_analyses.push(otherAnalysis)
     }
   }
 }
@@ -217,7 +349,7 @@ export class Gene {
 /**
  *
  */
-class DESeq2Data {
+export class DESeq2Analysis {
   /**
    * @constructor
    * @param {ConditionPair} conditionPair
@@ -314,12 +446,13 @@ export class ConditionPair {
  */
 export class AnalysisDuplicateError extends Error {
   constructor (conditionPair) {
-    super(`Analysis (Cond: ${conditionPair.condition1}, ${conditionPair.condition2}) found more than ones`);
-    this.name = this.constructor.name;
+    let message = `Analysis (Cond: ${conditionPair.condition1}, ${conditionPair.condition2}) found more than ones`
+    super(message)
+    this.name = this.constructor.name
     if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, this.constructor);
+      Error.captureStackTrace(this, this.constructor)
     } else {
-      this.stack = (new Error(message)).stack;
+      this.stack = (new Error(message)).stack
     }
   }
 }
