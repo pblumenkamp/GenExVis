@@ -5,7 +5,6 @@
         <b-nav vertical class="deseq2Navbar">
           <b-nav-item to="/deseq2/upload">Upload</b-nav-item>
           <b-nav-item to="/deseq2/overview">Overview</b-nav-item>
-          <b-nav-item to="/deseq2/overviewTEST">OverviewTEST</b-nav-item>
           <b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>
         </b-nav>
       </b-col>
