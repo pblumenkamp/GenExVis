@@ -105,14 +105,9 @@
             }]
           },
           legend: {
-            layout: 'vertical',
-            align: 'left',
-            verticalAlign: 'top',
-            x: 100,
-            y: 70,
-            floating: true,
-            backgroundColor: '#FFFFFF',
-            borderWidth: 1
+            layout: 'horizontal',
+            align: 'center',
+            verticalAlign: 'bottom'
           },
           plotOptions: {
             scatter: {
@@ -147,14 +142,14 @@
             }
           },
           series: [{
-            name: '|log2 fold change| >= 2 && p-value >= ' + this.pThreshold,
+            name: '|log2 fold change| >= 2 AND p-value >= ' + this.pThreshold,
             color: '#cc1926',
             zIndex: 2,
             id: 0,
             data: [{gene: 'abc', x: 0, y: 0}]
           },
           {
-            name: '|log2 fold change| >= 2 || p-value >= ' + this.pThreshold,
+            name: '|log2 fold change| >= 2 OR p-value >= ' + this.pThreshold,
             color: '#ccc223',
             zIndex: 1,
             id: 1,
