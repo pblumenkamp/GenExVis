@@ -40,14 +40,22 @@ const store = new Vuex.Store({
         progress.counter = 0
         resolve()
       })
+    },
+    [EXTEND_FILE_LIST] ({commit, state}, {filelist}) {
+      commit(ADD_FILE, filelist)
+      console.log((filelist))
+    },
+    [REGISTER_CONDITION] ({commit, state}, {conditionName}) {
+      return new Promise((resolve, reject) => {
+        for (let registeredCond of state.registeredConditions) {
+          if (conditionName === registeredCond) {
+            reject(new Error(`Condition ${conditionName} already registered!`))
+          }
+        }
+        commit(ADD_CONDITION, conditionName)
+        resolve()
+      })
     }
-  },
-  [EXTEND_FILE_LIST] ({commit, state}, {filelist}) {
-    commit(ADD_FILE, filelist)
-    console.log((filelist))
-  },
-  [REGISTER_CONDITION] ({commit, state}, {conditionName}) {
-    commit(conditionName)
   }
 })
 

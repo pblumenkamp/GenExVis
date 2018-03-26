@@ -5,12 +5,18 @@
         {{index+1}}. {{file.name}}
       </b-col>
       <b-col>
-        <b-form-input v-model="conditions[0]" type="text"
-                      placeholder="Condition 1"></b-form-input>
+        <b-form-select v-model="conditions[0]" :options="registeredConditions">
+          <template slot="first">
+            <option :value="''" disabled>-- Condition 1 --</option>
+          </template>
+        </b-form-select>
       </b-col>
       <b-col>
-        <b-form-input v-model="conditions[1]" type="text"
-                      placeholder="Condition 2"></b-form-input>
+        <b-form-select v-model="conditions[1]" :options="registeredConditions">
+          <template slot="first">
+            <option :value="''" disabled>-- Condition 2 --</option>
+          </template>
+        </b-form-select>
       </b-col>
     </b-row>
     <div style="margin: 0 auto; width: 10rem">
@@ -99,6 +105,9 @@
         }
         this.dataObject = dataObject
         return dataObject
+      },
+      registeredConditions () {
+        return this.$store.state.registeredConditions
       }
     }
   }

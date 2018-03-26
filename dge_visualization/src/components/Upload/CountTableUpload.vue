@@ -1,0 +1,119 @@
+<template>
+  <div>
+    <div>
+      <b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="uploadCountTable" style="width: 50%"></b-form-file>
+      <div style="margin-left: 1rem; margin-top: 1rem">
+        Normalization method:
+        <b-form-select v-model="selectedNormalization" style="width: auto; margin-left: 0.5rem">
+          <option v-for="norm in normalization" :value="norm">{{ norm }}</option>
+        </b-form-select>
+      </div>
+    </div>
+
+    <div>
+      <b-container>
+        <b-row v-for="{header, condition} in headerConditionMapping" :key="header" style="margin: 1rem">
+          <b-col style="padding-top: 0.4rem">
+            {{header}}
+          </b-col>
+          <b-col>
+            <b-form-select v-model="condition" :options="registeredConditions"/>
+          </b-col>
+        </b-row>
+      </b-container>
+    </div>
+
+    <b-container fluid v-if="uploadingFinished">
+      <b-row>
+          <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
+      </b-row>
+
+      <b-table
+        responsive
+        striped
+        hover
+        :items="items"
+        :current-page="currentPage"
+        :per-page="perPage"
+        style="width: auto;"></b-table>
+    </b-container>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: 'count-table-upload',
+    data () {
+      return {
+        file: null,
+        items: [],
+        currentPage: 0,
+        perPage: 10,
+        totalRows: 0,
+        uploadingFinished: false,
+        normalization: ['Unnormalized', 'DESeq2'],
+        selectedNormalization: 'Unnormalized',
+        headerConditionMapping: []      // [{header: <string>, condition: <string>}, ...]
+      }
+    },
+    methods: {
+      uploadCountTable () {
+        var vueData = this
+        this.uploadingFinished = true
+
+        this.readCountTable(vueData.file)
+          .then(({table, seqRuns}) => {
+            for (let seqRun of seqRuns) {
+              this.headerConditionMapping.push({
+                header: seqRun,
+                condition: ''
+              })
+            }
+            this.totalRows = table.length
+            this.items = table
+          })
+      },
+      readCountTable (file) {
+        const reader = new FileReader()
+
+        return new Promise((resolve, reject) => {
+          reader.onerror = () => {
+            reader.abort()
+            reject(new DOMException('Problem parsing input file.'))
+          }
+
+          reader.onload = () => {
+            let text = reader.result
+            let content = text.split('\n')
+            if (content[0][0] === '#') {
+              content.shift()
+            }
+            while (content[content.length - 1] === '') {
+              content.pop()
+            }
+            let header = content[0].split('\t')
+            let results = {table: [], seqRuns: header.slice(6)}
+
+            for (let i = 1, contentLength = content.length; i < contentLength; i++) {
+              let entry = content[i].split('\t')
+              let parsedEntry = {}
+
+              for (let j = 0, headerLength = header.length; j < headerLength; j++) {
+                parsedEntry[header[j]] = entry[j]
+              }
+              results.table.push(parsedEntry)
+            }
+
+            resolve(results)
+          }
+          reader.readAsText(file)
+        })
+      }
+    },
+    computed: {
+      registeredConditions () {
+        return this.$store.state.registeredConditions
+      }
+    }
+  }
+</script>
