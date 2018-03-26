@@ -13,7 +13,26 @@
           </b-input-group>
         </b-col>
       </b-row>
+      <b-row>
+        <b-col>
+          <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
+            <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+          </span>
+          <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
+            <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
+          </span>
+          {{registeredConditions.length}} conditions registered
+          <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
+            <b-card>
+              <ul>
+                <li v-for="cond of registeredConditions" :key="cond">{{cond}}</li>
+              </ul>
+            </b-card>
+          </b-collapse>
+        </b-col>
+      </b-row>
     </b-container>
+
     <div role="tablist">
       <b-card no-body class="mb-1">
         <b-card-header header-tag="header" class="p-1" role="tab">
@@ -45,22 +64,27 @@
 
   import {REGISTER_CONDITION} from '../../store/action_constants'
 
+  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
+  import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
+
   export default {
     name: 'UploadMain',
     components: {
       CountTableUpload,
-      Deseq2Upload
+      Deseq2Upload,
+      FontAwesomeIcon
     },
     data () {
       return {
         conditionName: '',
-        validCondition: null
+        validCondition: null,
+        showCollapsedConditions: false
       }
     },
     methods: {
       registerCondition () {
         let vueData = this
-        console.log(vueData.conditionName)
         vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: vueData.conditionName})
           .then(() => {
             vueData.conditionName = ''
@@ -73,6 +97,12 @@
     computed: {
       registeredConditions () {
         return this.$store.state.registeredConditions
+      },
+      faPlusCircle () {
+        return faPlusCircle
+      },
+      faMinusCircle () {
+        return faMinusCircle
       }
     }
   }
