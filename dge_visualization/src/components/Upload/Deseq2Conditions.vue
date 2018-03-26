@@ -21,8 +21,8 @@
     </b-row>
     <div style="margin: 0 auto; width: 10rem">
       <b-button @click="parseDataObject" style="float: left; margin-right: 1rem">Import files</b-button>
-      <icon name="spinner" v-if="importingFiles" pulse scale="2" class="text-secondary" style="margin-top: 0.2rem"></icon>
-      <icon name="check-circle" v-if="importingDone" scale="2" class="text-secondary" style="margin-top: 0.2rem"></icon>
+      <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary" style="margin-top: 0.1rem"></font-awesome-icon>
+      <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary" style="margin-top: 0.1rem"></font-awesome-icon>
     </div>
     <b-progress v-if="!progress.done" :value="progress.counter" :max="progress.max" animated style="margin-top: 5rem"></b-progress>
   </b-container>
@@ -32,15 +32,15 @@
   import {STORE_DESEQ2_STATISTICS} from '../../store/action_constants'
   import {ADD_FILE} from '../../store/mutation_constants'
 
-  import 'vue-awesome/icons/spinner'
-  import 'vue-awesome/icons/check-circle'
-  import Icon from 'vue-awesome/components/Icon'
+  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
+  import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
 
   export default {
     name: 'deseq2-conditions',
     props: ['files'],
     components: {
-      Icon
+      FontAwesomeIcon
     },
     data () {
       return {
@@ -108,6 +108,12 @@
       },
       registeredConditions () {
         return this.$store.state.registeredConditions
+      },
+      faSpinner () {
+        return faSpinner
+      },
+      faCheckCircle () {
+        return faCheckCircle
       }
     }
   }
