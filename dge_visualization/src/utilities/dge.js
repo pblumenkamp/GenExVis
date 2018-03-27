@@ -57,6 +57,15 @@ export class DGE {
   }
 
   /**
+   * True if gene is already in dge object
+   * @param geneName
+   * @return {boolean}
+   */
+  hasGene (geneName) {
+    return this._geneNames.has(geneName)
+  }
+
+  /**
    * Register condition pairs for fast access on all existing conditions. Also reuse existing condition pairs to save memory
    *
    * @param {ConditionPair} conditionPair
@@ -81,6 +90,46 @@ export class DGE {
     this.geneNames.add(gene.name)
     this._data[gene.name] = gene
   }
+
+  addUnnormalizedCountData (geneName, condition, values) {
+    this._addCountData(geneName, 'unnormalized', condition, values)
+  }
+
+  _addCountData (geneName, normalization, condition, values) {
+    let gene
+    if (this.hasGene(geneName)) {
+      gene = this.getGene(geneName)
+    } else {
+      gene = new Gene(geneName)
+      this._addGene(gene)
+    }
+    gene.addCountData(normalization, condition, values)
+  }
+
+  getUnnormalizedCountData (geneName, condition) {
+    return this._getCountData(geneName, 'unnormalized', condition)
+  }
+
+  _getCountData (geneName, normalization, condition) {
+    if (this.hasGene(geneName)) {
+      return this.getGene(geneName).getCountData(normalization, condition)
+    } else {
+      return []
+    }
+  }
+
+  getAllUnnormalizedCountData (geneName) {
+    return this._getAllCountData(geneName, 'unnormalized')
+  }
+
+  _getAllCountData (geneName, normalization) {
+    if (this.hasGene(geneName)) {
+      return this.getGene(geneName).getAllCountData(normalization)
+    } else {
+      return {}
+    }
+  }
+
 
   /**
    *
@@ -237,6 +286,12 @@ export class Gene {
      */
     this._name = name
     /**
+     *
+     * @type {{{string}: {{string}: {Array{number}}}} {normalizationMethod{string}: {condition{string}: values{Array{number}}}
+     * @private
+     */
+    this._countData = {}
+    /**
      * @type {Array<ConditionPair>}
      * @private
      */
@@ -276,6 +331,51 @@ export class Gene {
     }
     this._deseq2_conditionPairs.push(conditionPair)
     return conditionPair
+  }
+
+  /**
+   *
+   * @param {string} normalization
+   * @param {string} condition
+   * @param {Array<number>} values
+   */
+  addCountData (normalization, condition, values) {
+    if (!this._countData.hasOwnProperty(normalization)) {
+      this._countData[normalization] = {
+        [condition]: values
+      }
+    } else if (!this._countData[normalization].hasOwnProperty(condition)) {
+      this._countData[normalization][condition] = values
+    } else {
+      this._countData[normalization][condition] = this._countData[normalization][condition].concat(values)
+    }
+  }
+
+  /**
+   *
+   * @param {string} normalization
+   * @param {string} condition
+   * @return {Array<number>}
+   */
+  getCountData (normalization, condition) {
+    if (this._countData.hasOwnProperty(normalization) && this._countData[normalization].hasOwnProperty(condition)) {
+      return this._countData[normalization][condition]
+    } else {
+      return []
+    }
+  }
+
+  /**
+   *
+   * @param {string} normalization
+   * @return {Object<string: Array<number>>} {conditionA: [values], ...}
+   */
+  getAllCountData (normalization) {
+    if (this._countData.hasOwnProperty(normalization)) {
+      return this._countData[normalization]
+    } else {
+      return {}
+    }
   }
 
   /**
