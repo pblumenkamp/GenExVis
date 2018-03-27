@@ -130,7 +130,6 @@ export class DGE {
     }
   }
 
-
   /**
    *
    * @param {string} geneName

@@ -5,20 +5,26 @@
       <div style="margin-left: 1rem; margin-top: 1rem">
         Normalization method:
         <b-form-select v-model="selectedNormalization" style="width: auto; margin-left: 0.5rem">
-          <option v-for="norm in normalization" :value="norm">{{ norm }}</option>
+          <option v-for="norm in normalization" :value="norm.toLowerCase()">{{ norm }}</option>
         </b-form-select>
       </div>
     </div>
 
-    <div>
+    <div v-if="headerConditionMapping.length !== 0">
       <b-container>
-        <b-row v-for="{header, condition} in headerConditionMapping" :key="header" style="margin: 1rem">
+        <b-row v-for="mapping in headerConditionMapping" :key="mapping.header" style="margin: 1rem">
           <b-col style="padding-top: 0.4rem">
-            {{header}}
+            {{mapping.header}}
           </b-col>
           <b-col>
-            <b-form-select v-model="condition" :options="registeredConditions"/>
+            <b-form-select v-model="mapping.condition">
+              <option value="">-- Ignore --</option>
+              <option v-for="cond in registeredConditions" :value="cond">{{cond}}</option>
+            </b-form-select>
           </b-col>
+        </b-row>
+        <b-row>
+          <b-button @click="integrateCountTable">Import files</b-button>
         </b-row>
       </b-container>
     </div>
@@ -41,18 +47,20 @@
 </template>
 
 <script>
+  import {STORE_COUNT_TABLE} from '../../store/action_constants'
+
   export default {
     name: 'count-table-upload',
     data () {
       return {
         file: null,
-        items: [],
+        items: [],  // [{<col_name>: <value>}, ...] each list entry one row
         currentPage: 0,
         perPage: 10,
         totalRows: 0,
         uploadingFinished: false,
         normalization: ['Unnormalized', 'DESeq2'],
-        selectedNormalization: 'Unnormalized',
+        selectedNormalization: 'unnormalized',
         headerConditionMapping: []      // [{header: <string>, condition: <string>}, ...]
       }
     },
@@ -107,6 +115,21 @@
             resolve(results)
           }
           reader.readAsText(file)
+        })
+      },
+      integrateCountTable () {
+        let usedColumns = []
+        for (let mapping of this.headerConditionMapping) {
+          if (mapping.condition !== '') {
+            usedColumns.push(mapping)
+          }
+        }
+        this.$store.dispatch(STORE_COUNT_TABLE, {
+          table: this.items,
+          headerConditionMapping: usedColumns,
+          normalization: this.selectedNormalization
+        }).then(() => {
+          console.log(this.$store.state.dgeData)
         })
       }
     },

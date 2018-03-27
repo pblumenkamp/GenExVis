@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_CONDITION} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE} from './action_constants'
+import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -24,6 +24,11 @@ const store = new Vuex.Store({
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)
+    },
+    [ADD_COUNT_DATA] (state, {geneName, normalization, condition, values}) {
+      if (normalization === 'unnormalized') {
+        state.dgeData.addUnnormalizedCountData(geneName, condition, values)
+      }
     }
   },
   actions: {
@@ -53,6 +58,32 @@ const store = new Vuex.Store({
           }
         }
         commit(ADD_CONDITION, conditionName)
+        resolve()
+      })
+    },
+    [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, normalization}) {
+      return new Promise((resolve, reject) => {
+        for (let gene of table) {
+          let countData = {}
+          for (let {condition} of headerConditionMapping) {
+            if (!countData.hasOwnProperty(condition)) {
+              countData[condition] = []
+            }
+          }
+          for (let {header, condition} of headerConditionMapping) {
+            if (gene.hasOwnProperty(header)) {
+              countData[condition].push(parseFloat(gene[header]))
+            }
+          }
+          for (let cond of Object.keys(countData)) {
+            commit(ADD_COUNT_DATA, {
+              geneName: gene['Geneid'],
+              normalization: normalization,
+              condition: cond,
+              values: countData[cond]
+            })
+          }
+        }
         resolve()
       })
     }
