@@ -19,6 +19,7 @@
           <b-col>
             <b-form-select v-model="mapping.condition">
               <option value="">-- Ignore --</option>
+              <option value="$$GENE_NAME$$">-- Gene name --</option>
               <option v-for="cond in registeredConditions" :value="cond">{{cond}}</option>
             </b-form-select>
           </b-col>
@@ -70,12 +71,19 @@
         this.uploadingFinished = true
 
         this.readCountTable(vueData.file)
-          .then(({table, seqRuns}) => {
-            for (let seqRun of seqRuns) {
-              this.headerConditionMapping.push({
-                header: seqRun,
-                condition: ''
-              })
+          .then(({table, colNames}) => {
+            for (let colName of colNames) {
+              if (colName.toLowerCase() === 'geneid') {
+                this.headerConditionMapping.push({
+                  header: colName,
+                  condition: '$$GENE_NAME$$'
+                })
+              } else {
+                this.headerConditionMapping.push({
+                  header: colName,
+                  condition: ''
+                })
+              }
             }
             this.totalRows = table.length
             this.items = table
@@ -100,7 +108,7 @@
               content.pop()
             }
             let header = content[0].split('\t')
-            let results = {table: [], seqRuns: header.slice(6)}
+            let results = {table: [], colNames: header}
 
             for (let i = 1, contentLength = content.length; i < contentLength; i++) {
               let entry = content[i].split('\t')
@@ -119,14 +127,20 @@
       },
       integrateCountTable () {
         let usedColumns = []
+        let geneColumn = ''
         for (let mapping of this.headerConditionMapping) {
           if (mapping.condition !== '') {
-            usedColumns.push(mapping)
+            if (mapping.condition === '$$GENE_NAME$$') {
+              geneColumn = mapping.header
+            } else {
+              usedColumns.push(mapping)
+            }
           }
         }
         this.$store.dispatch(STORE_COUNT_TABLE, {
           table: this.items,
           headerConditionMapping: usedColumns,
+          geneColumn: geneColumn,
           normalization: this.selectedNormalization
         }).then(() => {
           console.log(this.$store.state.dgeData)

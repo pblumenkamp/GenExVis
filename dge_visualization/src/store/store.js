@@ -61,7 +61,7 @@ const store = new Vuex.Store({
         resolve()
       })
     },
-    [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, normalization}) {
+    [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, geneColumn, normalization}) {
       return new Promise((resolve, reject) => {
         for (let gene of table) {
           let countData = {}
@@ -77,7 +77,7 @@ const store = new Vuex.Store({
           }
           for (let cond of Object.keys(countData)) {
             commit(ADD_COUNT_DATA, {
-              geneName: gene['Geneid'],
+              geneName: gene[geneColumn],
               normalization: normalization,
               condition: cond,
               values: countData[cond]
