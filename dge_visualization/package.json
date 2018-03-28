@@ -13,8 +13,8 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "@fortawesome/fontawesome": "^1.1.4",
-    "@fortawesome/fontawesome-free-solid": "^5.0.8",
+    "@fortawesome/fontawesome": "^1.1.5",
+    "@fortawesome/fontawesome-free-solid": "^5.0.9",
     "@fortawesome/vue-fontawesome": "0.0.22",
     "bootstrap": "^4.0.0",
     "bootstrap-vue": "^2.0.0-rc.2",
@@ -75,10 +75,10 @@
     "style-loader": "^0.20.3",
     "url-loader": "^1.0.1",
     "vue-jest": "^2.3.0",
-    "vue-loader": "^14.2.1",
+    "vue-loader": "^14.2.2",
     "vue-style-loader": "^4.1.0",
     "vue-template-compiler": "^2.5.16",
-    "webpack": "^4.2.0",
+    "webpack": "^4.3.0",
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-dev-server": "^3.1.1",
     "webpack-merge": "^4.1.2"
