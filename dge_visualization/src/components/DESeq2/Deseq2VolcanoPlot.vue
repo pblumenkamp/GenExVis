@@ -132,9 +132,6 @@
               },
 
               tooltip: {
-                //               formatter: function () {
-//                  return this.point.name
-//                }
                 headerFormat: '',
                 pointFormat: '<b>{point.gene}</b><br>log2 fold change: {point.x:.3f}<br>' +
                 ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ': {point.yTooltip}'
