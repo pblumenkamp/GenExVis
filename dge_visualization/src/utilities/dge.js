@@ -95,6 +95,10 @@ export class DGE {
     this._addCountData(geneName, 'unnormalized', condition, values)
   }
 
+  addDeseq2CountData (geneName, condition, values) {
+    this._addCountData(geneName, 'deseq2', condition, values)
+  }
+
   _addCountData (geneName, normalization, condition, values) {
     let gene
     if (this.hasGene(geneName)) {
@@ -110,6 +114,10 @@ export class DGE {
     return this._getCountData(geneName, 'unnormalized', condition)
   }
 
+  getDeseq2CountData (geneName, condition) {
+    return this._getCountData(geneName, 'deseq2', condition)
+  }
+
   _getCountData (geneName, normalization, condition) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getCountData(normalization, condition)
@@ -120,6 +128,10 @@ export class DGE {
 
   getAllUnnormalizedCountData (geneName) {
     return this._getAllCountData(geneName, 'unnormalized')
+  }
+
+  getAllDeseq2CountData (geneName) {
+    return this._getAllCountData(geneName, 'deseq2')
   }
 
   _getAllCountData (geneName, normalization) {

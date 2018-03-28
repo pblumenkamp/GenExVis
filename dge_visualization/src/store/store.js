@@ -28,6 +28,8 @@ const store = new Vuex.Store({
     [ADD_COUNT_DATA] (state, {geneName, normalization, condition, values}) {
       if (normalization === 'unnormalized') {
         state.dgeData.addUnnormalizedCountData(geneName, condition, values)
+      } else if (normalization === 'deseq2') {
+        state.dgeData.addDeseq2CountData(geneName, condition, values)
       }
     }
   },
