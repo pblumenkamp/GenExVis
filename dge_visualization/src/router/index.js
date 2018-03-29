@@ -4,11 +4,8 @@ import MainBody from '@/components/MainBody'
 import Deseq2Main from '@/components/DESeq2/Deseq2Main'
 import Deseq2Upload from '@/components/DESeq2/Deseq2Upload'
 import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
-<<<<<<< HEAD
-import Deseq2OverviewTEST from '@/components/DESeq2/Deseq2OverviewTEST'
+// import Deseq2OverviewTEST from '@/components/DESeq2/Deseq2OverviewTEST'
 import RichGridExample from '@/components/DESeq2/RichGridExample'
-=======
->>>>>>> origin/development
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
 import MaSigPro from '@/components/MaSigPro'
 
@@ -38,19 +35,11 @@ export default new Router({
           component: Deseq2Overview
         },
         {
-<<<<<<< HEAD
-          path: 'overviewTEST',
-          name: 'Deseq2_overviewTEST',
-          component: Deseq2OverviewTEST
-        },
-        {
           path: 'richgrid',
           name: 'RichGrid',
           component: RichGridExample
         },
         {
-=======
->>>>>>> origin/development
           path: 'volcano_plot',
           name: 'Deseq2_volcano_plot',
           component: Deseq2VolcanoPlot

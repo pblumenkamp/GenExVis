@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h1>
-      Volcano Plot
-    </h1>
+    <h1>Volcano Plot</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
