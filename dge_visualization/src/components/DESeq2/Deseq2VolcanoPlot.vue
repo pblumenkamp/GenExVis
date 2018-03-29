@@ -25,16 +25,15 @@
 
       <b-container fluid>
         <b-row class="my-1">
-          <b-col sm="3"><label>p-value threshold</label></b-col>
-          <b-col sm="9"><b-form-input type="number" v-model="pThreshold" step="0.001" max="1" min="0" style="width: auto;" @change="updatePThreshold"></b-form-input></b-col>
+          <b-col sm="3"><label style="margin-top: 0.4rem;">p-value threshold</label></b-col>
+          <b-col sm="9"><b-form-input type="number" v-model="inputPThreshold" step="0.001" max="1" min="0" style="width: 10rem;" @change="updatePThreshold"></b-form-input></b-col>
+        </b-row>
+        <b-row class="my-1">
           <b-col sm="3"><label>use adjusted p-value</label></b-col>
-          <b-col sm="9"><b-form-checkbox v-model="useAdjPValue" @input="drawData"></b-form-checkbox></b-col>
+          <b-col sm="9"><b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox></b-col>
         </b-row>
       </b-container>
-
-
     </div>
-
   </div>
 </template>
 
@@ -49,7 +48,7 @@
       return {
         selectedCondition1: '',
         selectedCondition2: '',
-        pThreshold: 0.01,
+        inputPThreshold: '0.01',
         useAdjPValue: false,
         options: {}
       }
@@ -133,20 +132,21 @@
 
               tooltip: {
                 headerFormat: '',
-                pointFormat: '<b>{point.gene}</b><br>log2 fold change: {point.x:.3f}<br>' +
+                pointFormat: '<b>{point.gene}</b><br>' +
+                'log2 fold change: {point.x:.3f}<br>' +
                 ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ': {point.yTooltip}'
               }
             }
           },
           series: [{
-            name: '|log2 fold change| >= 2 AND p-value >= ' + this.pThreshold,
+            name: '|log2 fold change| >= 2 AND p-value <= ' + this.pThreshold.toExponential(2),
             color: '#cc1926',
             zIndex: 2,
             id: 0,
             data: [{gene: 'abc', x: 0, y: 0}]
           },
           {
-            name: '|log2 fold change| >= 2 OR p-value >= ' + this.pThreshold,
+            name: '|log2 fold change| >= 2 OR p-value <= ' + this.pThreshold.toExponential(2),
             color: '#ccc223',
             zIndex: 1,
             id: 1,
@@ -236,6 +236,9 @@
           }
         }
         return conditions2
+      },
+      pThreshold () {
+        return parseFloat(this.inputPThreshold)
       }
     }
   }
