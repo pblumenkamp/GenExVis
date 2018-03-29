@@ -5,6 +5,7 @@ import UploadMain from '@/components/Upload/UploadMain'
 import Deseq2Main from '@/components/DESeq2/Deseq2Main'
 import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
+import Deseq2MAPlot from '@/components/DESeq2/Deseq2MAPlot'
 import MaSigPro from '@/components/MaSigPro'
 
 Vue.use(Router)
@@ -36,6 +37,11 @@ export default new Router({
           path: 'volcano_plot',
           name: 'Deseq2_volcano_plot',
           component: Deseq2VolcanoPlot
+        },
+        {
+          path: 'ma_plot',
+          name: 'Deseq2_ma_plot',
+          component: Deseq2MAPlot
         }
       ]
     },
