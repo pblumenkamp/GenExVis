@@ -49,7 +49,7 @@
         selectedCondition1: '',
         selectedCondition2: '',
         options: {},
-        inputPThreshold: '0.01',
+        inputPThreshold: '0.001',
         useAdjPValue: false
       }
     },

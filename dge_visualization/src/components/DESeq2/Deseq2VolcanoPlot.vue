@@ -48,7 +48,7 @@
       return {
         selectedCondition1: '',
         selectedCondition2: '',
-        inputPThreshold: '0.01',
+        inputPThreshold: '0.001',
         useAdjPValue: false,
         options: {}
       }
