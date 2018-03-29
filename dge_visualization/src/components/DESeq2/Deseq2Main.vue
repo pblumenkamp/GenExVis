@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
   <div style="width: 100%; height: 100%">
     <b-container fluid>
       <b-row rows="12">
@@ -6,7 +7,6 @@
           <b-nav vertical class="deseq2Navbar">
             <b-nav-item to="/deseq2/upload">Upload</b-nav-item>
             <b-nav-item to="/deseq2/overview">Overview</b-nav-item>
-            <b-nav-item to="/deseq2/overviewTEST">OverviewTEST</b-nav-item>
             <b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>
             <b-nav-item to="/deseq2/richgrid">Rich Grid?</b-nav-item>
           </b-nav>
@@ -27,6 +27,22 @@
     </b-container>
   </div>
 
+=======
+  <b-container fluid >
+    <b-row>
+      <b-col class="col" cols="1">
+        <b-nav vertical class="deseq2Navbar">
+          <b-nav-item to="/deseq2/upload">Upload</b-nav-item>
+          <b-nav-item to="/deseq2/overview">Overview</b-nav-item>
+          <b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>
+        </b-nav>
+      </b-col>
+      <b-col>
+        <router-view/>
+      </b-col>
+    </b-row>
+  </b-container>
+>>>>>>> origin/development
 </template>
 
 <script>
@@ -36,10 +52,13 @@
 </script>
 
 <style>
+<<<<<<< HEAD
   .col {
     border: 1px solid limegreen;
     height: 500px;
   }
+=======
+>>>>>>> origin/development
   .deseq2Navbar {
     height: 100%; /* 100% Full-height */
     position: fixed; /* Stay in place */
