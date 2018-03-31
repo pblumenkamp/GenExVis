@@ -36,7 +36,7 @@
     </div>
 
     <div style="clear: both;"></div>
-    <ag-grid-vue style="width: 100%; height: 500px;" class="ag-fresh"
+    <ag-grid-vue style="width: 100%; height: 500px;" class="ag-fresh" align="left"
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
@@ -83,11 +83,11 @@
 <script>
 import {AgGridVue} from 'ag-grid-vue'
 
-import {ProficiencyFilter} from './proficiencyFilter'
+// import {ProficiencyFilter} from './proficiencyFilter'
 // import {SkillFilter} from './skillFilter'
 import DateComponent from './DateComponent.vue'
-import HeaderGroupComponent from './HeaderGroupComponent.vue'
-import RefData from './refData'
+// import HeaderGroupComponent from './HeaderGroupComponent.vue'
+// import RefData from './refData'
 
 export default {
   data () {
@@ -104,43 +104,54 @@ export default {
   },
   methods: {
     createRowData () {
-      // const rowData1 = []
-      // let store = this.$store.state.dgeData._data
-      // for (let gene in store) {
-      //   rowData1.push({
-      //     name: gene
+      const rowData1 = []
+      let store = this.$store.state.dgeData._data
+      for (let gene in store) {
+        var dict = {}
+        dict.name = store[gene]._name
+        let list = store[gene]._deseq2_analyses
+        for (let entry in list) {
+          let subentry = list[entry]
+          for (let element in subentry) {
+            dict[element] = subentry[element]
+          }
+          console.log(dict)
+          // console.log(superentry)
+          // dict._baseMean = superentry._baseMean
+          // dict._lfcSE = superentry._lfcSE
+          // dict._log2FoldChange = superentry._log2FoldChange
+        }
+        rowData1.push(dict)
+      }
+      // const rowData2 = []
+      // for (let i = 0; i < 200; i++) {
+      //   const countryData = RefData.COUNTRIES[i % RefData.COUNTRIES.length]
+      //   rowData2.push({
+      //     name: RefData.FIRST_NAMES[i % RefData.FIRST_NAMES.length] + ' ' + RefData.LAST_NAMES[i % RefData.LAST_NAMES.length],
+      //     // skills: {
+      //     //   android: Math.random() < 0.4,
+      //     //   html5: Math.random() < 0.4,
+      //     //   mac: Math.random() < 0.4,
+      //     //   windows: Math.random() < 0.4,
+      //     //   css: Math.random() < 0.4
+      //     // },
+      //     dob: RefData.DOBs[i % RefData.DOBs.length],
+      //     address: RefData.ADDRESSES[i % RefData.ADDRESSES.length],
+      //     years: Math.round(Math.random() * 100),
+      //     proficiency: Math.round(Math.random() * 100),
+      //     country: countryData.language,
+      //     continent: countryData.continent,
+      //     language: countryData.country,
+      //     mobile: createRandomPhoneNumber(),
+      //     landline: createRandomPhoneNumber()
       //   })
       // }
-
-      const rowData2 = []
-      for (let i = 0; i < 200; i++) {
-        const countryData = RefData.COUNTRIES[i % RefData.COUNTRIES.length]
-        rowData2.push({
-          name: RefData.FIRST_NAMES[i % RefData.FIRST_NAMES.length] + ' ' + RefData.LAST_NAMES[i % RefData.LAST_NAMES.length],
-          // skills: {
-          //   android: Math.random() < 0.4,
-          //   html5: Math.random() < 0.4,
-          //   mac: Math.random() < 0.4,
-          //   windows: Math.random() < 0.4,
-          //   css: Math.random() < 0.4
-          // },
-          dob: RefData.DOBs[i % RefData.DOBs.length],
-          address: RefData.ADDRESSES[i % RefData.ADDRESSES.length],
-          years: Math.round(Math.random() * 100),
-          proficiency: Math.round(Math.random() * 100),
-          country: countryData.language,
-          continent: countryData.continent,
-          language: countryData.country,
-          mobile: createRandomPhoneNumber(),
-          landline: createRandomPhoneNumber()
-        })
-      }
-      this.rowData = rowData2
+      this.rowData = rowData1
     },
     createColumnDefs () {
-      this.columnDefs = [
+      const columnDefs = [
         {
-          headerName: '#',
+          headerName: '',
           width: 30,
           checkboxSelection: true,
           suppressSorting: true,
@@ -148,66 +159,84 @@ export default {
           pinned: true
         },
         {
-          headerName: 'Employee',
-          headerGroupComponentFramework: HeaderGroupComponent,
-          children: [
-            {
-              headerName: 'Name',
-              field: 'name',
-              width: 150,
-              pinned: true
-            },
-            {
-              headerName: 'Country',
-              field: 'country',
-              width: 150,
-              cellRenderer: countryCellRenderer,
-              pinned: true,
-              filterParams: {cellRenderer: countryCellRenderer, cellHeight: 20}
-            },
-            {
-              headerName: 'DOB',
-              field: 'dob',
-              width: 120,
-              pinned: true,
-              cellRenderer: (params) => {
-                return this.pad(params.value.getDate(), 2) + '/' +
-                                        this.pad(params.value.getMonth() + 1, 2) + '/' +
-                                        params.value.getFullYear()
-              },
-              filter: 'date',
-              columnGroupShow: 'open'
-            }
-          ]
-        },
-        {
-          headerName: 'IT Skills',
-          children: [
-            // {
-            //   headerName: 'Skills',
-            //   width: 125,
-            //   suppressSorting: true,
-            //   cellRenderer: skillsCellRenderer,
-            //   filter: SkillFilter
-            // },
-            {
-              headerName: 'Proficiency',
-              field: 'proficiency',
-              width: 120,
-              cellRenderer: percentCellRenderer,
-              filter: ProficiencyFilter
-            }
-          ]
-        },
-        {
-          headerName: 'Contact',
-          children: [
-                            {headerName: 'Mobile', field: 'mobile', width: 150, filter: 'text'},
-                            {headerName: 'Land-line', field: 'landline', width: 150, filter: 'text'},
-                            {headerName: 'Address', field: 'address', width: 500, filter: 'text'}
-          ]
+          headerName: 'Name',
+          field: 'name',
+          width: 150,
+          pinned: true
         }
+        // {
+        //   headerName: 'Employee',
+        //   headerGroupComponentFramework: HeaderGroupComponent,
+        //   children: [
+        //     {
+        //       headerName: 'Name',
+        //       field: 'name',
+        //       width: 150,
+        //       pinned: true
+        //     },
+        //     {
+        //       headerName: 'DOB',
+        //       field: 'dob',
+        //       width: 120,
+        //       pinned: true,
+        //       cellRenderer: (params) => {
+        //         return this.pad(params.value.getDate(), 2) + '/' +
+        //                                 this.pad(params.value.getMonth() + 1, 2) + '/' +
+        //                                 params.value.getFullYear()
+        //       },
+        //       filter: 'date',
+        //       columnGroupShow: 'open'
+        //     }
+        //   ]
+        // }
       ]
+      let filestore = this.$store.state.filelist
+      // let datastore = this.$store.state.dgeData._data
+      // let testdict = {}
+      for (let entry in filestore) {
+        columnDefs.push(
+          {
+            headerName: filestore[entry],
+            children: [
+              {
+                headerName: 'base mean',
+                field: '_baseMean',
+                width: 150
+              },
+              {
+                headerName: 'lfcSE',
+                field: '_lfcSE',
+                width: 150
+              },
+              {
+                headerName: 'log2 fold change',
+                field: '_log2FoldChange',
+                width: 150,
+                columnGroupShow: 'open'
+              },
+              {
+                headerName: 'p value',
+                field: '_pValue',
+                width: 150,
+                columnGroupShow: 'open'
+              },
+              {
+                headerName: 'p value (adjusted)',
+                field: '_pAdj',
+                width: 150,
+                columnGroupShow: 'open'
+              },
+              {
+                headerName: 'stat',
+                field: '_stat',
+                width: 150,
+                columnGroupShow: 'open'
+              }
+            ]
+          }
+        )
+      }
+      this.columnDefs = columnDefs
     },
     pad (num, totalStringSize) {
       let asString = num + ''
@@ -322,53 +351,62 @@ export default {
 //   return skills.join(' ')
 // }
 
-function countryCellRenderer (params) {
-  let flag = "<img border='0' width='15' height='10' style='margin-bottom: 2px' src='images/flags/" + RefData.COUNTRY_CODES[params.value] + ".png'>"
-  return flag + ' ' + params.value
-}
+// function countryCellRenderer (params) {
+//   let flag = "<img border='0' width='15' height='10' style='margin-bottom: 2px' src='images/flags/" + RefData.COUNTRY_CODES[params.value] + ".png'>"
+//   return flag + ' ' + params.value
+// }
 
-function createRandomPhoneNumber () {
-  let result = '+'
-  for (let i = 0; i < 12; i++) {
-    result += Math.round(Math.random() * 10)
-    if (i === 2 || i === 5 || i === 8) {
-      result += ' '
-    }
-  }
-  return result
-}
-function percentCellRenderer (params) {
-  let value = params.value
+// function createRandomPhoneNumber () {
+//   let result = '+'
+//   for (let i = 0; i < 12; i++) {
+//     result += Math.round(Math.random() * 10)
+//     if (i === 2 || i === 5 || i === 8) {
+//       result += ' '
+//     }
+//   }
+//   return result
+// }
 
-  let eDivPercentBar = document.createElement('div')
-  eDivPercentBar.className = 'div-percent-bar'
-  eDivPercentBar.style.width = value + '%'
-  if (value < 20) {
-    eDivPercentBar.style.backgroundColor = 'red'
-  } else if (value < 60) {
-    eDivPercentBar.style.backgroundColor = '#ff9900'
-  } else {
-    eDivPercentBar.style.backgroundColor = '#00A000'
-  }
-  let eValue = document.createElement('div')
-  eValue.className = 'div-percent-value'
-  eValue.innerHTML = value + '%'
-  let eOuterDiv = document.createElement('div')
-  eOuterDiv.className = 'div-outer-div'
-  eOuterDiv.appendChild(eValue)
-  eOuterDiv.appendChild(eDivPercentBar)
-  return eOuterDiv
-}
+// function percentCellRenderer (params) {
+//   let value = params.value
+//
+//   let eDivPercentBar = document.createElement('div')
+//   eDivPercentBar.className = 'div-percent-bar'
+//   eDivPercentBar.style.width = value + '%'
+//   if (value < 20) {
+//     eDivPercentBar.style.backgroundColor = 'red'
+//   } else if (value < 60) {
+//     eDivPercentBar.style.backgroundColor = '#ff9900'
+//   } else {
+//     eDivPercentBar.style.backgroundColor = '#00A000'
+//   }
+//   let eValue = document.createElement('div')
+//   eValue.className = 'div-percent-value'
+//   eValue.innerHTML = value + '%'
+//   let eOuterDiv = document.createElement('div')
+//   eOuterDiv.className = 'div-outer-div'
+//   eOuterDiv.appendChild(eValue)
+//   eOuterDiv.appendChild(eDivPercentBar)
+//   return eOuterDiv
+// }
 </script>
 
 <style>
     .ag-cell {
         padding-top: 2px !important;
         padding-bottom: 2px !important;
+        text-align: center;
+    }
+
+    .customHeaderLabel {
+        margin-right: 5px;
+        margin-top: 3px;
+        float: right;
     }
 
     label {
         font-weight: normal !important;
+        text-align: right;
     }
 
     .div-percent-bar {
@@ -394,5 +432,6 @@ function percentCellRenderer (params) {
 
     .ag-menu {
         z-index: 200;
+        text-align-all: center;
     }
 </style>
