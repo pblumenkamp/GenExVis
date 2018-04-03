@@ -27,7 +27,7 @@ export default new Router({
     {
       path: '/countdata',
       redirect: {name: 'CountData_GeneCountHM'},
-      name: 'Deseq2',
+      name: 'CountData',
       component: CountDataMain,
       children: [
         {
