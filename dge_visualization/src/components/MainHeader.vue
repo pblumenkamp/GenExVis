@@ -16,6 +16,9 @@
           <b-dropdown-item to="/upload">
             Upload
           </b-dropdown-item>
+          <b-dropdown-item to="/countdata">
+            Count data
+          </b-dropdown-item>
           <b-dropdown-item to="/deseq2">
             DESeq2
           </b-dropdown-item>
