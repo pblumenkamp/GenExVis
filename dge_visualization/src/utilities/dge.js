@@ -110,15 +110,15 @@ export class DGE {
     gene.addCountData(normalization, condition, values)
   }
 
-  getUnnormalizedCountData (geneName, condition) {
-    return this._getCountData(geneName, 'unnormalized', condition)
+  getUnnormalizedCountDataToGene (geneName, condition) {
+    return this._getCountDataToGene(geneName, 'unnormalized', condition)
   }
 
-  getDeseq2CountData (geneName, condition) {
-    return this._getCountData(geneName, 'deseq2', condition)
+  getDeseq2CountDataToGene (geneName, condition) {
+    return this._getCountDataToGene(geneName, 'deseq2', condition)
   }
 
-  _getCountData (geneName, normalization, condition) {
+  _getCountDataToGene (geneName, normalization, condition) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getCountData(normalization, condition)
     } else {
@@ -126,20 +126,40 @@ export class DGE {
     }
   }
 
-  getAllUnnormalizedCountData (geneName) {
-    return this._getAllCountData(geneName, 'unnormalized')
+  getAllUnnormalizedCountDataToGene (geneName) {
+    return this._getAllCountDataToGene(geneName, 'unnormalized')
   }
 
-  getAllDeseq2CountData (geneName) {
-    return this._getAllCountData(geneName, 'deseq2')
+  getAllDeseq2CountDataToGene (geneName) {
+    return this._getAllCountDataToGene(geneName, 'deseq2')
   }
 
-  _getAllCountData (geneName, normalization) {
+  _getAllCountDataToGene (geneName, normalization) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getAllCountData(normalization)
     } else {
       return {}
     }
+  }
+
+  getAllUnnormalizedCountData (condition) {
+    return this._getCountData('unnormalized', condition)
+  }
+
+  getAllDeseq2CountData (condition) {
+    return this._getCountData('deseq2', condition)
+  }
+
+  _getCountData (normalization, condition) {
+    let countData = {}
+    for (let geneName of this.geneNames) {
+      let counts = this.getGene(geneName).getCountData(normalization, condition)
+      if (Object.keys(counts).length !== 0) {
+        countData[geneName] = counts
+      }
+    }
+
+    return countData
   }
 
   /**
