@@ -9,6 +9,17 @@ describe('Tests with empty DGE object', () => {
     }).toThrow()
   })
 
+  test('check size of dge', () => {
+    let dge = new DGE()
+    expect(dge.size).toBe(0)
+    dge.addDESeq2Data('gene_1', 'wt', 'mut', 100, 2, 0.1, 0.2, 0.001, 0.002)
+    expect(dge.size).toBe(1)
+    dge.addDESeq2Data('gene_1', 'wt', 'mut2', 100, 2, 0.1, 0.2, 0.001, 0.002)
+    expect(dge.size).toBe(1)
+    dge.addDESeq2Data('gene_2', 'wt', 'mut', 100, 2, 0.1, 0.2, 0.001, 0.002)
+    expect(dge.size).toBe(2)
+  })
+
   test('merge two DGEs with the same gene and the same condition', () => {
     let dge1 = new DGE()
     dge1.addDESeq2Data('gene_1', 'wt', 'mut', 100, 2, 0.1, 0.2, 0.001, 0.002)
@@ -54,39 +65,62 @@ describe('Tests with empty DGE object', () => {
 
   test('add count data', () => {
     let dge = new DGE()
-    dge.addUnnormalizedCountData('gene_1', 'WT', [1, 10, 100])
-    dge.addUnnormalizedCountData('gene_2', 'WT', [2, 20, 200])
-    dge.addUnnormalizedCountData('gene_1', 'Mut', [10, 100, 1000])
-    dge.addUnnormalizedCountData('gene_2', 'Mut', [20, 200, 2000])
-    dge.addDeseq2CountData('gene_1', 'WT', [3, 30, 300])
-    dge.addDeseq2CountData('gene_2', 'WT', [4, 40, 400])
-    dge.addDeseq2CountData('gene_1', 'Mut', [30, 300, 3000])
-    dge.addDeseq2CountData('gene_2', 'Mut', [40, 400, 4000])
+    dge.addUnnormalizedCountData('gene_1', 'WT', {a:1, b:10, c:100})
+    dge.addUnnormalizedCountData('gene_2', 'WT', {a:2, b:20, c:200})
+    dge.addUnnormalizedCountData('gene_1', 'Mut', {d:10, e:100, f:1000})
+    dge.addUnnormalizedCountData('gene_2', 'Mut', {d:20, e:200, f:2000})
+    dge.addDeseq2CountData('gene_1', 'WT', {a:3, b:30, c:300})
+    dge.addDeseq2CountData('gene_2', 'WT', {a:4, b:40, c:400})
+    dge.addDeseq2CountData('gene_1', 'Mut', {d:30, e:300, f:3000})
+    dge.addDeseq2CountData('gene_2', 'Mut', {d:40, e:400, f:4000})
 
-    expect(dge.getUnnormalizedCountData('gene_1', 'WT')).toEqual([1, 10, 100])
-    expect(dge.getUnnormalizedCountData('gene_2', 'WT')).toEqual([2, 20, 200])
-    expect(dge.getUnnormalizedCountData('gene_1', 'Mut')).toEqual([10, 100, 1000])
-    expect(dge.getUnnormalizedCountData('gene_2', 'Mut')).toEqual([20, 200, 2000])
-    expect(dge.getDeseq2CountData('gene_1', 'WT')).toEqual([3, 30, 300])
-    expect(dge.getDeseq2CountData('gene_2', 'WT')).toEqual([4, 40, 400])
-    expect(dge.getDeseq2CountData('gene_1', 'Mut')).toEqual([30, 300, 3000])
-    expect(dge.getDeseq2CountData('gene_2', 'Mut')).toEqual([40, 400, 4000])
+    expect(dge.getUnnormalizedCountData('gene_1', 'WT')).toEqual({a:1, b:10, c:100})
+    expect(dge.getUnnormalizedCountData('gene_2', 'WT')).toEqual({a:2, b:20, c:200})
+    expect(dge.getUnnormalizedCountData('gene_1', 'Mut')).toEqual({d:10, e:100, f:1000})
+    expect(dge.getUnnormalizedCountData('gene_2', 'Mut')).toEqual({d:20, e:200, f:2000})
+    expect(dge.getDeseq2CountData('gene_1', 'WT')).toEqual({a:3, b:30, c:300})
+    expect(dge.getDeseq2CountData('gene_2', 'WT')).toEqual({a:4, b:40, c:400})
+    expect(dge.getDeseq2CountData('gene_1', 'Mut')).toEqual({d:30, e:300, f:3000})
+    expect(dge.getDeseq2CountData('gene_2', 'Mut')).toEqual({d:40, e:400, f:4000})
+
+    expect(dge.getUnnormalizedCountData('gene_10', 'Mut')).toEqual({})
+    expect(dge.getDeseq2CountData('gene_10', 'Mut')).toEqual({})
+    expect(dge.getUnnormalizedCountData('gene_2', 'XYZ')).toEqual({})
+    expect(dge.getDeseq2CountData('gene_2', 'XYZ')).toEqual({})
 
     expect(dge.getAllUnnormalizedCountData('gene_1')).toEqual({
-      'WT': [1, 10, 100],
-      'Mut': [10, 100, 1000]
+      'WT': {a:1, b:10, c:100},
+      'Mut': {d:10, e:100, f:1000}
     })
     expect(dge.getAllUnnormalizedCountData('gene_2')).toEqual({
-      'WT': [2, 20, 200],
-      'Mut': [20, 200, 2000]
+      'WT': {a:2, b:20, c:200},
+      'Mut': {d:20, e:200, f:2000}
     })
     expect(dge.getAllDeseq2CountData('gene_1')).toEqual({
-      'WT': [3, 30, 300],
-      'Mut': [30, 300, 3000]
+      'WT': {a:3, b:30, c:300},
+      'Mut': {d:30, e:300, f:3000}
     })
     expect(dge.getAllDeseq2CountData('gene_2')).toEqual({
-      'WT': [4, 40, 400],
-      'Mut': [40, 400, 4000]
+      'WT': {a:4, b:40, c:400},
+      'Mut': {d:40, e:400, f:4000}
+    })
+
+    expect(dge.getAllUnnormalizedCountData('gene_10')).toEqual({})
+    expect(dge.getAllDeseq2CountData('gene_10')).toEqual({})
+
+    // extend values
+    dge.addUnnormalizedCountData('gene_1', 'WT', {x:1, y:10, z:100})
+    expect(dge.getUnnormalizedCountData('gene_1', 'WT')).toEqual({a:1, b:10, c:100, x:1, y:10, z:100})
+    expect(dge.getAllUnnormalizedCountData('gene_1')).toEqual({
+      'WT': {a:1, b:10, c:100, x:1, y:10, z:100},
+      'Mut': {d:10, e:100, f:1000}
+    })
+
+    dge.addDeseq2CountData('gene_1', 'Mut', {x:1, y:10, z:100})
+    expect(dge.getDeseq2CountData('gene_1', 'Mut')).toEqual({d:30, e:300, f:3000, x:1, y:10, z:100})
+    expect(dge.getAllDeseq2CountData('gene_1')).toEqual({
+      'WT': {a:3, b:30, c:300},
+      'Mut': {d:30, e:300, f:3000, x:1, y:10, z:100}
     })
   })
 })

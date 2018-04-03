@@ -122,7 +122,7 @@ export class DGE {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getCountData(normalization, condition)
     } else {
-      return []
+      return {}
     }
   }
 
@@ -348,7 +348,7 @@ export class Gene {
    *
    * @param {string} normalization
    * @param {string} condition
-   * @param {Array<number>} values
+   * @param {Object<string: number>} values as {seqRun_name: count}
    */
   addCountData (normalization, condition, values) {
     if (!this._countData.hasOwnProperty(normalization)) {
@@ -358,7 +358,7 @@ export class Gene {
     } else if (!this._countData[normalization].hasOwnProperty(condition)) {
       this._countData[normalization][condition] = values
     } else {
-      this._countData[normalization][condition] = this._countData[normalization][condition].concat(values)
+      this._countData[normalization][condition] = Object.assign(this._countData[normalization][condition], values)
     }
   }
 
@@ -372,7 +372,7 @@ export class Gene {
     if (this._countData.hasOwnProperty(normalization) && this._countData[normalization].hasOwnProperty(condition)) {
       return this._countData[normalization][condition]
     } else {
-      return []
+      return {}
     }
   }
 

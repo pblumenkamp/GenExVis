@@ -67,14 +67,16 @@ const store = new Vuex.Store({
       return new Promise((resolve, reject) => {
         for (let gene of table) {
           let countData = {}
+          // get all conditions
           for (let {condition} of headerConditionMapping) {
             if (!countData.hasOwnProperty(condition)) {
-              countData[condition] = []
+              countData[condition] = {}
             }
           }
+          // fill conditions with values
           for (let {header, condition} of headerConditionMapping) {
             if (gene.hasOwnProperty(header)) {
-              countData[condition].push(parseFloat(gene[header]))
+              countData[condition][header] = parseFloat(gene[header])
             }
           }
           for (let cond of Object.keys(countData)) {
