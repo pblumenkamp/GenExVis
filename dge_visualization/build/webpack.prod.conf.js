@@ -41,7 +41,16 @@ const webpackConfig = merge(baseWebpackConfig, {
         },
         sourceMap: config.build.productionSourceMap,
         parallel: true
-      })]
+      })],
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendor",
+          chunks: "initial"
+        }
+      }
+    }
   },
   plugins: [
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
