@@ -18,9 +18,10 @@
       <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
     </b-form-select>
 
-    <div v-if="selectedCondition1 && selectedCondition2">
-      <highcharts :options="options" ref="highcharts" style="width: 60%; margin: auto;"></highcharts>
+    <div id="deseq2volcanoplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+      <!--<highcharts :options="options" ref="highcharts" style="width: 60%; margin: auto;"></highcharts>-->
 
+    <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
 
       <b-container fluid>
@@ -40,6 +41,8 @@
 <script>
   import {ConditionPair} from '@/utilities/dge'
 
+  var Highcharts = require('highcharts')
+
   const AXIS_COLOR = '#000000'
 
   export default {
@@ -49,13 +52,12 @@
         selectedCondition1: '',
         selectedCondition2: '',
         inputPThreshold: '0.001',
-        useAdjPValue: false,
-        options: {}
+        useAdjPValue: false
       }
     },
     methods: {
       drawData () {
-        this.options = {
+        let options = {
           chart: {
             type: 'scatter',
             zoomType: 'xy'
@@ -161,7 +163,7 @@
           }]
         }
 
-        let series = this.options.series
+        let series = options.series
 
         series[0].data = []
         series[1].data = []
@@ -180,13 +182,15 @@
           }
 
           if (Math.abs(dataPoint.x) >= 2 && dataPoint.y >= logPThreshold) {
-            this.options.series[0].data.push(dataPoint)
+            options.series[0].data.push(dataPoint)
           } else if (Math.abs(dataPoint.x) >= 2 || dataPoint.y >= logPThreshold) {
-            this.options.series[1].data.push(dataPoint)
+            options.series[1].data.push(dataPoint)
           } else {
-            this.options.series[2].data.push(dataPoint)
+            options.series[2].data.push(dataPoint)
           }
         }
+
+        Highcharts.chart('deseq2volcanoplot_highcharts', options)
       },
       updatePThreshold () {
         this.drawData()

@@ -48,7 +48,7 @@
 </template>
 
 <script>
-  import {STORE_COUNT_TABLE} from '../../store/action_constants'
+  import {STORE_COUNT_TABLE} from '@/store/action_constants'
 
   export default {
     name: 'count-table-upload',
