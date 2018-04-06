@@ -1,8 +1,8 @@
+image: node:latest
+
+before_script:
+  - apt-get update -qq && apt-get upgrade -qq -y
+
 test:
   script:
-  - apt-get update -qq && apt-get install -y -qq nodejs
-  - cd dge_visualization
-  - npm install
-  - npm run build
-  only:
-  - development
+  - echo "test"
