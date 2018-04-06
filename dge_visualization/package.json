@@ -21,7 +21,6 @@
     "foundation-sites": "^6.4.4-rc1",
     "highcharts": "^6.0.7",
     "vue": "^2.5.16",
-    "vue-highcharts": "0.0.10",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
