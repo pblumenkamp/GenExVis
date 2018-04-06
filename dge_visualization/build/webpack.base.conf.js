@@ -29,7 +29,7 @@ module.exports = {
   },
   module: {
     rules: [
-      ...(config.dev.useEslint? [{
+      {
         test: /\.(js|vue)$/,
         loader: 'eslint-loader',
         enforce: 'pre',
@@ -38,7 +38,7 @@ module.exports = {
           formatter: require('eslint-friendly-formatter'),
           emitWarning: !config.dev.showEslintErrorsInOverlay
         }
-      }] : []),
+      },
       {
         test: /\.vue$/,
         loader: 'vue-loader',
