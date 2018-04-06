@@ -1,0 +1,8 @@
+test:
+  script:
+  - apt-get update -qq && apt-get install -y -qq nodejs
+  - cd dge_visualization
+  - npm install
+  - npm run build
+  only:
+  - development
