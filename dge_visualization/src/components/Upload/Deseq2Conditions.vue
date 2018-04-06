@@ -29,8 +29,8 @@
 </template>
 
 <script>
-  import {STORE_DESEQ2_STATISTICS} from '../../store/action_constants'
-  import {ADD_FILE} from '../../store/mutation_constants'
+  import {STORE_DESEQ2_STATISTICS} from '@/store/action_constants'
+  import {ADD_FILE} from '@/store/mutation_constants'
 
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'

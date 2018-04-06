@@ -62,7 +62,7 @@
   import CountTableUpload from './CountTableUpload.vue'
   import Deseq2Upload from './Deseq2Upload.vue'
 
-  import {REGISTER_CONDITION} from '../../store/action_constants'
+  import {REGISTER_CONDITION} from '@/store/action_constants'
 
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
