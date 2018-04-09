@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA} from './mutation_constants'
+import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_SEQRUN_MAPPING} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -31,6 +31,9 @@ const store = new Vuex.Store({
       } else if (normalization === 'deseq2') {
         state.dgeData.addDeseq2CountData(geneName, condition, values)
       }
+    },
+    [ADD_SEQRUN_MAPPING] (state, mapping) {
+      state.setSeqRunMapping(mapping)
     }
   },
   actions: {
@@ -65,6 +68,9 @@ const store = new Vuex.Store({
     },
     [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, geneColumn, normalization}) {
       return new Promise((resolve, reject) => {
+        commit(ADD_SEQRUN_MAPPING, {
+          mapping: headerConditionMapping
+        })
         for (let gene of table) {
           let countData = {}
           // get all conditions

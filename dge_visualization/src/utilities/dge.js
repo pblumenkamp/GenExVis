@@ -23,6 +23,12 @@ export class DGE {
      * @private
      */
     this._data = {}
+    /**
+     *
+     * @type {Object<string: string>} Map seqRun to condition {<seqRun>: <condition>}
+     * @private
+     */
+    this._seqRunConditionMapping = {}
   }
 
   /**
@@ -47,6 +53,10 @@ export class DGE {
     return this.length
   }
 
+  get seqRuns () {
+    return this._seqRunConditionMapping
+  }
+
   /**
    * Get Gene object to gene name
    * @param {string} geneName
@@ -66,7 +76,15 @@ export class DGE {
   }
 
   /**
-   * Register condition pairs for fast access on all existing conditions. Also reuse existing condition pairs to save memory
+   *
+   * @param seqRunMapping {Object<string: string>} Map seqRun to condition {<seqRun>: <condition>}
+   */
+  setSeqRunMapping (seqRunMapping) {
+    this._seqRunConditionMapping = Object.freeze(Object.assign(seqRunMapping))
+  }
+
+  /**
+   * Register condition pairs for fast access on all existing condition pairs. Also reuse existing condition pairs to save memory
    *
    * @param {ConditionPair} conditionPair
    * @return {ConditionPair} If conditionPair is already registered, return registered object, else return conditionPair parameter
@@ -126,15 +144,15 @@ export class DGE {
     }
   }
 
-  getAllUnnormalizedCountDataToGene (geneName) {
-    return this._getAllCountDataToGene(geneName, 'unnormalized')
+  getAllUnnormalizedCountDataByGene (geneName) {
+    return this._getAllCountDataByGene(geneName, 'unnormalized')
   }
 
-  getAllDeseq2CountDataToGene (geneName) {
-    return this._getAllCountDataToGene(geneName, 'deseq2')
+  getAllDeseq2CountDataByGene (geneName) {
+    return this._getAllCountDataByGene(geneName, 'deseq2')
   }
 
-  _getAllCountDataToGene (geneName, normalization) {
+  _getAllCountDataByGene (geneName, normalization) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getAllCountData(normalization)
     } else {
@@ -142,20 +160,61 @@ export class DGE {
     }
   }
 
-  getAllUnnormalizedCountData (condition) {
-    return this._getCountData('unnormalized', condition)
+  getAllUnnormalizedCountDataByCondition (condition) {
+    return this._getCountDataByCondition('unnormalized', condition)
   }
 
-  getAllDeseq2CountData (condition) {
-    return this._getCountData('deseq2', condition)
+  getAllDeseq2CountDataByCondition (condition) {
+    return this._getCountDataByCondition('deseq2', condition)
   }
 
-  _getCountData (normalization, condition) {
+  _getCountDataByCondition (normalization, condition) {
     let countData = {}
     for (let geneName of this.geneNames) {
       let counts = this.getGene(geneName).getCountData(normalization, condition)
       if (Object.keys(counts).length !== 0) {
         countData[geneName] = counts
+      }
+    }
+
+    return countData
+  }
+
+  /**
+   *
+   * @param normalization
+   * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
+   * @private
+   */
+  getAllUnnormalizedCountData () {
+    return this._getCountData('unnormalized')
+  }
+
+  /**
+   *
+   * @param normalization
+   * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
+   * @private
+   */
+  getAllDeseq2CountData () {
+    return this._getCountData('deseq2')
+  }
+
+  /**
+   *
+   * @param normalization
+   * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
+   * @private
+   */
+  _getCountData (normalization) {
+    let countData = {}
+    for (let geneName of this.geneNames) {
+      let counts = this.getGene(geneName).getAllCountData(normalization)
+      for (let condition of Object.keys(counts)) {
+        if (!countData.hasOwnProperty(condition)) {
+          countData[condition] = {}
+        }
+        countData[condition][geneName] = counts[condition]
       }
     }
 
@@ -318,7 +377,7 @@ export class Gene {
     this._name = name
     /**
      *
-     * @type {{{string}: {{string}: {Array{number}}}} {normalizationMethod{string}: {condition{string}: values{Array{number}}}
+     * @type {{{string}: {{string}: {{string: Array{number}}}}} {normalizationMethod{string}: {condition{string}: {seqRunName: values{Array{number}}}}
      * @private
      */
     this._countData = {}
@@ -399,7 +458,7 @@ export class Gene {
   /**
    *
    * @param {string} normalization
-   * @return {Object<string: Array<number>>} {conditionA: [values], ...}
+   * @return {Object<string: Object<string: Array<number>>>} {conditionA: [{seqRunName: values}, ...], ...}
    */
   getAllCountData (normalization) {
     if (this._countData.hasOwnProperty(normalization)) {
