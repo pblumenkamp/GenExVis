@@ -32,8 +32,9 @@ const store = new Vuex.Store({
         state.dgeData.addDeseq2CountData(geneName, condition, values)
       }
     },
-    [ADD_SEQRUN_MAPPING] (state, mapping) {
-      state.setSeqRunMapping(mapping)
+    [ADD_SEQRUN_MAPPING] (state, {mapping}) {
+      console.log(mapping)
+      state.dgeData.setSeqRunMapping(mapping)
     }
   },
   actions: {
@@ -74,15 +75,15 @@ const store = new Vuex.Store({
         for (let gene of table) {
           let countData = {}
           // get all conditions
-          for (let {condition} of headerConditionMapping) {
+          for (let [, condition] of Object.entries(headerConditionMapping)) {
             if (!countData.hasOwnProperty(condition)) {
               countData[condition] = {}
             }
           }
           // fill conditions with values
-          for (let {header, condition} of headerConditionMapping) {
-            if (gene.hasOwnProperty(header)) {
-              countData[condition][header] = parseFloat(gene[header])
+          for (let [seqRun, condition] of Object.entries(headerConditionMapping)) {
+            if (gene.hasOwnProperty(seqRun)) {
+              countData[condition][seqRun] = parseFloat(gene[seqRun])
             }
           }
           for (let cond of Object.keys(countData)) {
