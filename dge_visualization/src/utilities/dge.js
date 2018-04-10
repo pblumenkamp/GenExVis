@@ -29,6 +29,10 @@ export class DGE {
      * @private
      */
     this._seqRunConditionMapping = {}
+    /**
+     * @type {Set<string>}
+     */
+    this._normalizationMethods = new Set()
   }
 
   /**
@@ -55,6 +59,14 @@ export class DGE {
 
   get seqRuns () {
     return this._seqRunConditionMapping
+  }
+
+  /**
+   * Returns a set of all normalization methods of imported count data
+   * @return {Set<string>}
+   */
+  get normalizationMethods () {
+    return new Set(this._normalizationMethods)
   }
 
   /**
@@ -100,6 +112,10 @@ export class DGE {
     return conditionPair
   }
 
+  _registerNormalizationMethod (normalization) {
+    this._normalizationMethods.add(normalization)
+  }
+
   /**
    * @param {Gene} gene
    * @private
@@ -118,6 +134,7 @@ export class DGE {
   }
 
   _addCountData (geneName, normalization, condition, values) {
+    this._registerNormalizationMethod(normalization)
     let gene
     if (this.hasGene(geneName)) {
       gene = this.getGene(geneName)
