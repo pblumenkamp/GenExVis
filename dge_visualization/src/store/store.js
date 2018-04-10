@@ -33,7 +33,6 @@ const store = new Vuex.Store({
       }
     },
     [ADD_SEQRUN_MAPPING] (state, {mapping}) {
-      console.log(mapping)
       state.dgeData.setSeqRunMapping(mapping)
     }
   },

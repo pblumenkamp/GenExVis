@@ -5,15 +5,17 @@
     </h1>
 
     <div>
-      <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
-        <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
-      </span>
-      <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
-        <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
-      </span>
-      Settings
+      <div>
+        <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
+          <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+        </span>
+        <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
+          <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
+        </span>
+        Settings
+      </div>
       <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
-        <b-card>
+        <b-card style="width: 70%; margin:0 auto">
           <b-form-group label="Use conditions:">
             <b-form-checkbox v-model="allConditionsSelected"
                              :indeterminate="indeterminate"
@@ -32,12 +34,33 @@
 
             <b-container fluid>
               <b-row class="my-1">
-                <b-col sm="3"><label style="margin-top: 0.4rem;">intermediate color stop (value between 0 and 1)</label></b-col>
-                <b-col sm="9"><b-form-input type="number" v-model="intermediateColorStop" step="0.1" max="1" min="0" style="width: 10rem;" @change="drawData"></b-form-input></b-col>
+                <b-col sm="3"><label style="margin-top: 0.4rem;">start color:</label></b-col>
+                <b-col sm="1">
+                  <b-form-input type="color" v-model="color1" @change="updateColorAxisStops"></b-form-input>
+                </b-col>
+                <b-col sm="3"><label style="margin-top: 0.4rem;">intermediate color:</label></b-col>
+                <b-col sm="1">
+                  <b-form-input type="color" v-model="color2" @change="updateColorAxisStops"></b-form-input>
+                </b-col>
+                <b-col sm="3"><label style="margin-top: 0.4rem;">end color:</label></b-col>
+                <b-col sm="1">
+                  <b-form-input type="color" v-model="color3" @change="updateColorAxisStops"></b-form-input>
+                </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="3"><label style="margin-top: 0.4rem;">max value (no max value: 0)</label></b-col>
-                <b-col sm="9"><b-form-input type="number" v-model="maxValue" step="100" min="0" style="width: 10rem;" @change="drawData"></b-form-input></b-col>
+                <b-col sm="4"><label style="margin-top: 0.4rem;">intermediate color stop (value between 0 and 1)</label>
+                </b-col>
+                <b-col sm="8">
+                  <b-form-input type="number" v-model="intermediateColorStop" step="0.1" max="1" min="0"
+                                style="width: 10rem;" @change="updateColorAxisStops"></b-form-input>
+                </b-col>
+              </b-row>
+              <b-row class="my-1">
+                <b-col sm="4"><label style="margin-top: 0.4rem;">max value (no max value: 0)</label></b-col>
+                <b-col sm="8">
+                  <b-form-input type="number" v-model="maxValue" step="100" min="0" style="width: 10rem;"
+                                @change="updateColorAxisMax"></b-form-input>
+                </b-col>
               </b-row>
             </b-container>
           </div>
@@ -45,18 +68,23 @@
       </b-collapse>
     </div>
 
-
+    <font-awesome-icon :icon="faSpinner" pulse size="4x" v-if="loading" class="text-secondary my-4"
+                       style="margin-top: 0.1rem"></font-awesome-icon>
     <div id="countdatagenecounthm_highcharts"
-         style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+         style="min-width: 60%; max-width: 60%; margin: 0 auto"></div>
   </div>
 </template>
 
 <script>
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
   import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
   import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
 
   var Highcharts = require('highcharts/highmaps')
+
+  var chart = {}
+  var conditionMapping = {}
 
   export default {
     name: 'CountDataGeneCountHM',
@@ -65,13 +93,16 @@
     },
     data () {
       return {
-        options: {},
+        loading: true,
         showCollapsedConditions: true,
         selectedConditions: [...this.$store.state.registeredConditions],
         allConditionsSelected: true,
         indeterminate: false,
         intermediateColorStop: 0.1,
-        maxValue: 0
+        maxValue: 0,
+        color1: '#FFFFFF',
+        color2: '#276dff',
+        color3: '#ff3a44'
       }
     },
     methods: {
@@ -79,6 +110,7 @@
         this.selectedConditions = checked ? this.registeredConditions.slice(0) : []
       },
       drawData () {
+        conditionMapping = this.$store.state.dgeData.seqRuns
         let options = {
           chart: {
             type: 'heatmap',
@@ -86,9 +118,6 @@
             zoomType: 'xy',
             marginBottom: 80,
             plotBorderWidth: 1
-          },
-          boost: {
-            useGPUTranslations: true
           },
           title: {
             text: ''
@@ -110,9 +139,9 @@
           colorAxis: {
             min: 0,
             stops: [
-              [0, '#FFFFFF'],
-              [0.1, '#276dff'],
-              [1, '#ff3a44']]
+              [0, this.color1],
+              [this.intermediateColorStop, this.color2],
+              [1, this.color3]]
           },
           legend: {
             layout: 'vertical',
@@ -120,6 +149,14 @@
             verticalAlign: 'top',
             margin: 0,
             symbolHeight: 300
+          },
+          tooltip: {
+            formatter: function () {
+              return 'Gene: <b>' + this.series.yAxis.categories[this.point.y] +
+                '</b><br>Sequencing run: <b>' + this.series.xAxis.categories[this.point.x] +
+                '</b><br>Condition: <b>' + conditionMapping[this.series.xAxis.categories[this.point.x]] +
+                '</b><br>Counts: <b>' + this.point.value + '</b>'
+            }
           },
           series: [{
             name: 'count per gene',
@@ -148,7 +185,6 @@
             }
           }
         }
-        console.log(seqRunNamesMap)
         let geneNames = Array.from(this.$store.state.dgeData.geneNames).sort()
         let geneNamesMapping = {}
         for (let [index, geneName] of geneNames.entries()) {
@@ -174,13 +210,40 @@
         options.xAxis.categories = seqRunNames
         options.yAxis.categories = geneNames
 
-        Highcharts.chart('countdatagenecounthm_highcharts', options)
-        this.options = options
+        chart = Highcharts.chart('countdatagenecounthm_highcharts', options)
+        this.loading = false
+      },
+      updateColorAxisStops () {
+        console.log(chart)
+        chart.update({
+          colorAxis: {
+            stops: [
+              [0, this.color1],
+              [this.intermediateColorStop, this.color2],
+              [1, this.color3]
+            ]
+          }
+        })
+      },
+      updateColorAxisMax () {
+        chart.update({
+          colorAxis: {
+            max: (this.maxValue === 0) ? undefined : this.maxValue
+          }
+        })
       }
     },
     mounted () {
       this.$nextTick(() => {
-        this.drawData()
+        // eslint-disable-next-line
+        let prom = new Promise((resolve) => {
+          setTimeout(this.drawData, 50)
+          resolve()
+        })
+
+        prom.then(() => {
+
+        })
       })
     },
     computed: {
@@ -202,6 +265,9 @@
       },
       faMinusCircle () {
         return faMinusCircle
+      },
+      faSpinner () {
+        return faSpinner
       }
     },
     watch: {

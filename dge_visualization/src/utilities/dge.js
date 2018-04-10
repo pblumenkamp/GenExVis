@@ -80,9 +80,7 @@ export class DGE {
    * @param seqRunMapping {Object<string: string>} Map seqRun to condition {<seqRun>: <condition>}
    */
   setSeqRunMapping (seqRunMapping) {
-    console.log('Start')
     this._seqRunConditionMapping = Object.freeze(Object.assign(seqRunMapping))
-    console.log('End')
   }
 
   /**
