@@ -20,6 +20,7 @@
     "bootstrap-vue": "^2.0.0-rc.6",
     "foundation-sites": "^6.4.4-rc1",
     "highcharts": "^6.0.7",
+    "lodash.debounce": "^4.0.8",
     "vue": "^2.5.16",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"

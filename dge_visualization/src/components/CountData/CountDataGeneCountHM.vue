@@ -16,6 +16,12 @@
       </div>
       <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
         <b-card style="width: 70%; margin:0 auto">
+          <b-form-select v-model="selectedNormalization" style="width: auto" class="mb-2">
+            <template slot="first">
+              <option :value="''" disabled>-- Please select a normalization method --</option>
+            </template>
+            <option v-for="cond in Array.from(registeredNormalizationMethods)" :value="cond">{{ cond }}</option>
+          </b-form-select>
           <b-form-group label="Use conditions:">
             <b-form-checkbox v-model="allConditionsSelected"
                              :indeterminate="indeterminate"
@@ -52,14 +58,14 @@
                 </b-col>
                 <b-col sm="8">
                   <b-form-input type="number" v-model="intermediateColorStop" step="0.1" max="1" min="0"
-                                style="width: 10rem;" @change="updateColorAxisStops"></b-form-input>
+                                style="width: 10rem;"></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label style="margin-top: 0.4rem;">max value (no max value: 0)</label></b-col>
+                <b-col sm="4"><label style="margin-top: 0.4rem;">max value</label></b-col>
                 <b-col sm="8">
-                  <b-form-input type="number" v-model="maxValue" step="100" min="0" style="width: 10rem;"
-                                @change="updateColorAxisMax"></b-form-input>
+                  <b-form-input type="number" v-model="maxValue" step="100" min="0"
+                                style="width: 10rem;"></b-form-input>
                 </b-col>
               </b-row>
             </b-container>
@@ -68,8 +74,6 @@
       </b-collapse>
     </div>
 
-    <font-awesome-icon :icon="faSpinner" pulse size="4x" v-if="loading" class="text-secondary my-4"
-                       style="margin-top: 0.1rem"></font-awesome-icon>
     <div id="countdatagenecounthm_highcharts"
          style="min-width: 60%; max-width: 60%; margin: 0 auto"></div>
   </div>
@@ -77,11 +81,14 @@
 
 <script>
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
   import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
   import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
 
   var Highcharts = require('highcharts/highmaps')
+  require('highcharts/modules/exporting')(Highcharts)
+  require('highcharts/modules/offline-exporting')(Highcharts)
+
+  var debounce = require('lodash.debounce')
 
   var chart = {}
   var conditionMapping = {}
@@ -93,7 +100,7 @@
     },
     data () {
       return {
-        loading: true,
+        selectedNormalization: '',
         showCollapsedConditions: true,
         selectedConditions: [...this.$store.state.registeredConditions],
         allConditionsSelected: true,
@@ -110,6 +117,9 @@
         this.selectedConditions = checked ? this.registeredConditions.slice(0) : []
       },
       drawData () {
+        if (Object.keys(chart).length !== 0) {
+          chart.showLoading()
+        }
         conditionMapping = this.$store.state.dgeData.seqRuns
         let options = {
           chart: {
@@ -118,6 +128,25 @@
             zoomType: 'xy',
             marginBottom: 80,
             plotBorderWidth: 1
+          },
+          navigation: {
+            buttonOptions: {
+              align: 'left',
+              height: 40,
+              width: 48,
+              symbolStroke: '#ffffff',
+              symbolSize: 24,
+              symbolX: 24,
+              symbolY: 20,
+              symbolStrokeWidth: 2,
+              theme: {
+                fill: '#7d7d7d'
+              }
+            }
+          },
+          loading: {
+            hideDuration: 500,
+            showDuration: 500
           },
           title: {
             text: ''
@@ -146,8 +175,8 @@
           legend: {
             layout: 'vertical',
             align: 'right',
-            verticalAlign: 'top',
-            margin: 0,
+            verticalAlign: 'middle',
+            margin: 5,
             symbolHeight: 300
           },
           tooltip: {
@@ -191,7 +220,9 @@
           geneNamesMapping[geneName] = index
         }
 
-        let countData = this.$store.state.dgeData.getAllUnnormalizedCountData()
+        let countData = (this.selectedNormalization === 'unnormalized')
+          ? this.$store.state.dgeData.getAllUnnormalizedCountData()
+          : this.$store.state.dgeData.getAllDeseq2CountData()
         for (let [condition, genes] of Object.entries(countData)) {
           if (this.selectedConditions.indexOf(condition) === -1) {
             continue
@@ -211,51 +242,48 @@
         options.yAxis.categories = geneNames
 
         chart = Highcharts.chart('countdatagenecounthm_highcharts', options)
-        this.loading = false
+        chart.hideLoading()
       },
-      updateColorAxisStops () {
-        console.log(chart)
-        chart.update({
-          colorAxis: {
-            stops: [
-              [0, this.color1],
-              [this.intermediateColorStop, this.color2],
-              [1, this.color3]
-            ]
+      updateColorAxisStops: debounce(
+        function () {
+          if (Object.keys(chart).length !== 0) {
+            chart.update({
+              colorAxis: {
+                stops: [
+                  [0, this.color1],
+                  [this.intermediateColorStop, this.color2],
+                  [1, this.color3]
+                ]
+              }
+            })
           }
-        })
-      },
-      updateColorAxisMax () {
-        chart.update({
-          colorAxis: {
-            max: (this.maxValue === 0) ? undefined : this.maxValue
+        },
+        500),
+      updateColorAxisMax: debounce(
+        function () {
+          if (Object.keys(chart).length !== 0) {
+            chart.update({
+              colorAxis: {
+                max: (this.maxValue === 0) ? undefined : this.maxValue
+              }
+            })
           }
-        })
-      }
+        },
+        500
+      )
     },
     mounted () {
-      this.$nextTick(() => {
-        // eslint-disable-next-line
-        let prom = new Promise((resolve) => {
-          setTimeout(this.drawData, 50)
-          resolve()
-        })
-
-        prom.then(() => {
-
-        })
-      })
+      /*      this.$nextTick(() => {
+       // eslint-disable-next-line
+       let prom = new Promise((resolve) => {
+       setTimeout(this.drawData, 50)
+       resolve()
+       })
+       }) */
     },
     computed: {
-      registeredConditionsOptions () {
-        let conds = []
-        for (let cond of this.registeredConditions) {
-          conds.push({
-            text: cond,
-            value: cond
-          })
-        }
-        return conds
+      registeredNormalizationMethods () {
+        return this.$store.state.dgeData.normalizationMethods
       },
       registeredConditions () {
         return this.$store.state.registeredConditions
@@ -265,9 +293,6 @@
       },
       faMinusCircle () {
         return faMinusCircle
-      },
-      faSpinner () {
-        return faSpinner
       }
     },
     watch: {
@@ -283,6 +308,15 @@
           this.indeterminate = true
           this.allConditionsSelected = false
         }
+        this.drawData()
+      },
+      intermediateColorStop (newVal, oldVal) {
+        this.updateColorAxisStops()
+      },
+      maxValue (newVal, oldVal) {
+        this.updateColorAxisMax()
+      },
+      selectedNormalization (newVal, oldVal) {
         this.drawData()
       }
     }
