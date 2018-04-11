@@ -111,7 +111,7 @@
           },
           plotOptions: {
             scatter: {
-              turboThreshold: 50000,
+              turboThreshold: Number.MAX_VALUE,
               boostThreshold: 1000,
               marker: {
                 symbol: 'circle',
