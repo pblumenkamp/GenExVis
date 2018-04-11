@@ -5,7 +5,6 @@ import Deseq2Main from '@/components/DESeq2/Deseq2Main'
 import Deseq2Upload from '@/components/DESeq2/Deseq2Upload'
 import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
 // import Deseq2OverviewTEST from '@/components/DESeq2/Deseq2OverviewTEST'
-import RichGridExample from '@/components/DESeq2/RichGridExample'
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
 import MaSigPro from '@/components/MaSigPro'
 
@@ -35,9 +34,9 @@ export default new Router({
           component: Deseq2Overview
         },
         {
-          path: 'richgrid',
-          name: 'RichGrid',
-          component: RichGridExample
+          path: 'overview',
+          name: 'Deseq2_overview',
+          component: Deseq2Overview
         },
         {
           path: 'volcano_plot',
