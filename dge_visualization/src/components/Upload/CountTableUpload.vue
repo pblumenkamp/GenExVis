@@ -126,14 +126,14 @@
         })
       },
       integrateCountTable () {
-        let usedColumns = []
+        let usedColumns = {}
         let geneColumn = ''
-        for (let mapping of this.headerConditionMapping) {
-          if (mapping.condition !== '') {
-            if (mapping.condition === '$$GENE_NAME$$') {
-              geneColumn = mapping.header
+        for (let {header, condition} of this.headerConditionMapping) {
+          if (condition !== '') {
+            if (condition === '$$GENE_NAME$$') {
+              geneColumn = header
             } else {
-              usedColumns.push(mapping)
+              usedColumns[header] = condition
             }
           }
         }
