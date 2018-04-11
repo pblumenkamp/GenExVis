@@ -25,12 +25,16 @@
           </b-col>
         </b-row>
         <b-row>
-          <b-button @click="integrateCountTable">Import files</b-button>
+          <div style="margin: 0 auto; width: 10rem">
+            <b-button @click="integrateCountTable" style="margin-bottom: 1rem; margin-right: 0.2rem">Import files</b-button>
+            <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary" style="margin-top: 0.5rem"></font-awesome-icon>
+            <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary" style="margin-top: 0.5rem"></font-awesome-icon>
+          </div>
         </b-row>
       </b-container>
     </div>
 
-    <b-container fluid v-if="uploadingFinished">
+    <b-container fluid v-if="uploadingFinished" class="mt-4">
       <b-row>
           <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
       </b-row>
@@ -50,12 +54,21 @@
 <script>
   import {STORE_COUNT_TABLE} from '@/store/action_constants'
 
+  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
+  import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
+
   export default {
     name: 'count-table-upload',
+    components: {
+      FontAwesomeIcon
+    },
     data () {
       return {
         file: null,
         items: [],  // [{<col_name>: <value>}, ...] each list entry one row
+        importingFiles: false,
+        importingDone: false,
         currentPage: 0,
         perPage: 10,
         totalRows: 0,
@@ -126,6 +139,7 @@
         })
       },
       integrateCountTable () {
+        this.importingFiles = true
         let usedColumns = {}
         let geneColumn = ''
         for (let {header, condition} of this.headerConditionMapping) {
@@ -143,13 +157,20 @@
           geneColumn: geneColumn,
           normalization: this.selectedNormalization
         }).then(() => {
-          console.log(this.$store.state.dgeData)
+          this.importingFiles = false
+          this.importingDone = true
         })
       }
     },
     computed: {
       registeredConditions () {
         return this.$store.state.registeredConditions
+      },
+      faSpinner () {
+        return faSpinner
+      },
+      faCheckCircle () {
+        return faCheckCircle
       }
     }
   }
