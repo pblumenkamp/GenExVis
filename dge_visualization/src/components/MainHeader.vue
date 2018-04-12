@@ -1,5 +1,5 @@
 <template>
-  <b-navbar toggleable="md" type="dark" variant="dark">
+  <b-navbar toggleable="md" type="dark" variant="dark" style="margin-bottom: 1rem">
 
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
@@ -13,6 +13,9 @@
 
       <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown text="Tools" right>
+          <b-dropdown-item to="/upload">
+            Upload
+          </b-dropdown-item>
           <b-dropdown-item to="/deseq2">
             DESeq2
           </b-dropdown-item>

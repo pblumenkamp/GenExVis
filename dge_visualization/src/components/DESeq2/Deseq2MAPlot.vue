@@ -1,6 +1,8 @@
 <template>
   <div>
-    <h1>Volcano Plot</h1>
+    <h1>
+      MA Plot
+    </h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
@@ -16,8 +18,7 @@
       <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
     </b-form-select>
 
-    <div id="deseq2volcanoplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
-      <!--<highcharts :options="options" ref="highcharts" style="width: 60%; margin: auto;"></highcharts>-->
+    <div id="deseq2maplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
@@ -44,7 +45,7 @@
   const AXIS_COLOR = '#000000'
 
   export default {
-    name: 'DESeq2VolcanoPlot',
+    name: 'Deseq2MAPlot',
     data () {
       return {
         selectedCondition1: '',
@@ -64,8 +65,10 @@
             text: `${this.selectedCondition1} vs. ${this.selectedCondition2}`
           },
           xAxis: {
+            type: 'logarithmic',
+            min: 1,
             title: {
-              text: 'log2 (fold change)',
+              text: 'base mean count',
               style: {
                 color: AXIS_COLOR
               }
@@ -79,11 +82,12 @@
             },
             startOnTick: true,
             endOnTick: true,
-            showLastLabel: true
+            showLastLabel: true,
+            tickInterval: 1
           },
           yAxis: {
             title: {
-              text: '-log10 (p-value)',
+              text: 'log2 (fold change)',
               style: {
                 color: AXIS_COLOR
               }
@@ -94,13 +98,10 @@
               }
             },
             plotLines: [{
-              value: -Math.log10(this.pThreshold),
-              color: 'black',
-              dashStyle: 'shortdash',
-              width: 1,
-              label: {
-                text: 'p-value: ' + this.pThreshold
-              }
+              value: 0,
+              color: '#ff0000',
+              dashStyle: 'solid',
+              width: 2
             }]
           },
           legend: {
@@ -133,31 +134,26 @@
               tooltip: {
                 headerFormat: '',
                 pointFormat: '<b>{point.gene}</b><br>' +
-                'log2 fold change: {point.x:.3f}<br>' +
-                ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ': {point.yTooltip}'
+                'base mean count: {point.x:.2f}<br>' +
+                'log2 fold change: {point.y:.2f}<br>' +
+                'p-value: {point.pValue}<br>' +
+                'adjusted p-value: {point.adjPValue}'
               }
             }
           },
           series: [{
-            name: '|log2 fold change| >= 2 AND p-value <= ' + this.pThreshold.toExponential(2),
-            color: '#cc1926',
-            zIndex: 2,
-            id: 0,
-            data: [{gene: 'abc', x: 0, y: 0}]
-          },
-          {
-            name: '|log2 fold change| >= 2 OR p-value <= ' + this.pThreshold.toExponential(2),
-            color: '#ccc223',
+            name: ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ' <= ' + this.pThreshold.toExponential(2),
+            color: '#ba0001',
             zIndex: 1,
-            id: 1,
-            data: [{gene: 'abc', x: 0, y: 0}]
+            id: 0,
+            data: [{gene: 'abc', x: 1, y: 1, pValue: 1, adjPValue: 1}]
           },
           {
             name: 'Rest',
             color: '#000000',
+            id: 1,
             zIndex: 0,
-            id: 2,
-            data: [{gene: 'abc', x: 0, y: 0}]
+            data: [{gene: 'abc', x: 1, y: 1, pValue: 1, adjPValue: 1}]
           }]
         }
 
@@ -165,59 +161,31 @@
 
         series[0].data = []
         series[1].data = []
-        series[2].data = []
         let dge = this.$store.state.dgeData.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
-        let logPThreshold = -Math.log10(this.pThreshold)
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
           let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          let y = (this.useAdjPValue) ? analysis.pAdj : analysis.pValue
-          let dataPoint = {
-            gene: geneName,
-            x: analysis.log2FoldChange,
-            y: -Math.log10(y),
-            yTooltip: y.toExponential(2)
-          }
+          if (analysis.baseMean > 0) {
+            let dataPoint = {
+              gene: geneName,
+              x: analysis.baseMean,
+              y: analysis.log2FoldChange,
+              pValue: analysis.pValue.toExponential(2),
+              adjPValue: analysis.pAdj.toExponential(2)
+            }
 
-          if (Math.abs(dataPoint.x) >= 2 && dataPoint.y >= logPThreshold) {
-            options.series[0].data.push(dataPoint)
-          } else if (Math.abs(dataPoint.x) >= 2 || dataPoint.y >= logPThreshold) {
-            options.series[1].data.push(dataPoint)
-          } else {
-            options.series[2].data.push(dataPoint)
+            if ((this.useAdjPValue && analysis.pAdj <= this.pThreshold) || (!this.useAdjPValue && analysis.pValue <= this.pThreshold)) {
+              options.series[0].data.push(dataPoint)
+            } else {
+              options.series[1].data.push(dataPoint)
+            }
           }
         }
 
-        Highcharts.chart('deseq2volcanoplot_highcharts', options)
+        Highcharts.chart('deseq2maplot_highcharts', options)
       },
       updatePThreshold () {
         this.drawData()
-        /* let chart = this.$refs.highcharts.chart
-        chart.update({
-          yAxis: {
-            plotLines: [{
-              value: -Math.log10(this.pThreshold),
-              color: 'black',
-              dashStyle: 'shortdash',
-              width: 1,
-              label: {
-                text: 'p-value: ' + this.pThreshold
-              }
-            }]
-          }
-        })
-        chart.update({
-          series: [
-            {
-              name: '|log2 fold change| >= 2 || p-value >= ' + this.pThreshold,
-              id: 1
-            },
-            {
-              name: '|log2 fold change| >= 2 && p-value >= ' + this.pThreshold,
-              id: 0
-            }
-          ]
-        }) */
       }
     },
     computed: {

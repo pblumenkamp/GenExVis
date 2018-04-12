@@ -21,8 +21,9 @@
     <div style="clear: both;"></div>
     <div style="padding: 4px; float:left;" class="toolbar">
       <span>
-        <button @click="gridOptions.api.selectAll()">Select All</button>
-        <button @click="gridOptions.api.deselectAll()">Clear Selection</button>
+        <b-button @click="gridOptions.api.selectAll()">Select All</b-button>
+        <b-button @click="gridOptions.api.deselectAll()">Clear Selection</b-button>
+        <b-button @click="gridOptions.api.getSelectedNodes()">Einkaufskorb</b-button>
       </span>
       <!--<label>-->
           <!--<input type="checkbox" v-model="showToolPanel"/>-->
@@ -34,23 +35,18 @@
       <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput"
              placeholder="Type text to filter..."/>
     </div>
-
     <div style="clear: both;"></div>
-    <ag-grid-vue style="width: 100%; height: 500px;" class="ag-fresh" align="left"
+    <ag-grid-vue style="width: 100%; height: 500px;" class="ag-theme-balham" align="left"
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
                  :showToolPanel="showToolPanel"
 
+                 :rowHeight=30
                  :enableColResize="true"
                  :enableSorting="true"
                  :enableFilter="true"
                  :groupHeaders="true"
-                 :suppressRowClickSelection="true"
-                 :toolPanelSuppressGroups="true"
-                 :toolPanelSuppressValues="true"
-                 rowHeight="22"
-                 rowSelection="multiple"
 
                  :modelUpdated="onModelUpdated"
                  :cellClicked="onCellClicked"
@@ -77,12 +73,16 @@
                  :columnGroupOpened="onColumnEvent"
                  :columnResized="onColumnEvent"
                  :columnPinnedCountChanged="onColumnEvent"/>
+    <div>
+      <b-card>
+        <p id="selectedRows"></p>
+      </b-card>
+    </div>
   </div>
 </template>
 
 <script>
 import {AgGridVue} from 'ag-grid-vue'
-
 // import {ProficiencyFilter} from './proficiencyFilter'
 // import {SkillFilter} from './skillFilter'
 import DateComponent from './DateComponent.vue'
@@ -96,7 +96,8 @@ export default {
       columnDefs: null,
       rowData: null,
       showToolPanel: false,
-      rowCount: null
+      rowCount: null,
+      setRowHeight: 500
     }
   },
   components: {
@@ -150,14 +151,14 @@ export default {
     },
     createColumnDefs () {
       const columnDefs = [
-        {
-          headerName: '',
-          width: 30,
-          checkboxSelection: true,
-          suppressSorting: true,
-          suppressMenu: true,
-          pinned: true
-        },
+        // {
+        //   headerName: '',
+        //   width: 30,
+        //   checkboxSelection: true,
+        //   suppressSorting: true,
+        //   suppressMenu: true,
+        //   pinned: true
+        // },
         {
           headerName: 'Name',
           field: 'name',
@@ -201,35 +202,41 @@ export default {
               {
                 headerName: 'base mean',
                 field: '_baseMean',
-                width: 150
+                width: 150,
+                filter: 'agNumberColumnFilter'
               },
               {
                 headerName: 'lfcSE',
                 field: '_lfcSE',
-                width: 150
+                width: 150,
+                filter: 'agNumberColumnFilter'
               },
               {
                 headerName: 'log2 fold change',
                 field: '_log2FoldChange',
                 width: 150,
+                filter: 'agNumberColumnFilter',
                 columnGroupShow: 'open'
               },
               {
                 headerName: 'p value',
                 field: '_pValue',
                 width: 150,
+                filter: 'agNumberColumnFilter',
                 columnGroupShow: 'open'
               },
               {
                 headerName: 'p value (adjusted)',
                 field: '_pAdj',
                 width: 150,
+                filter: 'agNumberColumnFilter',
                 columnGroupShow: 'open'
               },
               {
                 headerName: 'stat',
                 field: '_stat',
                 width: 150,
+                filter: 'agNumberColumnFilter',
                 columnGroupShow: 'open'
               }
             ]
@@ -283,13 +290,18 @@ export default {
       console.log('onCellFocused: (' + event.rowIndex + ',' + event.colIndex + ')')
     },
 
-            // taking out, as when we 'select all', it prints to much to the console!!
+    // taking out, as when we 'select all', it prints to much to the console!!
     onRowSelected (event) {
-//                console.log('onRowSelected: ' + event.node.data.name);
+      //                console.log('onRowSelected: ' + event.node.data.name);
     },
 
     onSelectionChanged () {
-      console.log('selectionChanged')
+      let selectedRows = this.gridOptions.api.getSelectedRows()
+      let selectedRowsString = []
+      selectedRows.forEach(function (selectedRow) {
+        selectedRowsString.push(selectedRow.name)
+      })
+      document.querySelector('#selectedRows').innerHTML = selectedRowsString
     },
 
     onBeforeFilterChanged () {
@@ -313,9 +325,9 @@ export default {
     },
 
     onVirtualRowRemoved (event) {
-                // because this event gets fired LOTS of times, we don't print it to the
-                // console. if you want to see it, just uncomment out this line
-                // console.log('onVirtualRowRemoved: ' + event.rowIndex);
+      // because this event gets fired LOTS of times, we don't print it to the
+      // console. if you want to see it, just uncomment out this line
+      // console.log('onVirtualRowRemoved: ' + event.rowIndex);
     },
 
     onRowClicked (event) {
@@ -326,14 +338,17 @@ export default {
       this.gridOptions.api.setQuickFilter(event.target.value)
     },
 
-            // here we use one generic event to handle all the column type events.
-            // the method just prints the event name
+    // here we use one generic event to handle all the column type events.
+    // the method just prints the event name
     onColumnEvent (event) {
       console.log('onColumnEvent: ' + event)
     }
   },
   beforeMount () {
-    this.gridOptions = {}
+    this.gridOptions = {
+      rowSelection: 'multiple',
+      rowMultiSelectWithClick: true
+    }
     this.gridOptions.dateComponentFramework = DateComponent
     this.createRowData()
     this.createColumnDefs()

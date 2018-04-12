@@ -34,10 +34,10 @@ export default Vue.extend({
         onDateChanged (on, $event) {
           let targetValue = $event.target.value
           this.date = this.parseDate(
-                    on === 'dd' ? targetValue : this.dd,
-                    on === 'mm' ? targetValue : this.mm,
-                    on === 'yyyy' ? targetValue : this.yyyy
-                )
+            on === 'dd' ? targetValue : this.dd,
+            on === 'mm' ? targetValue : this.mm,
+            on === 'yyyy' ? targetValue : this.yyyy
+          )
           this.params.onDateChanged()
         },
 
@@ -56,7 +56,7 @@ export default Vue.extend({
         },
 
         parseDate (dd, mm, yyyy) {
-                // If any of the three input date fields are empty, stop and return null
+          // If any of the three input date fields are empty, stop and return null
           if (dd.trim() === '' || mm.trim() === '' || yyyy.trim() === '') {
             return null
           }
@@ -67,7 +67,7 @@ export default Vue.extend({
 
           let date = new Date(year, month - 1, day)
 
-            // If the date is not valid
+          // If the date is not valid
           if (isNaN(date.getTime())) {
             return null
           }

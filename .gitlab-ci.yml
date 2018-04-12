@@ -1,0 +1,8 @@
+image: node:latest
+
+before_script:
+  - apt-get update -qq && apt-get upgrade -qq -y
+
+test:
+  script:
+  - echo "test"
