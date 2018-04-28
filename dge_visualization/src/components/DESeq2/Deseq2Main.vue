@@ -21,10 +21,10 @@
               <small>{{ item }}</small>
             </li>
           </b-card>
-          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">
+          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left" >
             Genes:
-            <li v-for="item in this.$store.state.filelist">
-              <small>{{ item }}</small>
+            <li v-for="item in this.$store.state.genelist">
+              <small><button @click="removeitem(item)">{{ item }}</button></small>
             </li>
           </b-card>
         </b-col>
@@ -49,7 +49,12 @@
 
 <script>
   export default {
-    name: 'DESeq2'
+    name: 'DESeq2',
+    methods: {
+      removeitem (item) {
+        this.$store.state.genelist.splice(item)
+      }
+    }
   }
 </script>
 
