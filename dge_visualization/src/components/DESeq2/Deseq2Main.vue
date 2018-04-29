@@ -23,8 +23,8 @@
           </b-card>
           <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left" >
             Genes:
-            <li v-for="item in this.$store.state.genelist">
-              <small><button @click="removeitem(item)">{{ item }}</button></small>
+            <li v-for="item in this.$store.state.genelist" style="list-style: none">
+              <button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>
             </li>
           </b-card>
         </b-col>
@@ -48,11 +48,15 @@
 </template>
 
 <script>
+  import {DEL_GENE} from '@/store/mutation_constants'
   export default {
     name: 'DESeq2',
     methods: {
       removeitem (item) {
-        this.$store.state.genelist.splice(item)
+        this.$store.commit(DEL_GENE, item)
+        // this.$store.state.genelist.splice(item)
+        console.log(item)
+        console.log(this.$store.state.genelist)
       }
     }
   }
@@ -60,7 +64,7 @@
 
 <style>
   .col {
-    border: 1px solid limegreen;
+    /*border: 1px solid limegreen;*/
     height: 500px;
   }
   .deseq2Navbar {

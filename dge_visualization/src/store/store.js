@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_GENE, ADD_CONDITION, ADD_COUNT_DATA} from './mutation_constants'
+import {ADD_DATA, ADD_FILE, ADD_GENE, DEL_GENE, ADD_CONDITION, ADD_COUNT_DATA} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -25,6 +25,19 @@ const store = new Vuex.Store({
     },
     [ADD_GENE] (state, gene) {
       state.genelist.push(gene)
+      state.genelist.sort()
+    },
+    [DEL_GENE] (state, gene) {
+      console.log(state.genelist)
+      let index = 0
+      for (let entry of state.genelist) {
+        if (entry === gene) {
+          console.log('entry: ' + gene)
+          console.log(index)
+          state.genelist.splice(index, 1)
+        }
+        index = index + 1
+      }
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)

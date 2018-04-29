@@ -18,19 +18,15 @@
         <!--<button @click="gridOptions.columnApi.setColumnVisible('country', true)">Show Country Column</button>-->
       <!--</span>-->
     </div>
-    <div style="clear: both;"></div>
+
     <div style="padding: 4px; float:left;" class="toolbar">
       <span>
         <b-button @click="gridOptions.api.selectAll()">Select All</b-button>
         <b-button @click="gridOptions.api.deselectAll()">Clear Selection</b-button>
-        <b-button @click="fillthebasket">Einkaufskorb</b-button>
+        <button @click="fillthebasket" class="btn btn-primary">Import Genes</button>
       </span>
-      <!--<label>-->
-          <!--<input type="checkbox" v-model="showToolPanel"/>-->
-          <!--Show Tool Panel-->
-      <!--</label>-->
-      <!--<button @click="createRowData()">Refresh Data</button>-->
     </div>
+
     <div style="float: right;">
       <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput"
              placeholder="Type text to filter..."/>
@@ -75,7 +71,8 @@
                  :columnPinnedCountChanged="onColumnEvent"/>
     <div>
       <b-card>
-        <p id="selectedRows"></p>
+        Currently chosen:
+        <p id="selectedRows"> </p>
       </b-card>
     </div>
   </div>
@@ -118,7 +115,7 @@
           console.log(control)
           if (control === false) {
             this.$store.commit(ADD_GENE, element.name)
-            this.$store.state.genelist.sort()
+            // this.$store.state.genelist.sort()
           }
           // this.$store.commit(ADD_GENE, element.name)
         }
