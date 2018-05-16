@@ -35,11 +35,6 @@ export default new Router({
           component: Deseq2Overview
         },
         {
-          path: 'overview',
-          name: 'Deseq2_overview',
-          component: Deseq2Overview
-        },
-        {
           path: 'volcano_plot',
           name: 'Deseq2_volcano_plot',
           component: Deseq2VolcanoPlot

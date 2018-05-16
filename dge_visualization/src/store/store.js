@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_GENE, DEL_GENE, ADD_CONDITION, ADD_COUNT_DATA} from './mutation_constants'
+import {ADD_DATA, ADD_MEASURE, ADD_FILE, ADD_GENE, DEL_GENE, ADD_CONDITION, ADD_COUNT_DATA} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -13,12 +13,16 @@ const store = new Vuex.Store({
   state: {
     dgeData: new DGE(),
     registeredConditions: [],
+    measurements: [],
     filelist: [],
     genelist: []
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
       state.dgeData.mergeDGEs(dgeData)
+    },
+    [ADD_MEASURE] (state, measure) {
+      state.measurements.push(measure)
     },
     [ADD_FILE] (state, file) {
       state.filelist.push(file)
@@ -28,7 +32,6 @@ const store = new Vuex.Store({
       state.genelist.sort()
     },
     [DEL_GENE] (state, gene) {
-      console.log(state.genelist)
       let index = 0
       for (let entry of state.genelist) {
         if (entry === gene) {
@@ -56,6 +59,8 @@ const store = new Vuex.Store({
         progress.max = deseq2Contents.length
 
         for (let {content, conditions} of deseq2Contents) {
+          console.log(content)
+          console.log(conditions)
           let dge = parseDeseq2(content, conditions)
           commit(ADD_DATA, dge)
           progress.counter++
@@ -67,7 +72,6 @@ const store = new Vuex.Store({
     },
     [EXTEND_FILE_LIST] ({commit, state}, {filelist}) {
       commit(ADD_FILE, filelist)
-      console.log((filelist))
     },
     [REGISTER_CONDITION] ({commit, state}, {conditionName}) {
       return new Promise((resolve, reject) => {

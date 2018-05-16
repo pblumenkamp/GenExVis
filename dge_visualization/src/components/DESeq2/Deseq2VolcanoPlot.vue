@@ -21,8 +21,7 @@
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
-
-      <b-container fluid>
+      <b-container fluid border="1">
         <b-row class="my-1">
           <b-col sm="3"><label style="margin-top: 0.4rem;">p-value threshold</label></b-col>
           <b-col sm="9"><b-form-input type="number" v-model="inputPThreshold" step="0.001" max="1" min="0" style="width: 10rem;" @change="updatePThreshold"></b-form-input></b-col>
@@ -31,9 +30,40 @@
           <b-col sm="3"><label>use adjusted p-value</label></b-col>
           <b-col sm="9"><b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox></b-col>
         </b-row>
+        <b-row align="left">
+          <b-col sm="12">
+            <div class="btn-group">
+              <button type="button" class="btn btn-default">Apple</button>
+              <button type="button" class="btn btn-default">Samsung</button>
+              <button type="button" class="btn btn-default">Sony</button>
+            </div>
+          </b-col>
+        </b-row>
+        <b-row align="left">
+          <b-col sm="12">
+            <div>
+              <table width="100%" align="left" border="1">
+                <thead>
+                <tr>
+                  <th width="14%" v-for="key in gridColumns">
+                    {{ key }}
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="entry of gridData">
+                  <td width="14%" v-for="key of gridColumns">
+                    {{ entry[key] }}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </b-col>
+        </b-row>
       </b-container>
+      </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -50,11 +80,19 @@
         selectedCondition1: '',
         selectedCondition2: '',
         inputPThreshold: '0.001',
-        useAdjPValue: false
+        useAdjPValue: false,
+        gridColumns: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
+        gridData: []
       }
+    },
+    components: {
+      template: '#grid-template'
     },
     methods: {
       drawData () {
+        let testvar = this.$store.state.dgeData
+        let gridColumns = this.gridColumns
+        let gridstorage = this.gridData
         let options = {
           chart: {
             type: 'scatter',
@@ -109,6 +147,43 @@
             verticalAlign: 'bottom'
           },
           plotOptions: {
+            series: {
+              allowPointSelect: true,
+              point: {
+                events: {
+                  click: function (event) {
+                    let dict = {}
+                    let dataarray = testvar.getGene(this.gene)._deseq2_analyses
+                    for (let entry of gridColumns) {
+                      for (let subentry of dataarray) {
+                        dict[entry] = subentry[entry]
+                        console.log(entry + ': ' + subentry[entry])
+                      }
+                    }
+                    dict.name = this.gene
+                    console.log(dict)
+                    if (Object.keys(gridstorage).length !== 0) {
+                      if (event.ctrlKey === true || event.shiftKey === true) {
+                        gridstorage.push(dict)
+                      } else {
+                        gridstorage.length = 0
+                        gridstorage.push(dict)
+                      }
+                    } else {
+                      gridstorage.push(dict)
+                    }
+                  }
+                  // click: function (event) {
+                  //   let boolval = false
+                  //   console.log(event.ctrlKey)
+                  //   // if (event.ctrlKey === true || event.shiftKey === true) {
+                  //   //   boolval = true
+                  //   // }
+                  //   return boolval
+                  // }
+                }
+              }
+            },
             scatter: {
               turboThreshold: 50000,
               boostThreshold: 1000,
@@ -129,12 +204,12 @@
                   }
                 }
               },
-
               tooltip: {
+                // POINT INFORMATION
                 headerFormat: '',
                 pointFormat: '<b>{point.gene}</b><br>' +
                 'log2 fold change: {point.x:.3f}<br>' +
-                ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ': {point.yTooltip}'
+                ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value TEST') + ': {point.yTooltip}'
               }
             }
           },
