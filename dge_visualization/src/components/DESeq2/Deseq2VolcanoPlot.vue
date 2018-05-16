@@ -33,9 +33,9 @@
         <b-row align="left">
           <b-col sm="12">
             <span>
-              <button type="button" class="btn btn-default">Keine-Ahnung-Yeeeha!</button>
-              <button type="button" class="btn btn-default" @click="sortingGenes">Sort genes</button>
-              <button type="button" class="btn btn-default" @click="clearingTable">Clear table</button>
+              <button type="button" class="btn btn-default" @click="sortingGenes">Sort Genes</button>
+              <button type="button" class="btn btn-default" @click="clearingTable">Clear Table</button>
+              <button class="btn btn-primary">Import Entries</button>
             </span>
           </b-col>
         </b-row>

@@ -66,7 +66,7 @@
                  :columnValueChanged="onColumnEvent"
                  :columnMoved="onColumnEvent"
                  :columnVisible="onColumnEvent"
-                 :columnGroupOpened="onColumnEvent"
+                 :columnGroupOpened="true"
                  :columnResized="onColumnEvent"
                  :columnPinnedCountChanged="onColumnEvent"/>
     <div>
@@ -94,6 +94,7 @@
         columnDefs: null,
         rowData: null,
         showToolPanel: false,
+        columnGroupOpened: true,
         rowCount: null,
         setRowHeight: 500
       }
@@ -209,12 +210,19 @@
           // }
         ]
         let filestore = this.$store.state.filelist
+        let counter = 0
+        let bool = true
         // let datastore = this.$store.state.dgeData._data
         // let testdict = {}
         for (let entry in filestore) {
+          console.log(counter)
+          if (counter !== 0) {
+            bool = false
+          }
           columnDefs.push(
             {
               headerName: filestore[entry],
+              openByDefault: bool,
               children: [
                 {
                   headerName: 'base mean',
@@ -259,6 +267,7 @@
               ]
             }
           )
+          counter = counter + 1
         }
         this.columnDefs = columnDefs
       },
@@ -369,6 +378,7 @@
       this.gridOptions.dateComponentFramework = DateComponent
       this.createRowData()
       this.createColumnDefs()
+      this.setColumnGroupOpened(this.columnDefs, true)
     }
   }
 

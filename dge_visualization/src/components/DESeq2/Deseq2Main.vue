@@ -10,11 +10,9 @@
           </b-nav>
         </b-col>
         <b-col class="col" cols="9">
-          --- ANCHOR ROUTER ---
           <router-view/>
         </b-col>
         <b-col class="col" cols="2">
-          --- ANCHOR UPLOAD ---
           <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">
             Files:
             <li v-for="item in this.$store.state.filelist">
@@ -23,6 +21,12 @@
           </b-card>
           <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left" >
             Genes:
+            <li v-for="item in this.$store.state.genelist" style="list-style: none">
+              <button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>
+            </li>
+          </b-card>
+          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">
+            Entries:
             <li v-for="item in this.$store.state.genelist" style="list-style: none">
               <button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>
             </li>
@@ -65,7 +69,7 @@
 <style>
   .col {
     /*border: 1px solid limegreen;*/
-    height: 500px;
+    /*height: 500px;*/
   }
   .deseq2Navbar {
     height: 100%; /* 100% Full-height */
