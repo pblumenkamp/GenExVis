@@ -112,7 +112,7 @@
               control = true
             }
           }
-          console.log(control)
+          // console.log(control)
           if (control === false) {
             this.$store.commit(ADD_GENE, element.name)
             // this.$store.state.genelist.sort()

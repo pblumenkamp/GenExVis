@@ -32,11 +32,11 @@
         </b-row>
         <b-row align="left">
           <b-col sm="12">
-            <div class="btn-group">
-              <button type="button" class="btn btn-default">Apple</button>
-              <button type="button" class="btn btn-default">Samsung</button>
-              <button type="button" class="btn btn-default">Sony</button>
-            </div>
+            <span>
+              <button type="button" class="btn btn-default">Keine-Ahnung-Yeeeha!</button>
+              <button type="button" class="btn btn-default" @click="sortingGenes">Sort genes</button>
+              <button type="button" class="btn btn-default" @click="clearingTable">Clear table</button>
+            </span>
           </b-col>
         </b-row>
         <b-row align="left">
@@ -82,6 +82,7 @@
         inputPThreshold: '0.001',
         useAdjPValue: false,
         gridColumns: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
+        gridEntries: [],
         gridData: []
       }
     },
@@ -89,10 +90,37 @@
       template: '#grid-template'
     },
     methods: {
+      clearingTable () {
+        console.log('clearingTable1 ' + this.gridData)
+        this.gridEntries = []
+        this.gridData = []
+        console.log('clearingTable2 ' + this.gridData)
+      },
+      sortingGenes () {
+        this.gridEntries.sort()
+        this.collectingData()
+      },
+      collectingData () {
+        console.log('collectingData ' + this.gridData)
+        this.gridData.length = 0
+        let storage = this.$store.state.dgeData
+        for (let entry of this.gridEntries) {
+          let dict = {}
+          let dataArray = storage.getGene(entry)._deseq2_analyses
+          for (let entry of this.gridColumns) {
+            for (let subentry of dataArray) {
+              dict[entry] = subentry[entry]
+            }
+          }
+          dict.name = entry.toString()
+          this.gridData.push(dict)
+        }
+      },
       drawData () {
-        let testvar = this.$store.state.dgeData
-        let gridColumns = this.gridColumns
-        let gridstorage = this.gridData
+        console.log('drawData ' + this.gridData)
+        // let gridEntries = this.gridEntries
+        // let gridStorage = this.gridData
+        let upperthis = this
         let options = {
           chart: {
             type: 'scatter',
@@ -152,35 +180,41 @@
               point: {
                 events: {
                   click: function (event) {
-                    let dict = {}
-                    let dataarray = testvar.getGene(this.gene)._deseq2_analyses
-                    for (let entry of gridColumns) {
-                      for (let subentry of dataarray) {
-                        dict[entry] = subentry[entry]
-                        console.log(entry + ': ' + subentry[entry])
-                      }
-                    }
-                    dict.name = this.gene
-                    console.log(dict)
-                    if (Object.keys(gridstorage).length !== 0) {
+                    let gridEntries = upperthis.gridEntries
+                    let gridStorage = upperthis.gridData
+                    if (gridEntries.length !== 0) {
                       if (event.ctrlKey === true || event.shiftKey === true) {
-                        gridstorage.push(dict)
+                        gridEntries.push(this.gene)
                       } else {
-                        gridstorage.length = 0
-                        gridstorage.push(dict)
+                        gridEntries.length = 0
+                        gridEntries.push(this.gene)
                       }
                     } else {
-                      gridstorage.push(dict)
+                      gridStorage.length = 0
+                      gridEntries.push(this.gene)
                     }
+                    upperthis.collectingData()
+                    // ------------------------
+                    //
+                    // let dict = {}
+                    // let dataarray = testvar.getGene(this.gene)._deseq2_analyses
+                    // for (let entry of gridColumns) {
+                    //   for (let subentry of dataarray) {
+                    //     dict[entry] = subentry[entry]
+                    //   }
+                    // }
+                    // dict.name = this.gene
+                    // if (Object.keys(gridstorage).length !== 0) {
+                    //   if (event.ctrlKey === true || event.shiftKey === true) {
+                    //     gridstorage.push(dict)
+                    //   } else {
+                    //     gridstorage.length = 0
+                    //     gridstorage.push(dict)
+                    //   }
+                    // } else {
+                    //   gridstorage.push(dict)
+                    // }
                   }
-                  // click: function (event) {
-                  //   let boolval = false
-                  //   console.log(event.ctrlKey)
-                  //   // if (event.ctrlKey === true || event.shiftKey === true) {
-                  //   //   boolval = true
-                  //   // }
-                  //   return boolval
-                  // }
                 }
               }
             },
