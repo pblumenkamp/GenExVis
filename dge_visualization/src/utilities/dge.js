@@ -19,13 +19,13 @@ export class DGE {
     this._conditionPairs = []
     /**
      *
-     * @type {object} Contains Gene instances with gene name as property
+     * @type {Object<Gene>} Contains Gene instances with gene name as property
      * @private
      */
     this._data = {}
     /**
      *
-     * @type {Object<string: string>} Map seqRun to condition {<seqRun>: <condition>}
+     * @type {Object<string>} Map seqRun to condition {<seqRun>: <condition>}
      * @private
      */
     this._seqRunConditionMapping = {}
@@ -89,10 +89,11 @@ export class DGE {
 
   /**
    *
-   * @param seqRunMapping {Object<string: string>} Map seqRun to condition {<seqRun>: <condition>}
+   * @param seqRunMapping {Object<string>} Map seqRun to condition {<seqRun>: <condition>}
    */
   setSeqRunMapping (seqRunMapping) {
-    this._seqRunConditionMapping = Object.freeze(Object.assign(seqRunMapping))
+    this._seqRunConditionMapping = Object.assign(seqRunMapping)
+    Object.freeze(this._seqRunConditionMapping)
   }
 
   /**
@@ -199,7 +200,6 @@ export class DGE {
 
   /**
    *
-   * @param normalization
    * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
    */
   getAllUnnormalizedCountData () {
@@ -208,7 +208,6 @@ export class DGE {
 
   /**
    *
-   * @param normalization
    * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
    */
   getAllDeseq2CountData () {
@@ -217,7 +216,7 @@ export class DGE {
 
   /**
    *
-   * @param normalization
+   * @param normalization {string} name of normalization
    * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
    * @private
    */
@@ -373,6 +372,38 @@ export class DGE {
 
     return dge
   }
+
+  /**
+   *
+   * @param genes {Array<string>} list of gene names
+   */
+  getSubset (genes) {
+    let newDGE = new DGE()
+    newDGE._seqRunConditionMapping = this._seqRunConditionMapping
+    newDGE._normalizationMethods = this._normalizationMethods
+    newDGE._geneNames = new Set(genes)
+    newDGE._conditionPairs = []
+    for (let gene of genes) {
+      if (this._data.hasOwnProperty(gene)) {
+        newDGE._data[gene] = this._data[gene]
+
+        let newCondPairs = newDGE.getGene(gene).deseq2ConditionPairs
+        for (let newPair of newCondPairs) {
+          let alreadyAdded = false
+          for (let alreadyAddedCondPair of newDGE._conditionPairs) {
+            if (newPair.isEqual(alreadyAddedCondPair)) {
+              alreadyAdded = true
+              break
+            }
+          }
+          if (!alreadyAdded) {
+            newDGE._conditionPairs.push(newPair)
+          }
+        }
+      }
+    }
+    return newDGE
+  }
 }
 
 /**
@@ -392,7 +423,7 @@ export class Gene {
     this._name = name
     /**
      *
-     * @type {{{string}: {{string}: {{string: Array{number}}}}} {normalizationMethod{string}: {condition{string}: {seqRunName: values{Array{number}}}}
+     * @type {Object<Object<Object<Array<number>>>>} {normalizationMethod{string}: {condition{string}: {seqRunName: values{Array{number}}}}
      * @private
      */
     this._countData = {}
@@ -442,7 +473,7 @@ export class Gene {
    *
    * @param {string} normalization
    * @param {string} condition
-   * @param {Object<string: number>} values as {seqRun_name: count}
+   * @param {Object<number>} values as {seqRun_name: count}
    */
   addCountData (normalization, condition, values) {
     if (!this._countData.hasOwnProperty(normalization)) {
@@ -473,7 +504,7 @@ export class Gene {
   /**
    *
    * @param {string} normalization
-   * @return {Object<string: Object<string: Array<number>>>} {conditionA: [{seqRunName: values}, ...], ...}
+   * @return {Object<Object<Array<number>>>} {conditionA: [{seqRunName: values}, ...], ...}
    */
   getAllCountData (normalization) {
     if (this._countData.hasOwnProperty(normalization)) {
@@ -605,7 +636,7 @@ export class DESeq2Analysis {
 
   /**
    *
-   * @param {ConditionPair} other
+   * @param conditions {ConditionPair} other
    * @returns {boolean}
    */
   hasEqualConditions (conditions) {

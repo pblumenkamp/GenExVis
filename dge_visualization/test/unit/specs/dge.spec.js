@@ -258,7 +258,135 @@ describe('Tests for DGE access', () => {
       expect(analysis.conditions.condition1).toBe('wt')
       expect(analysis.conditions.condition2).toBe('mut1')
     }
+  })
+})
 
+describe('Tests for DGE subset', () => {
+  let dge = new DGE()
+
+  beforeAll(() => {
+    dge.addDESeq2Data('gene_1', 'wt', 'mut1', 100, 2, 0.1, 0.2, 0.01, 0.002)
+    dge.addDESeq2Data('gene_2', 'wt', 'mut1', 200, 2, 0.1, 0.2, 0.1, 0.2)
+    dge.addDESeq2Data('gene_3', 'wt', 'mut1', 300, 2, 0.1, 0.2, 0.1, 0.2)
+    dge.addDESeq2Data('gene_4', 'wt', 'mut1', 400, 2, 0.1, 0.2, 0.01, 0.002)
+    dge.addDESeq2Data('gene_4', 'wt', 'mut2', 200, 2, 0.1, 0.2, 0.25, 0.3)
+    dge.addDESeq2Data('gene_5', 'wt', 'mut2', 540, 2, 0.1, 0.2, 0.001, 0.002)
+    dge.addUnnormalizedCountData('gene_1', 'wt', {a: 1, b: 10, c: 100})
+    dge.addUnnormalizedCountData('gene_2', 'wt', {a: 2, b: 20, c: 200})
+    dge.addUnnormalizedCountData('gene_1', 'mut1', {d: 10, e: 100, f: 1000})
+    dge.addUnnormalizedCountData('gene_2', 'mut1', {d: 20, e: 200, f: 2000})
+    dge.addUnnormalizedCountData('gene_3', 'wt', {a: 1, b: 10, c: 100})
+    dge.addUnnormalizedCountData('gene_4', 'wt', {a: 2, b: 20, c: 200})
+    dge.addUnnormalizedCountData('gene_3', 'mut1', {d: 10, e: 100, f: 1000})
+    dge.addUnnormalizedCountData('gene_4', 'mut1', {d: 20, e: 200, f: 2000})
+    dge.addUnnormalizedCountData('gene_5', 'wt', {a: 10, b: 100, c: 1000})
+    dge.addUnnormalizedCountData('gene_5', 'mut1', {d: 20, e: 200, f: 2000})
+    dge = dge.getSubset(['gene_1', 'gene_2', 'gene_3', 'gene_4'])
+  })
+
+  test('get specific gene', () => {
+    expect(dge.getGene('gene_1').name).toBe('gene_1')
+    expect(dge.getGene('gene_2').name).toBe('gene_2')
+    expect(dge.getGene('gene_3').name).toBe('gene_3')
+    expect(dge.getGene('gene_4').name).toBe('gene_4')
+
+    expect(dge.getGene('gene_1').deseq2Analyses).toHaveLength(1)
+    expect(dge.getGene('gene_2').deseq2Analyses).toHaveLength(1)
+    expect(dge.getGene('gene_3').deseq2Analyses).toHaveLength(1)
+    expect(dge.getGene('gene_4').deseq2Analyses).toHaveLength(2)
+  })
+
+  test('get significant DESeq2 genes', () => {
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.05, 'wt', 'mut1').size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut1').size).toBe(4)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1').size).toBe(0)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.01, 'wt', 'mut1').size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.05, 'wt', 'mut1', true).size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut1', true).size).toBe(4)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1', true).size).toBe(0)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.02, 'wt', 'mut1', true).size).toBe(2)
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut2').size).toBe(1)
+  })
+
+  test('get all DESeq2 gene names', () => {
+    let geneNames = dge.getNamesOfAllGenesFromDESeq2('wt', 'mut1')
+    expect(geneNames.size).toBe(4)
+    expect(geneNames.has('gene_1')).toBe(true)
+    expect(geneNames.has('gene_2')).toBe(true)
+    expect(geneNames.has('gene_3')).toBe(true)
+    expect(geneNames.has('gene_4')).toBe(true)
+    geneNames = dge.getNamesOfAllGenesFromDESeq2('wt', 'mut2')
+    expect(geneNames.size).toBe(1)
+    expect(geneNames.has('gene_4')).toBe(true)
+  })
+
+  test('get all DESeq2 genes', () => {
+    let smallDGE = dge.getAllGenesFromDESeq2('wt', 'mut1')
+    expect(smallDGE.conditionPairs).toHaveLength(2)
+    expect(smallDGE.geneNames.size).toBe(4)
+    expect(smallDGE).toHaveLength(4)
+    for (let geneName of smallDGE.geneNames) {
+      let gene = smallDGE.getGene(geneName)
+      let analysis = gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut1'))
+      expect(analysis.conditions.condition1).toBe('wt')
+      expect(analysis.conditions.condition2).toBe('mut1')
+    }
+  })
+
+  test('access count data', () => {
+    expect(dge.getUnnormalizedCountDataToGene('gene_1', 'wt')).toEqual({a: 1, b: 10, c: 100})
+    expect(dge.getUnnormalizedCountDataToGene('gene_2', 'wt')).toEqual({a: 2, b: 20, c: 200})
+    expect(dge.getUnnormalizedCountDataToGene('gene_1', 'mut1')).toEqual({d: 10, e: 100, f: 1000})
+    expect(dge.getUnnormalizedCountDataToGene('gene_2', 'mut1')).toEqual({d: 20, e: 200, f: 2000})
+
+    expect(dge.getUnnormalizedCountDataToGene('gene_5', 'mut1')).toEqual({})
+    expect(dge.getUnnormalizedCountDataToGene('gene_2', 'XYZ')).toEqual({})
+
+    expect(dge.getAllUnnormalizedCountDataByGene('gene_1')).toEqual({
+      'wt': {a: 1, b: 10, c: 100},
+      'mut1': {d: 10, e: 100, f: 1000}
+    })
+    expect(dge.getAllUnnormalizedCountDataByGene('gene_2')).toEqual({
+      'wt': {a: 2, b: 20, c: 200},
+      'mut1': {d: 20, e: 200, f: 2000}
+    })
+
+    expect(dge.getAllUnnormalizedCountDataByCondition('wt')).toEqual({
+      'gene_1': {a: 1, b: 10, c: 100},
+      'gene_2': {a: 2, b: 20, c: 200},
+      'gene_3': {a: 1, b: 10, c: 100},
+      'gene_4': {a: 2, b: 20, c: 200}
+    })
+    expect(dge.getAllUnnormalizedCountDataByCondition('mut1')).toEqual({
+      'gene_1': {d: 10, e: 100, f: 1000},
+      'gene_2': {d: 20, e: 200, f: 2000},
+      'gene_3': {d: 10, e: 100, f: 1000},
+      'gene_4': {d: 20, e: 200, f: 2000}
+    })
+
+    expect(dge.getAllUnnormalizedCountData()).toEqual({
+      'wt': {
+        'gene_1': {a: 1, b: 10, c: 100},
+        'gene_2': {a: 2, b: 20, c: 200},
+        'gene_3': {a: 1, b: 10, c: 100},
+        'gene_4': {a: 2, b: 20, c: 200}
+      },
+      'mut1': {
+        'gene_1': {d: 10, e: 100, f: 1000},
+        'gene_2': {d: 20, e: 200, f: 2000},
+        'gene_3': {d: 10, e: 100, f: 1000},
+        'gene_4': {d: 20, e: 200, f: 2000}
+      }
+    })
+
+    expect(dge.getAllUnnormalizedCountDataByGene('gene_5')).toEqual({})
+    expect(dge.getAllUnnormalizedCountDataByCondition('mut123')).toEqual({})
+  })
+
+  test('check ConditionPairs', () => {
+    expect(dge.conditionPairs).toHaveLength(2)
+    let newSubet = dge.getSubset(['gene_1', 'gene_2', 'gene_3', 'gene_5'])
+    expect(newSubet.conditionPairs).toHaveLength(1)
   })
 })
 
