@@ -39,9 +39,9 @@
 </template>
 
 <script>
-  import {ConditionPair} from '@/utilities/dge'
+  import {ConditionPair} from '../../utilities/dge'
 
-  var Highcharts = require('highcharts')
+  let Highcharts = require('highcharts')
 
   const AXIS_COLOR = '#000000'
 
@@ -168,7 +168,7 @@
         series[0].data = []
         series[1].data = []
         series[2].data = []
-        let dge = this.$store.state.dgeData.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
         let logPThreshold = -Math.log10(this.pThreshold)
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
@@ -226,7 +226,7 @@
       dgeConditions () {
         let conditions1 = new Set()
         let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.dgeData.conditionPairs) {
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           conditions1.add(condition1)
           conditions2.add(condition2)
         }
@@ -234,7 +234,7 @@
       },
       conditions2 () {
         let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.dgeData.conditionPairs) {
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           if (condition1 === this.selectedCondition1) {
             conditions2.add(condition2)
           }
