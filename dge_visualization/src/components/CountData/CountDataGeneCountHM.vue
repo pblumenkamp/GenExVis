@@ -84,14 +84,14 @@
   import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
   import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
 
-  var Highcharts = require('highcharts/highmaps')
+  let Highcharts = require('highcharts/highmaps')
   require('highcharts/modules/exporting')(Highcharts)
   require('highcharts/modules/offline-exporting')(Highcharts)
 
-  var debounce = require('lodash.debounce')
+  let debounce = require('lodash.debounce')
 
-  var chart = {}
-  var conditionMapping = {}
+  let chart = {}
+  let conditionMapping = {}
 
   export default {
     name: 'CountDataGeneCountHM',
@@ -120,7 +120,7 @@
         if (Object.keys(chart).length !== 0) {
           chart.showLoading()
         }
-        conditionMapping = this.$store.state.dgeData.seqRuns
+        conditionMapping = this.$store.state.currentDGE.seqRuns
         let options = {
           chart: {
             type: 'heatmap',
@@ -207,22 +207,22 @@
         let seqRunNames = []
         let seqRunIndex = 0
         for (let cond of this.selectedConditions) {
-          for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.dgeData.seqRuns)) {
+          for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.currentDGE.seqRuns)) {
             if (seqRunCond === cond) {
               seqRunNames.push(seqRun)
               seqRunNamesMap[seqRun] = seqRunIndex++
             }
           }
         }
-        let geneNames = Array.from(this.$store.state.dgeData.geneNames).sort()
+        let geneNames = Array.from(this.$store.state.currentDGE.geneNames).sort()
         let geneNamesMapping = {}
         for (let [index, geneName] of geneNames.entries()) {
           geneNamesMapping[geneName] = index
         }
 
         let countData = (this.selectedNormalization === 'unnormalized')
-          ? this.$store.state.dgeData.getAllUnnormalizedCountData()
-          : this.$store.state.dgeData.getAllDeseq2CountData()
+          ? this.$store.state.currentDGE.getAllUnnormalizedCountData()
+          : this.$store.state.currentDGE.getAllDeseq2CountData()
         for (let [condition, genes] of Object.entries(countData)) {
           if (this.selectedConditions.indexOf(condition) === -1) {
             continue
@@ -283,7 +283,7 @@
     },
     computed: {
       registeredNormalizationMethods () {
-        return this.$store.state.dgeData.normalizationMethods
+        return this.$store.state.currentDGE.normalizationMethods
       },
       registeredConditions () {
         return this.$store.state.registeredConditions
