@@ -18,7 +18,7 @@
       <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
     </b-form-select>
 
-    <div id="deseq2volcanoplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+    <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
       <!--<highcharts :options="options" ref="highcharts" style="width: 60%; margin: auto;"></highcharts>-->
 
     <div v-if="selectedCondition1 && selectedCondition2">
@@ -44,6 +44,7 @@
   let Highcharts = require('highcharts')
 
   const AXIS_COLOR = '#000000'
+  const CHART_ID = 'deseq2volcanoplot_highcharts'
 
   export default {
     name: 'DESeq2VolcanoPlot',
@@ -57,6 +58,9 @@
     },
     methods: {
       drawData () {
+        if (!(this.selectedCondition1 && this.selectedCondition2)) {
+          return
+        }
         let options = {
           chart: {
             type: 'scatter',
@@ -190,36 +194,18 @@
           }
         }
 
-        Highcharts.chart('deseq2volcanoplot_highcharts', options)
+        Highcharts.chart(CHART_ID, options)
+      },
+      clearChart () {
+        this.selectedCondition1 = ''
+        this.selectedCondition2 = ''
+        let node = this.$refs[CHART_ID]
+        while (node.firstChild) {
+          node.removeChild(node.firstChild)
+        }
       },
       updatePThreshold () {
         this.drawData()
-        /* let chart = this.$refs.highcharts.chart
-        chart.update({
-          yAxis: {
-            plotLines: [{
-              value: -Math.log10(this.pThreshold),
-              color: 'black',
-              dashStyle: 'shortdash',
-              width: 1,
-              label: {
-                text: 'p-value: ' + this.pThreshold
-              }
-            }]
-          }
-        })
-        chart.update({
-          series: [
-            {
-              name: '|log2 fold change| >= 2 || p-value >= ' + this.pThreshold,
-              id: 1
-            },
-            {
-              name: '|log2 fold change| >= 2 && p-value >= ' + this.pThreshold,
-              id: 0
-            }
-          ]
-        }) */
       }
     },
     computed: {
@@ -243,6 +229,14 @@
       },
       pThreshold () {
         return parseFloat(this.inputPThreshold)
+      },
+      dge () {
+        return this.$store.state.currentDGE
+      }
+    },
+    watch: {
+      dge (newDGE, oldDGE) {
+        this.clearChart()
       }
     }
   }
