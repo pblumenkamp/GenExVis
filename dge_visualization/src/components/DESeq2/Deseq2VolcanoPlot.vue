@@ -42,6 +42,8 @@
   import {ConditionPair} from '../../utilities/dge'
 
   let Highcharts = require('highcharts')
+  require('highcharts/modules/exporting')(Highcharts)
+  require('highcharts/modules/offline-exporting')(Highcharts)
 
   const AXIS_COLOR = '#000000'
   const CHART_ID = 'deseq2volcanoplot_highcharts'
@@ -65,6 +67,21 @@
           chart: {
             type: 'scatter',
             zoomType: 'xy'
+          },
+          navigation: {
+            buttonOptions: {
+              align: 'right',
+              height: 30,
+              width: 36,
+              symbolStroke: '#ffffff',
+              symbolSize: 18,
+              symbolX: 18,
+              symbolY: 15,
+              symbolStrokeWidth: 1.5,
+              theme: {
+                fill: '#7d7d7d'
+              }
+            }
           },
           title: {
             text: `${this.selectedCondition1} vs. ${this.selectedCondition2}`
