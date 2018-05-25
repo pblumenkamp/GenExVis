@@ -74,7 +74,7 @@
       </b-collapse>
     </div>
 
-    <div id="countdatagenecounthm_highcharts"
+    <div id="countdatagenecounthm_highcharts" ref="countdatagenecounthm_highcharts"
          style="min-width: 60%; max-width: 60%; margin: 0 auto"></div>
   </div>
 </template>
@@ -89,6 +89,8 @@
   require('highcharts/modules/offline-exporting')(Highcharts)
 
   let debounce = require('lodash.debounce')
+
+  const CHART_ID = 'countdatagenecounthm_highcharts'
 
   let chart = {}
   let conditionMapping = {}
@@ -117,8 +119,8 @@
         this.selectedConditions = checked ? this.registeredConditions.slice(0) : []
       },
       drawData () {
-        if (Object.keys(chart).length !== 0) {
-          chart.showLoading()
+        if (!this.selectedNormalization) {
+          return
         }
         conditionMapping = this.$store.state.currentDGE.seqRuns
         let options = {
@@ -241,8 +243,15 @@
         options.xAxis.categories = seqRunNames
         options.yAxis.categories = geneNames
 
-        chart = Highcharts.chart('countdatagenecounthm_highcharts', options)
+        chart = Highcharts.chart(CHART_ID, options)
         chart.hideLoading()
+      },
+      clearChart () {
+        this.selectedNormalization = ''
+        let node = this.$refs[CHART_ID]
+        while (node.firstChild) {
+          node.removeChild(node.firstChild)
+        }
       },
       updateColorAxisStops: debounce(
         function () {
@@ -293,6 +302,9 @@
       },
       faMinusCircle () {
         return faMinusCircle
+      },
+      dge () {
+        return this.$store.state.currentDGE
       }
     },
     watch: {
@@ -318,6 +330,9 @@
       },
       selectedNormalization (newVal, oldVal) {
         this.drawData()
+      },
+      dge (newDGE, oldDGE) {
+        this.clearChart()
       }
     }
   }
