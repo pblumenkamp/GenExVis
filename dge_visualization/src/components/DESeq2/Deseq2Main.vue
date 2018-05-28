@@ -27,9 +27,9 @@
           </b-card>
           <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">
             Entries:
-            <li v-for="item in this.$store.state.genelist" style="list-style: none">
+            <!--<li v-for="item in this.$store.state.genelist" style="list-style: none">
               <button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>
-            </li>
+            </li>-->
           </b-card>
         </b-col>
       </b-row>
