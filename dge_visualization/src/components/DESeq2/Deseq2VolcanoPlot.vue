@@ -117,9 +117,7 @@
         }
       },
       drawData () {
-        console.log('drawData ' + this.gridData)
-        // let gridEntries = this.gridEntries
-        // let gridStorage = this.gridData
+        // pulling down the current "this"
         let upperthis = this
         let options = {
           chart: {
@@ -301,32 +299,6 @@
       },
       updatePThreshold () {
         this.drawData()
-        /* let chart = this.$refs.highcharts.chart
-        chart.update({
-          yAxis: {
-            plotLines: [{
-              value: -Math.log10(this.pThreshold),
-              color: 'black',
-              dashStyle: 'shortdash',
-              width: 1,
-              label: {
-                text: 'p-value: ' + this.pThreshold
-              }
-            }]
-          }
-        })
-        chart.update({
-          series: [
-            {
-              name: '|log2 fold change| >= 2 || p-value >= ' + this.pThreshold,
-              id: 1
-            },
-            {
-              name: '|log2 fold change| >= 2 && p-value >= ' + this.pThreshold,
-              id: 0
-            }
-          ]
-        }) */
       }
     },
     computed: {
