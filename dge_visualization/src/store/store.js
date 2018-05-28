@@ -1,17 +1,22 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_GENE, DEL_GENE, ADD_CONDITION, ADD_COUNT_DATA} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
+import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
 Vue.use(Vuex)
 
+let mainDGE = new DGE()
+
 const store = new Vuex.Store({
   strict: true,
   state: {
-    dgeData: new DGE(),
+    currentDGE: mainDGE,
+    dgeData: mainDGE,
+    subDGE: new DGE(),
+    useSubDGE: false,
     registeredConditions: [],
     filelist: [],
     genelist: []
@@ -46,6 +51,21 @@ const store = new Vuex.Store({
         state.dgeData.addUnnormalizedCountData(geneName, condition, values)
       } else if (normalization === 'deseq2') {
         state.dgeData.addDeseq2CountData(geneName, condition, values)
+      }
+    },
+    [ADD_SEQRUN_MAPPING] (state, {mapping}) {
+      state.dgeData.setSeqRunMapping(mapping)
+    },
+    [ADD_SUBSET_DGE] (state, {subsetDGE}) {
+      state.subDGE = subsetDGE
+    },
+    [SWITCH_DGE] (state, {useSubDGE}) {
+      if (useSubDGE) {
+        state.useSubDGE = true
+        state.currentDGE = state.subDGE
+      } else {
+        state.useSubDGE = false
+        state.currentDGE = state.dgeData
       }
     }
   },
@@ -82,16 +102,21 @@ const store = new Vuex.Store({
     },
     [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, geneColumn, normalization}) {
       return new Promise((resolve, reject) => {
+        commit(ADD_SEQRUN_MAPPING, {
+          mapping: headerConditionMapping
+        })
         for (let gene of table) {
           let countData = {}
-          for (let {condition} of headerConditionMapping) {
+          // get all conditions
+          for (let [, condition] of Object.entries(headerConditionMapping)) {
             if (!countData.hasOwnProperty(condition)) {
-              countData[condition] = []
+              countData[condition] = {}
             }
           }
-          for (let {header, condition} of headerConditionMapping) {
-            if (gene.hasOwnProperty(header)) {
-              countData[condition].push(parseFloat(gene[header]))
+          // fill conditions with values
+          for (let [seqRun, condition] of Object.entries(headerConditionMapping)) {
+            if (gene.hasOwnProperty(seqRun)) {
+              countData[condition][seqRun] = parseFloat(gene[seqRun])
             }
           }
           for (let cond of Object.keys(countData)) {
@@ -103,6 +128,13 @@ const store = new Vuex.Store({
             })
           }
         }
+        resolve()
+      })
+    },
+    [SET_SUBDGE] ({commit, state}, {geneList}) {
+      return new Promise((resolve, reject) => {
+        let subsetDGE = state.dgeData.getSubset(geneList)
+        commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
         resolve()
       })
     }

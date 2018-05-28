@@ -16,7 +16,7 @@
       <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
     </b-form-select>
 
-    <div id="deseq2volcanoplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+    <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
       <!--<highcharts :options="options" ref="highcharts" style="width: 60%; margin: auto;"></highcharts>-->
 
     <div v-if="selectedCondition1 && selectedCondition2">
@@ -67,11 +67,14 @@
 </template>
 
 <script>
-  import {ConditionPair} from '@/utilities/dge'
+  import {ConditionPair} from '../../utilities/dge'
 
-  var Highcharts = require('highcharts')
+  let Highcharts = require('highcharts')
+  require('highcharts/modules/exporting')(Highcharts)
+  require('highcharts/modules/offline-exporting')(Highcharts)
 
   const AXIS_COLOR = '#000000'
+  const CHART_ID = 'deseq2volcanoplot_highcharts'
 
   export default {
     name: 'DESeq2VolcanoPlot',
@@ -117,12 +120,30 @@
         }
       },
       drawData () {
+        if (!(this.selectedCondition1 && this.selectedCondition2)) {
+          return
+        }
         // pulling down the current "this"
         let upperthis = this
         let options = {
           chart: {
             type: 'scatter',
             zoomType: 'xy'
+          },
+          navigation: {
+            buttonOptions: {
+              align: 'right',
+              height: 30,
+              width: 36,
+              symbolStroke: '#ffffff',
+              symbolSize: 18,
+              symbolX: 18,
+              symbolY: 15,
+              symbolStrokeWidth: 1.5,
+              theme: {
+                fill: '#7d7d7d'
+              }
+            }
           },
           title: {
             text: `${this.selectedCondition1} vs. ${this.selectedCondition2}`
@@ -217,7 +238,7 @@
               }
             },
             scatter: {
-              turboThreshold: 50000,
+              turboThreshold: Number.MAX_VALUE,
               boostThreshold: 1000,
               marker: {
                 symbol: 'circle',
@@ -273,7 +294,7 @@
         series[0].data = []
         series[1].data = []
         series[2].data = []
-        let dge = this.$store.state.dgeData.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
         let logPThreshold = -Math.log10(this.pThreshold)
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
@@ -295,7 +316,15 @@
           }
         }
 
-        Highcharts.chart('deseq2volcanoplot_highcharts', options)
+        Highcharts.chart(CHART_ID, options)
+      },
+      clearChart () {
+        this.selectedCondition1 = ''
+        this.selectedCondition2 = ''
+        let node = this.$refs[CHART_ID]
+        while (node.firstChild) {
+          node.removeChild(node.firstChild)
+        }
       },
       updatePThreshold () {
         this.drawData()
@@ -305,7 +334,7 @@
       dgeConditions () {
         let conditions1 = new Set()
         let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.dgeData.conditionPairs) {
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           conditions1.add(condition1)
           conditions2.add(condition2)
         }
@@ -313,7 +342,7 @@
       },
       conditions2 () {
         let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.dgeData.conditionPairs) {
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           if (condition1 === this.selectedCondition1) {
             conditions2.add(condition2)
           }
@@ -322,6 +351,14 @@
       },
       pThreshold () {
         return parseFloat(this.inputPThreshold)
+      },
+      dge () {
+        return this.$store.state.currentDGE
+      }
+    },
+    watch: {
+      dge (newDGE, oldDGE) {
+        this.clearChart()
       }
     }
   }

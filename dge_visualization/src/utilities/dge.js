@@ -19,10 +19,20 @@ export class DGE {
     this._conditionPairs = []
     /**
      *
-     * @type {object} Contains Gene instances with gene name as property
+     * @type {Object<Gene>} Contains Gene instances with gene name as property
      * @private
      */
     this._data = {}
+    /**
+     *
+     * @type {Object<string>} Map seqRun to condition {<seqRun>: <condition>}
+     * @private
+     */
+    this._seqRunConditionMapping = {}
+    /**
+     * @type {Set<string>}
+     */
+    this._normalizationMethods = new Set()
   }
 
   /**
@@ -47,6 +57,18 @@ export class DGE {
     return this.length
   }
 
+  get seqRuns () {
+    return this._seqRunConditionMapping
+  }
+
+  /**
+   * Returns a set of all normalization methods of imported count data
+   * @return {Set<string>}
+   */
+  get normalizationMethods () {
+    return new Set(this._normalizationMethods)
+  }
+
   /**
    * Get Gene object to gene name
    * @param {string} geneName
@@ -66,7 +88,16 @@ export class DGE {
   }
 
   /**
-   * Register condition pairs for fast access on all existing conditions. Also reuse existing condition pairs to save memory
+   *
+   * @param seqRunMapping {Object<string>} Map seqRun to condition {<seqRun>: <condition>}
+   */
+  setSeqRunMapping (seqRunMapping) {
+    this._seqRunConditionMapping = Object.assign(seqRunMapping)
+    Object.freeze(this._seqRunConditionMapping)
+  }
+
+  /**
+   * Register condition pairs for fast access on all existing condition pairs. Also reuse existing condition pairs to save memory
    *
    * @param {ConditionPair} conditionPair
    * @return {ConditionPair} If conditionPair is already registered, return registered object, else return conditionPair parameter
@@ -80,6 +111,10 @@ export class DGE {
     }
     this._conditionPairs.push(conditionPair)
     return conditionPair
+  }
+
+  _registerNormalizationMethod (normalization) {
+    this._normalizationMethods.add(normalization)
   }
 
   /**
@@ -100,6 +135,7 @@ export class DGE {
   }
 
   _addCountData (geneName, normalization, condition, values) {
+    this._registerNormalizationMethod(normalization)
     let gene
     if (this.hasGene(geneName)) {
       gene = this.getGene(geneName)
@@ -110,36 +146,93 @@ export class DGE {
     gene.addCountData(normalization, condition, values)
   }
 
-  getUnnormalizedCountData (geneName, condition) {
-    return this._getCountData(geneName, 'unnormalized', condition)
+  getUnnormalizedCountDataToGene (geneName, condition) {
+    return this._getCountDataToGene(geneName, 'unnormalized', condition)
   }
 
-  getDeseq2CountData (geneName, condition) {
-    return this._getCountData(geneName, 'deseq2', condition)
+  getDeseq2CountDataToGene (geneName, condition) {
+    return this._getCountDataToGene(geneName, 'deseq2', condition)
   }
 
-  _getCountData (geneName, normalization, condition) {
+  _getCountDataToGene (geneName, normalization, condition) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getCountData(normalization, condition)
     } else {
-      return []
+      return {}
     }
   }
 
-  getAllUnnormalizedCountData (geneName) {
-    return this._getAllCountData(geneName, 'unnormalized')
+  getAllUnnormalizedCountDataByGene (geneName) {
+    return this._getAllCountDataByGene(geneName, 'unnormalized')
   }
 
-  getAllDeseq2CountData (geneName) {
-    return this._getAllCountData(geneName, 'deseq2')
+  getAllDeseq2CountDataByGene (geneName) {
+    return this._getAllCountDataByGene(geneName, 'deseq2')
   }
 
-  _getAllCountData (geneName, normalization) {
+  _getAllCountDataByGene (geneName, normalization) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getAllCountData(normalization)
     } else {
       return {}
     }
+  }
+
+  getAllUnnormalizedCountDataByCondition (condition) {
+    return this._getCountDataByCondition('unnormalized', condition)
+  }
+
+  getAllDeseq2CountDataByCondition (condition) {
+    return this._getCountDataByCondition('deseq2', condition)
+  }
+
+  _getCountDataByCondition (normalization, condition) {
+    let countData = {}
+    for (let geneName of this.geneNames) {
+      let counts = this.getGene(geneName).getCountData(normalization, condition)
+      if (Object.keys(counts).length !== 0) {
+        countData[geneName] = counts
+      }
+    }
+
+    return countData
+  }
+
+  /**
+   *
+   * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
+   */
+  getAllUnnormalizedCountData () {
+    return this._getCountData('unnormalized')
+  }
+
+  /**
+   *
+   * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
+   */
+  getAllDeseq2CountData () {
+    return this._getCountData('deseq2')
+  }
+
+  /**
+   *
+   * @param normalization {string} name of normalization
+   * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
+   * @private
+   */
+  _getCountData (normalization) {
+    let countData = {}
+    for (let geneName of this.geneNames) {
+      let counts = this.getGene(geneName).getAllCountData(normalization)
+      for (let condition of Object.keys(counts)) {
+        if (!countData.hasOwnProperty(condition)) {
+          countData[condition] = {}
+        }
+        countData[condition][geneName] = counts[condition]
+      }
+    }
+
+    return countData
   }
 
   /**
@@ -279,6 +372,38 @@ export class DGE {
 
     return dge
   }
+
+  /**
+   *
+   * @param genes {Array<string>} list of gene names
+   */
+  getSubset (genes) {
+    let newDGE = new DGE()
+    newDGE._seqRunConditionMapping = this._seqRunConditionMapping
+    newDGE._normalizationMethods = this._normalizationMethods
+    newDGE._geneNames = new Set(genes)
+    newDGE._conditionPairs = []
+    for (let gene of genes) {
+      if (this._data.hasOwnProperty(gene)) {
+        newDGE._data[gene] = this._data[gene]
+
+        let newCondPairs = newDGE.getGene(gene).deseq2ConditionPairs
+        for (let newPair of newCondPairs) {
+          let alreadyAdded = false
+          for (let alreadyAddedCondPair of newDGE._conditionPairs) {
+            if (newPair.isEqual(alreadyAddedCondPair)) {
+              alreadyAdded = true
+              break
+            }
+          }
+          if (!alreadyAdded) {
+            newDGE._conditionPairs.push(newPair)
+          }
+        }
+      }
+    }
+    return newDGE
+  }
 }
 
 /**
@@ -298,7 +423,7 @@ export class Gene {
     this._name = name
     /**
      *
-     * @type {{{string}: {{string}: {Array{number}}}} {normalizationMethod{string}: {condition{string}: values{Array{number}}}
+     * @type {Object<Object<Object<Array<number>>>>} {normalizationMethod{string}: {condition{string}: {seqRunName: values{Array{number}}}}
      * @private
      */
     this._countData = {}
@@ -348,7 +473,7 @@ export class Gene {
    *
    * @param {string} normalization
    * @param {string} condition
-   * @param {Array<number>} values
+   * @param {Object<number>} values as {seqRun_name: count}
    */
   addCountData (normalization, condition, values) {
     if (!this._countData.hasOwnProperty(normalization)) {
@@ -358,7 +483,7 @@ export class Gene {
     } else if (!this._countData[normalization].hasOwnProperty(condition)) {
       this._countData[normalization][condition] = values
     } else {
-      this._countData[normalization][condition] = this._countData[normalization][condition].concat(values)
+      this._countData[normalization][condition] = Object.assign(this._countData[normalization][condition], values)
     }
   }
 
@@ -372,14 +497,14 @@ export class Gene {
     if (this._countData.hasOwnProperty(normalization) && this._countData[normalization].hasOwnProperty(condition)) {
       return this._countData[normalization][condition]
     } else {
-      return []
+      return {}
     }
   }
 
   /**
    *
    * @param {string} normalization
-   * @return {Object<string: Array<number>>} {conditionA: [values], ...}
+   * @return {Object<Object<Array<number>>>} {conditionA: [{seqRunName: values}, ...], ...}
    */
   getAllCountData (normalization) {
     if (this._countData.hasOwnProperty(normalization)) {
@@ -511,7 +636,7 @@ export class DESeq2Analysis {
 
   /**
    *
-   * @param {ConditionPair} other
+   * @param conditions {ConditionPair} other
    * @returns {boolean}
    */
   hasEqualConditions (conditions) {
