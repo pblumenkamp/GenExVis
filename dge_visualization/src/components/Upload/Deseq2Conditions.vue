@@ -62,6 +62,7 @@
         for (let {file, conditions} of this.dataObject) {
           promises.push(this.readDeseq2FileAsText(file, conditions))
           files.push(file.name)
+          // vueData.$store.commit(ADD_FILE, filename) ??? Probably
         }
 
         for (let filename of files) {
@@ -93,6 +94,43 @@
           }
           reader.readAsText(file)
         })
+      },
+      suggestregex (filename) {
+        let suggestionlist = ['', '']
+        let tempdict = {}
+        // versus check block
+        let vsbool = false
+        let vsindex = 0
+        let vsregex = RegExp('vs', 'i')
+        let vsmatch = vsregex.exec(filename)
+        if (vsmatch !== null) {
+          vsbool = true
+          vsindex = vsmatch.index
+        }
+        // versus check block END
+        for (let entry of this.$store.state.registeredConditions) {
+          let regex = RegExp(entry, 'i')
+          let match = regex.exec(filename)
+          if (match !== null) {
+            tempdict[match.index] = entry
+          }
+        }
+        let keyarray = Object.keys(tempdict)
+        let keylength = Object.keys(tempdict).length
+        if (keylength === 2) {
+          for (let i = 0; i <= 1; i++) {
+            suggestionlist[i] = tempdict[keyarray[i]]
+          }
+        } else if (keylength === 1 && vsbool === true) {
+          if (keyarray[0] > vsindex) {
+            suggestionlist[1] = tempdict[keyarray[0]]
+          } else {
+            suggestionlist[0] = tempdict[keyarray[0]]
+          }
+        } else if (keylength === 1 && vsbool === false) {
+          suggestionlist[0] = tempdict[keyarray[0]]
+        }
+        return suggestionlist
       }
     },
     computed: {
@@ -100,7 +138,8 @@
         let dataObject = []
         let index = 0
         for (var file of this.files) {
-          dataObject.push({file: file, conditions: ['', ''], index: index})
+          let sugglist = this.suggestregex(file.name)
+          dataObject.push({file: file, conditions: sugglist, index: index})
           index++
         }
         this.dataObject = dataObject

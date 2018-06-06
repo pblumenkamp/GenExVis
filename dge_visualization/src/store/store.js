@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
+import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_REGEX, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -19,7 +19,8 @@ const store = new Vuex.Store({
     useSubDGE: false,
     registeredConditions: [],
     filelist: [],
-    genelist: []
+    genelist: [],
+    regexlist: []
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
@@ -42,6 +43,11 @@ const store = new Vuex.Store({
         }
         index = index + 1
       }
+    },
+    [ADD_REGEX] (state, regex) {
+      let condregex = RegExp(regex)
+      // console.log(condregex)
+      state.regexlist.push(condregex)
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)
@@ -75,8 +81,8 @@ const store = new Vuex.Store({
         progress.max = deseq2Contents.length
 
         for (let {content, conditions} of deseq2Contents) {
-          console.log(content)
-          console.log(conditions)
+          // console.log(content)
+          // console.log(conditions)
           let dge = parseDeseq2(content, conditions)
           commit(ADD_DATA, dge)
           progress.counter++
@@ -99,6 +105,9 @@ const store = new Vuex.Store({
         commit(ADD_CONDITION, conditionName)
         resolve()
       })
+    },
+    [SEARCH_REGEX] (state, regex) {
+      console.log('hier ist nichts ' + regex)
     },
     [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, geneColumn, normalization}) {
       return new Promise((resolve, reject) => {
