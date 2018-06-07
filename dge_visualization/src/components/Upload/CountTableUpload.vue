@@ -14,7 +14,7 @@
       <b-container>
         <b-row v-for="mapping in headerConditionMapping" :key="mapping.header" style="margin: 1rem">
           <b-col style="padding-top: 0.4rem">
-            {{mapping.header}}
+            {{mapping.header}} -- MAPPING --
           </b-col>
           <b-col>
             <b-form-select v-model="mapping.condition">
@@ -33,21 +33,21 @@
         </b-row>
       </b-container>
     </div>
+    <!--<b-container fluid v-if="uploadingFinished" class="mt-4">-->
+      <!--<b-row>-->
+          <!--<b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />-->
+      <!--</b-row>-->
 
-    <b-container fluid v-if="uploadingFinished" class="mt-4">
-      <b-row>
-          <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
-      </b-row>
-
-      <b-table
-        responsive
-        striped
-        hover
-        :items="items"
-        :current-page="currentPage"
-        :per-page="perPage"
-        style="width: auto;"></b-table>
-    </b-container>
+      <!--<b-table-->
+        <!--responsive-->
+        <!--striped-->
+        <!--hover-->
+        <!--:items="items"-->
+        <!--:current-page="currentPage"-->
+        <!--:per-page="perPage"-->
+        <!--style="width: auto;">-->
+      <!--</b-table>-->
+    <!--</b-container>-->
   </div>
 </template>
 
@@ -92,9 +92,10 @@
                   condition: '$$GENE_NAME$$'
                 })
               } else {
+                let regexcondition = this.suggestregex(colName)
                 this.headerConditionMapping.push({
                   header: colName,
-                  condition: ''
+                  condition: regexcondition
                 })
               }
             }
@@ -160,6 +161,19 @@
           this.importingFiles = false
           this.importingDone = true
         })
+      },
+      suggestregex (column) {
+        let suggestion = ''
+        for (let entry of this.$store.state.registeredConditions) {
+          console.log(entry)
+          let regex = RegExp(entry, 'i')
+          let match = regex.exec(column)
+          if (match !== null) {
+            console.log(column)
+            suggestion = entry
+          }
+        }
+        return suggestion
       }
     },
     computed: {
