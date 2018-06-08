@@ -21,7 +21,7 @@
 
     <div style="padding: 4px; float:left;" class="toolbar">
       <span>
-        <b-button @click="gridOptions.api.selectAll()">Select All</b-button>
+        <b-button @click="gridOptions.api.selectAllFiltered()">Select All</b-button>
         <b-button @click="gridOptions.api.deselectAll()">Clear Selection</b-button>
         <button @click="fillthebasket" class="btn btn-primary">Import Genes</button>
       </span>
@@ -79,13 +79,10 @@
 </template>
 
 <script>
-  import {ADD_GENE} from '@/store/mutation_constants'
+  // import {ADD_GENE} from '../../store/mutation_constants'
+  import {SET_SUBDGE} from '../../store/action_constants'
   import {AgGridVue} from 'ag-grid-vue'
-  // import {ProficiencyFilter} from './proficiencyFilter'
-  // import {SkillFilter} from './skillFilter'
   import DateComponent from './DateComponent.vue'
-  // import HeaderGroupComponent from './HeaderGroupComponent.vue'
-  // import RefData from './refData'
 
   export default {
     data () {
@@ -104,21 +101,28 @@
     },
     methods: {
       fillthebasket () {
-        // this.$store.commit(ADD_GENE, node.data.name)
+        let temparray = []
         let genestaken = this.gridOptions.api.getSelectedRows()
         for (let element of genestaken) {
-          let control = false
-          for (let entry of this.$store.state.genelist) {
-            if (element.name === entry) {
-              control = true
-            }
-          }
-          // console.log(control)
-          if (control === false) {
-            this.$store.commit(ADD_GENE, element.name)
-            // this.$store.state.genelist.sort()
-          }
-          // this.$store.commit(ADD_GENE, element.name)
+          temparray.push(element.name)
+          console.log(element.name)
+          // let control = false
+          // for (let entry of this.$store.state.genelist) {
+          //   if (element.name === entry) {
+          //     control = true
+          //   }
+          // }
+          // if (control === false) {
+          //   this.$store.commit(ADD_GENE, element.name)
+          //   this.$store.commit(ADD_GENE, element.name)
+          // }
+        }
+        console.log(temparray)
+        console.log('= temparray')
+        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+        console.log(this.$store.state.subDGE)
+        for (let entry of this.$store.state.subDGE._geneNames) {
+          console.log(entry)
         }
       },
       createRowData () {
@@ -134,80 +138,19 @@
             for (let element in subentry) {
               dict[element] = subentry[element]
             }
-            // console.log(dict)
-            // console.log(superentry)
-            // dict._baseMean = superentry._baseMean
-            // dict._lfcSE = superentry._lfcSE
-            // dict._log2FoldChange = superentry._log2FoldChange
           }
           rowData1.push(dict)
         }
-        // const rowData2 = []
-        // for (let i = 0; i < 200; i++) {
-        //   const countryData = RefData.COUNTRIES[i % RefData.COUNTRIES.length]
-        //   rowData2.push({
-        //     name: RefData.FIRST_NAMES[i % RefData.FIRST_NAMES.length] + ' ' + RefData.LAST_NAMES[i % RefData.LAST_NAMES.length],
-        //     // skills: {
-        //     //   android: Math.random() < 0.4,
-        //     //   html5: Math.random() < 0.4,
-        //     //   mac: Math.random() < 0.4,
-        //     //   windows: Math.random() < 0.4,
-        //     //   css: Math.random() < 0.4
-        //     // },
-        //     dob: RefData.DOBs[i % RefData.DOBs.length],
-        //     address: RefData.ADDRESSES[i % RefData.ADDRESSES.length],
-        //     years: Math.round(Math.random() * 100),
-        //     proficiency: Math.round(Math.random() * 100),
-        //     country: countryData.language,
-        //     continent: countryData.continent,
-        //     language: countryData.country,
-        //     mobile: createRandomPhoneNumber(),
-        //     landline: createRandomPhoneNumber()
-        //   })
-        // }
         this.rowData = rowData1
       },
       createColumnDefs () {
         const columnDefs = [
-          // {
-          //   headerName: '',
-          //   width: 30,
-          //   checkboxSelection: true,
-          //   suppressSorting: true,
-          //   suppressMenu: true,
-          //   pinned: true
-          // },
           {
             headerName: 'Name',
             field: 'name',
             width: 150,
             pinned: true
           }
-          // {
-          //   headerName: 'Employee',
-          //   headerGroupComponentFramework: HeaderGroupComponent,
-          //   children: [
-          //     {
-          //       headerName: 'Name',
-          //       field: 'name',
-          //       width: 150,
-          //       pinned: true
-          //     },
-          //     {
-          //       headerName: 'DOB',
-          //       field: 'dob',
-          //       width: 120,
-          //       pinned: true,
-          //       cellRenderer: (params) => {
-          //         return this.pad(params.value.getDate(), 2) + '/' +
-          //                                 this.pad(params.value.getMonth() + 1, 2) + '/' +
-          //                                 params.value.getFullYear()
-          //       },
-          //       filter: 'date',
-          //       columnGroupShow: 'open'
-          //     }
-          //   ]
-          // }
         ]
         let filestore = this.$store.state.filelist
         let counter = 0
@@ -357,7 +300,7 @@
       },
 
       onRowClicked (event) {
-        console.log('onRowClicked: ' + event.node.data.name)
+        // console.log('onRowClicked: ' + event.node.data.name)
       },
 
       onQuickFilterChanged (event) {
@@ -378,62 +321,11 @@
       this.gridOptions.dateComponentFramework = DateComponent
       this.createRowData()
       this.createColumnDefs()
-      this.setColumnGroupOpened(this.columnDefs, true)
     }
   }
+</script>
 
-  // function skillsCellRenderer (params) {
-  //   let data = params.data
-  //   let skills = []
-  //   RefData.IT_SKILLS.forEach(function (skill) {
-  //     if (data && data.skills && data.skills[skill]) {
-  //       skills.push('<img src="images/skills/' + skill + '.png" width="16px" title="' + skill + '" />')
-  //     }
-  //   })
-  //   return skills.join(' ')
-  // }
-
-  // function countryCellRenderer (params) {
-  //   let flag = "<img border='0' width='15' height='10' style='margin-bottom: 2px' src='images/flags/" + RefData.COUNTRY_CODES[params.value] + ".png'>"
-  //   return flag + ' ' + params.value
-  // }
-
-  // function createRandomPhoneNumber () {
-  //   let result = '+'
-  //   for (let i = 0; i < 12; i++) {
-  //     result += Math.round(Math.random() * 10)
-  //     if (i === 2 || i === 5 || i === 8) {
-  //       result += ' '
-  //     }
-  //   }
-  //   return result
-  // }
-
-  // function percentCellRenderer (params) {
-  //   let value = params.value
-  //
-  //   let eDivPercentBar = document.createElement('div')
-  //   eDivPercentBar.className = 'div-percent-bar'
-  //   eDivPercentBar.style.width = value + '%'
-  //   if (value < 20) {
-  //     eDivPercentBar.style.backgroundColor = 'red'
-  //   } else if (value < 60) {
-  //     eDivPercentBar.style.backgroundColor = '#ff9900'
-  //   } else {
-  //     eDivPercentBar.style.backgroundColor = '#00A000'
-  //   }
-  //   let eValue = document.createElement('div')
-  //   eValue.className = 'div-percent-value'
-  //   eValue.innerHTML = value + '%'
-  //   let eOuterDiv = document.createElement('div')
-  //   eOuterDiv.className = 'div-outer-div'
-  //   eOuterDiv.appendChild(eValue)
-  //   eOuterDiv.appendChild(eDivPercentBar)
-  //   return eOuterDiv
-  // }
-  </script>
-
-  <style>
+<style>
       .ag-cell {
           padding-top: 2px !important;
           padding-bottom: 2px !important;

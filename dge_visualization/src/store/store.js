@@ -106,8 +106,8 @@ const store = new Vuex.Store({
         resolve()
       })
     },
-    [SEARCH_REGEX] (state, regex) {
-      console.log('hier ist nichts ' + regex)
+    [SEARCH_REGEX] ({commit, state}, {regex}) {
+      console.log(regex)
     },
     [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, geneColumn, normalization}) {
       return new Promise((resolve, reject) => {
@@ -142,6 +142,7 @@ const store = new Vuex.Store({
     },
     [SET_SUBDGE] ({commit, state}, {geneList}) {
       return new Promise((resolve, reject) => {
+        console.log(geneList)
         let subsetDGE = state.dgeData.getSubset(geneList)
         commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
         resolve()
