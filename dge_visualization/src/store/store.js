@@ -37,8 +37,6 @@ const store = new Vuex.Store({
       let index = 0
       for (let entry of state.genelist) {
         if (entry === gene) {
-          console.log('entry: ' + gene)
-          console.log(index)
           state.genelist.splice(index, 1)
         }
         index = index + 1
@@ -142,7 +140,6 @@ const store = new Vuex.Store({
     },
     [SET_SUBDGE] ({commit, state}, {geneList}) {
       return new Promise((resolve, reject) => {
-        console.log(geneList)
         let subsetDGE = state.dgeData.getSubset(geneList)
         commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
         resolve()

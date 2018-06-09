@@ -35,14 +35,15 @@
             <span>
               <button type="button" class="btn btn-default" @click="sortingGenes">Sort Genes</button>
               <button type="button" class="btn btn-default" @click="clearingTable">Clear Table</button>
-              <button class="btn btn-primary">Import Entries</button>
+              <button class="btn btn-primary">Import Genes</button>
             </span>
           </b-col>
         </b-row>
         <b-row align="left">
           <b-col sm="12">
-            <div>
-              <table width="100%" align="left" border="1">
+            <b-card>
+              <!--<div border="1px" align="left" style="font-family: Ubuntu;"></div>-->
+              <table width="100%">
                 <thead>
                 <tr>
                   <th width="14%" v-for="key in gridColumns">
@@ -58,7 +59,7 @@
                 </tr>
                 </tbody>
               </table>
-            </div>
+            </b-card>
           </b-col>
         </b-row>
       </b-container>
@@ -363,3 +364,13 @@
     }
   }
 </script>
+<style>
+  tr, th, td {
+    border: 1px solid lightgrey;
+    border-collapse: collapse;
+    font-family: Ubuntu;
+  }
+  th {
+    background-color: #F6F8F7;
+  }
+</style>

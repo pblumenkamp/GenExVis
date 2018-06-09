@@ -21,13 +21,10 @@
           </b-card>
           <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left" >
             Genes:
-            <li v-for="item of this.$store.state.subDGE._geneNames">
-              <small>{{ item }}</small>
+            <li v-for="item of this.$store.state.subDGE._data">
+              <!--<button type="button" class="btn btn-outline-dark btn-sm">{{ item.name }}</button>-->
+              <small>{{ item.name }}</small>
             </li>
-            <!--<li v-for="item in this.$store.state.subDGE" style="list-style: none">-->
-              <!--<button type="button" class="btn btn-outline-dark btn-sm">{{ item }}</button>-->
-              <!--&lt;!&ndash;<button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>&ndash;&gt;-->
-            <!--</li>-->
           </b-card>
           <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">
             Entries:

@@ -21,8 +21,8 @@
 
     <div style="padding: 4px; float:left;" class="toolbar">
       <span>
-        <b-button @click="gridOptions.api.selectAllFiltered()">Select All</b-button>
-        <b-button @click="gridOptions.api.deselectAll()">Clear Selection</b-button>
+        <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
+        <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
         <button @click="fillthebasket" class="btn btn-primary">Import Genes</button>
       </span>
     </div>
@@ -105,7 +105,6 @@
         let genestaken = this.gridOptions.api.getSelectedRows()
         for (let element of genestaken) {
           temparray.push(element.name)
-          console.log(element.name)
           // let control = false
           // for (let entry of this.$store.state.genelist) {
           //   if (element.name === entry) {
@@ -117,13 +116,16 @@
           //   this.$store.commit(ADD_GENE, element.name)
           // }
         }
-        console.log(temparray)
         console.log('= temparray')
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
         console.log(this.$store.state.subDGE)
-        for (let entry of this.$store.state.subDGE._geneNames) {
+
+        console.log('>> start')
+        for (let entry in this.$store.state.subDGE._data) {
+          console.log(this.$store.state.subDGE._data[entry])
           console.log(entry)
         }
+        console.log('>> END')
       },
       createRowData () {
         const rowData1 = []
@@ -133,6 +135,7 @@
           dict.name = store[gene]._name
           let list = store[gene]._deseq2_analyses
           for (let entry in list) {
+            // entry = 0, 1, 2 ...
             // probably try entry OF list
             let subentry = list[entry]
             for (let element in subentry) {
