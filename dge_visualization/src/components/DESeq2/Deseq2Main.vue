@@ -13,25 +13,28 @@
           <router-view/>
         </b-col>
         <b-col class="col" cols="2">
-          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">
+          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="scrollbox">
             Files:
             <li v-for="file in this.$store.state.filelist">
               <small>{{ file }}</small>
             </li>
           </b-card>
-          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left" >
+          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="genestaken" >
             Genes:
-            <li v-for="item of this.$store.state.subDGE._data">
-              <!--<button type="button" class="btn btn-outline-dark btn-sm">{{ item.name }}</button>-->
-              <small>{{ item.name }}</small>
-            </li>
+            <button @click="createemptysubset()">clear</button>
+            <button>restore</button>
+            <p></p>
+            <button v-for="item of this.$store.state.subDGE._data" @click="removeitem(item)" type="button" class="btn btn-outline-dark btn-sm">{{ item.name }}</button>
+            <!--<li v-for="item of this.$store.state.subDGE._data">-->
+              <!--<small>{{ item.name }}</small>-->
+            <!--</li>-->
           </b-card>
-          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">
-            Entries:
-            <!--<li v-for="item in this.$store.state.genelist" style="list-style: none">
-              <button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>
-            </li>-->
-          </b-card>
+          <!--<b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">-->
+            <!--Entries:-->
+            <!--&lt;!&ndash;<li v-for="item in this.$store.state.genelist" style="list-style: none">-->
+              <!--<button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>-->
+            <!--</li>&ndash;&gt;-->
+          <!--</b-card>-->
         </b-col>
       </b-row>
     </b-container>
@@ -53,21 +56,40 @@
 </template>
 
 <script>
-  import {DEL_GENE} from '@/store/mutation_constants'
+  import {SET_SUBDGE} from '../../store/action_constants'
+
   export default {
     name: 'DESeq2',
     methods: {
       removeitem (item) {
-        this.$store.commit(DEL_GENE, item)
-        // this.$store.state.genelist.splice(item)
-        console.log(item)
-        console.log(this.$store.state.genelist)
+        let temparray = []
+        for (let entry in this.$store.state.subDGE._data) {
+          if (entry !== item._name) {
+            temparray.push(entry)
+          }
+        }
+        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+      },
+      createemptysubset () {
+        let temparray = []
+        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       }
     }
   }
 </script>
 
 <style>
+  .scrollbox {
+    text-align: left;
+    overflow-y: scroll;
+    height: auto;
+    padding: 1rem
+  }
+  .genestaken {
+    text-align: left;
+    height: fit-content;
+    /*margin: 0;*/
+  }
   .col {
     /*border: 1px solid limegreen;*/
     /*height: 500px;*/

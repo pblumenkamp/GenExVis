@@ -35,7 +35,7 @@
             <span>
               <button type="button" class="btn btn-default" @click="sortingGenes">Sort Genes</button>
               <button type="button" class="btn btn-default" @click="clearingTable">Clear Table</button>
-              <button class="btn btn-primary">Import Genes</button>
+              <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
             </span>
           </b-col>
         </b-row>
@@ -69,6 +69,7 @@
 
 <script>
   import {ConditionPair} from '../../utilities/dge'
+  import {SET_SUBDGE} from '../../store/action_constants'
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
@@ -119,6 +120,28 @@
           dict.name = entry.toString()
           this.gridData.push(dict)
         }
+      },
+      fillthebasket () {
+        console.log('import activated')
+        let temparray = []
+        let genestaken = this.gridEntries
+        console.log(genestaken)
+        for (let element of genestaken) {
+          temparray.push(element)
+          // let control = false
+          // for (let entry of this.$store.state.genelist) {
+          //   if (element.name === entry) {
+          //     control = true
+          //   }
+          // }
+          // if (control === false) {
+          //   this.$store.commit(ADD_GENE, element.name)
+          //   this.$store.commit(ADD_GENE, element.name)
+          // }
+        }
+        temparray.sort()
+        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+        console.log(this.$store.state.subDGE)
       },
       drawData () {
         if (!(this.selectedCondition1 && this.selectedCondition2)) {

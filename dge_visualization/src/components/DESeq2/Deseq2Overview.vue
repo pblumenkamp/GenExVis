@@ -23,7 +23,7 @@
       <span>
         <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
         <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-        <button @click="fillthebasket" class="btn btn-primary">Import Genes</button>
+        <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
       </span>
     </div>
 
@@ -70,7 +70,7 @@
                  :columnResized="onColumnEvent"
                  :columnPinnedCountChanged="onColumnEvent"/>
     <div>
-      <b-card>
+      <b-card class="currentlychosen">
         Currently chosen:
         <p id="selectedRows"> </p>
       </b-card>
@@ -116,16 +116,8 @@
           //   this.$store.commit(ADD_GENE, element.name)
           // }
         }
-        console.log('= temparray')
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
         console.log(this.$store.state.subDGE)
-
-        console.log('>> start')
-        for (let entry in this.$store.state.subDGE._data) {
-          console.log(this.$store.state.subDGE._data[entry])
-          console.log(entry)
-        }
-        console.log('>> END')
       },
       createRowData () {
         const rowData1 = []
@@ -329,46 +321,52 @@
 </script>
 
 <style>
-      .ag-cell {
-          padding-top: 2px !important;
-          padding-bottom: 2px !important;
-          text-align: center;
-      }
+  .currentlychosen {
+    text-align: left;
+    overflow-y: scroll;
+    height: 150px;
+    padding: 1rem
+  }
+  .ag-cell {
+      padding-top: 2px !important;
+      padding-bottom: 2px !important;
+      text-align: center;
+  }
 
-      .customHeaderLabel {
-          margin-right: 5px;
-          margin-top: 3px;
-          float: right;
-      }
+  .customHeaderLabel {
+      margin-right: 5px;
+      margin-top: 3px;
+      float: right;
+  }
 
-      label {
-          font-weight: normal !important;
-          text-align: right;
-      }
+  label {
+      font-weight: normal !important;
+      text-align: right;
+  }
 
-      .div-percent-bar {
-          display: inline-block;
-          height: 100%;
-          position: relative;
-          z-index: 0;
-      }
+  .div-percent-bar {
+      display: inline-block;
+      height: 100%;
+      position: relative;
+      z-index: 0;
+  }
 
-      .div-percent-value {
-          position: absolute;
-          padding-left: 4px;
-          font-weight: bold;
-          font-size: 13px;
-          z-index: 100;
-      }
+  .div-percent-value {
+      position: absolute;
+      padding-left: 4px;
+      font-weight: bold;
+      font-size: 13px;
+      z-index: 100;
+  }
 
-      .div-outer-div {
-          display: inline-block;
-          height: 100%;
-          width: 100%;
-      }
+  .div-outer-div {
+      display: inline-block;
+      height: 100%;
+      width: 100%;
+  }
 
-      .ag-menu {
-          z-index: 200;
-          text-align-all: center;
-      }
+  .ag-menu {
+      z-index: 200;
+      text-align-all: center;
+  }
 </style>
