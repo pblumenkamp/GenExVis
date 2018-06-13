@@ -157,6 +157,7 @@
                 headerFormat: '',
                 pointFormat: '<b>{point.gene}</b><br>' +
                 'log2 fold change: {point.x:.3f}<br>' +
+                'base mean: {point.baseMean:.3f}<br>' +
                 ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ': {point.yTooltip}'
               }
             }
@@ -199,7 +200,8 @@
             gene: geneName,
             x: analysis.log2FoldChange,
             y: -Math.log10(y),
-            yTooltip: y.toExponential(2)
+            yTooltip: y.toExponential(2),
+            baseMean: analysis.baseMean
           }
 
           if (Math.abs(dataPoint.x) >= 2 && dataPoint.y >= logPThreshold) {
