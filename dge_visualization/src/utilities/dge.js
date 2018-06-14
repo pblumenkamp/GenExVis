@@ -453,7 +453,7 @@ export class Gene {
   }
 
   get normalizationMethods () {
-    return this._countData.keys()
+    return Object.keys(this._countData)
   }
 
   /**
