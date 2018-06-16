@@ -117,7 +117,6 @@
           // }
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
-        console.log(this.$store.state.subDGE)
       },
       createRowData () {
         const rowData1 = []

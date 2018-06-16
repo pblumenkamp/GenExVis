@@ -14,7 +14,7 @@
       <b-container>
         <b-row v-for="mapping in headerConditionMapping" :key="mapping.header" style="margin: 1rem">
           <b-col style="padding-top: 0.4rem">
-            {{mapping.header}} -- MAPPING --
+            {{mapping.header}}
           </b-col>
           <b-col>
             <b-form-select v-model="mapping.condition">

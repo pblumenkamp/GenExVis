@@ -22,12 +22,8 @@
           <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="genestaken" >
             Genes:
             <button @click="createemptysubset()">clear</button>
-            <button>restore</button>
             <p></p>
-            <button v-for="item of this.$store.state.subDGE._data" @click="removeitem(item)" type="button" class="btn btn-outline-dark btn-sm">{{ item.name }}</button>
-            <!--<li v-for="item of this.$store.state.subDGE._data">-->
-              <!--<small>{{ item.name }}</small>-->
-            <!--</li>-->
+            <button v-for="item in Array.from(this.$store.state.subDGE.geneNames)" @click="removeitem(item)" type="button" class="btn btn-outline-dark btn-sm">{{ item }}</button>
           </b-card>
           <!--<b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">-->
             <!--Entries:-->
@@ -39,20 +35,6 @@
       </b-row>
     </b-container>
   </div>
-  <!--<b-container fluid >-->
-    <!--<b-row>-->
-      <!--<b-col class="col" cols="1">-->
-        <!--<b-nav vertical class="left_navbar">-->
-          <!--<b-nav-item to="/deseq2/overview">Overview</b-nav-item>-->
-          <!--<b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>-->
-          <!--<b-nav-item to="/deseq2/ma_plot">MA Plot</b-nav-item>-->
-        <!--</b-nav>-->
-      <!--</b-col>-->
-      <!--<b-col>-->
-        <!--<router-view/>-->
-      <!--</b-col>-->
-    <!--</b-row>-->
-  <!--</b-container>-->
 </template>
 
 <script>
@@ -63,8 +45,8 @@
     methods: {
       removeitem (item) {
         let temparray = []
-        for (let entry in this.$store.state.subDGE._data) {
-          if (entry !== item._name) {
+        for (let entry of this.$store.state.subDGE.geneNames) {
+          if (entry !== item) {
             temparray.push(entry)
           }
         }
