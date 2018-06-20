@@ -60,7 +60,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .scrollbox {
     text-align: left;
     overflow-y: scroll;

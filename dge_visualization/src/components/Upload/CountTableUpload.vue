@@ -163,15 +163,20 @@
         })
       },
       suggestregex (column) {
+        let tempdict = {}
         let suggestion = ''
         for (let entry of this.$store.state.registeredConditions) {
           console.log(entry)
           let regex = RegExp(entry, 'i')
           let match = regex.exec(column)
           if (match !== null) {
-            console.log(column)
-            suggestion = entry
+            tempdict[match.index] = entry
           }
+        }
+        let keyarray = Object.keys(tempdict)
+        let keylength = Object.keys(tempdict).length
+        if (keylength === 1) {
+          suggestion = tempdict[keyarray[0]]
         }
         return suggestion
       }

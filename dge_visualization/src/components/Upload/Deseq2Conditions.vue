@@ -101,7 +101,7 @@
         // versus check block
         let vsbool = false
         let vsindex = 0
-        let vsregex = RegExp('vs', 'i')
+        let vsregex = RegExp('[^A-Za-z0-9]vs[^A-Za-z0-9]', 'i')
         let vsmatch = vsregex.exec(filename)
         if (vsmatch !== null) {
           vsbool = true
@@ -128,7 +128,8 @@
             suggestionlist[0] = tempdict[keyarray[0]]
           }
         } else if (keylength === 1 && vsbool === false) {
-          suggestionlist[0] = tempdict[keyarray[0]]
+          // (before 20.06.2018) suggestionlist[0] = tempdict[keyarray[0]]
+          // pass
         }
         return suggestionlist
       }

@@ -319,7 +319,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .currentlychosen {
     text-align: left;
     overflow-y: scroll;

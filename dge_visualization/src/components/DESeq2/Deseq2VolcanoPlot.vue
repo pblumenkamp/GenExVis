@@ -1,3 +1,4 @@
+
 <template>
   <div>
     <h1>Volcano Plot</h1>
@@ -286,7 +287,7 @@
                 headerFormat: '',
                 pointFormat: '<b>{point.gene}</b><br>' +
                 'log2 fold change: {point.x:.3f}<br>' +
-                ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value TEST') + ': {point.yTooltip}'
+                ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ': {point.yTooltip}'
               }
             }
           },
@@ -387,7 +388,7 @@
     }
   }
 </script>
-<style>
+<style scoped>
   tr, th, td {
     border: 1px solid lightgrey;
     border-collapse: collapse;
