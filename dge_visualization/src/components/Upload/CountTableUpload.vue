@@ -33,21 +33,21 @@
         </b-row>
       </b-container>
     </div>
+    <!--<b-container fluid v-if="uploadingFinished" class="mt-4">-->
+      <!--<b-row>-->
+          <!--<b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />-->
+      <!--</b-row>-->
 
-    <b-container fluid v-if="uploadingFinished" class="mt-4">
-      <b-row>
-          <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
-      </b-row>
-
-      <b-table
-        responsive
-        striped
-        hover
-        :items="items"
-        :current-page="currentPage"
-        :per-page="perPage"
-        style="width: auto;"></b-table>
-    </b-container>
+      <!--<b-table-->
+        <!--responsive-->
+        <!--striped-->
+        <!--hover-->
+        <!--:items="items"-->
+        <!--:current-page="currentPage"-->
+        <!--:per-page="perPage"-->
+        <!--style="width: auto;">-->
+      <!--</b-table>-->
+    <!--</b-container>-->
   </div>
 </template>
 
@@ -92,9 +92,10 @@
                   condition: '$$GENE_NAME$$'
                 })
               } else {
+                let regexcondition = this.suggestregex(colName)
                 this.headerConditionMapping.push({
                   header: colName,
-                  condition: ''
+                  condition: regexcondition
                 })
               }
             }
@@ -160,6 +161,24 @@
           this.importingFiles = false
           this.importingDone = true
         })
+      },
+      suggestregex (column) {
+        let tempdict = {}
+        let suggestion = ''
+        for (let entry of this.$store.state.registeredConditions) {
+          console.log(entry)
+          let regex = RegExp(entry, 'i')
+          let match = regex.exec(column)
+          if (match !== null) {
+            tempdict[match.index] = entry
+          }
+        }
+        let keyarray = Object.keys(tempdict)
+        let keylength = Object.keys(tempdict).length
+        if (keylength === 1) {
+          suggestion = tempdict[keyarray[0]]
+        }
+        return suggestion
       }
     },
     computed: {

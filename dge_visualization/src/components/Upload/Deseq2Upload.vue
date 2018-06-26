@@ -11,6 +11,7 @@
     </div>
     <div>
       <deseq2-conditions v-if="!(files.length == 0)" :files="files" style="margin-top: 2rem"></deseq2-conditions>
+      <br>
     </div>
   </div>
 </template>
@@ -30,7 +31,10 @@
       }
     },
     methods: {
-      onFileChange (e) {
+      onFileChange () {
+        // just the correct amount of [] in condition list
+        // import in Deseq2Conditions
+        console.log('aktiviert')
         for (var i = 0; i < this.files.length; i++) {
           this.conditions.push([])
         }
