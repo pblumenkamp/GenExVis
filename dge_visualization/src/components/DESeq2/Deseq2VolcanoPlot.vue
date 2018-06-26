@@ -11,15 +11,18 @@
       <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" @input="drawData" :disabled="selectedCondition1 === ''">
+    <b-form-select v-model="selectedCondition2" style="width: auto" @input="drawData"
+                   :disabled="selectedCondition1 === ''">
       <template slot="first">
         <option :value="''" disabled>-- Please select the second condition --</option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
+      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}
+      </option>
     </b-form-select>
 
-    <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
-      <!--<highcharts :options="options" ref="highcharts" style="width: 60%; margin: auto;"></highcharts>-->
+    <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts"
+         style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+    <!--<highcharts :options="options" ref="highcharts" style="width: 60%; margin: auto;"></highcharts>-->
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
@@ -27,11 +30,16 @@
       <b-container fluid>
         <b-row class="my-1">
           <b-col sm="3"><label style="margin-top: 0.4rem;">p-value threshold</label></b-col>
-          <b-col sm="9"><b-form-input type="number" v-model="inputPThreshold" step="0.001" max="1" min="0" style="width: 10rem;" @change="updatePThreshold"></b-form-input></b-col>
+          <b-col sm="9">
+            <b-form-input type="number" v-model="inputPThreshold" step="0.001" max="1" min="0" style="width: 10rem;"
+                          @change="updatePThreshold"></b-form-input>
+          </b-col>
         </b-row>
         <b-row class="my-1">
           <b-col sm="3"><label>use adjusted p-value</label></b-col>
-          <b-col sm="9"><b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox></b-col>
+          <b-col sm="9">
+            <b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox>
+          </b-col>
         </b-row>
       </b-container>
     </div>
@@ -60,9 +68,27 @@
     },
     methods: {
       drawData () {
-        if (!(this.selectedCondition1 && this.selectedCondition2)) {
+        let vue = this
+        if (!(vue.selectedCondition1 && vue.selectedCondition2)) {
           return
         }
+
+        /* let pointTooltip = (function (data, cond1, cond2) {
+          let tooltip = '<table>' +
+            '<tr><td>log2 fold change:</td><td></td><td></td><td>{point.x:.3f}</td></tr>' +
+            '<tr><td>base mean:</td><td></td><td></td><td>{point.baseMean:.3f}</td></tr>'
+          if (data.normalizationMethods.size !== 0) {
+            tooltip += '<tr><td>counts:</td></tr>'
+            for (let normalization of data.normalizationMethods) {
+              tooltip += '<tr><td></td><td>' + normalization + '</td></tr>' +
+                '<tr><td></td><td></td><td>' + cond1 + ':</td> <td>{point.' + normalization + '_counts1}</td></tr>' +
+                '<tr><td></td><td></td><td>' + cond2 + ':</td> <td>{point.' + normalization + '_counts2}</td></tr>'
+            }
+          }
+          tooltip += '<tr><td>' + ((vue.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ':</td><td></td><td></td><td>{point.yTooltip}</td></tr></table>'
+          return tooltip
+        }(vue.$store.state.currentDGE, vue.selectedCondition1, vue.selectedCondition2)) */
+
         let options = {
           chart: {
             type: 'scatter',
@@ -84,7 +110,7 @@
             }
           },
           title: {
-            text: `${this.selectedCondition1} vs. ${this.selectedCondition2}`
+            text: `${vue.selectedCondition1} vs. ${vue.selectedCondition2}`
           },
           xAxis: {
             title: {
@@ -117,12 +143,12 @@
               }
             },
             plotLines: [{
-              value: -Math.log10(this.pThreshold),
+              value: -Math.log10(vue.pThreshold),
               color: 'black',
               dashStyle: 'shortdash',
               width: 1,
               label: {
-                text: 'p-value: ' + this.pThreshold
+                text: 'p-value: ' + vue.pThreshold
               }
             }]
           },
@@ -152,8 +178,8 @@
                   }
                 }
               },
-
               tooltip: {
+                useHTML: true,
                 headerFormat: '',
                 pointFormat: '<b>{point.gene}</b><br>' +
                 'log2 fold change: {point.x:.3f}<br>' +
@@ -163,25 +189,26 @@
             }
           },
           series: [{
-            name: '|log2 fold change| >= 2 AND p-value <= ' + this.pThreshold.toExponential(2),
+            name: '|log2 fold change|cd ..' +
+            ' >= 2 AND p-value <= ' + vue.pThreshold.toExponential(2),
             color: '#cc1926',
             zIndex: 2,
             id: 0,
-            data: [{gene: 'abc', x: 0, y: 0}]
+            data: []
           },
           {
-            name: '|log2 fold change| >= 2 OR p-value <= ' + this.pThreshold.toExponential(2),
+            name: '|log2 fold change| >= 2 OR p-value <= ' + vue.pThreshold.toExponential(2),
             color: '#ccc223',
             zIndex: 1,
             id: 1,
-            data: [{gene: 'abc', x: 0, y: 0}]
+            data: []
           },
           {
             name: 'Rest',
             color: '#000000',
             zIndex: 0,
             id: 2,
-            data: [{gene: 'abc', x: 0, y: 0}]
+            data: []
           }]
         }
 
@@ -190,18 +217,36 @@
         series[0].data = []
         series[1].data = []
         series[2].data = []
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
-        let logPThreshold = -Math.log10(this.pThreshold)
+        let dge = vue.$store.state.currentDGE.getAllGenesFromDESeq2(vue.selectedCondition1, vue.selectedCondition2)
+        let logPThreshold = -Math.log10(vue.pThreshold)
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
-          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          let y = (this.useAdjPValue) ? analysis.pAdj : analysis.pValue
+          let analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition1, vue.selectedCondition2))
+          let y = (vue.useAdjPValue) ? analysis.pAdj : analysis.pValue
           let dataPoint = {
             gene: geneName,
             x: analysis.log2FoldChange,
             y: -Math.log10(y),
             yTooltip: y.toExponential(2),
             baseMean: analysis.baseMean
+          }
+
+          if (gene.normalizationMethods.length !== 0) {
+            let average = list => {
+              let sum = 0
+              let n = 0
+              for (let key in list) {
+                if (list.hasOwnProperty(key)) {
+                  sum += list[key]
+                  n++
+                }
+              }
+              return sum / n
+            }
+            for (let normalization of gene.normalizationMethods) {
+              dataPoint[normalization + '_counts1'] = average(gene.getCountData(normalization, vue.selectedCondition1))
+              dataPoint[normalization + '_counts2'] = average(gene.getCountData(normalization, vue.selectedCondition2))
+            }
           }
 
           if (Math.abs(dataPoint.x) >= 2 && dataPoint.y >= logPThreshold) {
