@@ -82,7 +82,6 @@
   // import {ADD_GENE} from '../../store/mutation_constants'
   import {SET_SUBDGE} from '../../store/action_constants'
   import {AgGridVue} from 'ag-grid-vue'
-  import DateComponent from './DateComponent.vue'
 
   export default {
     data () {
@@ -312,7 +311,6 @@
         rowSelection: 'multiple',
         rowMultiSelectWithClick: true
       }
-      this.gridOptions.dateComponentFramework = DateComponent
       this.createRowData()
       this.createColumnDefs()
     }
