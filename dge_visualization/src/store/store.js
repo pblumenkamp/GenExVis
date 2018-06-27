@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
+import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_REGEX, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -18,7 +18,9 @@ const store = new Vuex.Store({
     subDGE: new DGE(),
     useSubDGE: false,
     registeredConditions: [],
-    filelist: []
+    filelist: [],
+    genelist: [],
+    regexlist: []
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
@@ -26,6 +28,24 @@ const store = new Vuex.Store({
     },
     [ADD_FILE] (state, file) {
       state.filelist.push(file)
+    },
+    [ADD_GENE] (state, gene) {
+      state.genelist.push(gene)
+      state.genelist.sort()
+    },
+    [DEL_GENE] (state, gene) {
+      let index = 0
+      for (let entry of state.genelist) {
+        if (entry === gene) {
+          state.genelist.splice(index, 1)
+        }
+        index = index + 1
+      }
+    },
+    [ADD_REGEX] (state, regex) {
+      let condregex = RegExp(regex)
+      // console.log(condregex)
+      state.regexlist.push(condregex)
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)
@@ -59,6 +79,8 @@ const store = new Vuex.Store({
         progress.max = deseq2Contents.length
 
         for (let {content, conditions} of deseq2Contents) {
+          // console.log(content)
+          // console.log(conditions)
           let dge = parseDeseq2(content, conditions)
           commit(ADD_DATA, dge)
           progress.counter++
@@ -70,7 +92,6 @@ const store = new Vuex.Store({
     },
     [EXTEND_FILE_LIST] ({commit, state}, {filelist}) {
       commit(ADD_FILE, filelist)
-      console.log((filelist))
     },
     [REGISTER_CONDITION] ({commit, state}, {conditionName}) {
       return new Promise((resolve, reject) => {
@@ -82,6 +103,9 @@ const store = new Vuex.Store({
         commit(ADD_CONDITION, conditionName)
         resolve()
       })
+    },
+    [SEARCH_REGEX] ({commit, state}, {regex}) {
+      console.log(regex)
     },
     [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, geneColumn, normalization}) {
       return new Promise((resolve, reject) => {

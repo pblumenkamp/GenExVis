@@ -1,8 +1,7 @@
+
 <template>
   <div>
-    <h1>
-      Volcano Plot
-    </h1>
+    <h1>Volcano Plot</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
@@ -26,8 +25,7 @@
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
-
-      <b-container fluid>
+      <b-container fluid border="1">
         <b-row class="my-1">
           <b-col sm="3"><label style="margin-top: 0.4rem;">p-value threshold</label></b-col>
           <b-col sm="9">
@@ -41,13 +39,46 @@
             <b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox>
           </b-col>
         </b-row>
+        <b-row align="left">
+          <b-col sm="12">
+            <span>
+              <button type="button" class="btn btn-default" @click="sortingGenes">Sort Genes</button>
+              <button type="button" class="btn btn-default" @click="clearingTable">Clear Table</button>
+              <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
+            </span>
+          </b-col>
+        </b-row>
+        <b-row align="left">
+          <b-col sm="12">
+            <b-card>
+              <!--<div border="1px" align="left" style="font-family: Ubuntu;"></div>-->
+              <table width="100%">
+                <thead>
+                <tr>
+                  <th width="14%" v-for="key in gridColumns">
+                    {{ key }}
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="entry of gridData">
+                  <td width="14%" v-for="key of gridColumns">
+                    {{ entry[key] }}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </b-card>
+          </b-col>
+        </b-row>
       </b-container>
+      </div>
     </div>
-  </div>
 </template>
 
 <script>
   import {ConditionPair} from '../../utilities/dge'
+  import {SET_SUBDGE} from '../../store/action_constants'
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
@@ -63,16 +94,69 @@
         selectedCondition1: '',
         selectedCondition2: '',
         inputPThreshold: '0.001',
-        useAdjPValue: false
+        useAdjPValue: false,
+        gridColumns: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
+        gridEntries: [],
+        gridData: []
       }
     },
+    components: {
+      template: '#grid-template'
+    },
     methods: {
+      clearingTable () {
+        console.log('clearingTable1 ' + this.gridData)
+        this.gridEntries = []
+        this.gridData = []
+        console.log('clearingTable2 ' + this.gridData)
+      },
+      sortingGenes () {
+        this.gridEntries.sort()
+        this.collectingData()
+      },
+      collectingData () {
+        console.log('collectingData ' + this.gridData)
+        this.gridData.length = 0
+        let storage = this.$store.state.dgeData
+        for (let entry of this.gridEntries) {
+          let dict = {}
+          let dataArray = storage.getGene(entry)._deseq2_analyses
+          for (let entry of this.gridColumns) {
+            for (let subentry of dataArray) {
+              dict[entry] = subentry[entry]
+            }
+          }
+          dict.name = entry.toString()
+          this.gridData.push(dict)
+        }
+      },
+      fillthebasket () {
+        console.log('import activated')
+        let temparray = []
+        let genestaken = this.gridEntries
+        console.log(genestaken)
+        for (let element of genestaken) {
+          temparray.push(element)
+          // let control = false
+          // for (let entry of this.$store.state.genelist) {
+          //   if (element.name === entry) {
+          //     control = true
+          //   }
+          // }
+          // if (control === false) {
+          //   this.$store.commit(ADD_GENE, element.name)
+          //   this.$store.commit(ADD_GENE, element.name)
+          // }
+        }
+        temparray.sort()
+        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+        console.log(this.$store.state.subDGE)
+      },
       drawData () {
         let vue = this
         if (!(vue.selectedCondition1 && vue.selectedCondition2)) {
           return
         }
-
         /* let pointTooltip = (function (data, cond1, cond2) {
           let tooltip = '<table>' +
             '<tr><td>log2 fold change:</td><td></td><td></td><td>{point.x:.3f}</td></tr>' +
@@ -89,6 +173,7 @@
           return tooltip
         }(vue.$store.state.currentDGE, vue.selectedCondition1, vue.selectedCondition2)) */
 
+        // pulling down the current "this"
         let options = {
           chart: {
             type: 'scatter',
@@ -158,6 +243,49 @@
             verticalAlign: 'bottom'
           },
           plotOptions: {
+            series: {
+              allowPointSelect: true,
+              point: {
+                events: {
+                  click: function (event) {
+                    let gridEntries = vue.gridEntries
+                    let gridStorage = vue.gridData
+                    if (gridEntries.length !== 0) {
+                      if (event.ctrlKey === true || event.shiftKey === true) {
+                        gridEntries.push(this.gene)
+                      } else {
+                        gridEntries.length = 0
+                        gridEntries.push(this.gene)
+                      }
+                    } else {
+                      gridStorage.length = 0
+                      gridEntries.push(this.gene)
+                    }
+                    vue.collectingData()
+                    // ------------------------
+                    //
+                    // let dict = {}
+                    // let dataarray = testvar.getGene(this.gene)._deseq2_analyses
+                    // for (let entry of gridColumns) {
+                    //   for (let subentry of dataarray) {
+                    //     dict[entry] = subentry[entry]
+                    //   }
+                    // }
+                    // dict.name = this.gene
+                    // if (Object.keys(gridstorage).length !== 0) {
+                    //   if (event.ctrlKey === true || event.shiftKey === true) {
+                    //     gridstorage.push(dict)
+                    //   } else {
+                    //     gridstorage.length = 0
+                    //     gridstorage.push(dict)
+                    //   }
+                    // } else {
+                    //   gridstorage.push(dict)
+                    // }
+                  }
+                }
+              }
+            },
             scatter: {
               turboThreshold: Number.MAX_VALUE,
               boostThreshold: 1000,
@@ -305,3 +433,13 @@
     }
   }
 </script>
+<style scoped>
+  tr, th, td {
+    border: 1px solid lightgrey;
+    border-collapse: collapse;
+    font-family: Ubuntu;
+  }
+  th {
+    background-color: #F6F8F7;
+  }
+</style>

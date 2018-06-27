@@ -5,6 +5,8 @@ import Vuex from 'vuex'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import '../node_modules/ag-grid/dist/styles/ag-grid.css'
+import '../node_modules/ag-grid/dist/styles/ag-theme-balham.css'
 
 import App from '@/App'
 import router from '@/router'
