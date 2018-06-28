@@ -7,7 +7,7 @@
         </ul>
       </b-card>
       <b-form-file id="files_input" v-model="files" multiple placeholder="Choose all files..."
-                   @change="onFileChange" style="width: 50%"></b-form-file>
+                   style="width: 50%"></b-form-file>
     </div>
     <div>
       <deseq2-conditions v-if="!(files.length == 0)" :files="files" style="margin-top: 2rem"></deseq2-conditions>
@@ -26,18 +26,7 @@
     },
     data () {
       return {
-        files: [],
-        conditions: []
-      }
-    },
-    methods: {
-      onFileChange () {
-        // just the correct amount of [] in condition list
-        // import in Deseq2Conditions
-        console.log('aktiviert')
-        for (var i = 0; i < this.files.length; i++) {
-          this.conditions.push([])
-        }
+        files: []
       }
     }
   }
