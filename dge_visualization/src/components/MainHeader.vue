@@ -3,11 +3,12 @@
 
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
-    <b-navbar-brand :to="{name: 'Main'}">DGE Visualizer</b-navbar-brand>
+    <b-navbar-brand :to="{name: 'Main'}">{{ website_name }}</b-navbar-brand>
 
     <b-collapse is-nav id="nav_collapse">
 
       <b-navbar-nav>
+        <b-nav-text><small style="margin-right: 1rem">Version: {{website_version}}</small></b-nav-text>
         <b-nav-text>All</b-nav-text>
           <switches v-model="useSubset" theme="bootstrap" color="primary" @input="switchDGE" style="padding-top: 0.75rem; padding-left: 0.5rem; padding-right: 0.5rem"></switches>
         <b-nav-text>Subset</b-nav-text>
@@ -52,6 +53,14 @@
     methods: {
       switchDGE () {
         this.$store.commit(SWITCH_DGE, {useSubDGE: this.useSubset})
+      }
+    },
+    computed: {
+      website_name () {
+        return this.$name
+      },
+      website_version () {
+        return this.$version
       }
     }
 

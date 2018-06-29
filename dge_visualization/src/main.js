@@ -16,6 +16,9 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(Vuex)
 
+Vue.prototype.$name = 'DGE visualizer'
+Vue.prototype.$version = '0.1'
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
