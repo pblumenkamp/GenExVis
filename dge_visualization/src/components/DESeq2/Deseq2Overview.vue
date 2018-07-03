@@ -65,7 +65,7 @@
                  :columnRowGroupChanged="onColumnEvent"
                  :columnValueChanged="onColumnEvent"
                  :columnMoved="onColumnEvent"
-                 :columnVisible="onColumnEvent"
+                 :columnVisible="testalert"
                  :columnGroupOpened="true"
                  :columnResized="onColumnEvent"
                  :columnPinnedCountChanged="onColumnEvent"/>
@@ -79,10 +79,9 @@
 </template>
 
 <script>
-  // import {ADD_GENE} from '../../store/mutation_constants'
   import {SET_SUBDGE} from '../../store/action_constants'
   import {AgGridVue} from 'ag-grid-vue'
-  import DateComponent from './DateComponent.vue'
+  import {ADD_TABLE} from '../../store/mutation_constants'
 
   export default {
     data () {
@@ -93,7 +92,16 @@
         showToolPanel: false,
         columnGroupOpened: true,
         rowCount: null,
-        setRowHeight: 500
+        setRowHeight: 500,
+        columndict: {
+          // 'show name': [native position, new position, hide, data origin]
+          'log2 fold change': [0, 0, false, '_log2FoldChange'],
+          'p value (adjusted)': [1, 1, false, '_pAdj'],
+          'base mean': [2, 2, false, '_baseMean'],
+          'lfcSE': [3, 3, false, '_lfcSE'],
+          'p value': [4, 4, false, '_pValue'],
+          'stat': [5, 5, false, '_stat']
+        }
       }
     },
     components: {
@@ -105,18 +113,33 @@
         let genestaken = this.gridOptions.api.getSelectedRows()
         for (let element of genestaken) {
           temparray.push(element.name)
-          // let control = false
-          // for (let entry of this.$store.state.genelist) {
-          //   if (element.name === entry) {
-          //     control = true
-          //   }
-          // }
-          // if (control === false) {
-          //   this.$store.commit(ADD_GENE, element.name)
-          //   this.$store.commit(ADD_GENE, element.name)
-          // }
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+      },
+      testalert () {
+        console.log(this.columnDefs)
+        this.$store.commit(ADD_TABLE, this.columnDefs)
+
+        let cols = this.gridOptions.columnApi.getAllGridColumns()
+
+        for (let column of cols) {
+          console.log(column)
+          let relatedfile = column.parent.originalColumnGroup.colGroupDef['headerName']
+          if (column['visible'] === false) {
+            for (let entry of this.columnDefs) {
+              if (entry['headerName'] === relatedfile) {
+                for (let subentry of entry['children']) {
+                  if (subentry['headerName'] === column.colDef['headerName']) {
+                    console.log(subentry['hide'])
+                    subentry['hide'] = true
+                  }
+                }
+              }
+            }
+          } else {
+            // pass
+          }
+        }
       },
       createRowData () {
         const rowData1 = []
@@ -143,68 +166,36 @@
             headerName: 'Name',
             field: 'name',
             width: 150,
+            hide: false,
             pinned: true
           }
         ]
         let filestore = this.$store.state.filelist
         let counter = 0
         let bool = true
-        // let datastore = this.$store.state.dgeData._data
-        // let testdict = {}
         for (let entry in filestore) {
-          console.log(counter)
-          if (counter !== 0) {
+          counter = counter + 1
+          if (counter > 1) {
             bool = false
           }
-          columnDefs.push(
-            {
-              headerName: filestore[entry],
-              openByDefault: bool,
-              children: [
-                {
-                  headerName: 'base mean',
-                  field: '_baseMean',
-                  width: 150,
-                  filter: 'agNumberColumnFilter'
-                },
-                {
-                  headerName: 'lfcSE',
-                  field: '_lfcSE',
-                  width: 150,
-                  filter: 'agNumberColumnFilter'
-                },
-                {
-                  headerName: 'log2 fold change',
-                  field: '_log2FoldChange',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                },
-                {
-                  headerName: 'p value',
-                  field: '_pValue',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                },
-                {
-                  headerName: 'p value (adjusted)',
-                  field: '_pAdj',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                },
-                {
-                  headerName: 'stat',
-                  field: '_stat',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                }
-              ]
+          let datadict = {
+            headerName: filestore[entry],
+            openByDefault: bool
+          }
+          let childrenarray = []
+          for (let subentry in this.columndict) {
+            let subentrylist = this.columndict[subentry]
+            let tempdict = {
+              headerName: subentry,
+              field: subentrylist[3],
+              width: 150,
+              filter: 'agNumberColumnFilter',
+              hide: subentrylist[2]
             }
-          )
-          counter = counter + 1
+            childrenarray.push(tempdict)
+          }
+          datadict.children = childrenarray
+          columnDefs.push(datadict)
         }
         this.columnDefs = columnDefs
       },
@@ -308,13 +299,19 @@
       }
     },
     beforeMount () {
+      this.createRowData()
+      if (this.$store.state.tablestore === null) {
+        this.createColumnDefs()
+      } else {
+        console.log('>>> reading from store')
+        console.log(this.$store.state.tablestore)
+        this.columnDefs = this.$store.state.tablestore
+      }
       this.gridOptions = {
         rowSelection: 'multiple',
         rowMultiSelectWithClick: true
       }
-      this.gridOptions.dateComponentFramework = DateComponent
-      this.createRowData()
-      this.createColumnDefs()
+      // this.gridOptions.dateComponentFramework = DateComponent
     }
   }
 </script>

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_REGEX, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_TABLE, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -20,7 +20,7 @@ const store = new Vuex.Store({
     registeredConditions: [],
     filelist: [],
     genelist: [],
-    regexlist: []
+    tablestore: null
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
@@ -42,10 +42,8 @@ const store = new Vuex.Store({
         index = index + 1
       }
     },
-    [ADD_REGEX] (state, regex) {
-      let condregex = RegExp(regex)
-      // console.log(condregex)
-      state.regexlist.push(condregex)
+    [ADD_TABLE] (state, tablespecs) {
+      state.tablestore = tablespecs
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)
