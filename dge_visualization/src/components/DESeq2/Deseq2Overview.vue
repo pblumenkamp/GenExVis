@@ -23,6 +23,8 @@
       <span>
         <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
         <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
+        <button type="button" class="btn btn-default" @click="setback()">Set back</button>
+        <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
         <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
       </span>
     </div>
@@ -64,8 +66,8 @@
                  :columnEverythingChanged="onColumnEvent"
                  :columnRowGroupChanged="onColumnEvent"
                  :columnValueChanged="onColumnEvent"
-                 :columnMoved="onColumnEvent"
-                 :columnVisible="testalert"
+                 :columnMoved="positionchange"
+                 :columnVisible="visionchange"
                  :columnGroupOpened="true"
                  :columnResized="onColumnEvent"
                  :columnPinnedCountChanged="onColumnEvent"/>
@@ -81,7 +83,7 @@
 <script>
   import {SET_SUBDGE} from '../../store/action_constants'
   import {AgGridVue} from 'ag-grid-vue'
-  import {ADD_TABLE} from '../../store/mutation_constants'
+  import {ADD_VISION, ADD_POSITION} from '../../store/mutation_constants'
 
   export default {
     data () {
@@ -90,18 +92,33 @@
         columnDefs: null,
         rowData: null,
         showToolPanel: false,
-        columnGroupOpened: true,
+        // columnGroupOpened: true,
         rowCount: null,
         setRowHeight: 500,
-        columndict: {
-          // 'show name': [native position, new position, hide, data origin]
-          'log2 fold change': [0, 0, false, '_log2FoldChange'],
-          'p value (adjusted)': [1, 1, false, '_pAdj'],
-          'base mean': [2, 2, false, '_baseMean'],
-          'lfcSE': [3, 3, false, '_lfcSE'],
-          'p value': [4, 4, false, '_pValue'],
-          'stat': [5, 5, false, '_stat']
-        }
+        namedict: {
+          '_log2FoldChange': 'log2 fold change',
+          '_pAdj': 'p value (adjusted)',
+          '_baseMean': 'base mean',
+          '_lfcSE': 'lfcSE',
+          '_pValue': 'p value',
+          '_stat': 'stat'
+        },
+        visiondict: {
+          '_log2FoldChange': false,
+          '_pAdj': false,
+          '_baseMean': false,
+          '_lfcSE': false,
+          '_pValue': false,
+          '_stat': false
+        },
+        positiondict: [
+          '_log2FoldChange',
+          '_pAdj',
+          '_baseMean',
+          '_lfcSE',
+          '_pValue',
+          '_stat'
+        ]
       }
     },
     components: {
@@ -116,33 +133,62 @@
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
-      testalert () {
-        console.log(this.columnDefs)
-        this.$store.commit(ADD_TABLE, this.columnDefs)
-
-        let cols = this.gridOptions.columnApi.getAllGridColumns()
-
-        for (let column of cols) {
-          console.log(column)
-          let relatedfile = column.parent.originalColumnGroup.colGroupDef['headerName']
-          if (column['visible'] === false) {
-            for (let entry of this.columnDefs) {
-              if (entry['headerName'] === relatedfile) {
-                for (let subentry of entry['children']) {
-                  if (subentry['headerName'] === column.colDef['headerName']) {
-                    console.log(subentry['hide'])
-                    subentry['hide'] = true
-                  }
-                }
-              }
-            }
-          } else {
-            // pass
+      positionchange () {
+        let temparray = []
+        let storearray = []
+        let columns = this.gridOptions.columnApi.getAllGridColumns()
+        let counter = 0
+        for (let col of columns) {
+          let colname = col.colDef.field
+          if (colname !== 'name') {
+            temparray.push(colname)
+            counter = counter + 1
+          }
+          if (counter === 6) {
+            // this.$store.commit(ADD_POSITION, temparray)
+            storearray.push(temparray)
+            temparray = []
+            counter = 0
           }
         }
+        console.log(storearray[0])
+        this.$store.commit(ADD_POSITION, storearray)
+        console.log('>>> PositionStore: ')
+        console.log(this.$store.state.positionstore)
+      },
+      testalert () {
+        console.log(this.$store.state.positionstore)
+        console.log(this.$store.state.visionstore)
+      },
+      visionchange () {
+        let filestore = this.$store.state.filelist
+        let fileamount = filestore.length
+        let bigarray = []
+        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
+        console.log(columngroups)
+        for (let i = 1; i < fileamount + 1; i++) {
+          let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
+          console.log(i)
+          console.log(columngroups[i])
+          let childrenarray = columngroups[i]['children']
+          for (let key in basictemplate) {
+            for (let entry of childrenarray) {
+              if (key === entry.colDef['field']) {
+                basictemplate[key] = false
+              }
+            }
+          }
+          bigarray.push(basictemplate)
+        }
+        this.$store.commit(ADD_VISION, bigarray)
+      },
+      setback () {
+        this.$store.commit(ADD_POSITION, null)
+        this.$store.commit(ADD_VISION, null)
+        this.createColumnDefs()
       },
       createRowData () {
-        const rowData1 = []
+        const rowData = []
         let store = this.$store.state.dgeData._data
         for (let gene in store) {
           var dict = {}
@@ -156,11 +202,40 @@
               dict[element] = subentry[element]
             }
           }
-          rowData1.push(dict)
+          rowData.push(dict)
         }
-        this.rowData = rowData1
+        this.rowData = rowData
       },
       createColumnDefs () {
+        let filestore = this.$store.state.filelist
+        let fileamount = filestore.length
+        let positionarray = []
+        let visionarray = []
+        if (this.$store.state.positionstore !== null) {
+          console.log('>>> ist NICHT null ...')
+          positionarray = this.$store.state.positionstore
+        } else {
+          console.log('>>> positionStore === null')
+          for (let i = 0; i < fileamount; i++) {
+            positionarray.push(this.positiondict)
+          }
+        }
+        if (this.$store.state.visionstore !== null) {
+          console.log('>>> ist NICHT null ...')
+          visionarray = this.$store.state.visionstore
+        } else {
+          console.log('>>> visionStore === null')
+          for (let i = 0; i < fileamount; i++) {
+            visionarray.push(this.visiondict)
+          }
+        }
+        console.log('>>> STORAGES: ')
+        console.log(positionarray)
+        console.log(visionarray)
+        // for (let i = 0; i < fileamount; i++) {
+        //   positionarray.push(this.positiondict)
+        //   visionarray.push(this.visiondict)
+        // }
         const columnDefs = [
           {
             headerName: 'Name',
@@ -170,32 +245,41 @@
             pinned: true
           }
         ]
-        let filestore = this.$store.state.filelist
         let counter = 0
-        let bool = true
-        for (let entry in filestore) {
-          counter = counter + 1
-          if (counter > 1) {
+        // let bool = true
+        for (let i = 0; i < fileamount; i++) {
+          let childrenarray = []
+          let specposarray = positionarray[i]
+          let specvisarray = visionarray[i]
+          let headerName = filestore[i]
+          let bool = true
+          if (counter > 0) {
             bool = false
+            // fileamount > 1 => file entry semi-closed (first 2 open)
           }
           let datadict = {
-            headerName: filestore[entry],
+            headerName: headerName,
             openByDefault: bool
           }
-          let childrenarray = []
-          for (let subentry in this.columndict) {
-            let subentrylist = this.columndict[subentry]
-            let tempdict = {
-              headerName: subentry,
-              field: subentrylist[3],
+          let colcounter = 0
+          for (let entry of specposarray) {
+            let entrydict = {}
+            let showstate = 'close'
+            if (colcounter > 1) { showstate = 'open' }
+            entrydict = {
+              headerName: this.namedict[entry],
+              field: entry,
               width: 150,
               filter: 'agNumberColumnFilter',
-              hide: subentrylist[2]
+              hide: specvisarray[entry],
+              columnGroupShow: showstate
             }
-            childrenarray.push(tempdict)
+            colcounter = colcounter + 1
+            childrenarray.push(entrydict)
           }
           datadict.children = childrenarray
           columnDefs.push(datadict)
+          counter = counter + 1
         }
         this.columnDefs = columnDefs
       },
@@ -299,19 +383,15 @@
       }
     },
     beforeMount () {
+      console.log('>>> PRESTORE:')
+      console.log(this.$store.state.positionstore)
+      console.log(this.$store.state.visionstore)
       this.createRowData()
-      if (this.$store.state.tablestore === null) {
-        this.createColumnDefs()
-      } else {
-        console.log('>>> reading from store')
-        console.log(this.$store.state.tablestore)
-        this.columnDefs = this.$store.state.tablestore
-      }
+      this.createColumnDefs()
       this.gridOptions = {
         rowSelection: 'multiple',
         rowMultiSelectWithClick: true
       }
-      // this.gridOptions.dateComponentFramework = DateComponent
     }
   }
 </script>
@@ -323,46 +403,9 @@
     height: 150px;
     padding: 1rem
   }
-  .ag-cell {
-      padding-top: 2px !important;
-      padding-bottom: 2px !important;
-      text-align: center;
-  }
-
-  .customHeaderLabel {
-      margin-right: 5px;
-      margin-top: 3px;
-      float: right;
-  }
 
   label {
       font-weight: normal !important;
       text-align: right;
-  }
-
-  .div-percent-bar {
-      display: inline-block;
-      height: 100%;
-      position: relative;
-      z-index: 0;
-  }
-
-  .div-percent-value {
-      position: absolute;
-      padding-left: 4px;
-      font-weight: bold;
-      font-size: 13px;
-      z-index: 100;
-  }
-
-  .div-outer-div {
-      display: inline-block;
-      height: 100%;
-      width: 100%;
-  }
-
-  .ag-menu {
-      z-index: 200;
-      text-align-all: center;
   }
 </style>
