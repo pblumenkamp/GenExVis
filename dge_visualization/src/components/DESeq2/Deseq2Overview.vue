@@ -151,10 +151,7 @@
             counter = 0
           }
         }
-        console.log(storearray[0])
         this.$store.commit(ADD_POSITION, storearray)
-        console.log('>>> PositionStore: ')
-        console.log(this.$store.state.positionstore)
       },
       testalert () {
         console.log(this.$store.state.positionstore)
@@ -165,11 +162,8 @@
         let fileamount = filestore.length
         let bigarray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
-        console.log(columngroups)
         for (let i = 1; i < fileamount + 1; i++) {
           let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
-          console.log(i)
-          console.log(columngroups[i])
           let childrenarray = columngroups[i]['children']
           for (let key in basictemplate) {
             for (let entry of childrenarray) {
@@ -212,30 +206,19 @@
         let positionarray = []
         let visionarray = []
         if (this.$store.state.positionstore !== null) {
-          console.log('>>> ist NICHT null ...')
           positionarray = this.$store.state.positionstore
         } else {
-          console.log('>>> positionStore === null')
           for (let i = 0; i < fileamount; i++) {
             positionarray.push(this.positiondict)
           }
         }
         if (this.$store.state.visionstore !== null) {
-          console.log('>>> ist NICHT null ...')
           visionarray = this.$store.state.visionstore
         } else {
-          console.log('>>> visionStore === null')
           for (let i = 0; i < fileamount; i++) {
             visionarray.push(this.visiondict)
           }
         }
-        console.log('>>> STORAGES: ')
-        console.log(positionarray)
-        console.log(visionarray)
-        // for (let i = 0; i < fileamount; i++) {
-        //   positionarray.push(this.positiondict)
-        //   visionarray.push(this.visiondict)
-        // }
         const columnDefs = [
           {
             headerName: 'Name',
@@ -383,9 +366,6 @@
       }
     },
     beforeMount () {
-      console.log('>>> PRESTORE:')
-      console.log(this.$store.state.positionstore)
-      console.log(this.$store.state.visionstore)
       this.createRowData()
       this.createColumnDefs()
       this.gridOptions = {
