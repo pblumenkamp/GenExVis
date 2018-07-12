@@ -101,7 +101,7 @@
         // versus check block
         let vsbool = false
         let vsindex = 0
-        let vsregex = RegExp('[^A-Za-z0-9]vs[^A-Za-z0-9]', 'i')
+        let vsregex = RegExp('[^a-z|0-9]vs[^a-z|0-9]', 'i')
         let vsmatch = vsregex.exec(filename)
         if (vsmatch !== null) {
           vsbool = true
@@ -109,7 +109,17 @@
         }
         // versus check block END
         for (let entry of this.$store.state.registeredConditions) {
-          let regex = RegExp(entry, 'i')
+          let tempentry = ''
+          for (let char of entry) {
+            let exceptregex = RegExp('[^a-z|0-9]', 'i')
+            let match = exceptregex.exec(char)
+            if (match !== null) {
+              tempentry = tempentry + '\\' + char
+            } else {
+              tempentry = tempentry + char
+            }
+          }
+          let regex = RegExp(tempentry, 'i')
           let match = regex.exec(filename)
           if (match !== null) {
             tempdict[match.index] = entry
@@ -129,7 +139,7 @@
           }
         } else if (keylength === 1 && vsbool === false) {
           // (before 20.06.2018) suggestionlist[0] = tempdict[keyarray[0]]
-          // pass
+          // (now) pass
         }
         return suggestionlist
       }

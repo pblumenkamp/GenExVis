@@ -23,6 +23,8 @@
       <span>
         <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
         <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
+        <button type="button" class="btn btn-default" @click="setback()">Set back</button>
+        <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
         <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
       </span>
     </div>
@@ -64,8 +66,8 @@
                  :columnEverythingChanged="onColumnEvent"
                  :columnRowGroupChanged="onColumnEvent"
                  :columnValueChanged="onColumnEvent"
-                 :columnMoved="onColumnEvent"
-                 :columnVisible="onColumnEvent"
+                 :columnMoved="positionchange"
+                 :columnVisible="visionchange"
                  :columnGroupOpened="true"
                  :columnResized="onColumnEvent"
                  :columnPinnedCountChanged="onColumnEvent"/>
@@ -79,9 +81,9 @@
 </template>
 
 <script>
-  // import {ADD_GENE} from '../../store/mutation_constants'
   import {SET_SUBDGE} from '../../store/action_constants'
   import {AgGridVue} from 'ag-grid-vue'
+  import {ADD_VISION, ADD_POSITION} from '../../store/mutation_constants'
 
   export default {
     data () {
@@ -90,9 +92,33 @@
         columnDefs: null,
         rowData: null,
         showToolPanel: false,
-        columnGroupOpened: true,
+        // columnGroupOpened: true,
         rowCount: null,
-        setRowHeight: 500
+        setRowHeight: 500,
+        namedict: {
+          '_log2FoldChange': 'log2 fold change',
+          '_pAdj': 'p value (adjusted)',
+          '_baseMean': 'base mean',
+          '_lfcSE': 'lfcSE',
+          '_pValue': 'p value',
+          '_stat': 'stat'
+        },
+        visiondict: {
+          '_log2FoldChange': false,
+          '_pAdj': false,
+          '_baseMean': false,
+          '_lfcSE': false,
+          '_pValue': false,
+          '_stat': false
+        },
+        positiondict: [
+          '_log2FoldChange',
+          '_pAdj',
+          '_baseMean',
+          '_lfcSE',
+          '_pValue',
+          '_stat'
+        ]
       }
     },
     components: {
@@ -104,21 +130,59 @@
         let genestaken = this.gridOptions.api.getSelectedRows()
         for (let element of genestaken) {
           temparray.push(element.name)
-          // let control = false
-          // for (let entry of this.$store.state.genelist) {
-          //   if (element.name === entry) {
-          //     control = true
-          //   }
-          // }
-          // if (control === false) {
-          //   this.$store.commit(ADD_GENE, element.name)
-          //   this.$store.commit(ADD_GENE, element.name)
-          // }
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
+      positionchange () {
+        let temparray = []
+        let storearray = []
+        let columns = this.gridOptions.columnApi.getAllGridColumns()
+        let counter = 0
+        for (let col of columns) {
+          let colname = col.colDef.field
+          if (colname !== 'name') {
+            temparray.push(colname)
+            counter = counter + 1
+          }
+          if (counter === 6) {
+            // this.$store.commit(ADD_POSITION, temparray)
+            storearray.push(temparray)
+            temparray = []
+            counter = 0
+          }
+        }
+        this.$store.commit(ADD_POSITION, storearray)
+      },
+      testalert () {
+        console.log(this.$store.state.positionstore)
+        console.log(this.$store.state.visionstore)
+      },
+      visionchange () {
+        let filestore = this.$store.state.filelist
+        let fileamount = filestore.length
+        let bigarray = []
+        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
+        for (let i = 1; i < fileamount + 1; i++) {
+          let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
+          let childrenarray = columngroups[i]['children']
+          for (let key in basictemplate) {
+            for (let entry of childrenarray) {
+              if (key === entry.colDef['field']) {
+                basictemplate[key] = false
+              }
+            }
+          }
+          bigarray.push(basictemplate)
+        }
+        this.$store.commit(ADD_VISION, bigarray)
+      },
+      setback () {
+        this.$store.commit(ADD_POSITION, null)
+        this.$store.commit(ADD_VISION, null)
+        this.createColumnDefs()
+      },
       createRowData () {
-        const rowData1 = []
+        const rowData = []
         let store = this.$store.state.dgeData._data
         for (let gene in store) {
           var dict = {}
@@ -132,77 +196,72 @@
               dict[element] = subentry[element]
             }
           }
-          rowData1.push(dict)
+          rowData.push(dict)
         }
-        this.rowData = rowData1
+        this.rowData = rowData
       },
       createColumnDefs () {
+        let filestore = this.$store.state.filelist
+        let fileamount = filestore.length
+        let positionarray = []
+        let visionarray = []
+        if (this.$store.state.positionstore !== null) {
+          positionarray = this.$store.state.positionstore
+        } else {
+          for (let i = 0; i < fileamount; i++) {
+            positionarray.push(this.positiondict)
+          }
+        }
+        if (this.$store.state.visionstore !== null) {
+          visionarray = this.$store.state.visionstore
+        } else {
+          for (let i = 0; i < fileamount; i++) {
+            visionarray.push(this.visiondict)
+          }
+        }
         const columnDefs = [
           {
             headerName: 'Name',
             field: 'name',
             width: 150,
+            hide: false,
             pinned: true
           }
         ]
-        let filestore = this.$store.state.filelist
         let counter = 0
-        let bool = true
-        // let datastore = this.$store.state.dgeData._data
-        // let testdict = {}
-        for (let entry in filestore) {
-          console.log(counter)
-          if (counter !== 0) {
+        // let bool = true
+        for (let i = 0; i < fileamount; i++) {
+          let childrenarray = []
+          let specposarray = positionarray[i]
+          let specvisarray = visionarray[i]
+          let headerName = filestore[i]
+          let bool = true
+          if (counter > 0) {
             bool = false
+            // fileamount > 1 => file entry semi-closed (first 2 open)
           }
-          columnDefs.push(
-            {
-              headerName: filestore[entry],
-              openByDefault: bool,
-              children: [
-                {
-                  headerName: 'base mean',
-                  field: '_baseMean',
-                  width: 150,
-                  filter: 'agNumberColumnFilter'
-                },
-                {
-                  headerName: 'lfcSE',
-                  field: '_lfcSE',
-                  width: 150,
-                  filter: 'agNumberColumnFilter'
-                },
-                {
-                  headerName: 'log2 fold change',
-                  field: '_log2FoldChange',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                },
-                {
-                  headerName: 'p value',
-                  field: '_pValue',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                },
-                {
-                  headerName: 'p value (adjusted)',
-                  field: '_pAdj',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                },
-                {
-                  headerName: 'stat',
-                  field: '_stat',
-                  width: 150,
-                  filter: 'agNumberColumnFilter',
-                  columnGroupShow: 'open'
-                }
-              ]
+          let datadict = {
+            headerName: headerName,
+            openByDefault: bool
+          }
+          let colcounter = 0
+          for (let entry of specposarray) {
+            let entrydict = {}
+            let showstate = 'close'
+            if (colcounter > 1) { showstate = 'open' }
+            entrydict = {
+              headerName: this.namedict[entry],
+              field: entry,
+              width: 150,
+              filter: 'agNumberColumnFilter',
+              hide: specvisarray[entry],
+              columnGroupShow: showstate
             }
-          )
+            colcounter = colcounter + 1
+            childrenarray.push(entrydict)
+          }
+          datadict.children = childrenarray
+          columnDefs.push(datadict)
           counter = counter + 1
         }
         this.columnDefs = columnDefs
@@ -307,12 +366,12 @@
       }
     },
     beforeMount () {
+      this.createRowData()
+      this.createColumnDefs()
       this.gridOptions = {
         rowSelection: 'multiple',
         rowMultiSelectWithClick: true
       }
-      this.createRowData()
-      this.createColumnDefs()
     }
   }
 </script>
@@ -324,46 +383,9 @@
     height: 150px;
     padding: 1rem
   }
-  .ag-cell {
-      padding-top: 2px !important;
-      padding-bottom: 2px !important;
-      text-align: center;
-  }
-
-  .customHeaderLabel {
-      margin-right: 5px;
-      margin-top: 3px;
-      float: right;
-  }
 
   label {
       font-weight: normal !important;
       text-align: right;
-  }
-
-  .div-percent-bar {
-      display: inline-block;
-      height: 100%;
-      position: relative;
-      z-index: 0;
-  }
-
-  .div-percent-value {
-      position: absolute;
-      padding-left: 4px;
-      font-weight: bold;
-      font-size: 13px;
-      z-index: 100;
-  }
-
-  .div-outer-div {
-      display: inline-block;
-      height: 100%;
-      width: 100%;
-  }
-
-  .ag-menu {
-      z-index: 200;
-      text-align-all: center;
   }
 </style>
