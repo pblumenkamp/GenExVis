@@ -452,6 +452,10 @@ export class Gene {
     return this._deseq2_analyses
   }
 
+  get normalizationMethods () {
+    return Object.keys(this._countData)
+  }
+
   /**
    * Register condition pairs for fast access on all existing conditions. Also reuse existing condition pairs to save memory
    *

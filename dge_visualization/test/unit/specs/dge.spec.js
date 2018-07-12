@@ -458,10 +458,18 @@ describe('Tests with Gene objects', () => {
 
   test('add count data to gene', () => {
     let gene = new Gene('gene_1')
+    expect(gene.normalizationMethods).toHaveLength(0)
     gene.addCountData('deseq2', 'WT', [10, 20, 100])
+    expect(gene.normalizationMethods).toHaveLength(1)
+    expect(gene.normalizationMethods.indexOf('deseq2')).not.toBe(-1)
     gene.addCountData('unnormalized', 'WT', [50, 1, 30])
+    expect(gene.normalizationMethods).toHaveLength(2)
+    expect(gene.normalizationMethods.indexOf('deseq2')).not.toBe(-1)
+    expect(gene.normalizationMethods.indexOf('unnormalized')).not.toBe(-1)
     gene.addCountData('deseq2', 'Mut', [10, 2, 1])
+    expect(gene.normalizationMethods).toHaveLength(2)
     gene.addCountData('unnormalized', 'Mut', [5, 1, 30])
+    expect(gene.normalizationMethods).toHaveLength(2)
 
     expect(gene.getCountData('deseq2', 'WT')).toEqual([10, 20, 100])
     expect(gene.getCountData('deseq2', 'Mut')).toEqual([10, 2, 1])

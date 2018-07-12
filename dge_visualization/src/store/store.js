@@ -64,6 +64,9 @@ const store = new Vuex.Store({
     },
     [ADD_SUBSET_DGE] (state, {subsetDGE}) {
       state.subDGE = subsetDGE
+      if (state.useSubDGE) {
+        state.currentDGE = state.subDGE
+      }
     },
     [SWITCH_DGE] (state, {useSubDGE}) {
       if (useSubDGE) {

@@ -2,7 +2,7 @@
   <div style="width: 100%; height: 100%">
     <b-container fluid>
       <b-row rows="12">
-        <b-col class="col" cols="1" >
+        <b-col class="col" cols="1">
           <b-nav vertical class="deseq2Navbar">
             <b-nav-item to="/deseq2/overview">Overview</b-nav-item>
             <b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>
@@ -13,24 +13,21 @@
           <router-view/>
         </b-col>
         <b-col class="col" cols="2">
-          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="scrollbox">
+          <b-card v-if="this.$store.state.filelist.length > 0" class="filesBox">
             Files:
-            <li v-for="file in this.$store.state.filelist">
-              <small>{{ file }}</small>
+            <li v-for="fileName in this.$store.state.filelist" style="margin-left: 0.5rem">
+              <small>{{ fileName }}</small>
             </li>
           </b-card>
-          <b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="genestaken" >
-            Genes:
-            <button @click="createemptysubset()">clear</button>
+          <b-card v-if="this.$store.state.subDGE.geneNames.size > 0" class="genesBox" style="margin-top: 0.5rem">
+            Genes In Subset:
             <p></p>
-            <button v-for="item in Array.from(this.$store.state.subDGE.geneNames)" @click="removeitem(item)" type="button" class="btn btn-outline-dark btn-sm">{{ item }}</button>
+            <button v-for="gene in Array.from(this.$store.state.subDGE.geneNames)" @click="removeGene(gene)"
+                    type="button" class="btn btn-outline-dark btn-sm" style="margin: 0.1rem">{{ gene }}
+            </button>
+            <p></p>
+            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right">Clear Subset</button>
           </b-card>
-          <!--<b-card v-if="!(this.$store.state.dgeData.conditionPairs.length == 0)" class="text-left">-->
-            <!--Entries:-->
-            <!--&lt;!&ndash;<li v-for="item in this.$store.state.genelist" style="list-style: none">-->
-              <!--<button type="button" class="btn btn-outline-dark btn-sm" @click="removeitem(item)">{{ item }}</button>-->
-            <!--</li>&ndash;&gt;-->
-          <!--</b-card>-->
         </b-col>
       </b-row>
     </b-container>
@@ -43,39 +40,42 @@
   export default {
     name: 'DESeq2',
     methods: {
-      removeitem (item) {
-        let temparray = []
+      removeGene (item) {
+        let geneList = []
         for (let entry of this.$store.state.subDGE.geneNames) {
           if (entry !== item) {
-            temparray.push(entry)
+            geneList.push(entry)
           }
         }
-        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+        this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
-      createemptysubset () {
-        let temparray = []
-        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+      clearSubset () {
+        this.$store.dispatch(SET_SUBDGE, {geneList: []})
       }
     }
   }
 </script>
 
 <style scoped>
-  .scrollbox {
+  .filesBox {
     text-align: left;
     overflow-y: scroll;
+    overflow-x: auto;
     height: auto;
-    padding: 1rem
+    padding: 0.5rem
   }
-  .genestaken {
+
+  .genesBox {
     text-align: left;
     height: fit-content;
     /*margin: 0;*/
   }
+
   .col {
     /*border: 1px solid limegreen;*/
     /*height: 500px;*/
   }
+
   .deseq2Navbar {
     height: 100%; /* 100% Full-height */
     position: fixed; /* Stay in place */

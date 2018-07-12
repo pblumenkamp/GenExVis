@@ -155,8 +155,8 @@
               tooltip: {
                 headerFormat: '',
                 pointFormat: '<b>{point.gene}</b><br>' +
-                'base mean count: {point.x:.2f}<br>' +
-                'log2 fold change: {point.y:.2f}<br>' +
+                'base mean: {point.x:.3f}<br>' +
+                'log2 fold change: {point.y:.3f}<br>' +
                 'p-value: {point.pValue}<br>' +
                 'adjusted p-value: {point.adjPValue}'
               }
