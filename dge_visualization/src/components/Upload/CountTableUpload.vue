@@ -166,8 +166,17 @@
         let tempdict = {}
         let suggestion = ''
         for (let entry of this.$store.state.registeredConditions) {
-          console.log(entry)
-          let regex = RegExp(entry, 'i')
+          let tempentry = ''
+          for (let char of entry) {
+            let exceptregex = RegExp('[^a-z|0-9]', 'i')
+            let match = exceptregex.exec(char)
+            if (match !== null) {
+              tempentry = tempentry + '\\' + char
+            } else {
+              tempentry = tempentry + char
+            }
+          }
+          let regex = RegExp(tempentry, 'i')
           let match = regex.exec(column)
           if (match !== null) {
             tempdict[match.index] = entry

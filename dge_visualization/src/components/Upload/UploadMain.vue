@@ -63,7 +63,6 @@
   import Deseq2Upload from './Deseq2Upload.vue'
 
   import {REGISTER_CONDITION} from '@/store/action_constants'
-  import {ADD_REGEX} from '../../store/mutation_constants'
 
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
@@ -93,9 +92,6 @@
           }).catch(() => {
             vueData.validCondition = false
           })
-        let condregex = vueData.conditionName
-        console.log(condregex)
-        vueData.$store.commit(ADD_REGEX, condregex)
       }
     },
     computed: {
