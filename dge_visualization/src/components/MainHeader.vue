@@ -25,9 +25,6 @@
           <b-dropdown-item to="/deseq2">
             DESeq2
           </b-dropdown-item>
-          <b-dropdown-item to="/masigpro">
-            maSigPro
-          </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
 
