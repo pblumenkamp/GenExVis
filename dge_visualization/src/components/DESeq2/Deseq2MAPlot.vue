@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="text-align: center">
     <h1>
       MA Plot
     </h1>

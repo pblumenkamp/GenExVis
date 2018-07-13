@@ -2,7 +2,7 @@
   <b-container>
     <b-row v-for="{file, index, conditions} in getDataObject" :key="file.name" style="margin: 1rem">
       <b-col style="padding-top: 0.4rem">
-        {{index+1}}. {{file.name}}
+        <b>{{index+1}}.</b> {{file.name}}
       </b-col>
       <b-col>
         <b-form-select v-model="conditions[0]" :options="registeredConditions">

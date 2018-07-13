@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div style="text-align: center">
       <b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="uploadCountTable" style="width: 50%"></b-form-file>
       <div style="margin-left: 1rem; margin-top: 1rem">
         Normalization method:

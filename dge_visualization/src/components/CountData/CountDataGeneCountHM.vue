@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h1>
+    <h1 style="text-align: center">
       Gene counts
     </h1>
 
-    <div>
+    <div style="margin: 0 auto; width: 60%">
       <div>
         <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
           <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
@@ -15,13 +15,14 @@
         Settings
       </div>
       <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
-        <b-card style="width: 70%; margin:0 auto">
+        <b-card class="text-center">
           <b-form-select v-model="selectedNormalization" style="width: auto" class="mb-2">
             <template slot="first">
               <option :value="''" disabled>-- Please select a normalization method --</option>
             </template>
             <option v-for="cond in Array.from(registeredNormalizationMethods)" :value="cond">{{ cond }}</option>
           </b-form-select>
+
           <b-form-group label="Use conditions:">
             <b-form-checkbox v-model="allConditionsSelected"
                              :indeterminate="indeterminate"
@@ -35,9 +36,9 @@
               <b-form-checkbox v-for="cond in registeredConditions" :key="cond" :value="cond">{{cond}}</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
+
           <div>
             <hr>
-
             <b-container fluid>
               <b-row class="my-1">
                 <b-col sm="3"><label style="margin-top: 0.4rem;">start color:</label></b-col>
@@ -54,16 +55,16 @@
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label style="margin-top: 0.4rem;">intermediate color stop (value between 0 and 1)</label>
+                <b-col sm="5"><label style="margin-top: 0.4rem;">intermediate color stop (value between 0 and 1):</label>
                 </b-col>
-                <b-col sm="8">
+                <b-col sm="7">
                   <b-form-input type="number" v-model="intermediateColorStop" step="0.1" max="1" min="0"
                                 style="width: 10rem;"></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="4"><label style="margin-top: 0.4rem;">max value</label></b-col>
-                <b-col sm="8">
+                <b-col sm="5"><label style="margin-top: 0.4rem;">max value:</label></b-col>
+                <b-col sm="7">
                   <b-form-input type="number" v-model="maxValue" step="100" min="0"
                                 style="width: 10rem;"></b-form-input>
                 </b-col>

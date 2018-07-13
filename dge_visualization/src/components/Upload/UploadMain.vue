@@ -14,7 +14,7 @@
         </b-col>
       </b-row>
       <b-row>
-        <b-col>
+        <b-col class="text-center">
           <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
             <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
           </span>
@@ -34,7 +34,7 @@
     </b-container>
 
     <div role="tablist">
-      <b-card no-body class="mb-1">
+      <b-card no-body class="mb-1 accordion-90">
         <b-card-header header-tag="header" class="p-1" role="tab">
           <b-btn block href="#" v-b-toggle.accordion1 variant="secondary">Count table</b-btn>
         </b-card-header>
@@ -44,7 +44,7 @@
           </b-card-body>
         </b-collapse>
       </b-card>
-      <b-card no-body class="mb-1">
+      <b-card no-body class="mb-1 accordion-90">
         <b-card-header header-tag="header" class="p-1" role="tab">
           <b-btn block href="#" v-b-toggle.accordion2 variant="secondary">DESeq2 data</b-btn>
         </b-card-header>
@@ -110,3 +110,10 @@
     }
   }
 </script>
+
+<style>
+  .accordion-90 {
+    width: 90%;
+    margin: 0 auto
+  }
+</style>
