@@ -13,13 +13,13 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.5",
+    "@fortawesome/fontawesome-free-solid": "^5.0.9",
+    "@fortawesome/vue-fontawesome": "0.0.22",
     "ag-grid": "^17.0.0",
     "ag-grid-vue": "^17.0.0",
     "bootstrap": "^4.0.0",
     "bootstrap-vue": "^2.0.0-rc.6",
-    "@fortawesome/fontawesome": "^1.1.5",
-    "@fortawesome/fontawesome-free-solid": "^5.0.9",
-    "@fortawesome/vue-fontawesome": "0.0.22",
     "foundation-sites": "^6.4.4-rc1",
     "highcharts": "^6.0.7",
     "lodash.debounce": "^4.0.8",
