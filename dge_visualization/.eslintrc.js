@@ -22,6 +22,10 @@ module.exports = {
     // allow async-await
     'generator-star-spacing': 0,
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    // ignores multiple spaces before comments that occur at the end of lines
+    'no-multi-spaces': [
+      "error",
+      { ignoreEOLComments: true }]
   }
 }
