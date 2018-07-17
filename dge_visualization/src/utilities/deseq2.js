@@ -9,6 +9,10 @@ function parseDeseq2 (content, conditions, deseqResult = new DGE()) {
   }
 
   for (let i = 1, lenLines = content.length; i < lenLines; i++) {
+    if (!content[i].trim()) {
+      continue
+    }
+
     let line = content[i].split('\t')
 
     let name = line[0]

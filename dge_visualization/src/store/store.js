@@ -84,8 +84,6 @@ const store = new Vuex.Store({
         progress.max = deseq2Contents.length
 
         for (let {content, conditions} of deseq2Contents) {
-          // console.log(content)
-          // console.log(conditions)
           let dge = parseDeseq2(content, conditions)
           commit(ADD_DATA, dge)
           progress.counter++
