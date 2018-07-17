@@ -20,7 +20,7 @@
             <template slot="first">
               <option :value="''" disabled>-- Please select a normalization method --</option>
             </template>
-            <option v-for="cond in Array.from(registeredNormalizationMethods)" :value="cond">{{ cond }}</option>
+            <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
           </b-form-select>
 
           <b-form-group label="Use conditions:">

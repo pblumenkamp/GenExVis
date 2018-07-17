@@ -63,10 +63,10 @@ export class DGE {
 
   /**
    * Returns a set of all normalization methods of imported count data
-   * @return {Set<string>}
+   * @return {Array<string>}
    */
   get normalizationMethods () {
-    return new Set(this._normalizationMethods)
+    return Array.from(this._normalizationMethods)
   }
 
   /**
