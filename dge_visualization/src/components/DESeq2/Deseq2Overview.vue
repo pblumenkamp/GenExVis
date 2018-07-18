@@ -47,30 +47,12 @@
                  :groupHeaders="true"
 
                  :modelUpdated="onModelUpdated"
-                 :cellClicked="onCellClicked"
-                 :cellDoubleClicked="onCellDoubleClicked"
-                 :cellContextMenu="onCellContextMenu"
-                 :cellValueChanged="onCellValueChanged"
-                 :cellFocused="onCellFocused"
-                 :rowSelected="onRowSelected"
                  :selectionChanged="onSelectionChanged"
-                 :beforeFilterChanged="onBeforeFilterChanged"
-                 :afterFilterChanged="onAfterFilterChanged"
-                 :filterModified="onFilterModified"
-                 :beforeSortChanged="onBeforeSortChanged"
-                 :afterSortChanged="onAfterSortChanged"
-                 :virtualRowRemoved="onVirtualRowRemoved"
-                 :rowClicked="onRowClicked"
                  :gridReady="onReady"
 
-                 :columnEverythingChanged="onColumnEvent"
-                 :columnRowGroupChanged="onColumnEvent"
-                 :columnValueChanged="onColumnEvent"
                  :columnMoved="positionchange"
                  :columnVisible="visionchange"
-                 :columnGroupOpened="true"
-                 :columnResized="onColumnEvent"
-                 :columnPinnedCountChanged="onColumnEvent"/>
+                 :columnGroupOpened="true"/>
     <div>
       <b-card class="currentlychosen">
         Currently chosen:
@@ -92,6 +74,9 @@
         columnDefs: null,
         rowData: null,
         showToolPanel: false,
+        log2foldlist: [],
+        log2foldmin: 0,
+        log2foldmax: 0,
         // columnGroupOpened: true,
         rowCount: null,
         setRowHeight: 500,
@@ -188,12 +173,12 @@
           var dict = {}
           dict.name = store[gene]._name
           let list = store[gene]._deseq2_analyses
-          for (let entry in list) {
-            // entry = 0, 1, 2 ...
-            // probably try entry OF list
-            let subentry = list[entry]
+          for (let subentry of list) {
             for (let element in subentry) {
               dict[element] = subentry[element]
+              if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
+                if (!isNaN(subentry[element])) this.log2foldlist.push(subentry[element])
+              }
             }
           }
           rowData.push(dict)
@@ -229,7 +214,6 @@
           }
         ]
         let counter = 0
-        // let bool = true
         for (let i = 0; i < fileamount; i++) {
           let childrenarray = []
           let specposarray = positionarray[i]
@@ -249,15 +233,29 @@
             let entrydict = {}
             let showstate = 'close'
             if (colcounter > 1) { showstate = 'open' }
-            entrydict = {
-              headerName: this.namedict[entry],
-              field: entry,
-              width: 150,
-              filter: 'agNumberColumnFilter',
-              hide: specvisarray[entry],
-              columnGroupShow: showstate
+            if (entry === '_log2FoldChange') {
+              entrydict = {
+                headerName: this.namedict[entry],
+                field: entry,
+                width: 150,
+                cellRenderer: this.percentCellRenderer,
+                filter: 'agNumberColumnFilter',
+                hide: specvisarray[entry],
+                columnGroupShow: showstate
+              }
+            } else {
+              entrydict = {
+                headerName: this.namedict[entry],
+                field: entry,
+                width: 150,
+                filter: 'agNumberColumnFilter',
+                hide: specvisarray[entry],
+                columnGroupShow: showstate
+              }
             }
-            colcounter = colcounter + 1
+            if (specvisarray[entry] === false) {
+              colcounter = colcounter + 1
+            }
             childrenarray.push(entrydict)
           }
           datadict.children = childrenarray
@@ -271,7 +269,6 @@
         while (asString.length < totalStringSize) asString = '0' + asString
         return asString
       },
-
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
           let model = this.gridOptions.api.getModel()
@@ -280,42 +277,14 @@
           this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
         }
       },
-
       onModelUpdated () {
         console.log('onModelUpdated')
         this.calculateRowCount()
       },
-
       onReady () {
         console.log('onReady')
         this.calculateRowCount()
       },
-
-      onCellClicked (event) {
-        // console.log('onCellClicked: ' + event.rowIndex + ' ' + event.colDef.field)
-      },
-
-      onCellValueChanged (event) {
-        console.log('onCellValueChanged: ' + event.oldValue + ' to ' + event.newValue)
-      },
-
-      onCellDoubleClicked (event) {
-        console.log('onCellDoubleClicked: ' + event.rowIndex + ' ' + event.colDef.field)
-      },
-
-      onCellContextMenu (event) {
-        console.log('onCellContextMenu: ' + event.rowIndex + ' ' + event.colDef.field)
-      },
-
-      onCellFocused (event) {
-        console.log('onCellFocused: (' + event.rowIndex + ',' + event.colIndex + ')')
-      },
-
-      // taking out, as when we 'select all', it prints to much to the console!!
-      onRowSelected (event) {
-        //                console.log('onRowSelected: ' + event.node.data.name);
-      },
-
       onSelectionChanged () {
         let selectedRows = this.gridOptions.api.getSelectedRows()
         let selectedRowsString = []
@@ -324,53 +293,58 @@
         })
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
-
-      onBeforeFilterChanged () {
-        console.log('beforeFilterChanged')
-      },
-
-      onAfterFilterChanged () {
-        console.log('afterFilterChanged')
-      },
-
-      onFilterModified () {
-        console.log('onFilterModified')
-      },
-
-      onBeforeSortChanged () {
-        console.log('onBeforeSortChanged')
-      },
-
-      onAfterSortChanged () {
-        console.log('onAfterSortChanged')
-      },
-
-      onVirtualRowRemoved (event) {
-        // because this event gets fired LOTS of times, we don't print it to the
-        // console. if you want to see it, just uncomment out this line
-        // console.log('onVirtualRowRemoved: ' + event.rowIndex);
-      },
-
-      onRowClicked (event) {
-        // console.log('onRowClicked: ' + event.node.data.name)
-      },
-
       onQuickFilterChanged (event) {
         this.gridOptions.api.setQuickFilter(event.target.value)
       },
+      minmaxdefine () {
+        let log2foldlist = this.log2foldlist
+        let min = Math.min(...log2foldlist)
+        let max = Math.max(...log2foldlist)
+        this.log2foldmin = min
+        this.log2foldmax = max
+      },
+      percentCellRenderer (params) {
+        let value = params.value
+        let min = this.log2foldmin
+        let max = this.log2foldmax
+        let distance = max - min
+        let percent = 100
+        if (isNaN(value)) {
+          percent = 0
+        } else {
+          percent = (value - min) * 100 / distance
+        }
+        // let eDivPercentBar = document.createElement('div')
+        // eDivPercentBar.className = 'div-percent-bar'
+        // eDivPercentBar.style.width = value + '%'
 
-      // here we use one generic event to handle all the column type events.
-      // the method just prints the event name
-      onColumnEvent (event) {
-        console.log('onColumnEvent: ' + event)
+        let eValue = document.createElement('div')
+        eValue.className = 'div-percent-value'
+        eValue.innerHTML = value
+
+        let eOuterDiv = document.createElement('div')
+        eOuterDiv.className = 'div-outer-div'
+        if (percent < 20) {
+          eOuterDiv.style.backgroundColor = 'red'
+        } else if (percent < 60) {
+          eOuterDiv.style.backgroundColor = '#ff9900'
+        } else {
+          eOuterDiv.style.backgroundColor = '#00A000'
+        }
+        eOuterDiv.style.width = percent + '%'
+        eOuterDiv.appendChild(eValue)
+
+        return eOuterDiv
       }
     },
     beforeMount () {
       this.createRowData()
+      this.minmaxdefine()
       this.createColumnDefs()
       this.gridOptions = {
         rowSelection: 'multiple',
-        rowMultiSelectWithClick: true
+        rowMultiSelectWithClick: true,
+        suppressPropertyNamesCheck: true
       }
     }
   }
