@@ -305,36 +305,46 @@
       },
       percentCellRenderer (params) {
         let value = params.value
+        if (isNaN(value)) {
+          value = 0
+        }
         let min = this.log2foldmin
         let max = this.log2foldmax
-        let distance = max - min
-        let percent = 100
-        if (isNaN(value)) {
-          percent = 0
+
+        let table = document.createElement('table')
+        table.align = 'center'
+        table.style.width = '100%'
+        table.style.height = 100 + '%'
+        let firstrow = document.createElement('tr')
+
+        let leftbar = document.createElement('td')
+        let rightbar = document.createElement('td')
+        let leftpush = document.createElement('td')
+        let rightpush = document.createElement('td')
+        leftbar.style.padding = 0
+        rightbar.style.padding = 0
+        leftpush.style.padding = 0
+        rightpush.style.padding = 0
+        if (value < 0) {
+          let percent = (value * 50) / min
+          leftpush.style.width = (50 - percent) + '%'
+          leftbar.style.width = percent + '%'
+          rightbar.style.width = 25 + '%'
+          rightpush.style.width = 25 + '%'
+          leftbar.style.backgroundColor = 'red'
         } else {
-          percent = (value - min) * 100 / distance
+          let percent = (value * 50) / max
+          leftpush.style.width = 25 + '%'
+          leftbar.style.width = 25 + '%'
+          rightbar.style.width = percent + '%'
+          rightpush.style.width = (50 - percent) + '%'
+          rightbar.style.backgroundColor = 'blue'
         }
-        // let eDivPercentBar = document.createElement('div')
-        // eDivPercentBar.className = 'div-percent-bar'
-        // eDivPercentBar.style.width = value + '%'
 
-        let eValue = document.createElement('div')
-        eValue.className = 'div-percent-value'
-        eValue.innerHTML = value
+        firstrow.append(leftpush, leftbar, rightbar, rightpush)
+        table.append(firstrow)
 
-        let eOuterDiv = document.createElement('div')
-        eOuterDiv.className = 'div-outer-div'
-        if (percent < 20) {
-          eOuterDiv.style.backgroundColor = 'red'
-        } else if (percent < 60) {
-          eOuterDiv.style.backgroundColor = '#ff9900'
-        } else {
-          eOuterDiv.style.backgroundColor = '#00A000'
-        }
-        eOuterDiv.style.width = percent + '%'
-        eOuterDiv.appendChild(eValue)
-
-        return eOuterDiv
+        return table
       }
     },
     beforeMount () {
@@ -357,9 +367,9 @@
     height: 150px;
     padding: 1rem
   }
-
   label {
       font-weight: normal !important;
       text-align: right;
   }
+
 </style>
