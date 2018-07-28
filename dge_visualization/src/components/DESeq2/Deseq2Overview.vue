@@ -313,18 +313,20 @@
 
         let table = document.createElement('table')
         table.align = 'center'
-        table.style.width = '100%'
+        table.style.width = 100 + '%'
         table.style.height = 100 + '%'
         let firstrow = document.createElement('tr')
-
+        // all 4 parts (2 bars, 2 spaces)
         let leftbar = document.createElement('td')
         let rightbar = document.createElement('td')
         let leftpush = document.createElement('td')
         let rightpush = document.createElement('td')
+        //
         leftbar.style.padding = 0
         rightbar.style.padding = 0
         leftpush.style.padding = 0
         rightpush.style.padding = 0
+
         if (value < 0) {
           let percent = (value * 50) / min
           leftpush.style.width = (50 - percent) + '%'
@@ -344,7 +346,35 @@
         firstrow.append(leftpush, leftbar, rightbar, rightpush)
         table.append(firstrow)
 
-        return table
+        //
+
+        let div1 = document.createElement('div')
+        let div2 = document.createElement('div')
+        div1.id = 'child_1'
+        div2.id = 'child_2'
+        // o!
+        div1.style.position = 'absolute'
+        div2.style.position = 'absolute'
+        div2.style.width = 100 + '%'
+        div2.style.height = 100 + '%'
+        div2.align = 'center'
+        // x!
+        div1.innerHTML = value
+        div2.append(table)
+        let parent = document.createElement('div')
+        parent.id = 'parent'
+        // o!
+        parent.style.position = 'relative'
+        parent.style.width = 100 + '%'
+        parent.style.height = 100 + '%'
+        parent.align = 'center'
+        // x!
+        parent.append(div2)
+        parent.append(div1)
+        // let wrapper = document.getElementById('TEST')
+        // wrapper.append(parent)
+
+        return parent
       }
     },
     beforeMount () {
@@ -368,8 +398,7 @@
     padding: 1rem
   }
   label {
-      font-weight: normal !important;
-      text-align: right;
+    font-weight: normal !important;
+    text-align: right;
   }
-
 </style>
