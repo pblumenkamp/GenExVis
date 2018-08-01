@@ -19,7 +19,7 @@
     </b-form-select>
 
     <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts"
-         style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+         style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>

@@ -18,7 +18,7 @@
       <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
     </b-form-select>
 
-    <div id="deseq2maplot_highcharts" ref="deseq2maplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+    <div id="deseq2maplot_highcharts" ref="deseq2maplot_highcharts" style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
