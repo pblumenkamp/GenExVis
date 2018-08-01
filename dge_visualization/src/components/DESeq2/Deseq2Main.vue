@@ -13,9 +13,15 @@
           <router-view/>
         </b-col>
         <b-col class="col" cols="2">
-          <b-card v-if="this.$store.state.filelist.length > 0" class="filesBox">
-            Files:
-            <li v-for="fileName in this.$store.state.filelist" style="margin-left: 0.5rem">
+          <b-card v-if="this.$store.state.deseqlist.length > 0" class="filesBox">
+            DESeq2 Files:
+            <li v-for="fileName in this.$store.state.deseqlist" style="margin-left: 0.5rem">
+              <small>{{ fileName }}</small>
+            </li>
+          </b-card>
+          <b-card v-if="this.$store.state.countlist.length > 0" class="filesBox">
+            Count files:
+            <li v-for="fileName in this.$store.state.countlist" style="margin-left: 0.5rem">
               <small>{{ fileName }}</small>
             </li>
           </b-card>
@@ -60,7 +66,7 @@
   .filesBox {
     text-align: left;
     overflow-y: scroll;
-    overflow-x: auto;
+    overflow-x: scroll;
     height: auto;
     padding: 0.5rem
   }

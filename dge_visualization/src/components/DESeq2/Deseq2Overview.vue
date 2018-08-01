@@ -143,7 +143,7 @@
         console.log(this.$store.state.visionstore)
       },
       visionchange () {
-        let filestore = this.$store.state.filelist
+        let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
         let bigarray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
@@ -186,7 +186,7 @@
         this.rowData = rowData
       },
       createColumnDefs () {
-        let filestore = this.$store.state.filelist
+        let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
         let positionarray = []
         let visionarray = []

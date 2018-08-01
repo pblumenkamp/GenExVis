@@ -30,7 +30,7 @@
 
 <script>
   import {STORE_DESEQ2_STATISTICS} from '@/store/action_constants'
-  import {ADD_FILE} from '@/store/mutation_constants'
+  import {ADD_DESEQ} from '@/store/mutation_constants'
 
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
@@ -66,7 +66,7 @@
         }
 
         for (let filename of files) {
-          vueData.$store.commit(ADD_FILE, filename)
+          vueData.$store.commit(ADD_DESEQ, filename)
         }
 
         Promise.all(promises)

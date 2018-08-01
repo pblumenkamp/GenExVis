@@ -53,6 +53,7 @@
 
 <script>
   import {STORE_COUNT_TABLE} from '@/store/action_constants'
+  import {ADD_COUNT} from '@/store/mutation_constants'
 
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
@@ -140,6 +141,8 @@
         })
       },
       integrateCountTable () {
+        let filename = this.file.name
+        this.$store.commit(ADD_COUNT, filename)
         this.importingFiles = true
         let usedColumns = {}
         let geneColumn = ''
