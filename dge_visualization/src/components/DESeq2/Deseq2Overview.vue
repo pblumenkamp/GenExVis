@@ -176,10 +176,22 @@
           let list = store[gene]._deseq2_analyses
           for (let subentry of list) {
             for (let element in subentry) {
-              dict[element] = subentry[element]
-              if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
-                if (!isNaN(subentry[element])) this.log2foldlist.push(subentry[element])
+              let currentcell = subentry[element]
+              if (isNaN(currentcell)) {
+                currentcell = null
+              } else {
+                if (element === '_log2FoldChange') {
+                  this.log2foldlist.push(currentcell)
+                }
               }
+              dict[element] = currentcell
+              // console.log(subentry[element])
+              // if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
+              //   console.log(element)
+              //   if (!isNaN(subentry[element])) {
+              //     this.log2foldlist.push(subentry[element])
+              //   }
+              // }
             }
           }
           rowData.push(dict)
@@ -306,9 +318,10 @@
       },
       percentCellRenderer (params) {
         let value = params.value
-        if (isNaN(value)) {
-          value = 0
-        }
+        let showvalue = params.value
+        // if (value === null) {
+        //   value = 0
+        // }
         let min = this.log2foldmin
         let max = this.log2foldmax
 
@@ -360,7 +373,7 @@
         div2.style.height = 100 + '%'
         div2.align = 'center'
         // x!
-        div1.innerHTML = value
+        div1.innerHTML = showvalue
         div2.append(table)
         let parent = document.createElement('div')
         parent.id = 'parent'
@@ -374,8 +387,9 @@
         parent.append(div1)
         // let wrapper = document.getElementById('TEST')
         // wrapper.append(parent)
-
-        return parent
+        if (value !== null) {
+          return parent
+        }
       }
     },
     beforeMount () {
