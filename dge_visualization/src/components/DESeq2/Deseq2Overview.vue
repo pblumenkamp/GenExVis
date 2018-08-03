@@ -160,6 +160,7 @@
           bigarray.push(basictemplate)
         }
         this.$store.commit(ADD_VISION, bigarray)
+        this.createColumnDefs()
       },
       setback () {
         this.$store.commit(ADD_POSITION, null)
