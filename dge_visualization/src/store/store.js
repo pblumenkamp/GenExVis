@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_FILE, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_VISION, ADD_POSITION, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_VISION, ADD_POSITION, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -18,7 +18,8 @@ const store = new Vuex.Store({
     subDGE: new DGE(),
     useSubDGE: false,
     registeredConditions: [],
-    filelist: [],
+    deseqlist: [],
+    countlist: [],
     genelist: [],
     visionstore: null,
     positionstore: null
@@ -27,8 +28,11 @@ const store = new Vuex.Store({
     [ADD_DATA] (state, dgeData) {
       state.dgeData.mergeDGEs(dgeData)
     },
-    [ADD_FILE] (state, file) {
-      state.filelist.push(file)
+    [ADD_DESEQ] (state, file) {
+      state.deseqlist.push(file)
+    },
+    [ADD_COUNT] (state, file) {
+      state.countlist.push(file)
     },
     [ADD_GENE] (state, gene) {
       state.genelist.push(gene)
@@ -93,8 +97,8 @@ const store = new Vuex.Store({
         resolve()
       })
     },
-    [EXTEND_FILE_LIST] ({commit, state}, {filelist}) {
-      commit(ADD_FILE, filelist)
+    [EXTEND_FILE_LIST] ({commit, state}, {deseqlist}) {
+      commit(ADD_DESEQ, deseqlist)
     },
     [REGISTER_CONDITION] ({commit, state}, {conditionName}) {
       return new Promise((resolve, reject) => {
