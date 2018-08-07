@@ -88,17 +88,17 @@ describe('Tests with empty DGE object', () => {
   test('add count data', () => {
     let dge = new DGE()
 
-    expect(dge.normalizationMethods.size).toBe(0)
+    expect(dge.normalizationMethods).toHaveLength(0)
     dge.addUnnormalizedCountData('gene_1', 'WT', {a: 1, b: 10, c: 100})
     dge.addUnnormalizedCountData('gene_2', 'WT', {a: 2, b: 20, c: 200})
     dge.addUnnormalizedCountData('gene_1', 'Mut', {d: 10, e: 100, f: 1000})
     dge.addUnnormalizedCountData('gene_2', 'Mut', {d: 20, e: 200, f: 2000})
-    expect(dge.normalizationMethods.size).toBe(1)
+    expect(dge.normalizationMethods).toHaveLength(1)
     dge.addDeseq2CountData('gene_1', 'WT', {a: 3, b: 30, c: 300})
     dge.addDeseq2CountData('gene_2', 'WT', {a: 4, b: 40, c: 400})
     dge.addDeseq2CountData('gene_1', 'Mut', {d: 30, e: 300, f: 3000})
     dge.addDeseq2CountData('gene_2', 'Mut', {d: 40, e: 400, f: 4000})
-    expect(dge.normalizationMethods.size).toBe(2)
+    expect(dge.normalizationMethods).toHaveLength(2)
 
     expect(dge.getUnnormalizedCountDataToGene('gene_1', 'WT')).toEqual({a: 1, b: 10, c: 100})
     expect(dge.getUnnormalizedCountDataToGene('gene_2', 'WT')).toEqual({a: 2, b: 20, c: 200})

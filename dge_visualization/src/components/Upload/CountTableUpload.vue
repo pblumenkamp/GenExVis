@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div style="text-align: center">
       <b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="uploadCountTable" style="width: 50%"></b-form-file>
       <div style="margin-left: 1rem; margin-top: 1rem">
         Normalization method:
@@ -169,17 +169,7 @@
         let tempdict = {}
         let suggestion = ''
         for (let entry of this.$store.state.registeredConditions) {
-          let tempentry = ''
-          for (let char of entry) {
-            let exceptregex = RegExp('[^a-z|0-9]', 'i')
-            let match = exceptregex.exec(char)
-            if (match !== null) {
-              tempentry = tempentry + '\\' + char
-            } else {
-              tempentry = tempentry + char
-            }
-          }
-          let regex = RegExp(tempentry, 'i')
+          let regex = RegExp(entry.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i')
           let match = regex.exec(column)
           if (match !== null) {
             tempdict[match.index] = entry

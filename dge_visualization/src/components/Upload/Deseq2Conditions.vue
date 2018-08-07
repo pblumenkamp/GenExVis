@@ -2,7 +2,7 @@
   <b-container>
     <b-row v-for="{file, index, conditions} in getDataObject" :key="file.name" style="margin: 1rem">
       <b-col style="padding-top: 0.4rem">
-        {{index+1}}. {{file.name}}
+        <b>{{index+1}}.</b> {{file.name}}
       </b-col>
       <b-col>
         <b-form-select v-model="conditions[0]" :options="registeredConditions">
@@ -101,7 +101,7 @@
         // versus check block
         let vsbool = false
         let vsindex = 0
-        let vsregex = RegExp('[^a-z|0-9]vs[^a-z|0-9]', 'i')
+        let vsregex = RegExp('[^a-z0-9]vs[^a-z0-9]', 'i')
         let vsmatch = vsregex.exec(filename)
         if (vsmatch !== null) {
           vsbool = true
@@ -109,17 +109,7 @@
         }
         // versus check block END
         for (let entry of this.$store.state.registeredConditions) {
-          let tempentry = ''
-          for (let char of entry) {
-            let exceptregex = RegExp('[^a-z|0-9]', 'i')
-            let match = exceptregex.exec(char)
-            if (match !== null) {
-              tempentry = tempentry + '\\' + char
-            } else {
-              tempentry = tempentry + char
-            }
-          }
-          let regex = RegExp(tempentry, 'i')
+          let regex = RegExp(entry.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i')
           let match = regex.exec(filename)
           if (match !== null) {
             tempdict[match.index] = entry

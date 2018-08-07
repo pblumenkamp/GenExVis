@@ -1,15 +1,10 @@
 <template>
   <div style="width: 100%; height: 600px">
-    <div style="padding: 4px;">
-      <!--<div style="float: left;">-->
-          <!--<button :disabled="!showGrid" @click="showGrid=false">Destroy Grid</button>-->
-          <!--<button :disabled="showGrid" @click="showGrid=true">Create Grid</button>-->
-      <!--</div>-->
-      <div>
-          <h1>Overview Table</h1>
-          {{rowCount}}
-      </div>
+    <div style="text-align: center">
+     <h1>Overview Table</h1>
+     {{rowCount}}
     </div>
+
     <div style="clear: both;"></div>
     <div style="padding: 4px;" class="toolbar">
       <!--<span style="margin-left: 20px;">-->

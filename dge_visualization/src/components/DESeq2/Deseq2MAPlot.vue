@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="text-align: center">
     <h1>
       MA Plot
     </h1>
@@ -18,7 +18,7 @@
       <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
     </b-form-select>
 
-    <div id="deseq2maplot_highcharts" ref="deseq2maplot_highcharts" style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+    <div id="deseq2maplot_highcharts" ref="deseq2maplot_highcharts" style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
@@ -33,12 +33,49 @@
           <b-col sm="9"><b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox></b-col>
         </b-row>
       </b-container>
+
+      <hr>
+
+      <b-container fluid border="1" style="margin-bottom: 2rem">
+        <b-row align="left">
+          <b-col sm="12">
+            <span>
+              <button type="button" class="btn btn-default table-button" @click="sortGenes">Sort Genes</button>
+              <button type="button" class="btn btn-default table-button" @click="clearTable">Clear Table</button>
+              <button class="btn btn-primary table-button" @click="createSubset()">Import Genes</button>
+            </span>
+          </b-col>
+        </b-row>
+        <b-row align="left">
+          <b-col sm="12">
+            <b-card>
+              <table width="100%">
+                <thead>
+                <tr>
+                  <th width="14%" v-for="key in tableHeader">
+                    {{ key }}
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="entry of tableData">
+                  <td width="14%" v-for="key of tableHeader">
+                    {{ entry[key] }}
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </b-card>
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
   </div>
 </template>
 
 <script>
   import {ConditionPair} from '../../utilities/dge'
+  import {SET_SUBDGE} from '../../store/action_constants'
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
@@ -54,14 +91,47 @@
         selectedCondition1: '',
         selectedCondition2: '',
         inputPThreshold: '0.001',
-        useAdjPValue: false
+        useAdjPValue: false,
+        tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
+        rowNames: [],
+        tableData: []
       }
     },
     methods: {
+      clearTable () {
+        this.rowNames = []
+        this.tableData = []
+      },
+      sortGenes () {
+        this.rowNames.sort()
+        this.collectData()
+      },
+      collectData () {
+        this.tableData = []
+        let storage = this.$store.state.currentDGE
+        for (let geneName of this.rowNames) {
+          let tableRow = {}
+          let deseq2Analysis = storage.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
+          for (let colName of this.tableHeader) {
+            tableRow[colName] = deseq2Analysis[colName]
+          }
+          tableRow.name = geneName
+          this.tableData.push(tableRow)
+        }
+      },
+      createSubset () {
+        let geneNames = []
+        for (let geneName of this.rowNames) {
+          geneNames.push(geneName)
+        }
+        geneNames.sort()
+        this.$store.dispatch(SET_SUBDGE, {geneList: geneNames})
+      },
       drawData () {
         if (!(this.selectedCondition1 && this.selectedCondition2)) {
           return
         }
+        let vue = this
         let options = {
           chart: {
             type: 'scatter',
@@ -131,6 +201,27 @@
             verticalAlign: 'bottom'
           },
           plotOptions: {
+            series: {
+              allowPointSelect: true,
+              point: {
+                events: {
+                  click: function (event) {
+                    if (vue.rowNames.length !== 0) {
+                      if (event.ctrlKey === true || event.shiftKey === true) {
+                        vue.rowNames.push(this.gene)
+                      } else {
+                        vue.rowNames = []
+                        vue.rowNames.push(this.gene)
+                      }
+                    } else {
+                      vue.tableData = []
+                      vue.rowNames.push(this.gene)
+                    }
+                    vue.collectData()
+                  }
+                }
+              }
+            },
             scatter: {
               turboThreshold: Number.MAX_VALUE,
               boostThreshold: 1000,
@@ -250,3 +341,16 @@
     }
   }
 </script>
+<style scoped>
+  tr, th, td {
+    border: 1px solid lightgrey;
+    border-collapse: collapse;
+    padding-left: 0.4rem;
+  }
+  th {
+    background-color: #F6F8F7;
+  }
+  .table-button {
+    margin: 0.2rem 0.2rem 0.4rem;
+  }
+</style>

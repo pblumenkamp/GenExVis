@@ -10,7 +10,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .left_navbar {
     height: 100%; /* 100% Full-height */
     position: fixed; /* Stay in place */

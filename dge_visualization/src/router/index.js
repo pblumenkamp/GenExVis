@@ -8,7 +8,8 @@ import Deseq2Main from '@/components/DESeq2/Deseq2Main'
 import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
 import Deseq2MAPlot from '@/components/DESeq2/Deseq2MAPlot'
-import MaSigPro from '@/components/MaSigPro'
+import Deseq2Distributions from '@/components/DESeq2/Deseq2Distributions'
+import Changelogs from '@/components/Changelogs/ChangelogsMain'
 
 Vue.use(Router)
 
@@ -57,13 +58,18 @@ export default new Router({
           path: 'ma_plot',
           name: 'Deseq2_ma_plot',
           component: Deseq2MAPlot
+        },
+        {
+          path: 'distributions',
+          name: 'Deseq2_distributions',
+          component: Deseq2Distributions
         }
       ]
     },
     {
-      path: '/masigpro',
-      name: 'maSigPro',
-      component: MaSigPro
+      path: '/changelogs',
+      name: 'Changelogs',
+      component: Changelogs
     }
   ]
 })
