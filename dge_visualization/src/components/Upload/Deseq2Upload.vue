@@ -9,7 +9,7 @@
       <b-form-file id="files_input" v-model="files" multiple placeholder="Choose all files..."
                    style="width: 50%; text-align: center"></b-form-file>
     </div>
-    <div>
+    <div style="margin-top: 5rem">
       <deseq2-conditions v-if="!(files.length == 0)" :files="files" style="margin-top: 2rem"></deseq2-conditions>
       <br>
     </div>

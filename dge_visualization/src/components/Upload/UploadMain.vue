@@ -4,7 +4,7 @@
       <b-row>
         <b-col cols="10">
           <b-row>
-            <b-col sm="3"><label for="conditionName" style="margin-top: 0.4rem; float: right">Register condition:</label></b-col>
+            <b-col sm="4"><label for="conditionName" style="margin-top: 0.4rem; float: right">Register condition:</label></b-col>
             <b-col sm="6">
               <b-input-group>
                 <b-form-input v-model="conditionName" :state="validCondition" type="text" id="conditionName"
@@ -25,7 +25,7 @@
           </span>
               {{registeredConditions.length}} conditions registered
               <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
-                <b-card>
+                <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
                   <ul>
                     <li v-for="cond of registeredConditions" :key="cond">{{cond}}</li>
                   </ul>
@@ -34,7 +34,7 @@
             </b-col>
           </b-row>
           <b-row>
-            <div style="width:100%" role="tablist">
+            <div style="width:80%; margin: auto;" role="tablist">
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
                   <b-btn block href="#" v-b-toggle.accordion1 variant="secondary">Count table</b-btn>
@@ -76,29 +76,6 @@
       </b-row>
 
     </b-container>
-
-    <div role="tablist">
-      <b-card no-body class="mb-1 accordion-90">
-        <b-card-header header-tag="header" class="p-1" role="tab">
-          <b-btn block href="#" v-b-toggle.accordion1 variant="secondary">Count table</b-btn>
-        </b-card-header>
-        <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel" style="padding-bottom: 1rem">
-          <b-card-body>
-            <count-table-upload></count-table-upload>
-          </b-card-body>
-        </b-collapse>
-      </b-card>
-      <b-card no-body class="mb-1 accordion-90">
-        <b-card-header header-tag="header" class="p-1" role="tab">
-          <b-btn block href="#" v-b-toggle.accordion2 variant="secondary">DESeq2 data</b-btn>
-        </b-card-header>
-        <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel" style="padding-bottom: 1rem">
-          <b-card-body>
-            <deseq2-upload></deseq2-upload>
-          </b-card-body>
-        </b-collapse>
-      </b-card>
-    </div>
   </div>
 </template>
 
