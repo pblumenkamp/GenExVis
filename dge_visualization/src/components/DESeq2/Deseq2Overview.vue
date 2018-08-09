@@ -20,7 +20,7 @@
         <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
         <button type="button" class="btn btn-default" @click="setback()">Set back</button>
         <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
-        <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
+        <button class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
       </span>
     </div>
 
