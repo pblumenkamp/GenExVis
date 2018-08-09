@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="text-align: center">
-      <b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="uploadCountTable" style="width: 50%"></b-form-file>
+      <b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="importCountTable" style="width: 50%"></b-form-file>
       <div style="margin-left: 1rem; margin-top: 1rem">
         Normalization method:
         <b-form-select v-model="selectedNormalization" style="width: auto; margin-left: 0.5rem">
@@ -33,21 +33,6 @@
         </b-row>
       </b-container>
     </div>
-    <!--<b-container fluid v-if="uploadingFinished" class="mt-4">-->
-      <!--<b-row>-->
-          <!--<b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />-->
-      <!--</b-row>-->
-
-      <!--<b-table-->
-        <!--responsive-->
-        <!--striped-->
-        <!--hover-->
-        <!--:items="items"-->
-        <!--:current-page="currentPage"-->
-        <!--:per-page="perPage"-->
-        <!--style="width: auto;">-->
-      <!--</b-table>-->
-    <!--</b-container>-->
   </div>
 </template>
 
@@ -60,7 +45,7 @@
   import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
 
   export default {
-    name: 'count-table-upload',
+    name: 'count-table-import',
     components: {
       FontAwesomeIcon
     },
@@ -80,7 +65,7 @@
       }
     },
     methods: {
-      uploadCountTable () {
+      importCountTable () {
         var vueData = this
         this.uploadingFinished = true
 

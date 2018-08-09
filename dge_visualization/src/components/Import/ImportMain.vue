@@ -41,7 +41,7 @@
                 </b-card-header>
                 <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel" style="padding-bottom: 1rem">
                   <b-card-body>
-                    <count-table-upload></count-table-upload>
+                    <count-table-import></count-table-import>
                   </b-card-body>
                 </b-collapse>
               </b-card>
@@ -51,7 +51,7 @@
                 </b-card-header>
                 <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel" style="padding-bottom: 1rem">
                   <b-card-body>
-                    <deseq2-upload></deseq2-upload>
+                    <deseq2-import></deseq2-import>
                   </b-card-body>
                 </b-collapse>
               </b-card>
@@ -80,8 +80,8 @@
 </template>
 
 <script>
-  import CountTableUpload from './CountTableUpload.vue'
-  import Deseq2Upload from './Deseq2Upload.vue'
+  import CountTableImport from './CountTableImport.vue'
+  import Deseq2Import from './Deseq2Import.vue'
 
   import {REGISTER_CONDITION} from '@/store/action_constants'
 
@@ -90,10 +90,10 @@
   import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
 
   export default {
-    name: 'UploadMain',
+    name: 'ImportMain',
     components: {
-      CountTableUpload,
-      Deseq2Upload,
+      CountTableImport: CountTableImport,
+      Deseq2Import: Deseq2Import,
       FontAwesomeIcon
     },
     data () {
