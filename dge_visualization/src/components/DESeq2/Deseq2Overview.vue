@@ -172,7 +172,7 @@
           for (let subentry of list) {
             for (let element in subentry) {
               let currentcell = subentry[element]
-              if (isNaN(currentcell)) {
+              if (element !== '_conditions' && isNaN(currentcell)) {
                 currentcell = null
               } else {
                 if (element === '_log2FoldChange') {
@@ -182,7 +182,6 @@
               dict[element] = currentcell
               // console.log(subentry[element])
               // if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
-              //   console.log(element)
               //   if (!isNaN(subentry[element])) {
               //     this.log2foldlist.push(subentry[element])
               //   }
