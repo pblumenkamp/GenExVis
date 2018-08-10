@@ -173,7 +173,7 @@
           for (let analysis of analysesList) {
             for (let element in analysis) {
               let currentcell = analysis[element]
-              if (isNaN(currentcell)) {
+              if (element !== '_conditions' && isNaN(currentcell)) {
                 currentcell = null
               } else {
                 if (element === '_log2FoldChange') {
@@ -183,7 +183,6 @@
               dict[element] = currentcell
               // console.log(subentry[element])
               // if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
-              //   console.log(element)
               //   if (!isNaN(subentry[element])) {
               //     this.log2foldlist.push(subentry[element])
               //   }
