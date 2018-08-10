@@ -20,7 +20,7 @@
         <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
         <button type="button" class="btn btn-default" @click="setback()">Set back</button>
         <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
-        <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
+        <button class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
       </span>
     </div>
 
@@ -164,14 +164,15 @@
       },
       createRowData () {
         const rowData = []
-        let store = this.$store.state.dgeData._data
-        for (let gene in store) {
-          var dict = {}
-          dict.name = store[gene]._name
-          let list = store[gene]._deseq2_analyses
-          for (let subentry of list) {
-            for (let element in subentry) {
-              let currentcell = subentry[element]
+        let store = this.$store.state.dgeData
+        for (let geneName of store.geneNames) {
+          let gene = store.getGene(geneName)
+          let dict = {}
+          dict.name = gene.name
+          let analysesList = gene.deseq2Analyses
+          for (let analysis of analysesList) {
+            for (let element in analysis) {
+              let currentcell = analysis[element]
               if (element !== '_conditions' && isNaN(currentcell)) {
                 currentcell = null
               } else {
@@ -190,6 +191,7 @@
           }
           rowData.push(dict)
         }
+        console.log(rowData)
         this.rowData = rowData
       },
       createColumnDefs () {

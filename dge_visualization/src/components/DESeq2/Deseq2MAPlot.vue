@@ -42,7 +42,7 @@
             <span>
               <button type="button" class="btn btn-default table-button" @click="sortGenes">Sort Genes</button>
               <button type="button" class="btn btn-default table-button" @click="clearTable">Clear Table</button>
-              <button class="btn btn-primary table-button" @click="createSubset()">Import Genes</button>
+              <button class="btn btn-primary table-button" @click="createSubset()">Create Subset</button>
             </span>
           </b-col>
         </b-row>

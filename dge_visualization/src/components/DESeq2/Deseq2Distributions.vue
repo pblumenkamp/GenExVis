@@ -37,7 +37,7 @@
         <b-row class="my-2">
           <b-col sm="2"><label>logarithmic y-axis</label></b-col>
           <b-col sm="10">
-            <b-form-checkbox v-model="useLogYAxis" style="float: left;" @change="updateYAxis"></b-form-checkbox>
+            <b-form-checkbox v-model="useLogYAxis" style="float: left;" @input="updateYAxis"></b-form-checkbox>
           </b-col>
         </b-row>
       <template v-if="selectedDistributionType === 'p-value' || selectedDistributionType === 'adj. p-value'">
