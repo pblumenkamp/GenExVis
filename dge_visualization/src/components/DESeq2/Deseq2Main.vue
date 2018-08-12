@@ -8,6 +8,7 @@
             <b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>
             <b-nav-item to="/deseq2/ma_plot">MA Plot</b-nav-item>
             <b-nav-item to="/deseq2/distributions">Distributions</b-nav-item>
+            <b-nav-item to="/deseq2/top_10">Top 10</b-nav-item>
           </b-nav>
         </b-col>
         <b-col class="col" cols="9">
