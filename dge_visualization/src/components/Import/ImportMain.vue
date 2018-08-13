@@ -16,13 +16,13 @@
             </b-col>
           </b-row>
           <b-row>
-        <b-col class="text-center">
-          <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
-            <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
-          </span>
+            <b-col class="text-center">
+              <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
+                <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+              </span>
               <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
-            <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
-          </span>
+                <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
+              </span>
               {{registeredConditions.length}} conditions registered
               <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
                 <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
