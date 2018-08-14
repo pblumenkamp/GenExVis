@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import MainBody from '@/components/MainBody'
-import UploadMain from '@/components/Upload/UploadMain'
+import ImportMain from '@/components/Import/ImportMain'
 import CountDataMain from '@/components/CountData/CountDataMain'
 import CountDataGeneCountHM from '@/components/CountData/CountDataGeneCountHM'
 import CountDataDistribution from '@/components/CountData/CountDataDistribution'
@@ -22,9 +22,9 @@ export default new Router({
       component: MainBody
     },
     {
-      path: '/upload',
-      name: 'Upload',
-      component: UploadMain
+      path: '/import',
+      name: 'Data Import',
+      component: ImportMain
     },
     {
       path: '/countdata',

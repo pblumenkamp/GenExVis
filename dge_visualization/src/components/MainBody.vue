@@ -1,6 +1,6 @@
 <template>
-  <div>
-    Main page
+  <div style="text-align: center;">
+    A visualization site for differential gene expression data.
   </div>
 </template>
 

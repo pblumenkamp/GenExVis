@@ -20,7 +20,7 @@
         <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
         <button type="button" class="btn btn-default" @click="setback()">Set back</button>
         <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
-        <button class="btn btn-primary" @click="fillthebasket()">Import Genes</button>
+        <button class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
       </span>
     </div>
 
@@ -42,30 +42,12 @@
                  :groupHeaders="true"
 
                  :modelUpdated="onModelUpdated"
-                 :cellClicked="onCellClicked"
-                 :cellDoubleClicked="onCellDoubleClicked"
-                 :cellContextMenu="onCellContextMenu"
-                 :cellValueChanged="onCellValueChanged"
-                 :cellFocused="onCellFocused"
-                 :rowSelected="onRowSelected"
                  :selectionChanged="onSelectionChanged"
-                 :beforeFilterChanged="onBeforeFilterChanged"
-                 :afterFilterChanged="onAfterFilterChanged"
-                 :filterModified="onFilterModified"
-                 :beforeSortChanged="onBeforeSortChanged"
-                 :afterSortChanged="onAfterSortChanged"
-                 :virtualRowRemoved="onVirtualRowRemoved"
-                 :rowClicked="onRowClicked"
                  :gridReady="onReady"
 
-                 :columnEverythingChanged="onColumnEvent"
-                 :columnRowGroupChanged="onColumnEvent"
-                 :columnValueChanged="onColumnEvent"
                  :columnMoved="positionchange"
                  :columnVisible="visionchange"
-                 :columnGroupOpened="true"
-                 :columnResized="onColumnEvent"
-                 :columnPinnedCountChanged="onColumnEvent"/>
+                 :columnGroupOpened="true"/>
     <div>
       <b-card class="currentlychosen">
         Currently chosen:
@@ -87,6 +69,9 @@
         columnDefs: null,
         rowData: null,
         showToolPanel: false,
+        log2foldlist: [],
+        log2foldmin: 0,
+        log2foldmax: 0,
         // columnGroupOpened: true,
         rowCount: null,
         setRowHeight: 500,
@@ -153,7 +138,7 @@
         console.log(this.$store.state.visionstore)
       },
       visionchange () {
-        let filestore = this.$store.state.filelist
+        let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
         let bigarray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
@@ -170,6 +155,7 @@
           bigarray.push(basictemplate)
         }
         this.$store.commit(ADD_VISION, bigarray)
+        this.createColumnDefs()
       },
       setback () {
         this.$store.commit(ADD_POSITION, null)
@@ -178,25 +164,38 @@
       },
       createRowData () {
         const rowData = []
-        let store = this.$store.state.dgeData._data
-        for (let gene in store) {
-          var dict = {}
-          dict.name = store[gene]._name
-          let list = store[gene]._deseq2_analyses
-          for (let entry in list) {
-            // entry = 0, 1, 2 ...
-            // probably try entry OF list
-            let subentry = list[entry]
-            for (let element in subentry) {
-              dict[element] = subentry[element]
+        let store = this.$store.state.dgeData
+        for (let geneName of store.geneNames) {
+          let gene = store.getGene(geneName)
+          let dict = {}
+          dict.name = gene.name
+          let analysesList = gene.deseq2Analyses
+          for (let analysis of analysesList) {
+            for (let element in analysis) {
+              let currentcell = analysis[element]
+              if (element !== '_conditions' && isNaN(currentcell)) {
+                currentcell = null
+              } else {
+                if (element === '_log2FoldChange') {
+                  this.log2foldlist.push(currentcell)
+                }
+              }
+              dict[element] = currentcell
+              // console.log(subentry[element])
+              // if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
+              //   if (!isNaN(subentry[element])) {
+              //     this.log2foldlist.push(subentry[element])
+              //   }
+              // }
             }
           }
           rowData.push(dict)
         }
+        console.log(rowData)
         this.rowData = rowData
       },
       createColumnDefs () {
-        let filestore = this.$store.state.filelist
+        let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
         let positionarray = []
         let visionarray = []
@@ -224,7 +223,6 @@
           }
         ]
         let counter = 0
-        // let bool = true
         for (let i = 0; i < fileamount; i++) {
           let childrenarray = []
           let specposarray = positionarray[i]
@@ -244,15 +242,29 @@
             let entrydict = {}
             let showstate = 'close'
             if (colcounter > 1) { showstate = 'open' }
-            entrydict = {
-              headerName: this.namedict[entry],
-              field: entry,
-              width: 150,
-              filter: 'agNumberColumnFilter',
-              hide: specvisarray[entry],
-              columnGroupShow: showstate
+            if (entry === '_log2FoldChange') {
+              entrydict = {
+                headerName: this.namedict[entry],
+                field: entry,
+                width: 150,
+                cellRenderer: this.percentCellRenderer,
+                filter: 'agNumberColumnFilter',
+                hide: specvisarray[entry],
+                columnGroupShow: showstate
+              }
+            } else {
+              entrydict = {
+                headerName: this.namedict[entry],
+                field: entry,
+                width: 150,
+                filter: 'agNumberColumnFilter',
+                hide: specvisarray[entry],
+                columnGroupShow: showstate
+              }
             }
-            colcounter = colcounter + 1
+            if (specvisarray[entry] === false) {
+              colcounter = colcounter + 1
+            }
             childrenarray.push(entrydict)
           }
           datadict.children = childrenarray
@@ -266,7 +278,6 @@
         while (asString.length < totalStringSize) asString = '0' + asString
         return asString
       },
-
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
           let model = this.gridOptions.api.getModel()
@@ -275,42 +286,14 @@
           this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
         }
       },
-
       onModelUpdated () {
         console.log('onModelUpdated')
         this.calculateRowCount()
       },
-
       onReady () {
         console.log('onReady')
         this.calculateRowCount()
       },
-
-      onCellClicked (event) {
-        // console.log('onCellClicked: ' + event.rowIndex + ' ' + event.colDef.field)
-      },
-
-      onCellValueChanged (event) {
-        console.log('onCellValueChanged: ' + event.oldValue + ' to ' + event.newValue)
-      },
-
-      onCellDoubleClicked (event) {
-        console.log('onCellDoubleClicked: ' + event.rowIndex + ' ' + event.colDef.field)
-      },
-
-      onCellContextMenu (event) {
-        console.log('onCellContextMenu: ' + event.rowIndex + ' ' + event.colDef.field)
-      },
-
-      onCellFocused (event) {
-        console.log('onCellFocused: (' + event.rowIndex + ',' + event.colIndex + ')')
-      },
-
-      // taking out, as when we 'select all', it prints to much to the console!!
-      onRowSelected (event) {
-        //                console.log('onRowSelected: ' + event.node.data.name);
-      },
-
       onSelectionChanged () {
         let selectedRows = this.gridOptions.api.getSelectedRows()
         let selectedRowsString = []
@@ -319,53 +302,98 @@
         })
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
-
-      onBeforeFilterChanged () {
-        console.log('beforeFilterChanged')
-      },
-
-      onAfterFilterChanged () {
-        console.log('afterFilterChanged')
-      },
-
-      onFilterModified () {
-        console.log('onFilterModified')
-      },
-
-      onBeforeSortChanged () {
-        console.log('onBeforeSortChanged')
-      },
-
-      onAfterSortChanged () {
-        console.log('onAfterSortChanged')
-      },
-
-      onVirtualRowRemoved (event) {
-        // because this event gets fired LOTS of times, we don't print it to the
-        // console. if you want to see it, just uncomment out this line
-        // console.log('onVirtualRowRemoved: ' + event.rowIndex);
-      },
-
-      onRowClicked (event) {
-        // console.log('onRowClicked: ' + event.node.data.name)
-      },
-
       onQuickFilterChanged (event) {
         this.gridOptions.api.setQuickFilter(event.target.value)
       },
+      minmaxdefine () {
+        let log2foldlist = this.log2foldlist
+        let min = Math.min(...log2foldlist)
+        let max = Math.max(...log2foldlist)
+        this.log2foldmin = min
+        this.log2foldmax = max
+      },
+      percentCellRenderer (params) {
+        let value = params.value
+        let showvalue = params.value
+        // if (value === null) {
+        //   value = 0
+        // }
+        let min = this.log2foldmin
+        let max = this.log2foldmax
 
-      // here we use one generic event to handle all the column type events.
-      // the method just prints the event name
-      onColumnEvent (event) {
-        console.log('onColumnEvent: ' + event)
+        let table = document.createElement('table')
+        table.align = 'center'
+        table.style.width = 100 + '%'
+        table.style.height = 100 + '%'
+        let firstrow = document.createElement('tr')
+        // all 4 parts (2 bars, 2 spaces)
+        let leftbar = document.createElement('td')
+        let rightbar = document.createElement('td')
+        let leftpush = document.createElement('td')
+        let rightpush = document.createElement('td')
+        //
+        leftbar.style.padding = 0
+        rightbar.style.padding = 0
+        leftpush.style.padding = 0
+        rightpush.style.padding = 0
+
+        if (value < 0) {
+          let percent = (value * 50) / min
+          leftpush.style.width = (50 - percent) + '%'
+          leftbar.style.width = percent + '%'
+          rightbar.style.width = 25 + '%'
+          rightpush.style.width = 25 + '%'
+          leftbar.style.backgroundColor = 'rgba(238, 16, 16, 0.4)'
+        } else {
+          let percent = (value * 50) / max
+          leftpush.style.width = 25 + '%'
+          leftbar.style.width = 25 + '%'
+          rightbar.style.width = percent + '%'
+          rightpush.style.width = (50 - percent) + '%'
+          rightbar.style.backgroundColor = 'rgba(16, 16, 238, 0.4)'
+        }
+
+        firstrow.append(leftpush, leftbar, rightbar, rightpush)
+        table.append(firstrow)
+        
+        let div1 = document.createElement('div')
+        let div2 = document.createElement('div')
+        div1.id = 'child_1'
+        div2.id = 'child_2'
+        // o!
+        div1.style.position = 'absolute'
+        div2.style.position = 'absolute'
+        div2.style.width = 100 + '%'
+        div2.style.height = 100 + '%'
+        div2.align = 'center'
+        // x!
+        div1.innerHTML = showvalue
+        div2.append(table)
+        let parent = document.createElement('div')
+        parent.id = 'parent'
+        // o!
+        parent.style.position = 'relative'
+        parent.style.width = 100 + '%'
+        parent.style.height = 100 + '%'
+        parent.align = 'center'
+        // x!
+        parent.append(div2)
+        parent.append(div1)
+        // let wrapper = document.getElementById('TEST')
+        // wrapper.append(parent)
+        if (value !== null) {
+          return parent
+        }
       }
     },
     beforeMount () {
       this.createRowData()
+      this.minmaxdefine()
       this.createColumnDefs()
       this.gridOptions = {
         rowSelection: 'multiple',
-        rowMultiSelectWithClick: true
+        rowMultiSelectWithClick: true,
+        suppressPropertyNamesCheck: true
       }
     }
   }
@@ -378,9 +406,8 @@
     height: 150px;
     padding: 1rem
   }
-
   label {
-      font-weight: normal !important;
-      text-align: right;
+    font-weight: normal !important;
+    text-align: right;
   }
 </style>

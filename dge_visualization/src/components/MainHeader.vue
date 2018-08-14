@@ -17,8 +17,8 @@
         <b-nav-text>Subset</b-nav-text>
         <b-nav-text style="margin-right: 2rem"></b-nav-text>
         <b-nav-item-dropdown text="Tools" right>
-          <b-dropdown-item to="/upload">
-            Upload
+          <b-dropdown-item to="/import">
+            Import Data
           </b-dropdown-item>
           <b-dropdown-item to="/countdata">
             Count data
