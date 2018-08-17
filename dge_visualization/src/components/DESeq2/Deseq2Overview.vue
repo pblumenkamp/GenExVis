@@ -355,7 +355,7 @@
 
         firstrow.append(leftpush, leftbar, rightbar, rightpush)
         table.append(firstrow)
-        
+
         let div1 = document.createElement('div')
         let div2 = document.createElement('div')
         div1.id = 'child_1'
