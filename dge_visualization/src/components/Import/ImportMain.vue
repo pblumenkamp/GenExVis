@@ -15,7 +15,7 @@
               </b-input-group>
             </b-col>
           </b-row>
-          <b-row>
+          <b-row style="margin-top: 0.5rem">
             <b-col class="text-center">
               <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
                 <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
@@ -25,7 +25,7 @@
               </span>
               {{registeredConditions.length}} conditions registered
               <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
-                <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                <b-card style="width:80%; margin: auto">
                   <ul>
                     <li v-for="cond of registeredConditions" :key="cond">{{cond}}</li>
                   </ul>
@@ -33,7 +33,7 @@
               </b-collapse>
             </b-col>
           </b-row>
-          <b-row>
+          <b-row style="margin-top: 1rem">
             <div style="width:80%; margin: auto;" role="tablist">
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">

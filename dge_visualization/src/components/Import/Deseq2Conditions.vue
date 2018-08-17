@@ -1,17 +1,17 @@
 <template>
   <b-container>
-    <b-row v-for="{file, index, conditions} in getDataObject" :key="file.name" style="margin: 1rem">
+    <b-row sm="6" v-for="{file, index, conditions} in getDataObject" :key="file.name" style="margin: 1rem">
       <b-col style="padding-top: 0.4rem">
         <b>{{index+1}}.</b> {{file.name}}
       </b-col>
-      <b-col>
+      <b-col sm="3">
         <b-form-select v-model="conditions[0]" :options="registeredConditions">
           <template slot="first">
             <option :value="''" disabled>-- Condition 1 --</option>
           </template>
         </b-form-select>
       </b-col>
-      <b-col>
+      <b-col sm="3">
         <b-form-select v-model="conditions[1]" :options="registeredConditions">
           <template slot="first">
             <option :value="''" disabled>-- Condition 2 --</option>
@@ -19,7 +19,7 @@
         </b-form-select>
       </b-col>
     </b-row>
-    <div style="margin: 0 auto; width: 10rem">
+    <div style="width: 10rem; margin: 2rem auto 0;">
       <b-button @click="parseDataObject" style="float: left; margin-right: 1rem">Import files</b-button>
       <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary" style="margin-top: 0.1rem"></font-awesome-icon>
       <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary" style="margin-top: 0.1rem"></font-awesome-icon>
