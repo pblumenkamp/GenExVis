@@ -4,14 +4,14 @@
       Top {{ this.selectedAmount }} {{ this.selectedValue }} values
     </h1>
 
-    <b-form-select v-model="selectedValue" style="width: auto">
+    <b-form-select v-model="selectedValue" style="width: auto" @input="mountData()">
       <template slot="first">
         <option :value="''" disabled>-- Please select measurement value --</option>
       </template>
       <option v-for="measure in optionsValue" :value="measure">{{ measure }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedAmount" style="width: auto">
+    <b-form-select v-model="selectedAmount" style="width: auto" @input="createRanking()">
       <template slot="first">
         <option :value="''" disabled>-- Please select measurement value --</option>
       </template>
@@ -29,19 +29,21 @@
         <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
       </b-form-select>
 
-      <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''">
+      <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="mountData()">
         <template slot="first">
           <option :value="''" disabled>-- Please select the second condition --</option>
         </template>
         <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
       </b-form-select>
     </div>
-    <div v-if="selectedCondition1 && selectedCondition2 && testalert()">
+    <div v-if="selectedCondition1 && selectedCondition2">
 
       <hr>
-
-      <div>{{ this.selectedValue }}</div>
-
+      <div>{{ this.selectedAmount }}</div>
+      <!--<div>gene1, gene8, gene9, gene2, gene3, gene4, gene5, gene10, gene6</div>-->
+      <div align="left "v-for="(value, key, index) in this.rankingdict">
+        {{ index+1 }}. {{ key }}: {{ value }}
+      </div>
     </div>
   </div>
 </template>
@@ -67,33 +69,69 @@
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
         optionsValue: ['base mean', 'log2 fold change', 'lfcSE', 'stat', 'p value', 'p value (adjusted)'],
-        datadict: {gene1: 1.2, gene2: 2.3, gene3: 3.4, gene4: 4.5, gene5: 5.6, gene6: 6.7, gene8: 1.2, gene9: 2.0, gene10: 6.1},
-        testarray: [],
+        optionsDict: {'base mean': 'baseMean', 'log2 fold change': 'log2FoldChange', 'lfcSE': 'lfcSE', 'stat': 'stat', 'p value': 'pValue', 'p value (adjusted)': 'pAdj'},
+        // datadict: {gene1: 5.6, gene2: 2.3, gene3: 3.4, gene4: 4.5, gene5: 1.2, gene6: 6.7, gene7: 8.8, gene8: 1.2, gene9: 2, gene10: 6.1, gene11: 3.5, gene12: 6.9, gene13: 3.7, gene14: 1.8, gene15: 5.3, gene16: 4.2, gene17: 0.4, gene18: 0.8, gene19: 4.6, gene20: 9.5},
+        datadict: {},
         reversedict: {},
-        rankingarray: []
+        rankingarray: [],
+        rankingdict: {}
       }
     },
     methods: {
-      testalert () {
-        let bigarray = []
-        for (let key in this.datadict) {
-          let tempdict = {}
-          let temparray = []
-          console.log(key)
-          let value = this.datadict[key]
-          console.log(value)
-          if (bigarray[value] === undefined) {
-            tempdict[value] = [key] // key always in list (for multiple entries)
-          } else {
-            // console.log(bigarray[value])
-          }
-          bigarray.push(tempdict)
+      mountData () {
+        this.datadict = {}
+        let valueS = this.optionsDict[this.selectedValue]
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
+        for (let geneName of dge.geneNames) {
+          let gene = dge.getGene(geneName)
+          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
+          let value = analysis[valueS]
+          this.datadict[geneName] = value
         }
-        console.log(bigarray)
-        console.log(bigarray.sort())
+        console.log(this.datadict)
+        this.fillLists()
       },
-      pickdata () {
-        // nuffin
+      fillLists () {
+        this.reversedict = {}
+        this.rankingarray = {}
+        let tempdict = {}
+        let temparray = []
+        for (let key in this.datadict) {
+          let value = this.datadict[key]
+          temparray.push(value) // save values in list (for sorting later)
+          if (tempdict[value] === undefined) {
+            tempdict[value] = [key] // key always in a list (for multiple entries)
+          } else {
+            tempdict[value].push(key)
+          }
+        }
+        this.reversedict = tempdict
+        temparray = temparray.sort()
+        this.rankingarray = temparray
+        this.createRanking()
+      },
+      changeSelectedAmount () {
+        this.createRanking()
+      },
+      createRanking () {
+        this.rankingdict = {}
+        console.log('createRanking: ' + this.selectedAmount)
+        let maxcount = this.selectedAmount
+        if (maxcount > this.rankingarray.length) {
+          maxcount = this.rankingarray.length
+        }
+        console.log('maxcount: ' + maxcount)
+        console.log(this.rankingarray)
+        for (let counter = 0; counter < maxcount;) {
+          let key = this.rankingarray[counter]
+          let keylist = this.reversedict[key]
+          for (let value of keylist) {
+            this.rankingdict[value] = key
+            counter++
+            console.log(counter + ' || ' + maxcount)
+          }
+        }
+        console.log(this.rankingdict)
       },
       clearTable () {
         this.rowNames = []
@@ -155,6 +193,11 @@
       dge (newDGE, oldDGE) {
         this.clearChart()
       }
+    },
+    beforeMount () {
+      this.mountData()
+      this.changeSelectedAmount()
+      this.createRanking()
     }
   }
 </script>
