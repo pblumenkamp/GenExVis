@@ -1,0 +1,5 @@
+---
+title: "Fixed bug that created empty data entries if a DESeq2 file contains empty lines"
+type: fixed
+ 
+
