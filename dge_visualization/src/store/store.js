@@ -135,7 +135,7 @@ const store = new Vuex.Store({
           }
           for (let cond of Object.keys(countData)) {
             commit(ADD_COUNT_DATA, {
-              geneName: gene[geneColumn],
+              geneName: gene[geneColumn].replace(/['"]+/g, ''),
               normalization: normalization,
               condition: cond,
               values: countData[cond]
