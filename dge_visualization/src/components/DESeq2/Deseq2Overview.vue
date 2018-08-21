@@ -133,10 +133,6 @@
         }
         this.$store.commit(ADD_POSITION, storearray)
       },
-      testalert () {
-        console.log(this.$store.state.positionstore)
-        console.log(this.$store.state.visionstore)
-      },
       visionchange () {
         let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
@@ -191,7 +187,6 @@
           }
           rowData.push(dict)
         }
-        console.log(rowData)
         this.rowData = rowData
       },
       createColumnDefs () {
@@ -287,11 +282,9 @@
         }
       },
       onModelUpdated () {
-        console.log('onModelUpdated')
         this.calculateRowCount()
       },
       onReady () {
-        console.log('onReady')
         this.calculateRowCount()
       },
       onSelectionChanged () {
