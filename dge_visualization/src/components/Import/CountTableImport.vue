@@ -143,6 +143,8 @@
           if (condition !== '') {
             if (condition === '$$GENE_NAME$$') {
               geneColumn = header
+            } else if (this.registeredConditions.indexOf(condition) === -1) {
+              continue
             } else {
               usedColumns[header] = condition
             }
@@ -185,6 +187,16 @@
       },
       faCheckCircle () {
         return faCheckCircle
+      }
+    },
+    watch: {
+      registeredConditions (conditions) {
+        for (let i = 0; i < this.headerConditionMapping.length; i++) {
+          if (conditions.indexOf(this.headerConditionMapping[i].condition) === -1) {
+            this.headerConditionMapping[i].condition = ''
+          }
+          this.headerConditionMapping[i].condition = this.suggestregex(this.headerConditionMapping[i].header)
+        }
       }
     }
   }

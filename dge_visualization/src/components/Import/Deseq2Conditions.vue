@@ -155,6 +155,18 @@
       faCheckCircle () {
         return faCheckCircle
       }
+    },
+    watch: {
+      registeredConditions (conditions) {
+        for (let i = 0; i < this.dataObject.length; i++) {
+          for (let j = 0; j < 2; j++) {
+            if (conditions.indexOf(this.dataObject[i].conditions[j]) === -1) {
+              this.dataObject[i].conditions[j] = ''
+            }
+            this.dataObject[i].conditions = this.suggestregex(this.dataObject[i].header)
+          }
+        }
+      }
     }
   }
 </script>
