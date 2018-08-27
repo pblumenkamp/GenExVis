@@ -159,6 +159,7 @@
         this.createColumnDefs()
       },
       createRowData () {
+        console.log('TEST!!!')
         const rowData = []
         let store = this.$store.state.dgeData
         for (let geneName of store.geneNames) {
@@ -166,7 +167,10 @@
           let dict = {}
           dict.name = gene.name
           let analysesList = gene.deseq2Analyses
+          let analysescounter = 0
           for (let analysis of analysesList) {
+            console.log('ANALYSIS:')
+            console.log(analysis)
             for (let element in analysis) {
               let currentcell = analysis[element]
               if (element !== '_conditions' && isNaN(currentcell)) {
@@ -176,7 +180,7 @@
                   this.log2foldlist.push(currentcell)
                 }
               }
-              dict[element] = currentcell
+              dict[element + '_' + analysescounter] = currentcell
               // console.log(subentry[element])
               // if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
               //   if (!isNaN(subentry[element])) {
@@ -184,7 +188,9 @@
               //   }
               // }
             }
+            analysescounter = analysescounter + 1
           }
+          // console.log(dict)
           rowData.push(dict)
         }
         this.rowData = rowData
@@ -240,7 +246,7 @@
             if (entry === '_log2FoldChange') {
               entrydict = {
                 headerName: this.namedict[entry],
-                field: entry,
+                field: entry + '_' + counter,
                 width: 150,
                 cellRenderer: this.percentCellRenderer,
                 filter: 'agNumberColumnFilter',
@@ -250,7 +256,7 @@
             } else {
               entrydict = {
                 headerName: this.namedict[entry],
-                field: entry,
+                field: entry + '_' + counter,
                 width: 150,
                 filter: 'agNumberColumnFilter',
                 hide: specvisarray[entry],
