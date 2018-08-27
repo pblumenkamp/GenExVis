@@ -1,13 +1,15 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import MainBody from '@/components/MainBody'
-import UploadMain from '@/components/Upload/UploadMain'
+import ImportMain from '@/components/Import/ImportMain'
 import CountDataMain from '@/components/CountData/CountDataMain'
 import CountDataGeneCountHM from '@/components/CountData/CountDataGeneCountHM'
+import CountDataDistribution from '@/components/CountData/CountDataDistribution'
 import Deseq2Main from '@/components/DESeq2/Deseq2Main'
 import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
 import Deseq2MAPlot from '@/components/DESeq2/Deseq2MAPlot'
+import Deseq2Distributions from '@/components/DESeq2/Deseq2Distributions'
 import Changelogs from '@/components/Changelogs/ChangelogsMain'
 
 Vue.use(Router)
@@ -20,9 +22,9 @@ export default new Router({
       component: MainBody
     },
     {
-      path: '/upload',
-      name: 'Upload',
-      component: UploadMain
+      path: '/import',
+      name: 'Data Import',
+      component: ImportMain
     },
     {
       path: '/countdata',
@@ -31,9 +33,14 @@ export default new Router({
       component: CountDataMain,
       children: [
         {
-          path: 'genecounthm',
+          path: 'genecount_hm',
           name: 'CountData_GeneCountHM',
           component: CountDataGeneCountHM
+        },
+        {
+          path: 'genecount_distribution',
+          name: 'CountData_Distribution',
+          component: CountDataDistribution
         }
       ]
     },
@@ -57,6 +64,11 @@ export default new Router({
           path: 'ma_plot',
           name: 'Deseq2_ma_plot',
           component: Deseq2MAPlot
+        },
+        {
+          path: 'distributions',
+          name: 'Deseq2_distributions',
+          component: Deseq2Distributions
         }
       ]
     },

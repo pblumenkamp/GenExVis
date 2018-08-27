@@ -1,16 +1,17 @@
 <template>
   <div>
     <div style="text-align: center">
-      <b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="uploadCountTable" style="width: 50%"></b-form-file>
-      <div style="margin-left: 1rem; margin-top: 1rem">
+      <!--<b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="importCountTable" style="width: 50%"></b-form-file>-->
+      <file-chooser @change="loadFiles"></file-chooser>
+    </div>
+
+    <div v-if="headerConditionMapping.length !== 0" style="margin-top: 3rem">
+      <div style="text-align: center">
         Normalization method:
         <b-form-select v-model="selectedNormalization" style="width: auto; margin-left: 0.5rem">
           <option v-for="norm in normalization" :value="norm.toLowerCase()">{{ norm }}</option>
         </b-form-select>
       </div>
-    </div>
-
-    <div v-if="headerConditionMapping.length !== 0">
       <b-container>
         <b-row v-for="mapping in headerConditionMapping" :key="mapping.header" style="margin: 1rem">
           <b-col style="padding-top: 0.4rem">
@@ -25,43 +26,32 @@
           </b-col>
         </b-row>
         <b-row>
-          <div style="margin: 0 auto; width: 10rem">
-            <b-button @click="integrateCountTable" style="margin-bottom: 1rem; margin-right: 0.2rem">Import files</b-button>
+          <div style="width: 10rem; margin: 1rem auto 0;">
+            <b-button @click="integrateCountTable" style="margin-right: 0.2rem">Import files</b-button>
             <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary" style="margin-top: 0.5rem"></font-awesome-icon>
             <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary" style="margin-top: 0.5rem"></font-awesome-icon>
           </div>
         </b-row>
       </b-container>
     </div>
-    <!--<b-container fluid v-if="uploadingFinished" class="mt-4">-->
-      <!--<b-row>-->
-          <!--<b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />-->
-      <!--</b-row>-->
-
-      <!--<b-table-->
-        <!--responsive-->
-        <!--striped-->
-        <!--hover-->
-        <!--:items="items"-->
-        <!--:current-page="currentPage"-->
-        <!--:per-page="perPage"-->
-        <!--style="width: auto;">-->
-      <!--</b-table>-->
-    <!--</b-container>-->
   </div>
 </template>
 
 <script>
   import {STORE_COUNT_TABLE} from '@/store/action_constants'
+  import {ADD_COUNT} from '@/store/mutation_constants'
+
+  import FileChooser from '../Misc/FileChooser'
 
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
   import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
 
   export default {
-    name: 'count-table-upload',
+    name: 'count-table-import',
     components: {
-      FontAwesomeIcon
+      FontAwesomeIcon,
+      FileChooser
     },
     data () {
       return {
@@ -79,8 +69,12 @@
       }
     },
     methods: {
-      uploadCountTable () {
-        var vueData = this
+      loadFiles (event) {
+        this.file = event.target.files[0]
+        this.importCountTable()
+      },
+      importCountTable () {
+        let vueData = this
         this.uploadingFinished = true
 
         this.readCountTable(vueData.file)
@@ -140,6 +134,8 @@
         })
       },
       integrateCountTable () {
+        let filename = this.file.name
+        this.$store.commit(ADD_COUNT, filename)
         this.importingFiles = true
         let usedColumns = {}
         let geneColumn = ''
@@ -147,6 +143,8 @@
           if (condition !== '') {
             if (condition === '$$GENE_NAME$$') {
               geneColumn = header
+            } else if (this.registeredConditions.indexOf(condition) === -1) {
+              continue
             } else {
               usedColumns[header] = condition
             }
@@ -189,6 +187,16 @@
       },
       faCheckCircle () {
         return faCheckCircle
+      }
+    },
+    watch: {
+      registeredConditions (conditions) {
+        for (let i = 0; i < this.headerConditionMapping.length; i++) {
+          if (conditions.indexOf(this.headerConditionMapping[i].condition) === -1) {
+            this.headerConditionMapping[i].condition = ''
+          }
+          this.headerConditionMapping[i].condition = this.suggestregex(this.headerConditionMapping[i].header)
+        }
       }
     }
   }

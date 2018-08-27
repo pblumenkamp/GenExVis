@@ -20,7 +20,7 @@
             <template slot="first">
               <option :value="''" disabled>-- Please select a normalization method --</option>
             </template>
-            <option v-for="cond in Array.from(registeredNormalizationMethods)" :value="cond">{{ cond }}</option>
+            <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
           </b-form-select>
 
           <b-form-group label="Use conditions:">
@@ -43,15 +43,15 @@
               <b-row class="my-1">
                 <b-col sm="3"><label style="margin-top: 0.4rem;">start color:</label></b-col>
                 <b-col sm="1">
-                  <b-form-input type="color" v-model="color1" @change="updateColorAxisStops"></b-form-input>
+                  <b-form-input type="color" v-model="color1" @change="updateColorAxisStops" style="padding: 0.05rem; min-width: 1rem"></b-form-input>
                 </b-col>
                 <b-col sm="3"><label style="margin-top: 0.4rem;">intermediate color:</label></b-col>
                 <b-col sm="1">
-                  <b-form-input type="color" v-model="color2" @change="updateColorAxisStops"></b-form-input>
+                  <b-form-input type="color" v-model="color2" @change="updateColorAxisStops" style="padding: 0.05rem; min-width: 1rem"></b-form-input>
                 </b-col>
                 <b-col sm="3"><label style="margin-top: 0.4rem;">end color:</label></b-col>
                 <b-col sm="1">
-                  <b-form-input type="color" v-model="color3" @change="updateColorAxisStops"></b-form-input>
+                  <b-form-input type="color" v-model="color3" @change="updateColorAxisStops" style="padding: 0.05rem; min-width: 1rem"></b-form-input>
                 </b-col>
               </b-row>
               <b-row class="my-1">

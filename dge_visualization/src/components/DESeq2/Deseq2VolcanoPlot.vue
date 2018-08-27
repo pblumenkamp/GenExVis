@@ -19,7 +19,7 @@
     </b-form-select>
 
     <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts"
-         style="height: 400px; min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+         style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
@@ -45,7 +45,7 @@
             <span>
               <button type="button" class="btn btn-default table-button" @click="sortGenes">Sort Genes</button>
               <button type="button" class="btn btn-default table-button" @click="clearTable">Clear Table</button>
-              <button class="btn btn-primary table-button" @click="createSubset()">Import Genes</button>
+              <button class="btn btn-primary table-button" @click="createSubset()">Create Subset</button>
             </span>
           </b-col>
         </b-row>
@@ -360,6 +360,10 @@
         let conditions1 = new Set()
         let conditions2 = new Set()
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
+              this.$store.state.registeredConditions.indexOf(condition2) === -1) {
+            continue
+          }
           conditions1.add(condition1)
           conditions2.add(condition2)
         }

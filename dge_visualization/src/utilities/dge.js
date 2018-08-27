@@ -63,10 +63,10 @@ export class DGE {
 
   /**
    * Returns a set of all normalization methods of imported count data
-   * @return {Set<string>}
+   * @return {Array<string>}
    */
   get normalizationMethods () {
-    return new Set(this._normalizationMethods)
+    return Array.from(this._normalizationMethods)
   }
 
   /**
@@ -203,7 +203,7 @@ export class DGE {
    * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
    */
   getAllUnnormalizedCountData () {
-    return this._getCountData('unnormalized')
+    return this.getCountData('unnormalized')
   }
 
   /**
@@ -211,16 +211,15 @@ export class DGE {
    * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
    */
   getAllDeseq2CountData () {
-    return this._getCountData('deseq2')
+    return this.getCountData('deseq2')
   }
 
   /**
    *
    * @param normalization {string} name of normalization
    * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
-   * @private
    */
-  _getCountData (normalization) {
+  getCountData (normalization) {
     let countData = {}
     for (let geneName of this.geneNames) {
       let counts = this.getGene(geneName).getAllCountData(normalization)
@@ -495,7 +494,7 @@ export class Gene {
    *
    * @param {string} normalization
    * @param {string} condition
-   * @return {Array<number>}
+   * @return {Object<Array<number>>}
    */
   getCountData (normalization, condition) {
     if (this._countData.hasOwnProperty(normalization) && this._countData[normalization].hasOwnProperty(condition)) {
