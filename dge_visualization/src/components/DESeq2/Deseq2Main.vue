@@ -70,6 +70,8 @@
     overflow-y: scroll;
     overflow-x: scroll;
     height: auto;
+    max-height: 25rem;
+    white-space: nowrap;
     padding: 0.5rem
   }
 

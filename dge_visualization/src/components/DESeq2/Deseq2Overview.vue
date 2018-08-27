@@ -7,11 +7,6 @@
 
     <div style="clear: both;"></div>
     <div style="padding: 4px;" class="toolbar">
-      <!--<span style="margin-left: 20px;">-->
-        <!--Column API:-->
-        <!--<button @click="gridOptions.columnApi.setColumnVisible('country', false)">Hide Country Column</button>-->
-        <!--<button @click="gridOptions.columnApi.setColumnVisible('country', true)">Show Country Column</button>-->
-      <!--</span>-->
     </div>
 
     <div style="padding: 4px; float:left;" class="toolbar">
