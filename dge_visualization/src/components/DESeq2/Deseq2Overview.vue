@@ -7,11 +7,6 @@
 
     <div style="clear: both;"></div>
     <div style="padding: 4px;" class="toolbar">
-      <!--<span style="margin-left: 20px;">-->
-        <!--Column API:-->
-        <!--<button @click="gridOptions.columnApi.setColumnVisible('country', false)">Hide Country Column</button>-->
-        <!--<button @click="gridOptions.columnApi.setColumnVisible('country', true)">Show Country Column</button>-->
-      <!--</span>-->
     </div>
 
     <div style="padding: 4px; float:left;" class="toolbar">
@@ -19,7 +14,6 @@
         <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
         <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
         <button type="button" class="btn btn-default" @click="setback()">Set back</button>
-        <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
         <button class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
       </span>
     </div>
@@ -125,7 +119,6 @@
             counter = counter + 1
           }
           if (counter === 6) {
-            // this.$store.commit(ADD_POSITION, temparray)
             storearray.push(temparray)
             temparray = []
             counter = 0
@@ -159,7 +152,6 @@
         this.createColumnDefs()
       },
       createRowData () {
-        console.log('TEST!!!')
         const rowData = []
         let store = this.$store.state.dgeData
         for (let geneName of store.geneNames) {
@@ -169,8 +161,6 @@
           let analysesList = gene.deseq2Analyses
           let analysescounter = 0
           for (let analysis of analysesList) {
-            console.log('ANALYSIS:')
-            console.log(analysis)
             for (let element in analysis) {
               let currentcell = analysis[element]
               if (element !== '_conditions' && isNaN(currentcell)) {
@@ -181,16 +171,9 @@
                 }
               }
               dict[element + '_' + analysescounter] = currentcell
-              // console.log(subentry[element])
-              // if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
-              //   if (!isNaN(subentry[element])) {
-              //     this.log2foldlist.push(subentry[element])
-              //   }
-              // }
             }
             analysescounter = analysescounter + 1
           }
-          // console.log(dict)
           rowData.push(dict)
         }
         this.rowData = rowData
@@ -314,9 +297,7 @@
       percentCellRenderer (params) {
         let value = params.value
         let showvalue = params.value
-        // if (value === null) {
-        //   value = 0
-        // }
+
         let min = this.log2foldmin
         let max = this.log2foldmax
 
