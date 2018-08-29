@@ -61,15 +61,12 @@
         items: [],  // [{<col_name>: <value>}, ...] each list entry one row
         importingFiles: false,
         importingDone: false,
-        currentPage: 0,
-        perPage: 10,
-        totalRows: 0,
+        missingGeneColumn: false,
+        disabledImportButton: false,
         uploadingFinished: false,
         normalization: ['Unnormalized', 'DESeq2'],
         selectedNormalization: 'unnormalized',
-        headerConditionMapping: [],      // [{header: <string>, condition: <string>}, ...]
-        missingGeneColumn: false,
-        disabledImportButton: false
+        headerConditionMapping: []      // [{header: <string>, condition: <string>}, ...]
       }
     },
     methods: {
@@ -102,7 +99,6 @@
                 })
               }
             }
-            this.totalRows = table.length
             this.items = table
           })
       },
