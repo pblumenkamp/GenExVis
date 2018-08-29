@@ -18,7 +18,7 @@
             {{mapping.header}}
           </b-col>
           <b-col>
-            <b-form-select v-model="mapping.condition">
+            <b-form-select v-model="mapping.condition" @input="validate">
               <option value="">-- Ignore --</option>
               <option value="$$GENE_NAME$$">-- Gene name --</option>
               <option v-for="cond in registeredConditions" :value="cond">{{cond}}</option>
@@ -27,9 +27,10 @@
         </b-row>
         <b-row>
           <div style="width: 10rem; margin: 1rem auto 0;">
-            <b-button @click="integrateCountTable" style="margin-right: 0.2rem">Import files</b-button>
-            <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary" style="margin-top: 0.5rem"></font-awesome-icon>
-            <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary" style="margin-top: 0.5rem"></font-awesome-icon>
+            <b-button @click="integrateCountTable" :disabled="disabledImportButton" style="margin-bottom: 0.7rem">Import files</b-button>
+            <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary"></font-awesome-icon>
+            <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary"></font-awesome-icon>
+            <font-awesome-icon :icon="faTimesCircle" size="2x" v-if="missingGeneColumn" class="text-secondary"></font-awesome-icon>
           </div>
         </b-row>
       </b-container>
@@ -46,6 +47,7 @@
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
   import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
+  import faTimesCircle from '@fortawesome/fontawesome-free-solid/faTimesCircle'
 
   export default {
     name: 'count-table-import',
@@ -65,10 +67,17 @@
         uploadingFinished: false,
         normalization: ['Unnormalized', 'DESeq2'],
         selectedNormalization: 'unnormalized',
-        headerConditionMapping: []      // [{header: <string>, condition: <string>}, ...]
+        headerConditionMapping: [],      // [{header: <string>, condition: <string>}, ...]
+        missingGeneColumn: false,
+        disabledImportButton: false
       }
     },
     methods: {
+      validate (value) {
+        if (value === '$$GENE_NAME$$') {
+          this.missingGeneColumn = false
+        }
+      },
       loadFiles (event) {
         this.file = event.target.files[0]
         this.importCountTable()
@@ -135,8 +144,6 @@
       },
       integrateCountTable () {
         let filename = this.file.name
-        this.$store.commit(ADD_COUNT, filename)
-        this.importingFiles = true
         let usedColumns = {}
         let geneColumn = ''
         for (let {header, condition} of this.headerConditionMapping) {
@@ -150,6 +157,13 @@
             }
           }
         }
+        if (geneColumn === '') {
+          this.missingGeneColumn = true
+          return
+        }
+        this.importingFiles = true
+        this.disabledImportButton = true
+        this.$store.commit(ADD_COUNT, filename)
         this.$store.dispatch(STORE_COUNT_TABLE, {
           table: this.items,
           headerConditionMapping: usedColumns,
@@ -187,6 +201,9 @@
       },
       faCheckCircle () {
         return faCheckCircle
+      },
+      faTimesCircle () {
+        return faTimesCircle
       }
     },
     watch: {
