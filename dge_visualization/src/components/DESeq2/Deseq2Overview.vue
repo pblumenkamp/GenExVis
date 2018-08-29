@@ -7,20 +7,16 @@
 
     <div style="clear: both;"></div>
     <div style="padding: 4px;" class="toolbar">
-      <!--<span style="margin-left: 20px;">-->
-        <!--Column API:-->
-        <!--<button @click="gridOptions.columnApi.setColumnVisible('country', false)">Hide Country Column</button>-->
-        <!--<button @click="gridOptions.columnApi.setColumnVisible('country', true)">Show Country Column</button>-->
-      <!--</span>-->
     </div>
 
     <div style="padding: 4px; float:left;" class="toolbar">
       <span>
-        <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
-        <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-        <button type="button" class="btn btn-default" @click="setback()">Set back</button>
+        <button type="button" class="btn btn-default" @click="setback()">table set back</button> -
+        <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">(+) Select All</button>
+        <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">/ Clear Selection</button>
         <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
         <button class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
+        <button @click="addGene()" class="btn btn-dark btn-sm">+ Add gene</button>
       </span>
     </div>
 
@@ -83,28 +79,92 @@
           '_pValue': 'p value',
           '_stat': 'stat'
         },
-        visiondict: {
-          '_log2FoldChange': false,
-          '_pAdj': false,
-          '_baseMean': false,
-          '_lfcSE': false,
-          '_pValue': false,
-          '_stat': false
+        tagdict: {
+          'log2 fold change': '_log2FoldChange',
+          'p value (adjusted)': '_pAdj',
+          'base mean': '_baseMean',
+          'lfcSE': '_lfcSE',
+          'p value': '_pValue',
+          'stat': '_stat'
         },
-        positiondict: [
-          '_log2FoldChange',
-          '_pAdj',
-          '_baseMean',
-          '_lfcSE',
-          '_pValue',
-          '_stat'
-        ]
+        visiondict: [],
+        positiondict: []
       }
     },
     components: {
       'ag-grid-vue': AgGridVue
     },
     methods: {
+      setback () {
+        this.$store.commit(ADD_POSITION, null)
+        this.$store.commit(ADD_VISION, null)
+        this.createColumnDefs()
+      },
+      createstoredict () {
+        let basics = ['_log2FoldChange', '_pAdj', '_baseMean', '_lfcSE', '_pValue', '_stat']
+        let visionarray = []
+        let positionarray = []
+        let filestore = this.$store.state.deseqlist
+        let fileamount = filestore.length
+        for (let i = 1; i < fileamount + 1; i++) {
+          let visiondict = {}
+          let positiondict = {}
+          for (let entry of basics) {
+            visiondict[entry + '_' + (i - 1)] = false
+            positiondict[entry + '_' + (i - 1)] = entry
+          }
+          visionarray.push(visiondict)
+          positionarray.push(positiondict)
+        }
+        this.visiondict = visionarray
+        this.positiondict = positionarray
+      },
+      positionchange () {
+        let tempdict = {}
+        let positionarray = []
+        let columns = this.gridOptions.columnApi.getAllGridColumns()
+        let counter = 0
+        for (let col of columns) {
+          let colname = col.colDef.headerName
+          let colfield = col.colDef.field
+          let tag = this.tagdict[colname]
+          if (colname !== 'Name') {
+            tempdict[colfield] = tag
+            counter = counter + 1
+          }
+          if (counter === 6) {
+            positionarray.push(tempdict)
+            tempdict = {}
+            counter = 0
+          }
+        }
+        this.$store.commit(ADD_POSITION, positionarray)
+      },
+      visionchange () {
+        let filestore = this.$store.state.deseqlist
+        let fileamount = filestore.length
+        let visionarray = []
+        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
+        for (let i = 1; i < fileamount + 1; i++) {
+          let tempdict = {}
+          let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
+          let childrenarray = columngroups[i]['children']
+          // starting at 1 (0 = name column)
+          for (let key in basictemplate) {
+            let fullkey = key + '_' + (i - 1)
+            let bool = true
+            for (let entry of childrenarray) {
+              if (fullkey === entry.colDef['field']) {
+                bool = false
+              }
+            }
+            tempdict[fullkey] = bool
+          }
+          visionarray.push(tempdict)
+        }
+        this.$store.commit(ADD_VISION, visionarray)
+        this.createColumnDefs()
+      },
       fillthebasket () {
         let temparray = []
         let genestaken = this.gridOptions.api.getSelectedRows()
@@ -113,57 +173,13 @@
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
-      positionchange () {
-        let temparray = []
-        let storearray = []
-        let columns = this.gridOptions.columnApi.getAllGridColumns()
-        let counter = 0
-        for (let col of columns) {
-          let colname = col.colDef.field
-          if (colname !== 'name') {
-            temparray.push(colname)
-            counter = counter + 1
-          }
-          if (counter === 6) {
-            // this.$store.commit(ADD_POSITION, temparray)
-            storearray.push(temparray)
-            temparray = []
-            counter = 0
-          }
-        }
-        this.$store.commit(ADD_POSITION, storearray)
-      },
-      testalert () {
-        console.log(this.$store.state.positionstore)
-        console.log(this.$store.state.visionstore)
-      },
-      visionchange () {
-        let filestore = this.$store.state.deseqlist
-        let fileamount = filestore.length
-        let bigarray = []
-        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
-        for (let i = 1; i < fileamount + 1; i++) {
-          let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
-          let childrenarray = columngroups[i]['children']
-          for (let key in basictemplate) {
-            for (let entry of childrenarray) {
-              if (key === entry.colDef['field']) {
-                basictemplate[key] = false
-              }
-            }
-          }
-          bigarray.push(basictemplate)
-        }
-        this.$store.commit(ADD_VISION, bigarray)
-        this.createColumnDefs()
-      },
-      setback () {
-        this.$store.commit(ADD_POSITION, null)
-        this.$store.commit(ADD_VISION, null)
-        this.createColumnDefs()
+      addGene () {
+        // taking the subset
+        // comparing chosen entries to subsets entries
+        // rebuild subset with new entries
+        // this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
       createRowData () {
-        console.log('TEST!!!')
         const rowData = []
         let store = this.$store.state.dgeData
         for (let geneName of store.geneNames) {
@@ -173,8 +189,6 @@
           let analysesList = gene.deseq2Analyses
           let analysescounter = 0
           for (let analysis of analysesList) {
-            console.log('ANALYSIS:')
-            console.log(analysis)
             for (let element in analysis) {
               let currentcell = analysis[element]
               if (element !== '_conditions' && isNaN(currentcell)) {
@@ -185,19 +199,11 @@
                 }
               }
               dict[element + '_' + analysescounter] = currentcell
-              // console.log(subentry[element])
-              // if (element === '_log2FoldChange' && subentry[element] !== 'NaN') {
-              //   if (!isNaN(subentry[element])) {
-              //     this.log2foldlist.push(subentry[element])
-              //   }
-              // }
             }
             analysescounter = analysescounter + 1
           }
-          // console.log(dict)
           rowData.push(dict)
         }
-        console.log(rowData)
         this.rowData = rowData
       },
       createColumnDefs () {
@@ -208,17 +214,17 @@
         if (this.$store.state.positionstore !== null) {
           positionarray = this.$store.state.positionstore
         } else {
-          for (let i = 0; i < fileamount; i++) {
-            positionarray.push(this.positiondict)
-          }
+          positionarray = this.positiondict
         }
         if (this.$store.state.visionstore !== null) {
           visionarray = this.$store.state.visionstore
         } else {
-          for (let i = 0; i < fileamount; i++) {
-            visionarray.push(this.visiondict)
-          }
+          visionarray = this.visiondict
         }
+        console.log('POS-ARRAY')
+        console.log(positionarray)
+        console.log('VIS-ARRAY')
+        console.log(visionarray)
         const columnDefs = [
           {
             headerName: 'Name',
@@ -244,14 +250,16 @@
             openByDefault: bool
           }
           let colcounter = 0
-          for (let entry of specposarray) {
+          for (let entry in specposarray) {
+            let simpleentry = specposarray[entry]
+            let nameentry = this.namedict[simpleentry]
             let entrydict = {}
             let showstate = 'close'
             if (colcounter > 1) { showstate = 'open' }
-            if (entry === '_log2FoldChange') {
+            if (simpleentry === '_log2FoldChange') {
               entrydict = {
-                headerName: this.namedict[entry],
-                field: entry + '_' + counter,
+                headerName: nameentry,
+                field: entry,
                 width: 150,
                 cellRenderer: this.percentCellRenderer,
                 filter: 'agNumberColumnFilter',
@@ -260,8 +268,8 @@
               }
             } else {
               entrydict = {
-                headerName: this.namedict[entry],
-                field: entry + '_' + counter,
+                headerName: nameentry,
+                field: entry,
                 width: 150,
                 filter: 'agNumberColumnFilter',
                 hide: specvisarray[entry],
@@ -293,11 +301,11 @@
         }
       },
       onModelUpdated () {
-        console.log('onModelUpdated')
+        // console.log('onModelUpdated')
         this.calculateRowCount()
       },
       onReady () {
-        console.log('onReady')
+        // console.log('onReady')
         this.calculateRowCount()
       },
       onSelectionChanged () {
@@ -395,6 +403,7 @@
       }
     },
     beforeMount () {
+      this.createstoredict()
       this.createRowData()
       this.minmaxdefine()
       this.createColumnDefs()
