@@ -15,6 +15,13 @@
               </b-input-group>
             </b-col>
           </b-row>
+          <b-row v-if="validCondition != null" style="margin-top: 0.1rem">
+            <b-col sm="4"></b-col>
+            <b-col sm="6">
+              <span v-if="conditionName === ''" style="color: red">Condition must contain at least one character</span>
+              <span v-if="conditionName != ''" style="color: red">Condition "{{conditionName}}" already registered</span>
+            </b-col>
+          </b-row>
           <b-row style="margin-top: 0.5rem">
             <b-col sm="2"></b-col>
             <b-col class="text-center">
@@ -110,6 +117,10 @@
     methods: {
       registerCondition () {
         let vueData = this
+        if (vueData.conditionName === '') {
+          vueData.validCondition = false
+          return
+        }
         vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: vueData.conditionName})
           .then(() => {
             vueData.conditionName = ''
@@ -119,10 +130,7 @@
           })
       },
       removeCondition (event) {
-        console.log(event.target.textContent)
-        console.log(this.$store.state.registeredConditions)
         this.$store.commit(REMOVE_CONDITION, event.target.textContent)
-        console.log(this.$store.state.registeredConditions)
       }
     },
     computed: {
