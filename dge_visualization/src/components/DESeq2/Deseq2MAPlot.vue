@@ -313,6 +313,10 @@
         let conditions1 = new Set()
         let conditions2 = new Set()
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
+            this.$store.state.registeredConditions.indexOf(condition2) === -1) {
+            continue
+          }
           conditions1.add(condition1)
           conditions2.add(condition2)
         }

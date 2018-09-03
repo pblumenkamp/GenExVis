@@ -17,7 +17,7 @@ Vue.use(BootstrapVue)
 Vue.use(Vuex)
 
 Vue.prototype.$name = 'DGE visualizer'
-Vue.prototype.$version = '0.1.0'
+Vue.prototype.$version = '0.2.0'
 
 /* eslint-disable no-new */
 new Vue({

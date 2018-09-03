@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_VISION, ADD_POSITION, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_VISION, ADD_POSITION, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -55,6 +55,14 @@ const store = new Vuex.Store({
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)
+    },
+    [REMOVE_CONDITION] (state, conditionName) {
+      console.log(conditionName)
+      let index = state.registeredConditions.indexOf(conditionName)
+      console.log(index)
+      if (index > -1) {
+        state.registeredConditions.splice(index, 1)
+      }
     },
     [ADD_COUNT_DATA] (state, {geneName, normalization, condition, values}) {
       if (normalization === 'unnormalized') {
@@ -135,7 +143,7 @@ const store = new Vuex.Store({
           }
           for (let cond of Object.keys(countData)) {
             commit(ADD_COUNT_DATA, {
-              geneName: gene[geneColumn],
+              geneName: (gene[geneColumn] === '') ? '' : gene[geneColumn].replace(/['"]+/g, ''),
               normalization: normalization,
               condition: cond,
               values: countData[cond]

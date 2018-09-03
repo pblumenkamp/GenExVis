@@ -15,25 +15,28 @@
               </b-input-group>
             </b-col>
           </b-row>
-          <b-row>
-        <b-col class="text-center">
-          <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
-            <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
-          </span>
+          <b-row style="margin-top: 0.5rem">
+            <b-col sm="2"></b-col>
+            <b-col class="text-center">
+              <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
+                <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+              </span>
               <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
-            <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
-          </span>
-              {{registeredConditions.length}} conditions registered
+                <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
+              </span>
+              {{registeredConditions.length}} conditions registered (Click on condition to remove it)
               <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
-                <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
-                  <ul>
-                    <li v-for="cond of registeredConditions" :key="cond">{{cond}}</li>
-                  </ul>
-                </b-card>
+                <transition name="fade">
+                  <b-card v-if="registeredConditions.length > 0" style="width:80%; margin: auto">
+                    <transition-group name="conditionList" tag="ul" class="conditionList">
+                      <li v-for="cond of registeredConditions" :key="cond" @click='removeCondition'>{{cond}}</li>
+                    </transition-group>
+                  </b-card>
+                </transition>
               </b-collapse>
             </b-col>
           </b-row>
-          <b-row>
+          <b-row style="margin-top: 1rem">
             <div style="width:80%; margin: auto;" role="tablist">
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
@@ -84,6 +87,7 @@
   import Deseq2Import from './Deseq2Import.vue'
 
   import {REGISTER_CONDITION} from '@/store/action_constants'
+  import {REMOVE_CONDITION} from '@/store/mutation_constants'
 
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
@@ -113,6 +117,12 @@
           }).catch(() => {
             vueData.validCondition = false
           })
+      },
+      removeCondition (event) {
+        console.log(event.target.textContent)
+        console.log(this.$store.state.registeredConditions)
+        this.$store.commit(REMOVE_CONDITION, event.target.textContent)
+        console.log(this.$store.state.registeredConditions)
       }
     },
     computed: {
@@ -143,5 +153,23 @@
   .accordion-90 {
     width: 90%;
     margin: 0 auto
+  }
+  ul.conditionList {
+    list-style-position: inside;
+  }
+  ul.conditionList li {
+    cursor: pointer;
+  }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
+  }
+  .conditionList-enter-active, .conditionList-leave-active {
+    transition: opacity .5s;
+  }
+  .conditionList-enter, .conditionList-leave-to /* .fade-leave-active below version 2.1.8 */ {
+    opacity: 0;
   }
 </style>

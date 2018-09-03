@@ -329,9 +329,7 @@
       percentCellRenderer (params) {
         let value = params.value
         let showvalue = params.value
-        // if (value === null) {
-        //   value = 0
-        // }
+
         let min = this.log2foldmin
         let max = this.log2foldmax
 
@@ -357,20 +355,18 @@
           leftbar.style.width = percent + '%'
           rightbar.style.width = 25 + '%'
           rightpush.style.width = 25 + '%'
-          leftbar.style.backgroundColor = 'red'
+          leftbar.style.backgroundColor = 'rgba(238, 16, 16, 0.4)'
         } else {
           let percent = (value * 50) / max
           leftpush.style.width = 25 + '%'
           leftbar.style.width = 25 + '%'
           rightbar.style.width = percent + '%'
           rightpush.style.width = (50 - percent) + '%'
-          rightbar.style.backgroundColor = 'blue'
+          rightbar.style.backgroundColor = 'rgba(16, 16, 238, 0.4)'
         }
 
         firstrow.append(leftpush, leftbar, rightbar, rightpush)
         table.append(firstrow)
-
-        //
 
         let div1 = document.createElement('div')
         let div2 = document.createElement('div')
