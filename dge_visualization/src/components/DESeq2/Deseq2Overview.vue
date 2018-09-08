@@ -1,29 +1,36 @@
 <template>
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
-     <h1>Overview Table</h1>
-     {{rowCount}}
+      <h1>Overview Table</h1>
     </div>
 
     <div style="clear: both;"></div>
-    <div style="padding: 4px;" class="toolbar">
+
+    <div>
+      <table style="width: 100%; text-align: center">
+        <tr>
+          <td style="width:20%;">
+            <div>chosen / TOTAL amount </div>
+            <div style="font-size:3rem;">{{ rowAmount }} / <b>{{ rowCount }}</b></div>
+          </td>
+          <td>
+            <div style="font-size: 1rem; padding: 4px;" class="btn-group">
+              <button type="button" class="btn btn-default" @click="setback()">Table Setback</button>
+              <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
+              <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">x Clear Selection</button>
+              <button type="button" class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
+              <button type="button" class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
+            </div>
+          </td>
+          <td>
+            <div>
+              <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
 
-    <div style="padding: 4px; float:left;" class="toolbar">
-      <span>
-        <button type="button" class="btn btn-default" @click="setback()">table set back</button> -
-        <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">(+) Select All</button>
-        <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">/ Clear Selection</button>
-        <!--<button type="button" class="btn btn-default" @click="testalert()">TESTING</button>-->
-        <button class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
-        <button @click="addGene()" class="btn btn-dark btn-sm">+ Add gene</button>
-      </span>
-    </div>
-
-    <div style="float: right;">
-      <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput"
-             placeholder="Type text to filter..."/>
-    </div>
     <div style="clear: both;"></div>
     <ag-grid-vue style="width: 100%; height: 500px;" class="ag-theme-balham" align="left"
                  :gridOptions="gridOptions"
@@ -70,6 +77,7 @@
         log2foldmax: 0,
         // columnGroupOpened: true,
         rowCount: null,
+        rowAmount: 0,
         setRowHeight: 500,
         namedict: {
           '_log2FoldChange': 'log2 fold change',
@@ -174,10 +182,24 @@
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
       addGene () {
-        // taking the subset
-        // comparing chosen entries to subsets entries
-        // rebuild subset with new entries
-        // this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+        let genesToAdd = this.gridOptions.api.getSelectedRows()
+        let geneList = []
+        let currentSubDGE = this.$store.state.subDGE.geneNames
+        for (let entry of currentSubDGE) {
+          let check = true
+          for (let coentry of genesToAdd) {
+            if (entry === coentry) {
+              check = false
+            } else {
+              geneList.push(coentry.name)
+            }
+          }
+          if (check === true) {
+            geneList.push(entry)
+          }
+        }
+        geneList.sort()
+        this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
       createRowData () {
         const rowData = []
@@ -221,10 +243,6 @@
         } else {
           visionarray = this.visiondict
         }
-        console.log('POS-ARRAY')
-        console.log(positionarray)
-        console.log('VIS-ARRAY')
-        console.log(visionarray)
         const columnDefs = [
           {
             headerName: 'Name',
@@ -294,10 +312,11 @@
       },
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
-          let model = this.gridOptions.api.getModel()
           let totalRows = this.rowData.length
-          let processedRows = model.getRowCount()
-          this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          // let model = this.gridOptions.api.getModel()
+          // let processedRows = model.getRowCount()
+          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          this.rowCount = totalRows.toLocaleString()
         }
       },
       onModelUpdated () {
@@ -314,6 +333,7 @@
         selectedRows.forEach(function (selectedRow) {
           selectedRowsString.push(selectedRow.name)
         })
+        this.rowAmount = selectedRowsString.length
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
       onQuickFilterChanged (event) {
@@ -391,8 +411,6 @@
         // x!
         parent.append(div2)
         parent.append(div1)
-        // let wrapper = document.getElementById('TEST')
-        // wrapper.append(parent)
         if (value !== null) {
           return parent
         }
@@ -422,5 +440,27 @@
   label {
     font-weight: normal !important;
     text-align: right;
+  }
+  .btn-group button {
+    border: 1px solid grey; /* Green border */
+    padding: 10px 24px; /* Some padding */
+    float: left; /* Float the buttons side by side */
+  }
+  /* Clear floats (clearfix hack) */
+  .btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+  /* Add a background color on hover */
+  .btn-group button:hover {
+    background-color: deepskyblue;
+  }
+  /* Breaking columns when screen gets too small */
+  @media(max-width: 1500px) {
+    td {
+      display: table-row;
+      text-align: center;
+    }
   }
 </style>

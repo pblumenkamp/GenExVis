@@ -27,13 +27,13 @@
             </li>
           </b-card>
           <b-card v-if="this.$store.state.subDGE.geneNames.size > 0" class="genesBox" style="margin-top: 0.5rem">
-            Genes In Subset:
+            Genes In Subset: <b>{{ this.$store.state.subDGE.length }}</b>
             <p></p>
             <button v-for="gene in Array.from(this.$store.state.subDGE.geneNames)" @click="removeGene(gene)"
                     type="button" class="btn btn-outline-dark btn-sm" style="margin: 0.1rem">{{ gene }}
             </button>
             <p></p>
-            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right">Clear Subset</button>
+            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right">x Clear</button>
           </b-card>
         </b-col>
       </b-row>
