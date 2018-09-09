@@ -1,7 +1,7 @@
 <template>
   <div style="text-align: center">
     <h1>
-      Top {{ this.selectedAmount }} {{ this.selectedValue }} values
+      Top {{ this.selectedAmount }} {{ this.selectedValue }}
     </h1>
 
     <b-form-select v-model="selectedValue" style="width: auto" @input="mountData()">
@@ -39,11 +39,16 @@
     <div v-if="selectedCondition1 && selectedCondition2">
 
       <hr>
-      <div>{{ this.selectedAmount }}</div>
       <!--<div>gene1, gene8, gene9, gene2, gene3, gene4, gene5, gene10, gene6</div>-->
-      <div align="left "v-for="(value, key, index) in this.rankingdict">
-        {{ index+1 }}. {{ key }}: {{ value }}
+      <!--<h1>-->
+        <!--<div align="left "v-for="(value, key, index) in this.rankingdict">-->
+          <!--{{ index+1 }}. {{ key }} {{ value }}-->
+        <!--</div>-->
+      <!--</h1>-->
+      <div style="font-size:28px" align="left" v-for="(value, key, index) in this.rankingdict">
+        <b> {{ index+1 }}. </b> {{ key }}: {{ value }}
       </div>
+
     </div>
   </div>
 </template>
