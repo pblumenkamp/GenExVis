@@ -4,6 +4,7 @@ import MainBody from '@/components/MainBody'
 import ImportMain from '@/components/Import/ImportMain'
 import CountDataMain from '@/components/CountData/CountDataMain'
 import CountDataGeneCountHM from '@/components/CountData/CountDataGeneCountHM'
+import CountDataDistribution from '@/components/CountData/CountDataDistribution'
 import Deseq2Main from '@/components/DESeq2/Deseq2Main'
 import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
@@ -33,9 +34,14 @@ export default new Router({
       component: CountDataMain,
       children: [
         {
-          path: 'genecounthm',
+          path: 'genecount_hm',
           name: 'CountData_GeneCountHM',
           component: CountDataGeneCountHM
+        },
+        {
+          path: 'genecount_distribution',
+          name: 'CountData_Distribution',
+          component: CountDataDistribution
         }
       ]
     },
