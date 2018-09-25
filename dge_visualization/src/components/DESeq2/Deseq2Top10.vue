@@ -2,7 +2,7 @@
   <div style="text-align: center">
 
     <h1>
-      Top {{ this.selectedAmount }} Genes ({{ this.selectedValue }})
+      Top {{ this.selectedAmount }} Genes ({{this.selectedDistributionType}})
     </h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
@@ -16,40 +16,67 @@
       <template slot="first">
         <option :value="''" disabled>-- Please select the second condition --</option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}</option>
+      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}
+      </option>
     </b-form-select>
 
-    <b-form-select v-model="selectedValue" style="width: auto" @input="mountData()">
+    <b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="measurementNegotiator()">
       <template slot="first">
-        <option :value="''" disabled>-- Please select measurement value --</option>
+        <option :value="''" disabled>-- Please select distribution type --</option>
       </template>
-      <option v-for="measure in optionsValue" :value="measure">{{ measure }}</option>
+      <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedAmount" style="width: auto" @input="createRanking()">
-      <template slot="first">
-        <option :value="''" disabled>-- Please select amount --</option>
-      </template>
-      <option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>
-    </b-form-select>
+    <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType" align="center">
 
-    <!--<div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto">-->
-    <!--<button @click="drawData">GO!</button>-->
-    <div id="blupp"></div>
+      <p></p>
 
-    <hr>
-
-    <div v-if="selectedCondition1 && selectedCondition2">
-      <table>
-        <tr v-for="(value, key, index) in this.rankingdict">
-          <td style="width:5%"><div style="font-size:4rem"><b>{{ index+1 }}.</b></div></td>
-          <td style="width:10%"><div style="font-size:1.5rem"><b> {{ key }}:</b></div>
-            <p>{{ value }}</p></td>
-          <td style="width:85%"><div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto">{{ key }}</div>
-            <hr>
+      <table id="mainControl" style="text-align: center">
+        <tr>
+          <td></td>
+          <td></td>
+          <td>Common Max Value:</td>
+          <td>Ranking Size:</td>
+        </tr>
+        <tr>
+          <td>Exponential p-values:</td>
+          <td><b-form-checkbox style="float: left;" @input="toExponential()"></b-form-checkbox></td>
+          <td>
+            <b-input-group>
+              <b-form-input v-model="commonMaxValue" type="text"
+                            placeholder="Please type in number" style="width: auto"></b-form-input>
+              <b-input-group-append>
+                <b-btn @click="registerCommonMax">></b-btn>
+              </b-input-group-append>
+            </b-input-group>
+          </td>
+          <td>
+            <b-form-select v-model="selectedAmount" style="width: 15rem" @input="measurementNegotiator()">
+              <template slot="first">
+                <option :value="''" disabled></option>
+              </template>
+              <option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>
+            </b-form-select>
           </td>
         </tr>
       </table>
+
+      <div v-if="selectedAmount" align="center">
+
+        <hr>
+        <table id="mainRanking" style="text-align: left">
+          <tr v-for="(value, key, index) in this.FINALRANKING">
+            <td style="width:5%"><div style="font-size:4rem"><b>{{ index+1 }}.</b></div></td>
+            <td style="width:10%"><div style="font-size:1.75rem"><b> {{ key }}:</b></div>
+              <div v-if="isExponential===false">{{ value }}</div>
+              <div v-else-if="isExponential===true">{{ value.toExponential() }}</div></td>
+            <td style="width:85%"><div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
+              <hr>
+            </td>
+          </tr>
+        </table>
+
+      </div>
     </div>
   </div>
 
@@ -67,79 +94,127 @@
     name: 'Deseq2MAPlot',
     data () {
       return {
+        isExponential: false,
+        commonMaxValue: null,
         selectedCondition1: '',
         selectedCondition2: '',
-        selectedValue: 'p value',
+        selectedDistributionType: 'p value',
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
-        optionsValue: ['p value', 'p value (adjusted)'],
+        optionsDistributionType: ['p value', 'p value (adjusted)'],
         optionsDict: {'p value': 'pValue', 'p value (adjusted)': 'pAdj'},
         yAxisMax: 0,
         datadict: {},
         reversedict: {},
-        rankingarray: [],
-        rankingdict: {}
+        rankingdict: {},
+        FINALRANKING: {}
       }
     },
     methods: {
+      toExponential () {
+        console.log('ACTIVATED')
+        if (this.isExponential) {
+          this.isExponential = false
+        } else {
+          this.isExponential = true
+        }
+        console.log(this.isExponential)
+      },
+      registerCommonMax () {
+        if (this.commonMaxValue === 0) {
+          this.commonMaxValue = null
+        }
+        console.log(this.commonMaxValue)
+      },
       mountData () {
-        this.datadict = {}
-        let valueS = this.optionsDict[this.selectedValue]
+        let mainDict = {}
+        let pvalDict = {}
+        let padjDict = {}
         let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
+
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
           let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          let value = analysis[valueS]
-          this.datadict[geneName] = value
+          for (let currentKey in this.optionsDict) {
+            let trueKey = this.optionsDict[currentKey]
+            let value = analysis[trueKey]
+            if (trueKey === 'pValue') {
+              pvalDict[geneName] = value
+            }
+            if (trueKey === 'pAdj') {
+              padjDict[geneName] = value
+            }
+          }
         }
+        mainDict['pValue'] = pvalDict
+        mainDict['pAdj'] = padjDict
+        this.datadict = mainDict
         this.fillLists()
       },
       fillLists () {
-        this.reversedict = {}
-        this.rankingarray = {}
-        let tempdict = {}
-        let temparray = []
-        for (let key in this.datadict) {
-          let value = this.datadict[key]
-          temparray.push(value) // save values in list (for sorting later)
-          if (tempdict[value] === undefined) {
-            tempdict[value] = [key] // key always in a list (for multiple entries)
-          } else {
-            tempdict[value].push(key)
+        console.log('I LL DO THE SHIT AGAIN')
+        console.log(this.isExponential)
+
+        let dataDict = this.datadict
+        let optionsDict = this.optionsDict
+        let reverseDict = {}
+        let rankingDict = {}
+        for (let currentKey in optionsDict) {
+          let tempDict = {}
+          let tempArray = []
+          let trueKey = this.optionsDict[currentKey]
+          let trueData = dataDict[trueKey]
+          for (let key in trueData) {
+            let value = trueData[key]
+            tempArray.push(value) // save values in list (for sorting later)
+            if (tempDict[value] === undefined) {
+              tempDict[value] = [key] // if no key for a value: Open new key-list (key always in a list (for multiple entries))
+            } else {
+              tempDict[value].push(key) // if key-list existing: Add current key.
+            }
           }
+          reverseDict[trueKey] = tempDict
+          rankingDict[trueKey] = tempArray.sort()
+          this.reversedict = reverseDict
+          this.rankingdict = rankingDict
         }
-        this.reversedict = tempdict
-        temparray = temparray.sort()
-        this.rankingarray = temparray
         this.createRanking()
       },
       changeSelectedAmount () {
         this.createRanking()
       },
+      measurementNegotiator () {
+        // let selectedDistributionType = this.selectedDistributionType
+        // let trueValue = this.optionsDict[selectedDistributionType]
+        this.createRanking()
+      },
       createRanking () {
-        this.rankingdict = {}
-        // console.log('createRanking: ' + this.selectedAmount)
+        console.log('CREATE RANKING')
+        let selectedDistributionType = this.selectedDistributionType
+
+        let tempRankingDict = {}
+        let trueValue = this.optionsDict[selectedDistributionType]
+        let rankingArray = this.rankingdict[trueValue]
+        let reverseDict = this.reversedict[trueValue]
         let maxcount = this.selectedAmount
-        if (maxcount > this.rankingarray.length) {
-          maxcount = this.rankingarray.length
+
+        if (maxcount > rankingArray.length) {
+          maxcount = rankingArray.length
         }
-        // console.log('maxcount: ' + maxcount)
-        // console.log(this.rankingarray)
         for (let counter = 0; counter < maxcount;) {
-          let key = this.rankingarray[counter]
-          let keylist = this.reversedict[key]
+          let key = rankingArray[counter]
+          let keylist = reverseDict[key]
           for (let value of keylist) {
-            this.rankingdict[value] = key
+            tempRankingDict[value] = key // for every value: 1 key list (=probably more than 1 key)
             counter++
           }
         }
-        // console.log(this.rankingdict)
+        this.FINALRANKING = tempRankingDict
       },
       drawData () {
         let categories = ['t0', 't1', 't2', 't3', 't4', 't5']
         let counter = 0
-        for (let element in this.rankingdict) {
-          console.log(element)
+        for (let element in this.FINALRANKING) {
           if (counter === (this.selectedAmount)) {
             break
           }
@@ -155,7 +230,7 @@
               categories: categories,
               title: {
                 enabled: true,
-                text: 'Condition'
+                text: 'Conditions'
               },
               startOnTick: true,
               endOnTick: true,
@@ -163,7 +238,7 @@
             },
             yAxis: {
               min: 0,
-              max: 40000,
+              max: this.commonMaxValue,
               title: {
                 text: 'Reads'
               }
@@ -209,21 +284,23 @@
               }
             },
             series: [{
-              name: 'miseq/hiseq',
+              name: 'READS',
               color: 'rgba(223, 83, 83, .5)',
               data: [[0, 161.2], [1, 190.4], [2, 177.1], [3, 165.6], [4, 190.0], [5, 188.2]]
             }]
           }
           let data = this.createData(element, categories)
-          options.series[0].data = data
-          counter = counter + 1
-          Highcharts.chart(element, options)
+          if (data.length === 0) {
+          } else {
+            options.series[0].data = data
+            counter = counter + 1
+            Highcharts.chart(element, options)
+          }
         }
       },
       createData (element, categories) {
-        let yAxisList = []
         let dataList = []
-        console.log(this.$store.state.currentDGE.getAllUnnormalizedCountDataByGene(element))
+        // console.log(this.$store.state.currentDGE.getAllUnnormalizedCountDataByGene(element))
         let geneCountData = this.$store.state.currentDGE.getAllUnnormalizedCountDataByGene(element)
         // this.$store.state.currentDGE._getAllCountDataByGene(element, 'unnormalized')
         for (let entry in geneCountData) {
@@ -238,11 +315,7 @@
             dataList.push(pointDict)
           }
         }
-        return(dataList)
-      },
-      generateYAxisMax (yList) {
-        let max = Math.max(yList)
-        this.yAxisMax = max
+        return (dataList)
       },
       collectData () {
         this.tableData = []
@@ -293,14 +366,9 @@
       }
     },
     watch: {
-      dge (newDGE, oldDGE) {
+      dge: function (newDGE, oldDGE) {
         this.clearChart()
       }
-    },
-    beforeMount () {
-      this.mountData()
-      this.changeSelectedAmount()
-      this.createRanking()
     },
     updated () {
       this.drawData()
@@ -312,7 +380,6 @@
     border: 0px solid lightgrey;
     border-collapse: collapse;
     padding-left: 0.4rem;
-    text-align: left;
     vertical-align: center;
   }
   th {
