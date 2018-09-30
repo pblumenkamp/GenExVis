@@ -5,14 +5,14 @@
       Top {{ this.selectedAmount }} Genes ({{this.selectedDistributionType}})
     </h1>
 
-    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
+    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''" @input="statusUpdate()">
       <template slot="first">
         <option :value="''" disabled>-- Please select the first condition --</option>
       </template>
       <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="mountData()">
+    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="mountData(), statusUpdate()">
       <template slot="first">
         <option :value="''" disabled>-- Please select the second condition --</option>
       </template>
@@ -20,7 +20,7 @@
       </option>
     </b-form-select>
 
-    <b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="measurementNegotiator()">
+    <b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="statusUpdate()">
       <template slot="first">
         <option :value="''" disabled>-- Please select distribution type --</option>
       </template>
@@ -43,15 +43,15 @@
           <td><b-form-checkbox style="float: left;" @input="toExponential()"></b-form-checkbox></td>
           <td>
             <b-input-group>
-              <b-form-input v-model="commonMaxValue" type="text"
-                            placeholder="Please type in number" style="width: auto"></b-form-input>
+              <b-form-input v-model="commonMaxValue" type="number"
+                            placeholder="Please type in number" @keydown.enter.native="commonMaxNegotiator()" style="width: auto"></b-form-input>
               <b-input-group-append>
-                <b-btn @click="registerCommonMax">></b-btn>
+                <b-btn @click="drawData()">></b-btn>
               </b-input-group-append>
             </b-input-group>
           </td>
           <td>
-            <b-form-select v-model="selectedAmount" style="width: 15rem" @input="measurementNegotiator()">
+            <b-form-select v-model="selectedAmount" style="width: 15rem" @input="createRanking(), statusUpdate()">
               <template slot="first">
                 <option :value="''" disabled></option>
               </template>
@@ -67,9 +67,9 @@
         <table id="mainRanking" style="text-align: left">
           <tr v-for="(value, key, index) in this.FINALRANKING">
             <td style="width:5%"><div style="font-size:4rem"><b>{{ index+1 }}.</b></div></td>
-            <td style="width:10%"><div style="font-size:1.75rem"><b> {{ key }}:</b></div>
-              <div v-if="isExponential===false">{{ value }}</div>
-              <div v-else-if="isExponential===true">{{ value.toExponential() }}</div></td>
+            <td style="width:10%"><div style="font-size:1.75rem"><b> {{ key }}</b></div>
+              <div v-if="isExponential===false">p-value: <p>{{ value }}</p></div>
+              <div v-else-if="isExponential===true">p-value: <p>{{ value.toExponential() }}</p></div></td>
             <td style="width:85%"><div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
               <hr>
             </td>
@@ -94,6 +94,7 @@
     name: 'Deseq2MAPlot',
     data () {
       return {
+        updateCheck: true,
         isExponential: false,
         commonMaxValue: null,
         selectedCondition1: '',
@@ -112,19 +113,11 @@
     },
     methods: {
       toExponential () {
-        console.log('ACTIVATED')
         if (this.isExponential) {
           this.isExponential = false
         } else {
           this.isExponential = true
         }
-        console.log(this.isExponential)
-      },
-      registerCommonMax () {
-        if (this.commonMaxValue === 0) {
-          this.commonMaxValue = null
-        }
-        console.log(this.commonMaxValue)
       },
       mountData () {
         let mainDict = {}
@@ -152,9 +145,6 @@
         this.fillLists()
       },
       fillLists () {
-        console.log('I LL DO THE SHIT AGAIN')
-        console.log(this.isExponential)
-
         let dataDict = this.datadict
         let optionsDict = this.optionsDict
         let reverseDict = {}
@@ -180,16 +170,13 @@
         }
         this.createRanking()
       },
-      changeSelectedAmount () {
-        this.createRanking()
-      },
-      measurementNegotiator () {
-        // let selectedDistributionType = this.selectedDistributionType
-        // let trueValue = this.optionsDict[selectedDistributionType]
-        this.createRanking()
+      commonMaxNegotiator () {
+        if (this.commonMaxValue === '' || this.commonMaxValue === '0') {
+          this.commonMaxValue = null
+        }
+        this.drawData()
       },
       createRanking () {
-        console.log('CREATE RANKING')
         let selectedDistributionType = this.selectedDistributionType
 
         let tempRankingDict = {}
@@ -211,7 +198,11 @@
         }
         this.FINALRANKING = tempRankingDict
       },
+      statusUpdate () {
+        this.updateCheck = true
+      },
       drawData () {
+        this.updateCheck = false
         let categories = ['t0', 't1', 't2', 't3', 't4', 't5']
         let counter = 0
         for (let element in this.FINALRANKING) {
@@ -224,7 +215,7 @@
               zoomType: 'xy'
             },
             title: {
-              text: 'Count Table Values (Counts vs. Condition)'
+              text: 'Reads vs. Conditions'
             },
             xAxis: {
               categories: categories,
@@ -291,6 +282,7 @@
           }
           let data = this.createData(element, categories)
           if (data.length === 0) {
+            // pass
           } else {
             options.series[0].data = data
             counter = counter + 1
@@ -371,7 +363,9 @@
       }
     },
     updated () {
-      this.drawData()
+      if (this.updateCheck === true) {
+        this.drawData()
+      }
     }
   }
 </script>
