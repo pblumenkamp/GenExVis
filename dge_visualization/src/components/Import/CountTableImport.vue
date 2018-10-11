@@ -27,10 +27,15 @@
         </b-row>
         <b-row>
           <div style="width: 10rem; margin: 1rem auto 0;">
-            <b-button @click="integrateCountTable" :disabled="disabledImportButton" style="margin-bottom: 0.7rem">Import files</b-button>
+            <b-button @click="integrateCountTable" :disabled="disabledImportButton" style="margin-bottom: 0.7rem; margin-right: 0.5rem">Import files</b-button>
             <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary"></font-awesome-icon>
             <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary"></font-awesome-icon>
             <font-awesome-icon :icon="faTimesCircle" size="2x" v-if="missingGeneColumn" class="text-secondary"></font-awesome-icon>
+          </div>
+        </b-row>
+        <b-row>
+          <div style="margin: 0 auto;">
+            <span v-if="missingGeneColumn" style="color: red">No "gene name" column selected</span>
           </div>
         </b-row>
       </b-container>
@@ -62,7 +67,6 @@
         importingFiles: false,
         importingDone: false,
         missingGeneColumn: false,
-        disabledImportButton: false,
         uploadingFinished: false,
         normalization: ['Unnormalized', 'DESeq2'],
         selectedNormalization: 'unnormalized',
@@ -158,7 +162,6 @@
           return
         }
         this.importingFiles = true
-        this.disabledImportButton = true
         this.$store.commit(ADD_COUNT, filename)
         this.$store.dispatch(STORE_COUNT_TABLE, {
           table: this.items,
@@ -200,6 +203,9 @@
       },
       faTimesCircle () {
         return faTimesCircle
+      },
+      disabledImportButton () {
+        return this.$store.state.countlist.length !== 0
       }
     },
     watch: {
