@@ -1,27 +1,36 @@
 <template>
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
-     <h1>Overview Table</h1>
-     {{rowCount}}
+      <h1>Overview Table</h1>
     </div>
 
     <div style="clear: both;"></div>
-    <div style="padding: 4px;" class="toolbar">
+
+    <div>
+      <table style="width: 100%; text-align: center">
+        <tr>
+          <td style="width:20%;">
+            <div>chosen / TOTAL amount </div>
+            <div style="font-size:3rem;">{{ rowAmount }} / <b>{{ rowCount }}</b></div>
+          </td>
+          <td>
+            <div style="font-size: 1rem; padding: 4px;" class="btn-group">
+              <button type="button" class="btn btn-default" @click="setback()">Table Setback</button>
+              <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
+              <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">x Clear Selection</button>
+              <button type="button" class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
+              <button type="button" class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
+            </div>
+          </td>
+          <td>
+            <div>
+              <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
+            </div>
+          </td>
+        </tr>
+      </table>
     </div>
 
-    <div style="padding: 4px; float:left;" class="toolbar">
-      <span>
-        <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
-        <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-        <button type="button" class="btn btn-default" @click="setback()">Set back</button>
-        <button class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
-      </span>
-    </div>
-
-    <div style="float: right;">
-      <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput"
-             placeholder="Type text to filter..."/>
-    </div>
     <div style="clear: both;"></div>
     <ag-grid-vue style="width: 100%; height: 500px;" class="ag-theme-balham" align="left"
                  :gridOptions="gridOptions"
@@ -68,6 +77,7 @@
         log2foldmax: 0,
         // columnGroupOpened: true,
         rowCount: null,
+        rowAmount: 0,
         setRowHeight: 500,
         namedict: {
           '_log2FoldChange': 'log2 fold change',
@@ -77,28 +87,92 @@
           '_pValue': 'p value',
           '_stat': 'stat'
         },
-        visiondict: {
-          '_log2FoldChange': false,
-          '_pAdj': false,
-          '_baseMean': false,
-          '_lfcSE': false,
-          '_pValue': false,
-          '_stat': false
+        tagdict: {
+          'log2 fold change': '_log2FoldChange',
+          'p value (adjusted)': '_pAdj',
+          'base mean': '_baseMean',
+          'lfcSE': '_lfcSE',
+          'p value': '_pValue',
+          'stat': '_stat'
         },
-        positiondict: [
-          '_log2FoldChange',
-          '_pAdj',
-          '_baseMean',
-          '_lfcSE',
-          '_pValue',
-          '_stat'
-        ]
+        visiondict: [],
+        positiondict: []
       }
     },
     components: {
       'ag-grid-vue': AgGridVue
     },
     methods: {
+      setback () {
+        this.$store.commit(ADD_POSITION, null)
+        this.$store.commit(ADD_VISION, null)
+        this.createColumnDefs()
+      },
+      createstoredict () {
+        let basics = ['_log2FoldChange', '_pAdj', '_baseMean', '_lfcSE', '_pValue', '_stat']
+        let visionarray = []
+        let positionarray = []
+        let filestore = this.$store.state.deseqlist
+        let fileamount = filestore.length
+        for (let i = 1; i < fileamount + 1; i++) {
+          let visiondict = {}
+          let positiondict = {}
+          for (let entry of basics) {
+            visiondict[entry + '_' + (i - 1)] = false
+            positiondict[entry + '_' + (i - 1)] = entry
+          }
+          visionarray.push(visiondict)
+          positionarray.push(positiondict)
+        }
+        this.visiondict = visionarray
+        this.positiondict = positionarray
+      },
+      positionchange () {
+        let tempdict = {}
+        let positionarray = []
+        let columns = this.gridOptions.columnApi.getAllGridColumns()
+        let counter = 0
+        for (let col of columns) {
+          let colname = col.colDef.headerName
+          let colfield = col.colDef.field
+          let tag = this.tagdict[colname]
+          if (colname !== 'Name') {
+            tempdict[colfield] = tag
+            counter = counter + 1
+          }
+          if (counter === 6) {
+            positionarray.push(tempdict)
+            tempdict = {}
+            counter = 0
+          }
+        }
+        this.$store.commit(ADD_POSITION, positionarray)
+      },
+      visionchange () {
+        let filestore = this.$store.state.deseqlist
+        let fileamount = filestore.length
+        let visionarray = []
+        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
+        for (let i = 1; i < fileamount + 1; i++) {
+          let tempdict = {}
+          let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
+          let childrenarray = columngroups[i]['children']
+          // starting at 1 (0 = name column)
+          for (let key in basictemplate) {
+            let fullkey = key + '_' + (i - 1)
+            let bool = true
+            for (let entry of childrenarray) {
+              if (fullkey === entry.colDef['field']) {
+                bool = false
+              }
+            }
+            tempdict[fullkey] = bool
+          }
+          visionarray.push(tempdict)
+        }
+        this.$store.commit(ADD_VISION, visionarray)
+        this.createColumnDefs()
+      },
       fillthebasket () {
         let temparray = []
         let genestaken = this.gridOptions.api.getSelectedRows()
@@ -107,49 +181,25 @@
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
-      positionchange () {
-        let temparray = []
-        let storearray = []
-        let columns = this.gridOptions.columnApi.getAllGridColumns()
-        let counter = 0
-        for (let col of columns) {
-          let colname = col.colDef.field
-          if (colname !== 'name') {
-            temparray.push(colname)
-            counter = counter + 1
-          }
-          if (counter === 6) {
-            storearray.push(temparray)
-            temparray = []
-            counter = 0
-          }
-        }
-        this.$store.commit(ADD_POSITION, storearray)
-      },
-      visionchange () {
-        let filestore = this.$store.state.deseqlist
-        let fileamount = filestore.length
-        let bigarray = []
-        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
-        for (let i = 1; i < fileamount + 1; i++) {
-          let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
-          let childrenarray = columngroups[i]['children']
-          for (let key in basictemplate) {
-            for (let entry of childrenarray) {
-              if (key === entry.colDef['field']) {
-                basictemplate[key] = false
-              }
+      addGene () {
+        let genesToAdd = this.gridOptions.api.getSelectedRows()
+        let geneList = []
+        let currentSubDGE = this.$store.state.subDGE.geneNames
+        for (let entry of currentSubDGE) {
+          let check = true
+          for (let coentry of genesToAdd) {
+            if (entry === coentry) {
+              check = false
+            } else {
+              geneList.push(coentry.name)
             }
           }
-          bigarray.push(basictemplate)
+          if (check === true) {
+            geneList.push(entry)
+          }
         }
-        this.$store.commit(ADD_VISION, bigarray)
-        this.createColumnDefs()
-      },
-      setback () {
-        this.$store.commit(ADD_POSITION, null)
-        this.$store.commit(ADD_VISION, null)
-        this.createColumnDefs()
+        geneList.sort()
+        this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
       createRowData () {
         const rowData = []
@@ -186,16 +236,12 @@
         if (this.$store.state.positionstore !== null) {
           positionarray = this.$store.state.positionstore
         } else {
-          for (let i = 0; i < fileamount; i++) {
-            positionarray.push(this.positiondict)
-          }
+          positionarray = this.positiondict
         }
         if (this.$store.state.visionstore !== null) {
           visionarray = this.$store.state.visionstore
         } else {
-          for (let i = 0; i < fileamount; i++) {
-            visionarray.push(this.visiondict)
-          }
+          visionarray = this.visiondict
         }
         const columnDefs = [
           {
@@ -222,14 +268,16 @@
             openByDefault: bool
           }
           let colcounter = 0
-          for (let entry of specposarray) {
+          for (let entry in specposarray) {
+            let simpleentry = specposarray[entry]
+            let nameentry = this.namedict[simpleentry]
             let entrydict = {}
             let showstate = 'close'
             if (colcounter > 1) { showstate = 'open' }
-            if (entry === '_log2FoldChange') {
+            if (simpleentry === '_log2FoldChange') {
               entrydict = {
-                headerName: this.namedict[entry],
-                field: entry + '_' + counter,
+                headerName: nameentry,
+                field: entry,
                 width: 150,
                 cellRenderer: this.percentCellRenderer,
                 filter: 'agNumberColumnFilter',
@@ -238,8 +286,8 @@
               }
             } else {
               entrydict = {
-                headerName: this.namedict[entry],
-                field: entry + '_' + counter,
+                headerName: nameentry,
+                field: entry,
                 width: 150,
                 filter: 'agNumberColumnFilter',
                 hide: specvisarray[entry],
@@ -264,16 +312,19 @@
       },
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
-          let model = this.gridOptions.api.getModel()
           let totalRows = this.rowData.length
-          let processedRows = model.getRowCount()
-          this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          // let model = this.gridOptions.api.getModel()
+          // let processedRows = model.getRowCount()
+          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          this.rowCount = totalRows.toLocaleString()
         }
       },
       onModelUpdated () {
+        // console.log('onModelUpdated')
         this.calculateRowCount()
       },
       onReady () {
+        // console.log('onReady')
         this.calculateRowCount()
       },
       onSelectionChanged () {
@@ -282,6 +333,7 @@
         selectedRows.forEach(function (selectedRow) {
           selectedRowsString.push(selectedRow.name)
         })
+        this.rowAmount = selectedRowsString.length
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
       onQuickFilterChanged (event) {
@@ -359,14 +411,13 @@
         // x!
         parent.append(div2)
         parent.append(div1)
-        // let wrapper = document.getElementById('TEST')
-        // wrapper.append(parent)
         if (value !== null) {
           return parent
         }
       }
     },
     beforeMount () {
+      this.createstoredict()
       this.createRowData()
       this.minmaxdefine()
       this.createColumnDefs()
@@ -389,5 +440,27 @@
   label {
     font-weight: normal !important;
     text-align: right;
+  }
+  .btn-group button {
+    border: 1px solid grey; /* Green border */
+    padding: 10px 24px; /* Some padding */
+    float: left; /* Float the buttons side by side */
+  }
+  /* Clear floats (clearfix hack) */
+  .btn-group:after {
+    content: "";
+    clear: both;
+    display: table;
+  }
+  /* Add a background color on hover */
+  .btn-group button:hover {
+    background-color: deepskyblue;
+  }
+  /* Breaking columns when screen gets too small */
+  @media(max-width: 1500px) {
+    td {
+      display: table-row;
+      text-align: center;
+    }
   }
 </style>
