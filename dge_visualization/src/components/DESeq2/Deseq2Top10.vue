@@ -215,7 +215,7 @@
               zoomType: 'xy'
             },
             title: {
-              text: 'Reads vs. Conditions'
+              text: ""
             },
             xAxis: {
               categories: categories,
@@ -235,14 +235,7 @@
               }
             },
             legend: {
-              layout: 'vertical',
-              align: 'left',
-              verticalAlign: 'top',
-              x: 100,
-              y: 70,
-              floating: true,
-              backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
-              borderWidth: 1
+              enabled: false
             },
             tooltip: {
               useHTML: true,
