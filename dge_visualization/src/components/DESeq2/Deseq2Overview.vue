@@ -10,15 +10,15 @@
       <table style="width: 100%; text-align: center">
         <tr>
           <td style="width:20%;">
-            <div>chosen / TOTAL amount </div>
+            <div>Selected / Total</div>
             <div style="font-size:3rem;">{{ rowAmount }} / <b>{{ rowCount }}</b></div>
           </td>
           <td>
-            <div style="font-size: 1rem; padding: 4px;" class="btn-group">
-              <button type="button" class="btn btn-default" @click="setback()">Table Setback</button>
+            <div style="padding: 0.25rem;" class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-default" @click="setback()">Reset Table</button>
               <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
-              <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">x Clear Selection</button>
-              <button type="button" class="btn btn-primary" @click="fillthebasket()">Create Subset</button>
+              <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
+              <button type="button" class="btn btn-primary" @click="fillthebasket()">Create A Subset</button>
               <button type="button" class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
             </div>
           </td>
@@ -434,7 +434,7 @@
   .currentlychosen {
     text-align: left;
     overflow-y: scroll;
-    height: 150px;
+    height: 10rem;
     padding: 1rem
   }
   label {
