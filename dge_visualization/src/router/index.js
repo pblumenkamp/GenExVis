@@ -10,6 +10,7 @@ import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
 import Deseq2MAPlot from '@/components/DESeq2/Deseq2MAPlot'
 import Deseq2Distributions from '@/components/DESeq2/Deseq2Distributions'
+import Deseq2Top10 from '@/components/DESeq2/Deseq2Top10'
 import Changelogs from '@/components/Changelogs/ChangelogsMain'
 
 Vue.use(Router)
@@ -69,6 +70,11 @@ export default new Router({
           path: 'distributions',
           name: 'Deseq2_distributions',
           component: Deseq2Distributions
+        },
+        {
+          path: 'top_10',
+          name: 'Deseq2_Top_10',
+          component: Deseq2Top10
         }
       ]
     },
