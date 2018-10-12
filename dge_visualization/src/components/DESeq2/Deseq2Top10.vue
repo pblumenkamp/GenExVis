@@ -95,7 +95,7 @@
     data () {
       return {
         updateCheck: true,
-        isExponential: false,
+        isExponential: true,
         commonMaxValue: null,
         selectedCondition1: '',
         selectedCondition2: '',
