@@ -40,7 +40,7 @@
         </tr>
         <tr>
           <td>Exponential p-values:</td>
-          <td><b-form-checkbox style="float: left;" @input="toExponential()"></b-form-checkbox></td>
+          <td><b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox></td>
           <td>
             <b-input-group>
               <b-form-input v-model="commonMaxValue" type="number"
@@ -68,8 +68,8 @@
           <tr v-for="(value, key, index) in this.FINALRANKING">
             <td style="width:5%"><div style="font-size:4rem"><b>{{ index+1 }}.</b></div></td>
             <td style="width:10%"><div style="font-size:1.75rem"><b> {{ key }}</b></div>
-              <div v-if="isExponential===false">p-value: <p>{{ value }}</p></div>
-              <div v-else-if="isExponential===true">p-value: <p>{{ value.toExponential() }}</p></div></td>
+              <div v-if="!isExponential">p-value: <p>{{ value }}</p></div>
+              <div v-else-if="isExponential">p-value: <p>{{ value.toExponential(2) }}</p></div></td>
             <td style="width:85%"><div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
               <hr>
             </td>
@@ -99,11 +99,11 @@
         commonMaxValue: null,
         selectedCondition1: '',
         selectedCondition2: '',
-        selectedDistributionType: 'p value',
+        selectedDistributionType: 'p-value',
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
-        optionsDistributionType: ['p value', 'p value (adjusted)'],
-        optionsDict: {'p value': 'pValue', 'p value (adjusted)': 'pAdj'},
+        optionsDistributionType: ['p-value', 'adj. p-value'],
+        optionsDict: {'p-value': 'pValue', 'adj. p-value': 'pAdj'},
         yAxisMax: 0,
         datadict: {},
         reversedict: {},
@@ -112,13 +112,6 @@
       }
     },
     methods: {
-      toExponential () {
-        if (this.isExponential) {
-          this.isExponential = false
-        } else {
-          this.isExponential = true
-        }
-      },
       mountData () {
         let mainDict = {}
         let pvalDict = {}
@@ -215,7 +208,7 @@
               zoomType: 'xy'
             },
             title: {
-              text: ""
+              text: ''
             },
             xAxis: {
               categories: categories,
