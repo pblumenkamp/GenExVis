@@ -111,8 +111,8 @@
         selectedCondition2: '',
         selectedNormalization: '',
         useLogarithmicScale: false,
-        log2FoldChange: 1,
-        adjPValueThreshold: 0.01,
+        log2FoldChange: '1',
+        adjPValueThreshold: '0.01',
         tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
         rowNames: [],
         tableData: []
@@ -371,10 +371,9 @@
             analysisDescription: `${analysis.conditions.condition1} vs. ${analysis.conditions.condition2}`
           }
 
-          if (meanA <= 0.01) console.log(dataPoint)
           maxValue = Math.max(dataPoint.x, dataPoint.y, maxValue)
 
-          if (dataPoint.pAdj <= vue.adjPValueThreshold && (dataPoint.log2FC >= vue.log2FoldChange || dataPoint.log2FC <= -vue.log2FoldChange)) {
+          if (dataPoint.pAdj <= parseFloat(vue.adjPValueThreshold) && (dataPoint.log2FC >= parseFloat(vue.log2FoldChange) || dataPoint.log2FC <= -parseFloat(vue.log2FoldChange))) {
             options.series[1].data.push(dataPoint)
           } else {
             options.series[0].data.push(dataPoint)
@@ -385,7 +384,6 @@
         options.series[3].data = [(vue.useLogarithmicScale) ? [0.01, 0.01] : [0, 0], [maxValue, maxValue / Math.pow(2, vue.log2FoldChange)]]
         options.series[4].data = [(vue.useLogarithmicScale) ? [0.01, 0.01] : [0, 0], [maxValue / Math.pow(2, vue.log2FoldChange), maxValue]]
 
-        console.log(options.series)
         Highcharts.chart(CHART_ID, options)
       },
       clearChart () {
@@ -402,7 +400,7 @@
     },
     computed: {
       dgeConditions () {
-        return this.$store.state.registeredConditions.sort()
+        return this.$store.state.registeredConditions.slice().sort()
       },
       /* dgeConditions () {
         let conditions1 = new Set()
