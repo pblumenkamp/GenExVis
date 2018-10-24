@@ -3,13 +3,14 @@
     <b-row>
       <b-col cols="10">
         <b-row>
-          <b-col class="col" cols="1">
+          <b-col class="col" cols="2">
             <b-nav vertical class="left_navbar">
               <b-nav-item to="/countdata/genecount_hm">Gene count heat map</b-nav-item>
               <b-nav-item to="/countdata/genecount_distribution">Gene count histogram</b-nav-item>
+              <b-nav-item to="/countdata/genecount_countvscount">Gene count comparison</b-nav-item>
             </b-nav>
           </b-col>
-          <b-col cols="11">
+          <b-col cols="10">
             <router-view/>
           </b-col>
         </b-row>
