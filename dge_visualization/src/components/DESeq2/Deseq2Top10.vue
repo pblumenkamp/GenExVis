@@ -196,7 +196,7 @@
       },
       drawData () {
         this.updateCheck = false
-        let categories = ['t0', 't1', 't2', 't3', 't4', 't5']
+        let categories = this.registeredConditions
         let counter = 0
         for (let element in this.FINALRANKING) {
           if (counter === (this.selectedAmount)) {
@@ -318,6 +318,9 @@
       }
     },
     computed: {
+      registeredConditions () {
+        return this.$store.state.registeredConditions
+      },
       dgeConditions () {
         let conditions1 = new Set()
         let conditions2 = new Set()
