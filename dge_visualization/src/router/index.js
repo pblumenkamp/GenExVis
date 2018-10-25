@@ -5,7 +5,7 @@ import ImportMain from '@/components/Import/ImportMain'
 import CountDataMain from '@/components/CountData/CountDataMain'
 import CountDataGeneCountHM from '@/components/CountData/CountDataGeneCountHM'
 import CountDataDistribution from '@/components/CountData/CountDataDistribution'
-import CountDataCountVsCount from '@/components/CountData/CountDataCountVsCount'
+import CountDataComparison from '@/components/CountData/CountDataComparison'
 import Deseq2Main from '@/components/DESeq2/Deseq2Main'
 import Deseq2Overview from '@/components/DESeq2/Deseq2Overview'
 import Deseq2VolcanoPlot from '@/components/DESeq2/Deseq2VolcanoPlot'
@@ -45,9 +45,9 @@ export default new Router({
           component: CountDataDistribution
         },
         {
-          path: 'genecount_countvscount',
-          name: 'CountData_CountVsCount',
-          component: CountDataCountVsCount
+          path: 'genecount_comparison',
+          name: 'CountData_Comparison',
+          component: CountDataComparison
         }
       ]
     },
