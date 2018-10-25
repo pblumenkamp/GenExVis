@@ -163,14 +163,14 @@ export class DGE {
   }
 
   getAllUnnormalizedCountDataByGene (geneName) {
-    return this._getAllCountDataByGene(geneName, 'unnormalized')
+    return this.getAllCountDataByGene(geneName, 'unnormalized')
   }
 
   getAllDeseq2CountDataByGene (geneName) {
-    return this._getAllCountDataByGene(geneName, 'deseq2')
+    return this.getAllCountDataByGene(geneName, 'deseq2')
   }
 
-  _getAllCountDataByGene (geneName, normalization) {
+  getAllCountDataByGene (geneName, normalization) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getAllCountData(normalization)
     } else {
@@ -179,14 +179,14 @@ export class DGE {
   }
 
   getAllUnnormalizedCountDataByCondition (condition) {
-    return this._getCountDataByCondition('unnormalized', condition)
+    return this.getCountDataByCondition('unnormalized', condition)
   }
 
   getAllDeseq2CountDataByCondition (condition) {
-    return this._getCountDataByCondition('deseq2', condition)
+    return this.getCountDataByCondition('deseq2', condition)
   }
 
-  _getCountDataByCondition (normalization, condition) {
+  getCountDataByCondition (normalization, condition) {
     let countData = {}
     for (let geneName of this.geneNames) {
       let counts = this.getGene(geneName).getCountData(normalization, condition)

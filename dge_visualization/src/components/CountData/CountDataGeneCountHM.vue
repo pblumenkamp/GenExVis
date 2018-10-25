@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 style="text-align: center">
-      Gene counts
+      Gene Counts Heat Map
     </h1>
 
     <div style="margin: 0 auto; width: 60%">

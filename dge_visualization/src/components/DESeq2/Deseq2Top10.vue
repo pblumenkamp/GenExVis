@@ -2,7 +2,7 @@
   <div style="text-align: center">
 
     <h1>
-      Top {{ this.selectedAmount }} Genes ({{this.selectedDistributionType}})
+      DESeq2 - Top {{ this.selectedAmount }} Genes ({{this.selectedDistributionType}})
     </h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''" @input="statusUpdate()">
