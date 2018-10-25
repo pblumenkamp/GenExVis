@@ -35,20 +35,22 @@
       <b-container fluid border="1">
         <b-row class="my-1">
           <b-col sm="3"><label>use logarithmic scale</label></b-col>
-          <b-col sm="9">
+          <b-col sm="3">
             <b-form-checkbox v-model="useLogarithmicScale" style="float: left;" @input="drawData"></b-form-checkbox>
           </b-col>
+          <b-col sm="3"><label>color of significant genes</label></b-col>
+          <b-col sm="3">
+            <b-form-input type='color' v-model="colorSignificantGenes" style="float: left; padding: 0.05rem; min-width: 1rem; max-width: 2rem" @input="drawData"></b-form-input>
+          </b-col>
         </b-row>
-        <b-row class="my-1">
+        <b-row class="my-3">
           <b-col sm="3"><label style="margin-top: 0.4rem;">adjusted p-value threshold</label></b-col>
-          <b-col sm="9">
+          <b-col sm="3">
             <b-form-input type="number" v-model="adjPValueThreshold" step="0.001" max="1" min="0" style="width: 5rem;"
                           @change="drawData"></b-form-input>
           </b-col>
-        </b-row>
-        <b-row class="my-1">
           <b-col sm="3"><label style="margin-top: 0.4rem;">log2 fold change band</label></b-col>
-          <b-col sm="9">
+          <b-col sm="3">
             <b-form-input type="number" v-model="log2FoldChange" step="1"min="0" style="width: 5rem;"
                           @change="drawData"></b-form-input>
           </b-col>
@@ -111,6 +113,7 @@
         selectedCondition2: '',
         selectedNormalization: '',
         useLogarithmicScale: false,
+        colorSignificantGenes: '#cc1926',
         log2FoldChange: '1',
         adjPValueThreshold: '0.01',
         tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
@@ -244,7 +247,7 @@
               boostThreshold: 1000,
               marker: {
                 symbol: 'circle',
-                radius: 2,
+                radius: 2.5,
                 states: {
                   hover: {
                     enabled: true,
@@ -276,14 +279,14 @@
             followPointer: true
           },
           series: [{
-            name: 'Counts',
+            name: 'Genes',
             color: '#000000',
             id: 0,
             zIndex: 1,
             data: []
           }, {
-            name: 'Significant counts outside of LFC band ',
-            color: '#cc1926',
+            name: 'Significant genes outside of LFC band ',
+            color: vue.colorSignificantGenes,
             id: 1,
             zIndex: 2,
             data: []
