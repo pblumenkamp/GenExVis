@@ -1,6 +1,6 @@
 <template>
   <div style="text-align: center">
-    <h1>Gene Count Histogram</h1>
+    <h1>Gene Count Distribution</h1>
 
     <b-form-select v-model="selectedNormalization" style="width: auto" class="mb-2" @input="selectedCondition = ''">
       <template slot="first">

@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
-      <h1>Overview Table</h1>
+      <h1>DESeq2 - Overview</h1>
     </div>
 
     <div style="clear: both;"></div>

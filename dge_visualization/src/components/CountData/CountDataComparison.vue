@@ -1,6 +1,6 @@
 <template>
   <div style="text-align: center">
-    <h1>Gene count comparison</h1>
+    <h1>Gene Count Comparison</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
