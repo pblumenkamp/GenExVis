@@ -7,7 +7,7 @@
             <b-nav vertical class="left_navbar">
               <b-nav-item to="/countdata/genecount_hm">Gene count heat map</b-nav-item>
               <b-nav-item to="/countdata/genecount_distribution">Gene count histogram</b-nav-item>
-              <b-nav-item to="/countdata/genecount_countvscount">Gene count comparison</b-nav-item>
+              <b-nav-item to="/countdata/genecount_comparison">Gene count comparison</b-nav-item>
             </b-nav>
           </b-col>
           <b-col cols="10">
