@@ -49,7 +49,7 @@
                  :gridReady="onReady"
 
                  :columnMoved="positionchange"
-                 :columnVisible="visionchange"
+                 :columnVisible="true"
                  :columnGroupOpened="true"/>
     <div>
       <b-card class="currentlychosen">
@@ -114,12 +114,12 @@
         let positionarray = []
         let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
-        for (let i = 1; i < fileamount + 1; i++) {
+        for (let i = 0; i < fileamount + 1; i++) {
           let visiondict = {}
           let positiondict = {}
           for (let entry of basics) {
-            visiondict[entry + '_' + (i - 1)] = false
-            positiondict[entry + '_' + (i - 1)] = entry
+            visiondict[entry + '_' + (i - 0)] = false
+            positiondict[entry + '_' + (i - 0)] = entry
           }
           visionarray.push(visiondict)
           positionarray.push(positiondict)
@@ -149,17 +149,23 @@
         this.$store.commit(ADD_POSITION, positionarray)
       },
       visionchange () {
+        console.log('Something happend')
         let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
         let visionarray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
-        for (let i = 1; i < fileamount + 1; i++) {
+        console.log('columnGroups:')
+        console.log(columngroups)
+        console.log('fileamount: ' + fileamount)
+        for (let i = 0; i < fileamount + 1; i++) {
           let tempdict = {}
           let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
           let childrenarray = columngroups[i]['children']
+          console.log(childrenarray)
           // starting at 1 (0 = name column)
           for (let key in basictemplate) {
-            let fullkey = key + '_' + (i - 1)
+            let fullkey = key + '_' + (i)
+            console.log(fullkey)
             let bool = true
             for (let entry of childrenarray) {
               if (fullkey === entry.colDef['field']) {
@@ -209,7 +215,7 @@
           let dict = {}
           dict.name = gene.name
           let analysesList = gene.deseq2Analyses
-          let analysescounter = 0
+          let analysescounter = 1
           for (let analysis of analysesList) {
             for (let element in analysis) {
               let currentcell = analysis[element]
@@ -243,21 +249,26 @@
         } else {
           visionarray = this.visiondict
         }
+        console.log('POS + VIS:')
+        console.log(positionarray)
+        console.log(visionarray)
         const columnDefs = [
           {
             headerName: 'Name',
             field: 'name',
             width: 150,
             hide: false,
-            pinned: true
+            pinned: false
           }
         ]
-        let counter = 0
-        for (let i = 0; i < fileamount; i++) {
+        let counter = 1
+        for (let i = 1; i < fileamount + 1; i++) {
           let childrenarray = []
+          console.log('------------------------------')
+          console.log(positionarray)
           let specposarray = positionarray[i]
           let specvisarray = visionarray[i]
-          let headerName = filestore[i]
+          let headerName = filestore[i - 1]
           let bool = true
           if (counter > 0) {
             bool = false
@@ -266,31 +277,43 @@
           let datadict = {
             headerName: headerName,
             openByDefault: bool
+            // children added here (see below)
           }
           let colcounter = 0
-          for (let entry in specposarray) {
-            let simpleentry = specposarray[entry]
-            let nameentry = this.namedict[simpleentry]
+          console.log('specposarray:')
+          console.log(specposarray)
+          // for (let entry in specposarray) {
+          //   console.log(entry)
+          //   let simpleentry = specposarray[entry]
+          //   let nameentry = this.namedict[simpleentry]
+          //   let entrydict = {}
+          //   let showstate = 'close'
+          //   if (colcounter > 1) { showstate = 'open' }
+          //   if (simpleentry === '_log2FoldChange') {
+          for (let entry in this.namedict) {
+            let nameentry = this.namedict[entry]
             let entrydict = {}
             let showstate = 'close'
             if (colcounter > 1) { showstate = 'open' }
-            if (simpleentry === '_log2FoldChange') {
+            console.log('code_01')
+            console.log(entry + '_' + counter)
+            if (entry === '_log2FoldChange') {
               entrydict = {
                 headerName: nameentry,
-                field: entry,
+                field: entry + '_' + counter,
                 width: 150,
                 cellRenderer: this.percentCellRenderer,
                 filter: 'agNumberColumnFilter',
-                hide: specvisarray[entry],
+                // hide: specvisarray[entry],
                 columnGroupShow: showstate
               }
             } else {
               entrydict = {
                 headerName: nameentry,
-                field: entry,
+                field: entry + '_' + counter,
                 width: 150,
                 filter: 'agNumberColumnFilter',
-                hide: specvisarray[entry],
+                // hide: specvisarray[entry],
                 columnGroupShow: showstate
               }
             }
