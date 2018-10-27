@@ -113,6 +113,7 @@ const store = new Vuex.Store({
         for (let registeredCond of state.registeredConditions) {
           if (conditionName === registeredCond) {
             reject(new Error(`Condition ${conditionName} already registered!`))
+            return
           }
         }
         commit(ADD_CONDITION, conditionName)

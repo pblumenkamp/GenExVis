@@ -2,7 +2,7 @@
   <div style="text-align: center">
 
     <h1>
-      Top {{ this.selectedAmount }} Genes ({{this.selectedDistributionType}})
+      DESeq2 - Top {{ this.selectedAmount }} Genes ({{this.selectedDistributionType}})
     </h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''" @input="statusUpdate()">
@@ -40,21 +40,15 @@
         </tr>
         <tr>
           <td>Exponential p-values:</td>
-          <td><b-form-checkbox style="float: left;" @input="toExponential()"></b-form-checkbox></td>
+          <td><b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox></td>
           <td>
             <b-input-group>
               <b-form-input v-model="commonMaxValue" type="number"
                             placeholder="Please type in number" @keydown.enter.native="commonMaxNegotiator()" style="width: auto"></b-form-input>
-              <b-input-group-append>
-                <b-btn @click="drawData()">></b-btn>
-              </b-input-group-append>
             </b-input-group>
           </td>
           <td>
             <b-form-select v-model="selectedAmount" style="width: 15rem" @input="createRanking(), statusUpdate()">
-              <template slot="first">
-                <option :value="''" disabled></option>
-              </template>
               <option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>
             </b-form-select>
           </td>
@@ -68,8 +62,8 @@
           <tr v-for="(value, key, index) in this.FINALRANKING">
             <td style="width:5%"><div style="font-size:4rem"><b>{{ index+1 }}.</b></div></td>
             <td style="width:10%"><div style="font-size:1.75rem"><b> {{ key }}</b></div>
-              <div v-if="isExponential===false">p-value: <p>{{ value }}</p></div>
-              <div v-else-if="isExponential===true">p-value: <p>{{ value.toExponential() }}</p></div></td>
+              <div v-if="!isExponential">p-value: <p>{{ value }}</p></div>
+              <div v-else-if="isExponential">p-value: <p>{{ value.toExponential(2) }}</p></div></td>
             <td style="width:85%"><div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
               <hr>
             </td>
@@ -95,15 +89,15 @@
     data () {
       return {
         updateCheck: true,
-        isExponential: false,
+        isExponential: true,
         commonMaxValue: null,
         selectedCondition1: '',
         selectedCondition2: '',
-        selectedDistributionType: 'p value',
+        selectedDistributionType: 'p-value',
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
-        optionsDistributionType: ['p value', 'p value (adjusted)'],
-        optionsDict: {'p value': 'pValue', 'p value (adjusted)': 'pAdj'},
+        optionsDistributionType: ['p-value', 'adj. p-value'],
+        optionsDict: {'p-value': 'pValue', 'adj. p-value': 'pAdj'},
         yAxisMax: 0,
         datadict: {},
         reversedict: {},
@@ -112,13 +106,6 @@
       }
     },
     methods: {
-      toExponential () {
-        if (this.isExponential) {
-          this.isExponential = false
-        } else {
-          this.isExponential = true
-        }
-      },
       mountData () {
         let mainDict = {}
         let pvalDict = {}
@@ -203,7 +190,6 @@
       },
       drawData () {
         this.updateCheck = false
-        // let categories = ['t0', 't1', 't2', 't3', 't4', 't5']
         let categories = this.registeredConditions
         let counter = 0
         for (let element in this.FINALRANKING) {
@@ -216,7 +202,7 @@
               zoomType: 'xy'
             },
             title: {
-              text: 'Reads vs. Conditions'
+              text: ''
             },
             xAxis: {
               categories: categories,
@@ -236,24 +222,16 @@
               }
             },
             legend: {
-              layout: 'vertical',
-              align: 'left',
-              verticalAlign: 'top',
-              x: 100,
-              y: 70,
-              floating: true,
-              backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
-              borderWidth: 1
+              enabled: false
             },
             tooltip: {
               useHTML: true,
               headerFormat: '<table>',
               pointFormat:
-              '<tr><td>Value:</td><td style="font-size:1rem"><b>{point.y} reads</b></td></tr>' +
-              '<tr><td>Condition:</td><td><b>{point.cond}</b></td></tr>' +
-              '<tr><td>Source File:</td><td><b>{point.file}</b></td></tr>',
+              '<tr><td>reads:</td><td><b>{point.y:,.2f}</b></td></tr>' +
+              '<tr><td>sample:</td><td><b>{point.file}</b></td></tr>',
               footerFormat: '</table>',
-              followPointer: true
+              followPointer: false
             },
             plotOptions: {
               scatter: {
@@ -272,6 +250,13 @@
                       enabled: false
                     }
                   }
+                }
+              }
+            },
+            exporting: {
+              buttons: {
+                contextButton: {
+                  menuItems: ['downloadPNG', 'downloadSVG', 'separator']
                 }
               }
             },

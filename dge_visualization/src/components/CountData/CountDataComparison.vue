@@ -1,12 +1,12 @@
 <template>
   <div style="text-align: center">
-    <h1>DESeq2 - Volcano Plot</h1>
+    <h1>Gene Count Comparison</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
         <option :value="''" disabled>-- Please select the first condition --</option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
+      <option v-for="cond in Array.from(dgeConditions)" :value="cond">{{ cond }}</option>
     </b-form-select>
 
     <b-form-select v-model="selectedCondition2" style="width: auto" @input="drawData"
@@ -14,27 +14,45 @@
       <template slot="first">
         <option :value="''" disabled>-- Please select the second condition --</option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}
+      <option v-for="cond in Array.from(dgeConditions)" :value="cond" :disabled="cond === selectedCondition1">{{ cond }}
       </option>
     </b-form-select>
 
-    <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts"
+    <br>
+
+    <b-form-select v-model="selectedNormalization" style="width: auto; margin-top: 1rem">
+      <template slot="first">
+        <option :value="''" disabled>-- Please select a normalization method --</option>
+      </template>
+      <option v-for="normalization in registeredNormalizationMethods" :value="normalization">{{ normalization }}</option>
+    </b-form-select>
+
+    <div id="countdata_countvscount" ref="countdata_countvscount"
          style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
       <b-container fluid border="1">
         <b-row class="my-1">
-          <b-col sm="3"><label style="margin-top: 0.4rem;">p-value threshold</label></b-col>
-          <b-col sm="9">
-            <b-form-input type="number" v-model="inputPThreshold" step="0.001" max="1" min="0" style="width: 10rem;"
-                          @change="updatePThreshold"></b-form-input>
+          <b-col sm="3"><label>use logarithmic scale</label></b-col>
+          <b-col sm="3">
+            <b-form-checkbox v-model="useLogarithmicScale" style="float: left;" @input="drawData"></b-form-checkbox>
+          </b-col>
+          <b-col sm="3"><label>color of significant genes</label></b-col>
+          <b-col sm="3">
+            <b-form-input type='color' v-model="colorSignificantGenes" style="float: left; padding: 0.05rem; min-width: 1rem; max-width: 2rem" @input="drawData"></b-form-input>
           </b-col>
         </b-row>
-        <b-row class="my-1">
-          <b-col sm="3"><label>use adjusted p-value</label></b-col>
-          <b-col sm="9">
-            <b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox>
+        <b-row class="my-3">
+          <b-col sm="3"><label style="margin-top: 0.4rem;">adjusted p-value threshold</label></b-col>
+          <b-col sm="3">
+            <b-form-input type="number" v-model="adjPValueThreshold" step="0.001" max="1" min="0" style="width: 5rem;"
+                          @change="drawData"></b-form-input>
+          </b-col>
+          <b-col sm="3"><label style="margin-top: 0.4rem;">log2 fold change band</label></b-col>
+          <b-col sm="3">
+            <b-form-input type="number" v-model="log2FoldChange" step="1"min="0" style="width: 5rem;"
+                          @change="drawData"></b-form-input>
           </b-col>
         </b-row>
       </b-container>
@@ -85,7 +103,7 @@
   require('highcharts/modules/offline-exporting')(Highcharts)
 
   const AXIS_COLOR = '#000000'
-  const CHART_ID = 'deseq2volcanoplot_highcharts'
+  const CHART_ID = 'countdata_countvscount'
 
   export default {
     name: 'DESeq2VolcanoPlot',
@@ -93,8 +111,11 @@
       return {
         selectedCondition1: '',
         selectedCondition2: '',
-        inputPThreshold: '0.001',
-        useAdjPValue: false,
+        selectedNormalization: '',
+        useLogarithmicScale: false,
+        colorSignificantGenes: '#cc1926',
+        log2FoldChange: '1',
+        adjPValueThreshold: '0.01',
         tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
         rowNames: [],
         tableData: []
@@ -135,21 +156,6 @@
         if (!(vue.selectedCondition1 && vue.selectedCondition2)) {
           return
         }
-        /* let pointTooltip = (function (data, cond1, cond2) {
-          let tooltip = '<table>' +
-            '<tr><td>log2 fold change:</td><td></td><td></td><td>{point.x:.3f}</td></tr>' +
-            '<tr><td>base mean:</td><td></td><td></td><td>{point.baseMean:.3f}</td></tr>'
-          if (data.normalizationMethods.size !== 0) {
-            tooltip += '<tr><td>counts:</td></tr>'
-            for (let normalization of data.normalizationMethods) {
-              tooltip += '<tr><td></td><td>' + normalization + '</td></tr>' +
-                '<tr><td></td><td></td><td>' + cond1 + ':</td> <td>{point.' + normalization + '_counts1}</td></tr>' +
-                '<tr><td></td><td></td><td>' + cond2 + ':</td> <td>{point.' + normalization + '_counts2}</td></tr>'
-            }
-          }
-          tooltip += '<tr><td>' + ((vue.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ':</td><td></td><td></td><td>{point.yTooltip}</td></tr></table>'
-          return tooltip
-        }(vue.$store.state.currentDGE, vue.selectedCondition1, vue.selectedCondition2)) */
 
         let options = {
           chart: {
@@ -175,8 +181,9 @@
             text: `${vue.selectedCondition1} vs. ${vue.selectedCondition2}`
           },
           xAxis: {
+            type: (this.useLogarithmicScale) ? 'logarithmic' : 'linear',
             title: {
-              text: 'log2 (fold change)',
+              text: `${vue.selectedCondition1} (counts)`,
               style: {
                 color: AXIS_COLOR
               }
@@ -190,11 +197,13 @@
             },
             startOnTick: true,
             endOnTick: true,
-            showLastLabel: true
+            showLastLabel: true,
+            min: (vue.useLogarithmicScale) ? 0.01 : 0
           },
           yAxis: {
+            type: (this.useLogarithmicScale) ? 'logarithmic' : 'linear',
             title: {
-              text: '-log10 (p-value)',
+              text: `${vue.selectedCondition2} (counts)`,
               style: {
                 color: AXIS_COLOR
               }
@@ -204,15 +213,7 @@
                 color: AXIS_COLOR
               }
             },
-            plotLines: [{
-              value: -Math.log10(vue.pThreshold),
-              color: 'black',
-              dashStyle: 'shortdash',
-              width: 1,
-              label: {
-                text: 'p-value: ' + vue.pThreshold
-              }
-            }]
+            min: (vue.useLogarithmicScale) ? 0.01 : 0
           },
           legend: {
             layout: 'horizontal',
@@ -246,7 +247,7 @@
               boostThreshold: 1000,
               marker: {
                 symbol: 'circle',
-                radius: 3,
+                radius: 2.5,
                 states: {
                   hover: {
                     enabled: true,
@@ -260,38 +261,90 @@
                     enabled: false
                   }
                 }
-              },
-              tooltip: {
-                useHTML: true,
-                headerFormat: '',
-                pointFormat: '<b>{point.gene}</b><br>' +
-                'log2 fold change: {point.x:.3f}<br>' +
-                'base mean: {point.baseMean:.3f}<br>' +
-                ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ': {point.yTooltip}'
               }
             }
           },
+          tooltip: {
+            useHTML: true,
+            headerFormat: '',
+            pointFormat: '<b>{point.gene}</b><table style="margin-top: 0.5rem">' +
+              `<tr><td>${this.selectedCondition1}:</td><td style="padding-left: 0.25rem; text-align: right">{point.x:,.1f}</td></tr>` +
+              `<tr><td>${this.selectedCondition2}:</td><td style="padding-left: 0.25rem; text-align: right">{point.y:,.1f}</td></tr>` +
+              '<tr style="height: 0.5rem"><td colspan="2"></td></tr>' +
+              '<tr><td><b>{point.analysisDescription}</b></td></tr>' +
+              '<tr><td>log2 fold change:</td><td style="padding-left: 0.25rem; text-align: right">{point.log2FC:,.3f}</td></tr>' +
+              '<tr><td>p-value:</td><td style="padding-left: 0.25rem; text-align: right">{point.pValue}</td></tr>' +
+              '<tr><td>adjusted p-value:</td><td style="padding-left: 0.25rem; text-align: right">{point.pAdj}</td></tr>',
+            footerFormat: '</table>',
+            followPointer: true
+          },
           series: [{
-            name: '|log2 fold change|cd ..' +
-            ' >= 2 AND p-value <= ' + vue.pThreshold.toExponential(2),
-            color: '#cc1926',
-            zIndex: 2,
-            id: 0,
-            data: []
-          },
-          {
-            name: '|log2 fold change| >= 2 OR p-value <= ' + vue.pThreshold.toExponential(2),
-            color: '#ccc223',
-            zIndex: 1,
-            id: 1,
-            data: []
-          },
-          {
-            name: 'Rest',
+            name: 'Genes',
             color: '#000000',
-            zIndex: 0,
-            id: 2,
+            id: 0,
+            zIndex: 1,
             data: []
+          }, {
+            name: 'Significant genes outside of LFC band ',
+            color: vue.colorSignificantGenes,
+            id: 1,
+            zIndex: 2,
+            data: []
+          }, {
+            name: '',
+            type: 'line',
+            lineWidth: 1,
+            dashStyle: 'dot',
+            color: '#7d7d80',
+            id: 2,
+            zIndex: 0,
+            showInLegend: false,
+            data: [],
+            marker: {
+              enabled: false
+            },
+            states: {
+              hover: {
+                lineWidth: 0
+              }
+            },
+            enableMouseTracking: false
+          }, {
+            name: '',
+            type: 'line',
+            lineWidth: 1,
+            color: '#5666ba',
+            id: 3,
+            zIndex: 0,
+            showInLegend: false,
+            data: [],
+            marker: {
+              enabled: false
+            },
+            states: {
+              hover: {
+                lineWidth: 0
+              }
+            },
+            enableMouseTracking: false
+          }, {
+            name: '',
+            type: 'line',
+            lineWidth: 1,
+            color: '#5666ba',
+            id: 4,
+            zIndex: 0,
+            showInLegend: false,
+            data: [],
+            marker: {
+              enabled: false
+            },
+            states: {
+              hover: {
+                lineWidth: 0
+              }
+            },
+            enableMouseTracking: false
           }]
         }
 
@@ -299,47 +352,40 @@
 
         series[0].data = []
         series[1].data = []
-        series[2].data = []
-        let dge = vue.$store.state.currentDGE.getAllGenesFromDESeq2(vue.selectedCondition1, vue.selectedCondition2)
-        let logPThreshold = -Math.log10(vue.pThreshold)
+        let dge = vue.$store.state.currentDGE
+        let maxValue = 0
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
+          let countsA = Object.values(gene.getCountData(this.selectedNormalization, this.selectedCondition1))
+          let countsB = Object.values(gene.getCountData(this.selectedNormalization, this.selectedCondition2))
           let analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition1, vue.selectedCondition2))
-          let y = (vue.useAdjPValue) ? analysis.pAdj : analysis.pValue
+          if (analysis === null) {
+            analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition2, vue.selectedCondition1))
+          }
+          let meanA = countsA.reduce((a, b) => a + b, 0) / countsA.length
+          let meanB = countsB.reduce((a, b) => a + b, 0) / countsB.length
           let dataPoint = {
             gene: geneName,
-            x: analysis.log2FoldChange,
-            y: -Math.log10(y),
-            yTooltip: y.toExponential(2),
-            baseMean: analysis.baseMean
+            x: (vue.useLogarithmicScale) ? meanA + 0.01 : meanA,
+            y: (vue.useLogarithmicScale) ? meanB + 0.01 : meanB,
+            pValue: analysis.pValue.toExponential(2),
+            pAdj: analysis.pAdj.toExponential(2),
+            log2FC: analysis.log2FoldChange,
+            analysisDescription: `${analysis.conditions.condition1} vs. ${analysis.conditions.condition2}`
           }
 
-          if (gene.normalizationMethods.length !== 0) {
-            let average = list => {
-              let sum = 0
-              let n = 0
-              for (let key in list) {
-                if (list.hasOwnProperty(key)) {
-                  sum += list[key]
-                  n++
-                }
-              }
-              return sum / n
-            }
-            for (let normalization of gene.normalizationMethods) {
-              dataPoint[normalization + '_counts1'] = average(gene.getCountData(normalization, vue.selectedCondition1))
-              dataPoint[normalization + '_counts2'] = average(gene.getCountData(normalization, vue.selectedCondition2))
-            }
-          }
+          maxValue = Math.max(dataPoint.x, dataPoint.y, maxValue)
 
-          if (Math.abs(dataPoint.x) >= 2 && dataPoint.y >= logPThreshold) {
-            options.series[0].data.push(dataPoint)
-          } else if (Math.abs(dataPoint.x) >= 2 || dataPoint.y >= logPThreshold) {
+          if (dataPoint.pAdj <= parseFloat(vue.adjPValueThreshold) && (dataPoint.log2FC >= parseFloat(vue.log2FoldChange) || dataPoint.log2FC <= -parseFloat(vue.log2FoldChange))) {
             options.series[1].data.push(dataPoint)
           } else {
-            options.series[2].data.push(dataPoint)
+            options.series[0].data.push(dataPoint)
           }
         }
+
+        options.series[2].data = [(vue.useLogarithmicScale) ? [0.01, 0.01] : [0, 0], [maxValue, maxValue]]
+        options.series[3].data = [(vue.useLogarithmicScale) ? [0.01, 0.01] : [0, 0], [maxValue, maxValue / Math.pow(2, vue.log2FoldChange)]]
+        options.series[4].data = [(vue.useLogarithmicScale) ? [0.01, 0.01] : [0, 0], [maxValue / Math.pow(2, vue.log2FoldChange), maxValue]]
 
         Highcharts.chart(CHART_ID, options)
       },
@@ -357,6 +403,9 @@
     },
     computed: {
       dgeConditions () {
+        return this.$store.state.registeredConditions.slice().sort()
+      },
+      /* dgeConditions () {
         let conditions1 = new Set()
         let conditions2 = new Set()
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
@@ -377,6 +426,12 @@
           }
         }
         return conditions2
+      }, */
+      registeredNormalizationMethods () {
+        if (this.$store.state.currentDGE.normalizationMethods.length > 0) {
+          this.selectedNormalization = this.$store.state.currentDGE.normalizationMethods[0]
+        }
+        return this.$store.state.currentDGE.normalizationMethods
       },
       pThreshold () {
         return parseFloat(this.inputPThreshold)
