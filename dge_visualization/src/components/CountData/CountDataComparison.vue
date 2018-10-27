@@ -286,7 +286,7 @@
             data: []
           }, {
             name: 'Significant genes outside of LFC band ',
-            color: vue.colorSignificantGenes,
+            color: vue.colorSignificantGenes + '88',
             id: 1,
             zIndex: 2,
             data: []
