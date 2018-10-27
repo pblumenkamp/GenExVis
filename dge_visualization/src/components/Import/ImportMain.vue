@@ -3,53 +3,86 @@
     <b-container fluid class="mb-1">
       <b-row>
         <b-col cols="10">
-          <b-row>
-            <b-col sm="4"><label for="conditionName" style="margin-top: 0.4rem; float: right">Register condition:</label></b-col>
-            <b-col sm="6">
-              <b-input-group>
-                <b-form-input v-model="conditionName" :state="validCondition" type="text" id="conditionName"
-                              placeholder="Condition name" @input="validCondition = null" @keydown.enter.native="registerCondition" style="width: auto"></b-form-input>
-                <b-input-group-append>
-                  <b-btn @click="registerCondition">+</b-btn>
-                </b-input-group-append>
-              </b-input-group>
-            </b-col>
-          </b-row>
-          <b-row v-if="validCondition != null" style="margin-top: 0.1rem">
-            <b-col sm="4"></b-col>
-            <b-col sm="6">
-              <span v-if="conditionName === ''" style="color: red">Condition must contain at least one character</span>
-              <span v-if="conditionName != ''" style="color: red">Condition "{{conditionName}}" already registered</span>
-            </b-col>
-          </b-row>
-          <b-row style="margin-top: 0.5rem">
-            <b-col sm="2"></b-col>
-            <b-col class="text-center">
-              <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
-                <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
-              </span>
-              <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
-                <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
-              </span>
-              {{registeredConditions.length}} conditions registered (Click on condition to remove it)
-              <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
-                <transition name="fade">
-                  <b-card v-if="registeredConditions.length > 0" style="width:80%; margin: auto">
-                    <transition-group name="conditionList" tag="ul" class="conditionList">
-                      <li v-for="cond of registeredConditions" :key="cond" @click='removeCondition'>{{cond}}</li>
-                    </transition-group>
-                  </b-card>
-                </transition>
-              </b-collapse>
-            </b-col>
-          </b-row>
           <b-row style="margin-top: 1rem">
-            <div style="width:80%; margin: auto;" role="tablist">
+            <div style="width:90%; margin: auto;" role="tablist">
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
-                  <b-btn block href="#" v-b-toggle.accordion1 variant="secondary">Count table</b-btn>
+                  <b-btn block href="#" v-b-toggle="'accordion_conditions'" variant="secondary">1. Register Conditions</b-btn>
                 </b-card-header>
-                <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel" style="padding-bottom: 1rem">
+                <b-collapse id="accordion_conditions" visible accordion="my-accordion" role="tabpanel"
+                            style="padding-bottom: 1rem">
+                  <b-card-body>
+                    <b-row>
+                      <b-col sm="4"><label for="conditionName" style="margin-top: 0.4rem; float: right">Register
+                        condition:</label></b-col>
+                      <b-col sm="6">
+                        <b-input-group>
+                          <b-form-input v-model="conditionName" :state="validCondition" type="text" id="conditionName"
+                                        placeholder="Condition name" @input="validCondition = null"
+                                        @keydown.enter.native="registerCondition" style="width: auto"></b-form-input>
+                          <b-input-group-append>
+                            <b-btn @click="registerCondition">+</b-btn>
+                          </b-input-group-append>
+                        </b-input-group>
+                      </b-col>
+                      <b-col sm="2" style="padding-left: 0">
+                        <span @click="showConditionsHelp = !showConditionsHelp" style="cursor: pointer; float: left">
+                          <font-awesome-icon :icon="faQuestionCircle"></font-awesome-icon>
+                        </span>
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col>
+                        <b-collapse id="helpConditions" class="mt-2" v-model="showConditionsHelp">
+                          <transition name="fade">
+                            <b-card style="width:80%; margin: auto">
+                              Register all conditions you want to visualize. Try to use unambiguous names to benefit from autocompletion in the next steps.
+                            </b-card>
+                          </transition>
+                        </b-collapse>
+                      </b-col>
+                    </b-row>
+                    <b-row v-if="validCondition != null" style="margin-top: 0.1rem">
+                      <b-col sm="4"></b-col>
+                      <b-col sm="6">
+                        <span v-if="conditionName === ''" style="color: red">Condition must contain at least one character</span>
+                        <span v-if="conditionName != ''" style="color: red">Condition "{{conditionName}}" already registered</span>
+                      </b-col>
+                    </b-row>
+                    <b-row style="margin-top: 0.5rem">
+                      <b-col sm="2"></b-col>
+                      <b-col class="text-center">
+
+                      <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions"
+                            style="cursor: pointer">
+                        <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+                      </span>
+                      <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
+                        <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
+                      </span>
+                        {{registeredConditions.length}} conditions registered (Click on condition to remove it)
+
+                        <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
+                          <transition name="fade">
+                            <b-card v-if="registeredConditions.length > 0" style="width:80%; margin: auto">
+                              <transition-group name="conditionList" tag="ul" class="conditionList">
+                                <li v-for="cond of registeredConditions" :key="cond" @click='removeCondition'>{{cond}}
+                                </li>
+                              </transition-group>
+                            </b-card>
+                          </transition>
+                        </b-collapse>
+                      </b-col>
+                    </b-row>
+                  </b-card-body>
+                </b-collapse>
+              </b-card>
+              <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                  <b-btn block href="#" v-b-toggle="'accordion_counttable'" variant="secondary">2. Import Count Table</b-btn>
+                </b-card-header>
+                <b-collapse id="accordion_counttable" accordion="my-accordion" role="tabpanel"
+                            style="padding-bottom: 1rem">
                   <b-card-body>
                     <count-table-import></count-table-import>
                   </b-card-body>
@@ -57,9 +90,9 @@
               </b-card>
               <b-card no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
-                  <b-btn block href="#" v-b-toggle.accordion2 variant="secondary">DESeq2 data</b-btn>
+                  <b-btn block href="#" v-b-toggle="'accordion_deseq2'" variant="secondary">3. Import DESeq2 Data</b-btn>
                 </b-card-header>
-                <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel" style="padding-bottom: 1rem">
+                <b-collapse id="accordion_deseq2" accordion="my-accordion" role="tabpanel" style="padding-bottom: 1rem">
                   <b-card-body>
                     <deseq2-import></deseq2-import>
                   </b-card-body>
@@ -99,6 +132,7 @@
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
   import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
+  import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle'
 
   export default {
     name: 'ImportMain',
@@ -111,7 +145,8 @@
       return {
         conditionName: '',
         validCondition: null,
-        showCollapsedConditions: false
+        showCollapsedConditions: false,
+        showConditionsHelp: false
       }
     },
     methods: {
@@ -145,6 +180,9 @@
       },
       faMinusCircle () {
         return faMinusCircle
+      },
+      faQuestionCircle () {
+        return faQuestionCircle
       }
     }
   }
@@ -160,26 +198,35 @@
     white-space: nowrap;
     padding: 0.5rem
   }
+
   .accordion-90 {
     width: 90%;
     margin: 0 auto
   }
+
   ul.conditionList {
     list-style-position: inside;
   }
+
   ul.conditionList li {
     cursor: pointer;
   }
+
   .fade-enter-active, .fade-leave-active {
     transition: opacity .5s;
   }
-  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+
+  .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+  {
     opacity: 0;
   }
+
   .conditionList-enter-active, .conditionList-leave-active {
     transition: opacity .5s;
   }
-  .conditionList-enter, .conditionList-leave-to /* .fade-leave-active below version 2.1.8 */ {
+
+  .conditionList-enter, .conditionList-leave-to /* .fade-leave-active below version 2.1.8 */
+  {
     opacity: 0;
   }
 </style>
