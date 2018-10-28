@@ -1,5 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <b-container fluid>
       <b-row rows="12">
         <b-col class="col" cols="1">
@@ -28,13 +29,15 @@
             </li>
           </b-card>
           <b-card v-if="this.$store.state.subDGE.geneNames.size > 0" class="genesBox" style="margin-top: 0.5rem">
-            Genes In Subset: <b>{{ this.$store.state.subDGE.length }}</b>
+            Genes In Subset: <b>{{ this.numberWithCommas(this.$store.state.subDGE.length) }}</b>
             <p></p>
             <button v-for="gene in Array.from(this.$store.state.subDGE.geneNames)" @click="removeGene(gene)"
                     type="button" class="btn btn-outline-dark btn-sm" style="margin: 0.1rem">{{ gene }}
             </button>
             <p></p>
-            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right">x Clear</button>
+            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right">
+              <font-awesome-icon :icon="faTrashAlt"></font-awesome-icon> Clear
+            </button>
           </b-card>
         </b-col>
       </b-row>
@@ -45,8 +48,14 @@
 <script>
   import {SET_SUBDGE} from '../../store/action_constants'
 
+  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faTrashAlt from '@fortawesome/fontawesome-free-solid/faTrashAlt'
+
   export default {
     name: 'DESeq2',
+    components: {
+      FontAwesomeIcon
+    },
     methods: {
       removeGene (item) {
         let geneList = []
@@ -59,6 +68,14 @@
       },
       clearSubset () {
         this.$store.dispatch(SET_SUBDGE, {geneList: []})
+      },
+      numberWithCommas (number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      }
+    },
+    computed: {
+      faTrashAlt () {
+        return faTrashAlt
       }
     }
   }
