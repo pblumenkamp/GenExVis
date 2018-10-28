@@ -112,7 +112,7 @@
         selectedCondition1: '',
         selectedCondition2: '',
         selectedNormalization: '',
-        useLogarithmicScale: false,
+        useLogarithmicScale: true,
         colorSignificantGenes: '#cc1926',
         log2FoldChange: '1',
         adjPValueThreshold: '0.01',
