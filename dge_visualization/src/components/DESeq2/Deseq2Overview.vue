@@ -1,5 +1,6 @@
 <template>
   <div style="width: 100%; height: 600px">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <div style="text-align: center">
       <h1>DESeq2 - Overview</h1>
     </div>
@@ -9,9 +10,9 @@
     <div>
       <table style="width: 100%; text-align: center">
         <tr>
-          <td style="width:20%;">
+          <td style="width:25%;">
             <div>Selected / Total</div>
-            <div style="font-size:3rem;">{{ rowAmount }} / <b>{{ rowCount }}</b></div>
+            <div style="font-size:2.5rem;">{{ rowAmount }} / <b>{{ rowCount }}</b></div>
           </td>
           <td>
             <div style="padding: 0.25rem;" class="btn-group btn-group-sm">
@@ -22,9 +23,15 @@
               <button type="button" class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
             </div>
           </td>
-          <td>
+          <td align="left">
             <div>
               <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
+            </div>
+            <div>
+              <b-form-checkbox v-model="roundedValues"
+                               @change="toggleRoundingChange">
+                Rounded Values
+              </b-form-checkbox>
             </div>
           </td>
         </tr>
@@ -49,7 +56,7 @@
                  :gridReady="onReady"
 
                  :columnMoved="positionchange"
-                 :columnVisible="visionchange"
+                 :columnVisible="true"
                  :columnGroupOpened="true"/>
     <div>
       <b-card class="currentlychosen">
@@ -62,12 +69,15 @@
 
 <script>
   import {SET_SUBDGE} from '../../store/action_constants'
-  import {AgGridVue} from 'ag-grid-vue'
   import {ADD_VISION, ADD_POSITION} from '../../store/mutation_constants'
+
+  import {AgGridVue} from 'ag-grid-vue'
+  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
 
   export default {
     data () {
       return {
+        roundedValues: true,
         gridOptions: null,
         columnDefs: null,
         rowData: null,
@@ -100,9 +110,14 @@
       }
     },
     components: {
-      'ag-grid-vue': AgGridVue
+      'ag-grid-vue': AgGridVue,
+      FontAwesomeIcon
     },
     methods: {
+      toggleRoundingChange () {
+        this.roundedValues = false
+        this.createRowData()
+      },
       setback () {
         this.$store.commit(ADD_POSITION, null)
         this.$store.commit(ADD_VISION, null)
@@ -114,12 +129,12 @@
         let positionarray = []
         let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
-        for (let i = 1; i < fileamount + 1; i++) {
+        for (let i = 0; i < fileamount + 1; i++) {
           let visiondict = {}
           let positiondict = {}
           for (let entry of basics) {
-            visiondict[entry + '_' + (i - 1)] = false
-            positiondict[entry + '_' + (i - 1)] = entry
+            visiondict[entry + '_' + (i - 0)] = false
+            positiondict[entry + '_' + (i - 0)] = entry
           }
           visionarray.push(visiondict)
           positionarray.push(positiondict)
@@ -149,17 +164,23 @@
         this.$store.commit(ADD_POSITION, positionarray)
       },
       visionchange () {
+        console.log('Something happend')
         let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
         let visionarray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
-        for (let i = 1; i < fileamount + 1; i++) {
+        console.log('columnGroups:')
+        console.log(columngroups)
+        console.log('fileamount: ' + fileamount)
+        for (let i = 0; i < fileamount + 1; i++) {
           let tempdict = {}
           let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
           let childrenarray = columngroups[i]['children']
+          console.log(childrenarray)
           // starting at 1 (0 = name column)
           for (let key in basictemplate) {
-            let fullkey = key + '_' + (i - 1)
+            let fullkey = key + '_' + (i)
+            console.log(fullkey)
             let bool = true
             for (let entry of childrenarray) {
               if (fullkey === entry.colDef['field']) {
@@ -209,7 +230,7 @@
           let dict = {}
           dict.name = gene.name
           let analysesList = gene.deseq2Analyses
-          let analysescounter = 0
+          let analysescounter = 1
           for (let analysis of analysesList) {
             for (let element in analysis) {
               let currentcell = analysis[element]
@@ -233,6 +254,7 @@
         let fileamount = filestore.length
         let positionarray = []
         let visionarray = []
+        console.log(positionarray, visionarray)
         if (this.$store.state.positionstore !== null) {
           positionarray = this.$store.state.positionstore
         } else {
@@ -249,54 +271,68 @@
             field: 'name',
             width: 150,
             hide: false,
-            pinned: true
+            pinned: false
           }
         ]
-        let counter = 0
-        for (let i = 0; i < fileamount; i++) {
+        let counter = 1
+        for (let i = 1; i < fileamount + 1; i++) {
           let childrenarray = []
-          let specposarray = positionarray[i]
-          let specvisarray = visionarray[i]
-          let headerName = filestore[i]
+          // let specposarray = positionarray[i]
+          // let specvisarray = visionarray[i]
+          let headerName = filestore[i - 1]
           let bool = true
-          if (counter > 0) {
+          if (fileamount > 1) {
             bool = false
             // fileamount > 1 => file entry semi-closed (first 2 open)
           }
           let datadict = {
             headerName: headerName,
             openByDefault: bool
+            // children added here (see below)
           }
+          console.log(bool)
           let colcounter = 0
-          for (let entry in specposarray) {
-            let simpleentry = specposarray[entry]
-            let nameentry = this.namedict[simpleentry]
+          // for (let entry in specposarray) {
+          //   console.log(entry)
+          //   let simpleentry = specposarray[entry]
+          //   let nameentry = this.namedict[simpleentry]
+          //   let entrydict = {}
+          //   let showstate = 'close'
+          //   if (colcounter > 1) { showstate = 'open' }
+          //   if (simpleentry === '_log2FoldChange') {
+          for (let entry in this.namedict) {
+            let nameentry = this.namedict[entry]
             let entrydict = {}
-            let showstate = 'close'
+            let showstate = null
+            let formattedValue = this.roundingFormatter
             if (colcounter > 1) { showstate = 'open' }
-            if (simpleentry === '_log2FoldChange') {
+            console.log(colcounter)
+            if (entry === '_log2FoldChange') {
               entrydict = {
                 headerName: nameentry,
-                field: entry,
+                field: entry + '_' + counter,
                 width: 150,
                 cellRenderer: this.percentCellRenderer,
                 filter: 'agNumberColumnFilter',
-                hide: specvisarray[entry],
+                // hide: specvisarray[entry],
                 columnGroupShow: showstate
               }
             } else {
               entrydict = {
                 headerName: nameentry,
-                field: entry,
+                field: entry + '_' + counter,
                 width: 150,
                 filter: 'agNumberColumnFilter',
-                hide: specvisarray[entry],
-                columnGroupShow: showstate
+                // hide: specvisarray[entry],
+                columnGroupShow: showstate,
+                valueFormatter: formattedValue
               }
             }
-            if (specvisarray[entry] === false) {
-              colcounter = colcounter + 1
-            }
+            console.log(showstate)
+            // if (specvisarray[entry] === false) {
+            //   colcounter = colcounter + 1
+            // }
+            colcounter = colcounter + 1
             childrenarray.push(entrydict)
           }
           datadict.children = childrenarray
@@ -304,6 +340,13 @@
           counter = counter + 1
         }
         this.columnDefs = columnDefs
+      },
+      roundingFormatter (number) {
+        if (this.roundedValues === true) {
+          return this.roundValue(number.value)
+        } else {
+          return null
+        }
       },
       pad (num, totalStringSize) {
         let asString = num + ''
@@ -333,8 +376,12 @@
         selectedRows.forEach(function (selectedRow) {
           selectedRowsString.push(selectedRow.name)
         })
-        this.rowAmount = selectedRowsString.length
+        let rowAmount = this.numberWithCommas(selectedRowsString.length)
+        this.rowAmount = rowAmount
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
+      },
+      numberWithCommas (number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
       },
       onQuickFilterChanged (event) {
         this.gridOptions.api.setQuickFilter(event.target.value)
@@ -399,7 +446,8 @@
         div2.style.height = 100 + '%'
         div2.align = 'center'
         // x!
-        div1.innerHTML = showvalue
+        div1.innerHTML = this.negotiateShowvalue(showvalue)
+        // div1.innerHTML = showvalue
         div2.append(table)
         let parent = document.createElement('div')
         parent.id = 'parent'
@@ -414,6 +462,16 @@
         if (value !== null) {
           return parent
         }
+      },
+      negotiateShowvalue (showvalue) {
+        if (this.roundedValues === true) {
+          return this.roundValue(showvalue)
+        } else {
+          return showvalue
+        }
+      },
+      roundValue (value) {
+        return Math.round(value * 100) / 100
       }
     },
     beforeMount () {
@@ -424,7 +482,11 @@
       this.gridOptions = {
         rowSelection: 'multiple',
         rowMultiSelectWithClick: true,
-        suppressPropertyNamesCheck: true
+        suppressPropertyNamesCheck: true,
+        icons: {
+          columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
+          columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
+        }
       }
     }
   }
