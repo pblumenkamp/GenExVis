@@ -27,7 +27,14 @@
       <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>
     </b-form-select>
 
-    <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType" align="center">
+    <b-form-select v-model="selectedNormalization" style="width: auto" @input="statusUpdate()">
+      <template slot="first">
+        <option :value="''" disabled>-- Please select a normalization method --</option>
+      </template>
+      <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
+    </b-form-select>
+
+    <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization !== ''" align="center">
 
       <p></p>
 
@@ -39,7 +46,7 @@
           <td>Ranking Size:</td>
         </tr>
         <tr>
-          <td>Exponential p-values:</td>
+          <td>Exponential p values:</td>
           <td><b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox></td>
           <td>
             <b-input-group>
@@ -62,8 +69,8 @@
           <tr v-for="(value, key, index) in this.FINALRANKING">
             <td style="width:5%"><div style="font-size:4rem"><b>{{ index+1 }}.</b></div></td>
             <td style="width:10%"><div style="font-size:1.75rem"><b> {{ key }}</b></div>
-              <div v-if="!isExponential">p-value: <p>{{ value }}</p></div>
-              <div v-else-if="isExponential">p-value: <p>{{ value.toExponential(2) }}</p></div></td>
+              <div v-if="!isExponential">p value: <p>{{ value }}</p></div>
+              <div v-else-if="isExponential">p value: <p>{{ value.toExponential(2) }}</p></div></td>
             <td style="width:85%"><div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
               <hr>
             </td>
@@ -94,6 +101,7 @@
         selectedCondition1: '',
         selectedCondition2: '',
         selectedDistributionType: 'p-value',
+        selectedNormalization: '',
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
         optionsDistributionType: ['p-value', 'adj. p-value'],
@@ -164,6 +172,7 @@
         this.drawData()
       },
       createRanking () {
+        console.log('I WAS FORCED 2 RANK!')
         let selectedDistributionType = this.selectedDistributionType
 
         let tempRankingDict = {}
@@ -184,6 +193,7 @@
           }
         }
         this.FINALRANKING = tempRankingDict
+        console.log(this.updateCheck)
       },
       statusUpdate () {
         this.updateCheck = true
@@ -278,9 +288,14 @@
       },
       createData (element, categories) {
         let dataList = []
-        // console.log(this.$store.state.currentDGE.getAllUnnormalizedCountDataByGene(element))
-        let geneCountData = this.$store.state.currentDGE.getAllUnnormalizedCountDataByGene(element)
-        // this.$store.state.currentDGE._getAllCountDataByGene(element, 'unnormalized')
+        let geneCountData = null
+        console.log(this.selectedNormalization)
+        if (this.selectedNormalization === 'deseq2') {
+          geneCountData = this.$store.state.currentDGE.getAllDeseq2CountDataByGene(element)
+        } else {
+          geneCountData = this.$store.state.currentDGE.getAllUnnormalizedCountDataByGene(element)
+        }
+
         for (let entry in geneCountData) {
           let index = categories.indexOf(entry)
           let entryList = geneCountData[entry]
@@ -318,6 +333,9 @@
       }
     },
     computed: {
+      registeredNormalizationMethods () {
+        return this.$store.state.currentDGE.normalizationMethods
+      },
       registeredConditions () {
         return this.$store.state.registeredConditions
       },
