@@ -77,7 +77,7 @@
   export default {
     data () {
       return {
-        roundedValues: false,
+        roundedValues: true,
         gridOptions: null,
         columnDefs: null,
         rowData: null,
