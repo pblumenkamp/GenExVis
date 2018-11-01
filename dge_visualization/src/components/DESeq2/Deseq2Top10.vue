@@ -172,7 +172,6 @@
         this.drawData()
       },
       createRanking () {
-        console.log('I WAS FORCED 2 RANK!')
         let selectedDistributionType = this.selectedDistributionType
 
         let tempRankingDict = {}
@@ -193,7 +192,6 @@
           }
         }
         this.FINALRANKING = tempRankingDict
-        console.log(this.updateCheck)
       },
       statusUpdate () {
         this.updateCheck = true
@@ -289,7 +287,6 @@
       createData (element, categories) {
         let dataList = []
         let geneCountData = null
-        console.log(this.selectedNormalization)
         if (this.selectedNormalization === 'deseq2') {
           geneCountData = this.$store.state.currentDGE.getAllDeseq2CountDataByGene(element)
         } else {
