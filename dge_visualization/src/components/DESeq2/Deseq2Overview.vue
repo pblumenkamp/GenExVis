@@ -306,29 +306,21 @@
             let showstate = null
             let formattedValue = this.roundingFormatter
             if (colcounter > 1) { showstate = 'open' }
-            console.log(colcounter)
-            if (entry === '_log2FoldChange') {
-              entrydict = {
-                headerName: nameentry,
-                field: entry + '_' + counter,
-                width: 150,
-                cellRenderer: this.percentCellRenderer,
-                filter: 'agNumberColumnFilter',
-                // hide: specvisarray[entry],
-                columnGroupShow: showstate
-              }
-            } else {
-              entrydict = {
-                headerName: nameentry,
-                field: entry + '_' + counter,
-                width: 150,
-                filter: 'agNumberColumnFilter',
-                // hide: specvisarray[entry],
-                columnGroupShow: showstate,
-                valueFormatter: formattedValue
-              }
+            entrydict = {
+              headerName: nameentry,
+              field: entry + '_' + counter,
+              width: 150,
+              filter: 'agNumberColumnFilter',
+              // hide: specvisarray[entry],
+              columnGroupShow: showstate,
+              valueFormatter: formattedValue,
+              cellStyle: {textAlign: 'right'}
             }
-            console.log(showstate)
+
+            if (entry === '_log2FoldChange') {
+              entrydict['cellRenderer'] = this.percentCellRenderer
+            }
+
             // if (specvisarray[entry] === false) {
             //   colcounter = colcounter + 1
             // }
@@ -343,11 +335,26 @@
       },
       roundingFormatter (number) {
         if (this.roundedValues === true) {
-          return this.roundValue(number.value)
+          if (number.colDef.headerName === 'p value' || number.colDef.headerName === 'p value (adjusted)') {
+            try {
+              return number.value.toExponential(2)
+            } catch (err) {
+              return null
+            }
+          } else {
+            return this.roundValue(number.value)
+          }
         } else {
           return null
         }
       },
+      // exponentialFormatter (number) {
+      //   if (this.roundedValues === true) {
+      //     return this.exponentialValue(number.value)
+      //   } else {
+      //     return null
+      //   }
+      // },
       pad (num, totalStringSize) {
         let asString = num + ''
         while (asString.length < totalStringSize) asString = '0' + asString
@@ -447,7 +454,7 @@
         div2.align = 'center'
         // x!
         div1.innerHTML = this.negotiateShowvalue(showvalue)
-        // div1.innerHTML = showvalue
+        div1.style.cssText = 'text-align:right'
         div2.append(table)
         let parent = document.createElement('div')
         parent.id = 'parent'
@@ -493,6 +500,9 @@
 </script>
 
 <style scoped>
+  rightAlign {
+    text-align: right;
+  }
   .currentlychosen {
     text-align: left;
     overflow-y: scroll;
