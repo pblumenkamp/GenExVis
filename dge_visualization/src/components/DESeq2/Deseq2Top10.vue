@@ -135,7 +135,6 @@
         this.drawData()
       },
       mountData () {
-        console.log('MOUNTING DATA')
         let mainDict = {}
         let pvalDict = {}
         let padjDict = {}
@@ -149,7 +148,6 @@
             let trueKey = this.optionsDict[currentKey]
             let value = analysis[trueKey]
             if (isNaN(value)) {
-              console.log('Found NaN value in: ' + trueKey)
               break
             }
             // // Dynamic Solution (+2 seconds calculation duration)
@@ -208,8 +206,6 @@
           this.reversedict = reverseDict
           this.rankingdict = rankingDict
         }
-        console.log('RANKING DICT')
-        console.log(rankingDict)
         this.createRanking()
       },
       createRanking () {
@@ -228,9 +224,7 @@
         }
         for (let counter = 0; counter < maxcount;) {
           let key = rankingArray[counter]
-          console.log(key)
           let keylist = reverseDict[key]
-          console.log(keylist)
           for (let value of keylist) {
             tempRankingDict[value] = key // for every value: 1 key list (=probably more than 1 key)
             counter++
@@ -409,8 +403,6 @@
       }
     },
     updated () {
-      console.log('UPDATE')
-      console.log(this.updateCheck)
       if (this.updateCheck === true) {
         this.drawData()
       }
