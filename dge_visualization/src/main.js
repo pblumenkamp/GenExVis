@@ -2,6 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VTooltip from 'v-tooltip'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -15,6 +16,7 @@ import store from '@/store/store'
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(Vuex)
+Vue.use(VTooltip)
 
 Vue.prototype.$name = 'DGE visualizer'
 Vue.prototype.$version = '0.2.0'
