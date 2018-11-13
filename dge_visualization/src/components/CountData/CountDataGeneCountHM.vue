@@ -123,7 +123,7 @@
         if (!this.selectedNormalization) {
           return
         }
-        conditionMapping = this.$store.state.currentDGE.seqRuns
+        conditionMapping = this.$store.state.currentDGE.seqRuns[this.selectedNormalization]
         let options = {
           chart: {
             type: 'heatmap',
@@ -210,7 +210,7 @@
         let seqRunNames = []
         let seqRunIndex = 0
         for (let cond of this.selectedConditions) {
-          for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.currentDGE.seqRuns)) {
+          for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.currentDGE.seqRuns[this.selectedNormalization])) {
             if (seqRunCond === cond) {
               seqRunNames.push(seqRun)
               seqRunNamesMap[seqRun] = seqRunIndex++

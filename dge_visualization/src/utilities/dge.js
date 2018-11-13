@@ -25,7 +25,7 @@ export class DGE {
     this._data = {}
     /**
      *
-     * @type {Object<string>} Map seqRun to condition {<seqRun>: <condition>}
+     * @type {Object<Object<string>>>} Map seqRun to condition {normalization: {<seqRun>: <condition>}}
      * @private
      */
     this._seqRunConditionMapping = {}
@@ -89,11 +89,14 @@ export class DGE {
 
   /**
    *
+   * @param normalization {string} Name of normalization method
    * @param seqRunMapping {Object<string>} Map seqRun to condition {<seqRun>: <condition>}
    */
-  setSeqRunMapping (seqRunMapping) {
-    this._seqRunConditionMapping = Object.assign(seqRunMapping)
-    Object.freeze(this._seqRunConditionMapping)
+  setSeqRunMapping (normalization, seqRunMapping) {
+    if (!this._seqRunConditionMapping.hasOwnProperty(normalization)) {
+      this._seqRunConditionMapping[normalization] = {}
+    }
+    this._seqRunConditionMapping[normalization] = Object.assign(this._seqRunConditionMapping[normalization], seqRunMapping)
   }
 
   /**

@@ -57,9 +57,7 @@ const store = new Vuex.Store({
       state.registeredConditions.push(conditionName)
     },
     [REMOVE_CONDITION] (state, conditionName) {
-      console.log(conditionName)
       let index = state.registeredConditions.indexOf(conditionName)
-      console.log(index)
       if (index > -1) {
         state.registeredConditions.splice(index, 1)
       }
@@ -71,8 +69,8 @@ const store = new Vuex.Store({
         state.dgeData.addDeseq2CountData(geneName, condition, values)
       }
     },
-    [ADD_SEQRUN_MAPPING] (state, {mapping}) {
-      state.dgeData.setSeqRunMapping(mapping)
+    [ADD_SEQRUN_MAPPING] (state, {normalization, mapping}) {
+      state.dgeData.setSeqRunMapping(normalization, mapping)
     },
     [ADD_SUBSET_DGE] (state, {subsetDGE}) {
       state.subDGE = subsetDGE
@@ -126,6 +124,7 @@ const store = new Vuex.Store({
     [STORE_COUNT_TABLE] ({commit, state}, {table, headerConditionMapping, geneColumn, normalization}) {
       return new Promise((resolve, reject) => {
         commit(ADD_SEQRUN_MAPPING, {
+          normalization: normalization,
           mapping: headerConditionMapping
         })
         for (let gene of table) {

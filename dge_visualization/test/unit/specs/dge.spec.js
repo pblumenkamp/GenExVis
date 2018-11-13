@@ -22,7 +22,7 @@ describe('Tests with empty DGE object', () => {
 
   test('set and get seqRunMapping', () => {
     let dge = new DGE()
-    dge.setSeqRunMapping({
+    dge.setSeqRunMapping('unnormalized', {
       'A': 'WT',
       'B': 'Mut',
       'C': 'WT',
@@ -32,12 +32,71 @@ describe('Tests with empty DGE object', () => {
     })
     expect(dge.seqRuns).toEqual(
       {
-        'A': 'WT',
-        'B': 'Mut',
-        'C': 'WT',
-        'D': 'WT',
-        'E': 'Mut',
-        'F': 'Mut'
+        'unnormalized': {
+          'A': 'WT',
+          'B': 'Mut',
+          'C': 'WT',
+          'D': 'WT',
+          'E': 'Mut',
+          'F': 'Mut'
+        }
+      }
+    )
+    dge.setSeqRunMapping('deseq2', {
+      'A': 'Mut',
+      'B': 'WT',
+      'C': 'Mut',
+      'D': 'Mut',
+      'E': 'WT',
+      'F': 'WT'
+    })
+    expect(dge.seqRuns).toEqual(
+      {
+        'unnormalized': {
+          'A': 'WT',
+          'B': 'Mut',
+          'C': 'WT',
+          'D': 'WT',
+          'E': 'Mut',
+          'F': 'Mut'
+        },
+        'deseq2': {
+          'A': 'Mut',
+          'B': 'WT',
+          'C': 'Mut',
+          'D': 'Mut',
+          'E': 'WT',
+          'F': 'WT'
+        }
+      }
+    )
+    dge.setSeqRunMapping('unnormalized', {
+      'A': 'Mut', // values can be overridden at the moment!
+      'G': 'WT',
+      'H': 'Mut',
+      'I': 'WT'
+    })
+    expect(dge.seqRuns).toEqual(
+      {
+        'unnormalized': {
+          'A': 'Mut',
+          'B': 'Mut',
+          'C': 'WT',
+          'D': 'WT',
+          'E': 'Mut',
+          'F': 'Mut',
+          'G': 'WT',
+          'H': 'Mut',
+          'I': 'WT'
+        },
+        'deseq2': {
+          'A': 'Mut',
+          'B': 'WT',
+          'C': 'Mut',
+          'D': 'Mut',
+          'E': 'WT',
+          'F': 'WT'
+        }
       }
     )
   })
