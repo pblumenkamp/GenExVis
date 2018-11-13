@@ -66,8 +66,8 @@
         items: [],  // [{<col_name>: <value>}, ...] each list entry one row
         importingFiles: false,
         importingDone: false,
+        disabledImportButton: false,
         missingGeneColumn: false,
-        uploadingFinished: false,
         normalization: ['Unnormalized', 'DESeq2'],
         selectedNormalization: 'unnormalized',
         headerConditionMapping: []      // [{header: <string>, condition: <string>}, ...]
@@ -81,29 +81,31 @@
       },
       loadFiles (event) {
         this.file = event.target.files[0]
+        this.disabledImportButton = false
+        this.importingDone = false
+        this.missingGeneColumn = false
         this.importCountTable()
       },
       importCountTable () {
         let vueData = this
-        this.uploadingFinished = true
-
+        vueData.headerConditionMapping = []
         this.readCountTable(vueData.file)
           .then(({table, colNames}) => {
             for (let colName of colNames) {
               if (colName.toLowerCase() === 'geneid') {
-                this.headerConditionMapping.push({
+                vueData.headerConditionMapping.push({
                   header: colName,
                   condition: '$$GENE_NAME$$'
                 })
               } else {
-                let regexcondition = this.suggestregex(colName)
+                let regexcondition = vueData.suggestregex(colName)
                 this.headerConditionMapping.push({
                   header: colName,
                   condition: regexcondition
                 })
               }
             }
-            this.items = table
+            vueData.items = table
           })
       },
       readCountTable (file) {
@@ -161,6 +163,7 @@
           this.missingGeneColumn = true
           return
         }
+        this.disabledImportButton = true
         this.importingFiles = true
         this.$store.commit(ADD_COUNT, filename)
         this.$store.dispatch(STORE_COUNT_TABLE, {
@@ -203,9 +206,6 @@
       },
       faTimesCircle () {
         return faTimesCircle
-      },
-      disabledImportButton () {
-        return this.$store.state.countlist.length !== 0
       }
     },
     watch: {
