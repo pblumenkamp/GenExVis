@@ -164,23 +164,17 @@
         this.$store.commit(ADD_POSITION, positionarray)
       },
       visionchange () {
-        console.log('Something happend')
         let filestore = this.$store.state.deseqlist
         let fileamount = filestore.length
         let visionarray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
-        console.log('columnGroups:')
-        console.log(columngroups)
-        console.log('fileamount: ' + fileamount)
         for (let i = 0; i < fileamount + 1; i++) {
           let tempdict = {}
           let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
           let childrenarray = columngroups[i]['children']
-          console.log(childrenarray)
           // starting at 1 (0 = name column)
           for (let key in basictemplate) {
             let fullkey = key + '_' + (i)
-            console.log(fullkey)
             let bool = true
             for (let entry of childrenarray) {
               if (fullkey === entry.colDef['field']) {
@@ -254,7 +248,6 @@
         let fileamount = filestore.length
         let positionarray = []
         let visionarray = []
-        console.log(positionarray, visionarray)
         if (this.$store.state.positionstore !== null) {
           positionarray = this.$store.state.positionstore
         } else {
@@ -290,10 +283,8 @@
             openByDefault: bool
             // children added here (see below)
           }
-          console.log(bool)
           let colcounter = 0
           // for (let entry in specposarray) {
-          //   console.log(entry)
           //   let simpleentry = specposarray[entry]
           //   let nameentry = this.namedict[simpleentry]
           //   let entrydict = {}
@@ -370,11 +361,9 @@
         }
       },
       onModelUpdated () {
-        // console.log('onModelUpdated')
         this.calculateRowCount()
       },
       onReady () {
-        // console.log('onReady')
         this.calculateRowCount()
       },
       onSelectionChanged () {

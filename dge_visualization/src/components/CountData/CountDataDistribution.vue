@@ -224,11 +224,9 @@
       },
       resetSettings () {
         let data = this.countDataForCondition
-        console.log(data)
 
         this.xAxisMinValue = 0
         let max = Math.max(...data)
-        console.log(max)
         this.xAxisMaxValue = (Math.floor(max / Math.pow(10, Math.floor(Math.log10(max)))) + 1) * Math.pow(10, Math.floor(Math.log10(max)))
         this.xAxisStepsize = 1000
 
