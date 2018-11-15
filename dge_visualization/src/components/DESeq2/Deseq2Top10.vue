@@ -20,30 +20,21 @@
       </option>
     </b-form-select>
 
-    <b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="mountData(), statusUpdate()">
-      <template slot="first">
-        <option :value="''" disabled>-- Please select distribution type --</option>
-      </template>
-      <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>
-    </b-form-select>
-
-    <b-form-select v-model="selectedNormalization" style="width: auto" @input="statusUpdate()">
+    <b-form-select v-model="selectedNormalization" style="margin-left: 2rem; width: auto" @input="statusUpdate()">
       <template slot="first">
         <option :value="''" disabled>-- Please select a normalization method --</option>
       </template>
       <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization" align="center">
-
-      <p></p>
-
+    <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization" align="center" style="margin-top: 2rem">
       <table id="mainControl" style="text-align: center">
         <tr>
           <td></td>
           <td></td>
           <td>Common Max Value:</td>
           <td>Ranking Size:</td>
+          <td>Used parameter:</td>
         </tr>
         <tr>
           <td>Exponential p values:</td>
@@ -55,28 +46,39 @@
             </b-input-group>
           </td>
           <td>
-            <b-form-select v-model="selectedAmount" style="width: 15rem" @input="createRanking(), statusUpdate()">
+            <b-form-select v-model="selectedAmount" style="width: 10rem" @input="createRanking(), statusUpdate()">
               <option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>
+            </b-form-select>
+          </td>
+          <td>
+            <b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="mountData(), statusUpdate()">
+              <template slot="first">
+                <option :value="''" disabled>-- Please select distribution type --</option>
+              </template>
+              <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>
             </b-form-select>
           </td>
         </tr>
       </table>
 
       <div v-if="selectedAmount" align="center">
-
-        <hr>
+        <hr style="margin-top: 2rem; margin-bottom: 2rem">
         <table id="mainRanking" style="text-align: left">
           <tr v-for="(value, key, index) in this.FINALRANKING">
-            <td style="width:5%"><div style="font-size:4rem"><b>{{ index+1 }}.</b></div></td>
-            <td style="width:10%"><div style="font-size:1.75rem"><b> {{ key }}</b></div>
+            <td style="width:5%">
+              <div style="font-size:4rem"><b>{{ index+1 }}.</b></div>
+            </td>
+            <td style="width:10%">
+              <div style="font-size:1.75rem"><b> {{ key }}</b></div>
               <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ value }}</p></div>
-              <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ value.toExponential(2) }}</p></div></td>
-            <td style="width:85%"><div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
-              <hr>
+              <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ value.toExponential(2) }}</p></div>
+            </td>
+            <td style="width:85%">
+              <div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
+              <hr style="margin-bottom: 2rem">
             </td>
           </tr>
         </table>
-
       </div>
     </div>
   </div>
@@ -104,8 +106,8 @@
         selectedNormalization: '',
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
-        optionsDistributionType: ['p-value', 'p-value (adjusted)', 'log2fold ascending', 'log2fold descending'],
-        optionsDict: {'p-value': 'pValue', 'p-value (adjusted)': 'pAdj', 'log2fold ascending': 'log2FoldChange', 'log2fold descending': 'log2FoldChange'},
+        optionsDistributionType: ['p-value', 'p-value (adjusted)', 'log2 fold change (ascending)', 'log2 fold change (descending)'],
+        optionsDict: {'p-value': 'pValue', 'p-value (adjusted)': 'pAdj', 'log2 fold change (ascending)': 'log2FoldChange', 'log2 fold change (descending)': 'log2FoldChange'},
         yAxisMax: 0,
         datadict: {},
         reversedict: {},
