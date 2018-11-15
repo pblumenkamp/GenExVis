@@ -37,7 +37,7 @@
           <td>Used parameter:</td>
         </tr>
         <tr>
-          <td>Exponential p values:</td>
+          <td>Rounded values:</td>
           <td><b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox></td>
           <td>
             <b-input-group>
@@ -71,7 +71,7 @@
             <td style="width:10%">
               <div style="font-size:1.75rem"><b> {{ key }}</b></div>
               <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ value }}</p></div>
-              <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ value.toExponential(2) }}</p></div>
+              <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ (nameNegotiator() === 'log2 fold change') ? Math.round(value * 100) / 100 : value.toExponential(2) }}</p></div>
             </td>
             <td style="width:85%">
               <div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
@@ -124,7 +124,7 @@
         }
       },
       nameNegotiator () {
-        if (this.selectedDistributionType === 'log2fold ascending' || this.selectedDistributionType === 'log2fold descending') {
+        if (this.selectedDistributionType === 'log2 fold change (ascending)' || this.selectedDistributionType === 'log2 fold change (descending)') {
           return ('log2 fold change')
         } else {
           return (this.selectedDistributionType)
@@ -160,11 +160,9 @@
             // Non-dynamic solution
             if (trueKey === 'pValue') {
               pvalDict[geneName] = value
-            }
-            if (trueKey === 'pAdj') {
+            } else if (trueKey === 'pAdj') {
               padjDict[geneName] = value
-            }
-            if (trueKey === 'log2FoldChange') {
+            } else if (trueKey === 'log2FoldChange') {
               log2Dict[geneName] = value
             }
           }
@@ -199,7 +197,7 @@
             }
           }
           reverseDict[currentKey] = tempDict
-          if (currentKey === 'log2fold ascending') {
+          if (currentKey === 'log2 fold change (ascending)') {
             rankingDict[currentKey] = tempArray.sort().reverse()
           } else {
             rankingDict[currentKey] = tempArray.sort()
