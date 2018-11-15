@@ -363,6 +363,11 @@
         }
         geneNames.sort()
         this.$store.dispatch(SET_SUBDGE, {geneList: geneNames})
+      },
+      clearChart () {
+        this.selectedCondition1 = ''
+        this.selectedCondition2 = ''
+        this.selectedNormalization = ''
       }
     },
     computed: {
