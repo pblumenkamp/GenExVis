@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_VISION, ADD_POSITION, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -21,8 +21,7 @@ const store = new Vuex.Store({
     deseqlist: [],
     countlist: [],
     genelist: [],
-    visionstore: null,
-    positionstore: null
+    strucStore: null
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
@@ -47,11 +46,8 @@ const store = new Vuex.Store({
         index = index + 1
       }
     },
-    [ADD_VISION] (state, tableinfos) {
-      state.visionstore = tableinfos
-    },
-    [ADD_POSITION] (state, tableinfos) {
-      state.positionstore = tableinfos
+    [ADD_STRUC] (state, array) {
+      state.strucStore = array
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)
