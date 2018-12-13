@@ -2,7 +2,7 @@
   <div style="text-align: center">
 
     <h1>
-      Top {{ this.selectedAmount }} Genes ({{this.selectedDistributionType}})
+      Top {{ this.selectedAmount }} Genes
     </h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''" @input="statusUpdate()">
@@ -12,7 +12,7 @@
       <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="mountData(), statusUpdate()">
+    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="statusUpdate()">
       <template slot="first">
         <option :value="''" disabled>-- Please select the second condition --</option>
       </template>
@@ -26,59 +26,136 @@
       </template>
       <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
     </b-form-select>
-
+      <hr style="margin-top: 2rem; margin-bottom: 2rem">
     <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization" align="center" style="margin-top: 2rem">
-      <table id="mainControl" style="text-align: center">
-        <tr>
-          <td></td>
-          <td></td>
-          <td>Common Max Value:</td>
-          <td>Ranking Size:</td>
-          <td>Used parameter:</td>
-        </tr>
-        <tr>
-          <td>Rounded values:</td>
-          <td><b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox></td>
-          <td>
-            <b-input-group>
-              <b-form-input v-model="commonMaxValue" type="number"
-                            placeholder="Please type in number" @keydown.enter.native="commonMaxNegotiator()" style="width: auto"></b-form-input>
-            </b-input-group>
-          </td>
-          <td>
-            <b-form-select v-model="selectedAmount" style="width: 10rem" @input="createRanking(), statusUpdate()">
-              <option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>
-            </b-form-select>
-          </td>
-          <td>
-            <b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="mountData(), statusUpdate()">
-              <template slot="first">
-                <option :value="''" disabled>-- Please select distribution type --</option>
-              </template>
-              <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>
-            </b-form-select>
-          </td>
-        </tr>
-      </table>
+
+      <!--<table id="mainControl" class="floatedTable" style="max-width: 100px; text-align: center">-->
+        <!--<tr>-->
+          <!--<td></td>-->
+          <!--<td></td>-->
+          <!--<td>Common Max Value:</td>-->
+          <!--<td>Ranking Size:</td>-->
+          <!--<td>Used parameter:</td>-->
+        <!--</tr>-->
+        <!--<tr>-->
+          <!--<td>Rounded values:</td>-->
+          <!--<td><b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox></td>-->
+          <!--<td>-->
+            <!--<b-input-group>-->
+              <!--<b-form-input v-model="commonMaxValue" type="number"-->
+                            <!--placeholder="Please type in number" @keydown.enter.native="commonMaxNegotiator()" style="width: auto"></b-form-input>-->
+            <!--</b-input-group>-->
+          <!--</td>-->
+          <!--<td>-->
+            <!--<b-form-select v-model="selectedAmount" style="width: 10rem" @input="statusUpdate()">-->
+              <!--<option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>-->
+            <!--</b-form-select>-->
+          <!--</td>-->
+          <!--<td>-->
+            <!--<b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="statusUpdate()">-->
+              <!--<template slot="first">-->
+                <!--<option :value="''" disabled>&#45;&#45; Please select distribution type &#45;&#45;</option>-->
+              <!--</template>-->
+              <!--<option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>-->
+            <!--</b-form-select>-->
+          <!--</td>-->
+        <!--</tr>-->
+      <!--</table>-->
 
       <div v-if="selectedAmount" align="center">
-        <hr style="margin-top: 2rem; margin-bottom: 2rem">
-        <table id="mainRanking" style="text-align: left">
-          <tr v-for="(value, key, index) in this.FINALRANKING">
-            <td style="width:5%">
-              <div style="font-size:4rem"><b>{{ index+1 }}.</b></div>
+
+        <table class="orderTable" style="width: 100%">
+          <tr class="orderRow" style="width: 100%">
+            <td class="orderColumns" style="width: 25%; vertical-align: top" align="right">
+
+              <table class="mainControl" style="position: fixed" align="right">
+                <tr>
+                  <td><b>Use distribution type:</b></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                    <b-form-select v-model="selectedDistributionType" style="width: auto" @input="statusUpdate()">
+                      <template slot="first">
+                        <option :value="''" disabled>-- Please select distribution type --</option>
+                      </template>
+                      <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>
+                    </b-form-select>
+                    <hr>
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><b>Common max value:</b></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                    <b-input-group>
+                      <b-form-input v-model="commonMaxValue" style="width: 80%" type="number"
+                                    placeholder="Please type in number" @keydown.enter.native="setCommonMax()"></b-form-input>
+                    </b-input-group>
+                    <p id="highestValue" class="additionalInformation">(Highest recognized value: {{ this.highestValue }})</p>
+                    <hr>
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><b>Ranking size:</b></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td>
+                    Display the top
+                    <b-form-select v-model="selectedAmount" style="width: auto" @input="statusUpdate()">
+                      <option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>
+                    </b-form-select>
+                    genes
+                    <hr>
+                  </td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><b>Rounded values:</b><hr></td>
+                  <td>
+                    <b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox>
+                  </td>
+                </tr>
+                <tr>
+                  <td><b>Show plot title:</b><hr></td>
+                  <td>
+                    <b-form-checkbox style="float: left;" v-model="showPlotTitle" @input="statusUpdate"></b-form-checkbox>
+                  </td>
+                </tr>
+              </table>
+
             </td>
-            <td style="width:10%">
-              <div style="font-size:1.75rem"><b> {{ key }}</b></div>
-              <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ value }}</p></div>
-              <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ (nameNegotiator() === 'log2 fold change') ? Math.round(value * 100) / 100 : value.toExponential(2) }}</p></div>
-            </td>
-            <td style="width:85%">
-              <div :id="key" style="min-width: 310px; height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
-              <hr style="margin-bottom: 2rem">
+            <td class="orderColumns" style="width: 75%">
+
+              <b-card>
+                <table class="mainRanking" style="width: 100%; text-align: left">
+                  <tr v-for="(number, index) in this.selectedAmount">
+                    <td class="mainRankingColumns" style="width:5%">
+                      <div style="font-size:4rem"><b>{{ number }}.</b></div>
+                    </td>
+                    <td class="mainRankingColumns" style="width:10%">
+                      <div style="font-size:1.75rem"><b> {{ returnKey(index) }}</b></div>
+                      <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ returnValue(index) }}</p></div>
+                      <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ returnAlteredValue(returnValue(index)) }}</p></div>
+                      <div style="text-align: center"><button type="button" class="btn btn-dark btn" @click="addGene(returnKey(index))">+ add gene</button></div>
+                    </td>
+                    <td class="mainRankingColumns" style="width: 85%">
+                      <div :id="returnKey(index)" style="height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
+                      <hr style="margin-bottom: 2rem">
+                    </td>
+                  </tr>
+                </table>
+              </b-card>
+
             </td>
           </tr>
         </table>
+
       </div>
     </div>
   </div>
@@ -99,6 +176,7 @@
       return {
         updateCheck: true,
         isExponential: true,
+        showPlotTitle: false,
         commonMaxValue: null,
         selectedCondition1: '',
         selectedCondition2: '',
@@ -106,147 +184,145 @@
         selectedNormalization: '',
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
+        entryData: null,
+        entryKeys: null,
+        entryValues: null,
         optionsDistributionType: ['p-value', 'p-value (adjusted)', 'log2 fold change (ascending)', 'log2 fold change (descending)'],
-        optionsDict: {'p-value': 'pValue', 'p-value (adjusted)': 'pAdj', 'log2 fold change (ascending)': 'log2FoldChange', 'log2 fold change (descending)': 'log2FoldChange'},
-        yAxisMax: 0,
+        optionsDict: {'p-value': 'pValue',
+                      'p-value (adjusted)': 'pAdj',
+                      'log2 fold change (ascending)': 'log2FoldChange',
+                      'log2 fold change (descending)': 'log2FoldChange_reverse'},
+        highestValue: 0,
         datadict: {},
         reversedict: {},
         rankingdict: {},
-        FINALRANKING: {}
+        FINALRANKING: {},
+        FINALSTORAGE: {}
       }
     },
     methods: {
+      mountData () {
+        let mainStorage = {}
+        let condArray = this.$store.state.currentDGE.conditionPairs
+        for (let condPair of condArray) {
+          let cond1 = condPair['condition1']
+          let cond2 = condPair['condition2']
+          let dictName = condPair['_condition1'] + condPair['_condition2']
+          let condDict = this.collectAnalysisData(cond1, cond2)
+          mainStorage[dictName] = condDict
+        }
+        this.FINALSTORAGE = mainStorage
+      },
+      collectAnalysisData (cond1, cond2) {
+        let distributionDictionary = {'pValue': false, 'pAdj': false, 'log2FoldChange': true}
+        // distributionDictionary = {'OPTION':'ALSO REVERSED - T/F?'}
+        let mainStorage = {}
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2)
+
+        for (let key in distributionDictionary) {
+          let valueDict = {}
+          let valueList = []
+          for (let geneName of dge.geneNames) {
+            let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key]
+            if (isNaN(value)) {
+              console.log('Found NaN value in: ' + value)
+            } else {
+              valueDict = this.insertAnalysisData(valueDict, geneName, value)
+              valueList.push(value)
+            }
+          }
+
+          valueList.sort()
+          mainStorage[key] = this.creatingRankingDict(valueDict, valueList)
+          if (distributionDictionary[key] === true) {
+            valueList.sort().reverse()
+            mainStorage[key + '_reverse'] = this.creatingRankingDict(valueDict, valueList)
+          }
+        }
+        return (mainStorage)
+      },
+      insertAnalysisData (dict, geneName, value) {
+        let optionDict = dict
+        let key = geneName
+        if (optionDict[value] === undefined) {
+          optionDict[value] = [key] // if no key for a value: Open new key-list (key always in a list (for multiple entries))
+        } else {
+          optionDict[value].push(key) // if key-list existing: Add current key.
+        }
+        return (optionDict)
+      },
+      creatingRankingDict (valueDict, valueList) {
+        // valueList must be sorted
+        let tempDict = {}
+        let maxcount = 50
+        let indexcount = 0
+        let previousValue = null
+
+        for (let counter = 0; counter < maxcount;) {
+          let value = valueList[counter]
+          if (value === previousValue) {
+            indexcount++
+          } else {
+            indexcount = 0
+          }
+          let key = valueDict[value][indexcount]
+          tempDict[key] = value
+          previousValue = value
+          counter++
+        }
+        return (tempDict)
+      },
+
+      // Update-Block
       statusUpdate () {
         if (this.selectedCondition1 !== '' && this.selectedCondition2 !== '' && this.selectedNormalization !== '') {
           this.updateCheck = true
+          this.createGlobalEntryData()
         } else {
           this.updateCheck = false
         }
       },
-      nameNegotiator () {
-        if (this.selectedDistributionType === 'log2 fold change (ascending)' || this.selectedDistributionType === 'log2 fold change (descending)') {
-          return ('log2 fold change')
-        } else {
-          return (this.selectedDistributionType)
-        }
-      },
-      commonMaxNegotiator () {
-        if (this.commonMaxValue === '' || this.commonMaxValue === '0') {
-          this.commonMaxValue = null
-        }
-        this.drawData()
-      },
-      mountData () {
-        let mainDict = {}
-        let pvalDict = {}
-        let padjDict = {}
-        let log2Dict = {}
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
-
-        for (let geneName of dge.geneNames) {
-          let gene = dge.getGene(geneName)
-          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          for (let currentKey in this.optionsDict) {
-            let trueKey = this.optionsDict[currentKey]
-            let value = analysis[trueKey]
-            if (isNaN(value)) {
-              break
-            }
-            // // Dynamic Solution (+2 seconds calculation duration)
-            // let tempDict = {}
-            // tempDict[geneName] = value
-            // mainDict[trueKey] = Object.assign({}, mainDict[trueKey], tempDict);
-
-            // Non-dynamic solution
-            if (trueKey === 'pValue') {
-              pvalDict[geneName] = value
-            } else if (trueKey === 'pAdj') {
-              padjDict[geneName] = value
-            } else if (trueKey === 'log2FoldChange') {
-              log2Dict[geneName] = value
-            }
-          }
-        }
-        // *for non-dynamic solution*
-        mainDict['pValue'] = pvalDict
-        mainDict['pAdj'] = padjDict
-        mainDict['log2FoldChange'] = log2Dict
-        // mainDict['p-value'] = pvalDict
-        // mainDict['p-value (adjusted)'] = padjDict
-        // mainDict['log2fold descending'] = log2Dict
-        this.datadict = mainDict
-        this.fillLists()
-      },
-      fillLists () {
-        let dataDict = this.datadict
-        let optionsDict = this.optionsDict
-        let reverseDict = {}
-        let rankingDict = {}
-        for (let currentKey in optionsDict) {
-          let tempDict = {}
-          let tempArray = []
-          let trueKey = this.optionsDict[currentKey]
-          let trueData = dataDict[trueKey]
-          for (let key in trueData) {
-            let value = trueData[key]
-            tempArray.push(value) // save values in list (for sorting later)
-            if (tempDict[value] === undefined) {
-              tempDict[value] = [key] // if no key for a value: Open new key-list (key always in a list (for multiple entries))
-            } else {
-              tempDict[value].push(key) // if key-list existing: Add current key.
-            }
-          }
-          reverseDict[currentKey] = tempDict
-          if (currentKey === 'log2 fold change (ascending)') {
-            rankingDict[currentKey] = tempArray.sort().reverse()
-          } else {
-            rankingDict[currentKey] = tempArray.sort()
-          }
-
-          this.reversedict = reverseDict
-          this.rankingdict = rankingDict
-        }
-        this.createRanking()
-      },
-      createRanking () {
-        let selectedDistributionType = this.selectedDistributionType
-
-        let tempRankingDict = {}
-        // let trueValue = this.optionsDict[selectedDistributionType]
-        // let rankingArray = this.rankingdict[trueValue]
-        // let reverseDict = this.reversedict[trueValue]
-        let rankingArray = this.rankingdict[selectedDistributionType]
-        let reverseDict = this.reversedict[selectedDistributionType]
-        let maxcount = this.selectedAmount
-
-        if (maxcount > rankingArray.length) {
-          maxcount = rankingArray.length
-        }
-        for (let counter = 0; counter < maxcount;) {
-          let key = rankingArray[counter]
-          let keylist = reverseDict[key]
-          for (let value of keylist) {
-            tempRankingDict[value] = key // for every value: 1 key list (=probably more than 1 key)
-            counter++
-          }
-        }
-        this.FINALRANKING = tempRankingDict
+      createGlobalEntryData () {
+        let data = this.FINALSTORAGE[this.selectedCondition1 + this.selectedCondition2][this.optionsDict[this.selectedDistributionType]]
+        this.entryData = data
       },
       drawData () {
         this.updateCheck = false
         let categories = this.registeredConditions
+        let plotTitle = ''
+        let plotSubtitle = ''
         let counter = 0
-        for (let element in this.FINALRANKING) {
+        let highestValue = 0
+        for (let element in this.entryData) {
+          // this.entryData = 50 elements. Check if selected amount is probably lower (default is 10)
           if (counter === (this.selectedAmount)) {
             break
           }
+
+          if (this.showPlotTitle === true) {
+            let showCounter = counter + 1
+            let currentDistribution = this.nameNegotiator()
+            let currentValue = this.entryData[element]
+            let currentAlteredValue = this.returnAlteredValue(currentValue)
+            plotTitle = element
+
+            if (this.isExponential === true) {
+              plotSubtitle =  currentDistribution + ': ' + currentAlteredValue + ', ' + showCounter + '. rank'
+            } else {
+              plotSubtitle =  currentDistribution + ': ' + currentValue + ', ' + showCounter + '. rank'
+            }
+          }
+
           let options = {
             chart: {
               type: 'scatter',
               zoomType: 'xy'
             },
             title: {
-              text: ''
+              text: plotTitle
+            },
+            subtitle: {
+              text: plotSubtitle
             },
             xAxis: {
               categories: categories,
@@ -307,10 +383,11 @@
             series: [{
               name: 'READS',
               color: 'rgba(223, 83, 83, .5)',
-              data: [[0, 161.2], [1, 190.4], [2, 177.1], [3, 165.6], [4, 190.0], [5, 188.2]]
             }]
           }
-          let data = this.createData(element, categories)
+          let dataAndValueList = this.createData(element, categories, highestValue)
+          let data = dataAndValueList[0]
+          highestValue = dataAndValueList[1]
           if (data.length === 0) {
             // pass
           } else {
@@ -319,8 +396,34 @@
             Highcharts.chart(element, options)
           }
         }
+        this.highestValue = highestValue
       },
-      createData (element, categories) {
+      nameNegotiator () {
+        let nameDict = {'p-value': 'p-value', 'p-value (adjusted)': 'adjusted p-value', 'log2 fold change (ascending)': 'log2 fold change', 'log2 fold change (descending)': 'log2 fold change'}
+        return(nameDict[this.selectedDistributionType])
+      },
+      // Return block
+      returnKey (index) {
+        let data = this.entryData
+        let object = Object.keys(data)
+        return (object[index])
+      },
+      returnValue (index) {
+        let data = this.entryData
+        let object = Object.values(data)
+        return (object[index])
+      },
+      returnAlteredValue (value) {
+        if (this.nameNegotiator() === 'log2 fold change') {
+          value = Math.round(value * 100) / 100
+          return (value)
+        } else {
+          value = value.toExponential(2)
+          return (value)
+        }
+      },
+      // END Return block
+      createData (element, categories, highestValue) {
         let dataList = []
         let geneCountData = null
         if (this.selectedNormalization === 'deseq2') {
@@ -334,41 +437,37 @@
           let entryList = geneCountData[entry]
           for (let subentry in entryList) {
             let pointDict = {}
+            let value = entryList[subentry]
             pointDict['x'] = index
-            pointDict['y'] = entryList[subentry]
+            pointDict['y'] = value
             pointDict['cond'] = entry
             pointDict['file'] = subentry
             dataList.push(pointDict)
+
+            // if (value > highestValue) {
+            //   highestValue = value
+            // }
           }
         }
-        return (dataList)
+        return ([dataList, highestValue])
       },
-      collectData () {
-        this.tableData = []
-        let storage = this.$store.state.currentDGE
-        for (let geneName of this.rowNames) {
-          let tableRow = {}
-          let deseq2Analysis = storage.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          for (let colName of this.tableHeader) {
-            tableRow[colName] = deseq2Analysis[colName]
+      setCommonMax () {
+        if (this.commonMaxValue === '' || this.commonMaxValue === '0') {
+          this.commonMaxValue = null
+        }
+        this.drawData()
+      },
+      addGene (key) {
+        let geneList = [key]
+        let currentSubDGE = this.$store.state.subDGE.geneNames
+        for (let entry of currentSubDGE) {
+          if (entry !== key) {
+            geneList.push(entry)
           }
-          tableRow.name = geneName
-          this.tableData.push(tableRow)
         }
+        geneList.sort()
+        this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
-      createSubset () {
-        let geneNames = []
-        for (let geneName of this.rowNames) {
-          geneNames.push(geneName)
-        }
-        geneNames.sort()
-        this.$store.dispatch(SET_SUBDGE, {geneList: geneNames})
-      },
-      clearChart () {
-        this.selectedCondition1 = ''
-        this.selectedCondition2 = ''
-        this.selectedNormalization = ''
-      }
     },
     computed: {
       registeredNormalizationMethods () {
@@ -402,10 +501,8 @@
         return this.$store.state.currentDGE
       }
     },
-    watch: {
-      dge: function (newDGE, oldDGE) {
-        this.clearChart()
-      }
+    beforeMount () {
+      this.mountData()
     },
     updated () {
       if (this.updateCheck === true) {
@@ -416,12 +513,30 @@
 </script>
 <style scoped>
   tr, th, td {
-    border: 0px solid lightgrey;
+    /*border: 1px solid green;*/
     border-collapse: collapse;
     padding-left: 0.4rem;
     vertical-align: center;
   }
   th {
     background-color: #F6F8F7;
+  }
+  .additionalInformation {
+    color: lightslategrey;
+  }
+  @media(max-width: 1500px) {
+    .orderColumns {
+      display: table-row;
+    }
+    td {
+      width: 100%;
+    }
+    .mainControl {
+      display: contents;
+    }
+    .mainRankingColumns {
+      display: inline-block;
+      min-width: 10rem;
+    }
   }
 </style>
