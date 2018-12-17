@@ -27,6 +27,8 @@
       <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
     </b-form-select>
       <hr style="margin-top: 2rem; margin-bottom: 2rem">
+
+
     <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization" align="center" style="margin-top: 2rem">
 
       <!--<table id="mainControl" class="floatedTable" style="max-width: 100px; text-align: center">-->
@@ -95,7 +97,7 @@
                       <b-form-input v-model="commonMaxValue" style="width: 80%" type="number"
                                     placeholder="Please type in number" @keydown.enter.native="setCommonMax()"></b-form-input>
                     </b-input-group>
-                    <p id="highestValue" class="additionalInformation">(Highest recognized value: {{ this.highestValue }})</p>
+                    <i id="highestValue" class="additionalInformation">Highest present value: {{ this.highestValue[0] }}</i>
                     <hr>
                   </td>
                   <td></td>
@@ -185,18 +187,12 @@
         selectedAmount: 10,
         optionsAmount: [5, 10, 20, 50],
         entryData: null,
-        entryKeys: null,
-        entryValues: null,
         optionsDistributionType: ['p-value', 'p-value (adjusted)', 'log2 fold change (ascending)', 'log2 fold change (descending)'],
         optionsDict: {'p-value': 'pValue',
                       'p-value (adjusted)': 'pAdj',
                       'log2 fold change (ascending)': 'log2FoldChange',
                       'log2 fold change (descending)': 'log2FoldChange_reverse'},
-        highestValue: 0,
-        datadict: {},
-        reversedict: {},
-        rankingdict: {},
-        FINALRANKING: {},
+        highestValue: [],
         FINALSTORAGE: {}
       }
     },
@@ -273,7 +269,6 @@
         return (tempDict)
       },
 
-      // Update-Block
       statusUpdate () {
         if (this.selectedCondition1 !== '' && this.selectedCondition2 !== '' && this.selectedNormalization !== '') {
           this.updateCheck = true
@@ -283,6 +278,7 @@
         }
       },
       createGlobalEntryData () {
+        this.highestValue = []
         let data = this.FINALSTORAGE[this.selectedCondition1 + this.selectedCondition2][this.optionsDict[this.selectedDistributionType]]
         this.entryData = data
       },
@@ -292,7 +288,6 @@
         let plotTitle = ''
         let plotSubtitle = ''
         let counter = 0
-        let highestValue = 0
         for (let element in this.entryData) {
           // this.entryData = 50 elements. Check if selected amount is probably lower (default is 10)
           if (counter === (this.selectedAmount)) {
@@ -385,9 +380,14 @@
               color: 'rgba(223, 83, 83, .5)',
             }]
           }
-          let dataAndValueList = this.createData(element, categories, highestValue)
-          let data = dataAndValueList[0]
-          highestValue = dataAndValueList[1]
+          let dataList = this.createData(element, categories)
+
+          this.highestValue.sort(function(a, b) {
+              return b - a
+            }
+          )
+
+          let data = dataList
           if (data.length === 0) {
             // pass
           } else {
@@ -396,7 +396,6 @@
             Highcharts.chart(element, options)
           }
         }
-        this.highestValue = highestValue
       },
       nameNegotiator () {
         let nameDict = {'p-value': 'p-value', 'p-value (adjusted)': 'adjusted p-value', 'log2 fold change (ascending)': 'log2 fold change', 'log2 fold change (descending)': 'log2 fold change'}
@@ -423,7 +422,7 @@
         }
       },
       // END Return block
-      createData (element, categories, highestValue) {
+      createData (element, categories) {
         let dataList = []
         let geneCountData = null
         if (this.selectedNormalization === 'deseq2') {
@@ -437,19 +436,17 @@
           let entryList = geneCountData[entry]
           for (let subentry in entryList) {
             let pointDict = {}
-            let value = entryList[subentry]
+            let value = parseInt(entryList[subentry])
             pointDict['x'] = index
             pointDict['y'] = value
             pointDict['cond'] = entry
             pointDict['file'] = subentry
             dataList.push(pointDict)
 
-            // if (value > highestValue) {
-            //   highestValue = value
-            // }
+            this.highestValue.push(value)
           }
         }
-        return ([dataList, highestValue])
+        return (dataList)
       },
       setCommonMax () {
         if (this.commonMaxValue === '' || this.commonMaxValue === '0') {
@@ -503,6 +500,7 @@
     },
     beforeMount () {
       this.mountData()
+      console.log(this.FINALSTORAGE)
     },
     updated () {
       if (this.updateCheck === true) {
@@ -511,6 +509,7 @@
     }
   }
 </script>
+
 <style scoped>
   tr, th, td {
     /*border: 1px solid green;*/
