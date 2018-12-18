@@ -210,8 +210,8 @@
         this.FINALSTORAGE = mainStorage
       },
       collectAnalysisData (cond1, cond2) {
-        let distributionDictionary = {'pValue': false, 'pAdj': false, 'log2FoldChange': true}
-        // distributionDictionary = {'OPTION':'ALSO REVERSED - T/F?'}
+        let distributionDictionary = {'pValue': [true, false], 'pAdj': [true, false], 'log2FoldChange': [false, true]}
+        // distributionDictionary = {'OPTION': ['inversion, invert ranking?', 'reversion, provide reversion?']}
         let mainStorage = {}
         let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2)
 
@@ -228,11 +228,27 @@
             }
           }
 
-          valueList.sort()
-          mainStorage[key] = this.creatingRankingDict(valueDict, valueList)
-          if (distributionDictionary[key] === true) {
-            valueList.sort().reverse()
-            mainStorage[key + '_reverse'] = this.creatingRankingDict(valueDict, valueList)
+          let inversion = distributionDictionary[key][0]
+          let reversion = distributionDictionary[key][1]
+          let mainList = null
+          let reverseList = null
+
+          console.log(inversion, reversion)
+
+          mainList = valueList.sort(function(a, b) {return b - a})
+          reverseList = valueList.sort(function(a, b) {return b - a})
+
+          if (inversion === false) {
+            reverseList.reverse()
+          } else {
+            mainList.reverse()
+          }
+          if (reversion === false) {
+            mainStorage[key] = this.createRankingDict(valueDict, mainList)
+          } else {
+            console.log('HERE!!!!!!')
+            mainStorage[key] = this.createRankingDict(valueDict, mainList)
+            mainStorage[key + '_reverse'] = this.createRankingDict(valueDict, reverseList.reverse())
           }
         }
         return (mainStorage)
@@ -247,8 +263,12 @@
         }
         return (optionDict)
       },
-      creatingRankingDict (valueDict, valueList) {
-        // valueList must be sorted
+      createRankingDict (valueDict, valueList) {
+        for (let counter = 0; counter < 5;) {
+          console.log(valueList[counter])
+          counter++
+        }
+          // valueList must be sorted
         let tempDict = {}
         let maxcount = 50
         let indexcount = 0
@@ -512,7 +532,7 @@
 
 <style scoped>
   tr, th, td {
-    /*border: 1px solid green;*/
+    border: 1px solid green;
     border-collapse: collapse;
     padding-left: 0.4rem;
     vertical-align: center;
@@ -523,7 +543,7 @@
   .additionalInformation {
     color: lightslategrey;
   }
-  @media(max-width: 1500px) {
+  @media(max-width: 1700px) {
     .orderColumns {
       display: table-row;
     }
