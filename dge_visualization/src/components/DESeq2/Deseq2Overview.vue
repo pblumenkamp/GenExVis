@@ -16,10 +16,10 @@
           </td>
           <td>
             <div style="padding: 0.25rem;" class="btn-group btn-group-sm">
-              <button type="button" class="btn btn-default" @click="setback()">Reset Table</button>
+              <button type="button" class="btn btn-default" @click="toggleTableReset()">Reset Table</button>
               <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
               <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-              <button type="button" class="btn btn-primary" @click="fillthebasket()">Create A Subset</button>
+              <button type="button" class="btn btn-primary" @click="toggleSubsetCreation()">Create A Subset</button>
               <button type="button" class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
             </div>
           </td>
@@ -53,11 +53,7 @@
 
                  :modelUpdated="onModelUpdated"
                  :selectionChanged="onSelectionChanged"
-                 :gridReady="onReady"
-
-                 :columnMoved="positionchange"
-                 :columnVisible="true"
-                 :columnGroupOpened="true"/>
+                 :gridReady="onReady"/>
     <div>
       <b-card class="currentlychosen">
         Currently chosen:
@@ -68,8 +64,8 @@
 </template>
 
 <script>
+  import {ADD_STRUC} from '../../store/mutation_constants'
   import {SET_SUBDGE} from '../../store/action_constants'
-  import {ADD_VISION, ADD_POSITION} from '../../store/mutation_constants'
 
   import {AgGridVue} from 'ag-grid-vue'
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
@@ -85,11 +81,10 @@
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
-        // columnGroupOpened: true,
         rowCount: null,
         rowAmount: 0,
         setRowHeight: 500,
-        namedict: {
+        nameDict: {
           '_log2FoldChange': 'log2 fold change',
           '_pAdj': 'p value (adjusted)',
           '_baseMean': 'base mean',
@@ -97,16 +92,7 @@
           '_pValue': 'p value',
           '_stat': 'stat'
         },
-        tagdict: {
-          'log2 fold change': '_log2FoldChange',
-          'p value (adjusted)': '_pAdj',
-          'base mean': '_baseMean',
-          'lfcSE': '_lfcSE',
-          'p value': '_pValue',
-          'stat': '_stat'
-        },
-        visiondict: [],
-        positiondict: []
+        strucStorage: null
       }
     },
     components: {
@@ -114,88 +100,6 @@
       FontAwesomeIcon
     },
     methods: {
-      toggleRoundingChange () {
-        this.roundedValues = false
-        this.createRowData()
-      },
-      setback () {
-        this.$store.commit(ADD_POSITION, null)
-        this.$store.commit(ADD_VISION, null)
-        this.createColumnDefs()
-      },
-      createstoredict () {
-        let basics = ['_log2FoldChange', '_pAdj', '_baseMean', '_lfcSE', '_pValue', '_stat']
-        let visionarray = []
-        let positionarray = []
-        let filestore = this.$store.state.deseqlist
-        let fileamount = filestore.length
-        for (let i = 0; i < fileamount + 1; i++) {
-          let visiondict = {}
-          let positiondict = {}
-          for (let entry of basics) {
-            visiondict[entry + '_' + (i - 0)] = false
-            positiondict[entry + '_' + (i - 0)] = entry
-          }
-          visionarray.push(visiondict)
-          positionarray.push(positiondict)
-        }
-        this.visiondict = visionarray
-        this.positiondict = positionarray
-      },
-      positionchange () {
-        let tempdict = {}
-        let positionarray = []
-        let columns = this.gridOptions.columnApi.getAllGridColumns()
-        let counter = 0
-        for (let col of columns) {
-          let colname = col.colDef.headerName
-          let colfield = col.colDef.field
-          let tag = this.tagdict[colname]
-          if (colname !== 'Name') {
-            tempdict[colfield] = tag
-            counter = counter + 1
-          }
-          if (counter === 6) {
-            positionarray.push(tempdict)
-            tempdict = {}
-            counter = 0
-          }
-        }
-        this.$store.commit(ADD_POSITION, positionarray)
-      },
-      visionchange () {
-        let filestore = this.$store.state.deseqlist
-        let fileamount = filestore.length
-        let visionarray = []
-        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
-        for (let i = 0; i < fileamount + 1; i++) {
-          let tempdict = {}
-          let basictemplate = {'_log2FoldChange': true, '_pAdj': true, '_baseMean': true, '_lfcSE': true, '_pValue': true, '_stat': true}
-          let childrenarray = columngroups[i]['children']
-          // starting at 1 (0 = name column)
-          for (let key in basictemplate) {
-            let fullkey = key + '_' + (i)
-            let bool = true
-            for (let entry of childrenarray) {
-              if (fullkey === entry.colDef['field']) {
-                bool = false
-              }
-            }
-            tempdict[fullkey] = bool
-          }
-          visionarray.push(tempdict)
-        }
-        this.$store.commit(ADD_VISION, visionarray)
-        this.createColumnDefs()
-      },
-      fillthebasket () {
-        let temparray = []
-        let genestaken = this.gridOptions.api.getSelectedRows()
-        for (let element of genestaken) {
-          temparray.push(element.name)
-        }
-        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
-      },
       addGene () {
         let genesToAdd = this.gridOptions.api.getSelectedRows()
         let geneList = []
@@ -215,6 +119,32 @@
         }
         geneList.sort()
         this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
+      },
+      checkStorage () {
+        let mainStrucStore = this.$store.state.strucStore
+        if (mainStrucStore === null) {
+          this.createStrucStorage()
+        } else {
+          this.strucStorage = mainStrucStore
+          // createColumnDefs takes non-null strucStorage from previous visit
+        }
+      },
+      createStrucStorage () {
+        let fileStore = this.$store.state.deseqlist
+        let fileAmount = fileStore.length
+
+        let strucArray = []
+        strucArray.push([undefined, ['Name', 'name']])
+        for (let i = 1; i < fileAmount + 1; i++) {
+          let childArray = []
+          let headerName = fileStore[i - 1]
+          for (let entry in this.nameDict) {
+            let fieldArray = [this.nameDict[entry], entry + '_' + i]
+            childArray.push(fieldArray)
+          }
+          strucArray.push([headerName, childArray])
+        }
+        this.strucStorage = strucArray
       },
       createRowData () {
         const rowData = []
@@ -243,86 +173,64 @@
         }
         this.rowData = rowData
       },
+      minmaxdefine () {
+        let log2foldlist = this.log2foldlist
+        let min = Math.min(...log2foldlist)
+        let max = Math.max(...log2foldlist)
+        this.log2foldmin = min
+        this.log2foldmax = max
+      },
       createColumnDefs () {
-        let filestore = this.$store.state.deseqlist
-        let fileamount = filestore.length
-        let positionarray = []
-        let visionarray = []
-        if (this.$store.state.positionstore !== null) {
-          positionarray = this.$store.state.positionstore
-        } else {
-          positionarray = this.positiondict
-        }
-        if (this.$store.state.visionstore !== null) {
-          visionarray = this.$store.state.visionstore
-        } else {
-          visionarray = this.visiondict
-        }
-        const columnDefs = [
-          {
-            headerName: 'Name',
-            field: 'name',
-            width: 150,
-            hide: false,
-            pinned: false
-          }
-        ]
-        let counter = 1
-        for (let i = 1; i < fileamount + 1; i++) {
-          let childrenarray = []
-          // let specposarray = positionarray[i]
-          // let specvisarray = visionarray[i]
-          let headerName = filestore[i - 1]
-          let bool = true
-          if (fileamount > 1) {
-            bool = false
-            // fileamount > 1 => file entry semi-closed (first 2 open)
-          }
-          let datadict = {
-            headerName: headerName,
-            openByDefault: bool
-            // children added here (see below)
-          }
-          let colcounter = 0
-          // for (let entry in specposarray) {
-          //   let simpleentry = specposarray[entry]
-          //   let nameentry = this.namedict[simpleentry]
-          //   let entrydict = {}
-          //   let showstate = 'close'
-          //   if (colcounter > 1) { showstate = 'open' }
-          //   if (simpleentry === '_log2FoldChange') {
-          for (let entry in this.namedict) {
-            let nameentry = this.namedict[entry]
-            let entrydict = {}
-            let showstate = null
-            let formattedValue = this.roundingFormatter
-            if (colcounter > 1) { showstate = 'open' }
-            entrydict = {
-              headerName: nameentry,
-              field: entry + '_' + counter,
-              width: 150,
-              filter: 'agNumberColumnFilter',
-              // hide: specvisarray[entry],
-              columnGroupShow: showstate,
-              valueFormatter: formattedValue,
-              cellStyle: {textAlign: 'right'}
+        const columnDefs = []
+        let strucStorage = this.strucStorage
+        for (let file of strucStorage) {
+          if (file[0] === undefined) {
+            columnDefs.push(this.nameColumn())
+          } else {
+            let openBool = true
+            let datadict = {
+              headerName: file[0],
+              openByDefault: openBool,
+              children: this.createChildren(file[1])
             }
-
-            if (entry === '_log2FoldChange') {
-              entrydict['cellRenderer'] = this.percentCellRenderer
-            }
-
-            // if (specvisarray[entry] === false) {
-            //   colcounter = colcounter + 1
-            // }
-            colcounter = colcounter + 1
-            childrenarray.push(entrydict)
+            columnDefs.push(datadict)
           }
-          datadict.children = childrenarray
-          columnDefs.push(datadict)
-          counter = counter + 1
         }
         this.columnDefs = columnDefs
+      },
+      nameColumn () {
+        let dataDict = {
+          headerName: 'Name',
+          field: 'name',
+          width: 150,
+          hide: false,
+          pinned: false
+        }
+        return (dataDict)
+      },
+      createChildren (columnArray) {
+        let returnArray = []
+        let colCounter = 0
+        for (let column of columnArray) {
+          let showstate = null
+          if (colCounter > 1) { showstate = 'closed' }
+          let formattedValue = this.roundingFormatter
+          let entryDict = {
+            headerName: column[0],
+            field: column[1],
+            width: 150,
+            filter: 'agNumberColumnFilter',
+            columnGroupShow: showstate,
+            valueFormatter: formattedValue,
+            cellStyle: {textAlign: 'right'}
+          }
+          if (column[0] === 'log2 fold change') {
+            entryDict['cellRenderer'] = this.percentCellRenderer
+          }
+          returnArray.push(entryDict)
+          colCounter = colCounter + 1
+        }
+        return (returnArray)
       },
       roundingFormatter (number) {
         if (this.roundedValues === true) {
@@ -333,61 +241,11 @@
               return null
             }
           } else {
-            return this.roundValue(number.value)
+            return this.returnRoundValue(number.value)
           }
         } else {
           return null
         }
-      },
-      // exponentialFormatter (number) {
-      //   if (this.roundedValues === true) {
-      //     return this.exponentialValue(number.value)
-      //   } else {
-      //     return null
-      //   }
-      // },
-      pad (num, totalStringSize) {
-        let asString = num + ''
-        while (asString.length < totalStringSize) asString = '0' + asString
-        return asString
-      },
-      calculateRowCount () {
-        if (this.gridOptions.api && this.rowData) {
-          let totalRows = this.rowData.length
-          // let model = this.gridOptions.api.getModel()
-          // let processedRows = model.getRowCount()
-          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
-          this.rowCount = totalRows.toLocaleString()
-        }
-      },
-      onModelUpdated () {
-        this.calculateRowCount()
-      },
-      onReady () {
-        this.calculateRowCount()
-      },
-      onSelectionChanged () {
-        let selectedRows = this.gridOptions.api.getSelectedRows()
-        let selectedRowsString = []
-        selectedRows.forEach(function (selectedRow) {
-          selectedRowsString.push(selectedRow.name)
-        })
-        let rowAmount = this.numberWithCommas(selectedRowsString.length)
-        this.rowAmount = rowAmount
-        document.querySelector('#selectedRows').innerHTML = selectedRowsString
-      },
-      numberWithCommas (number) {
-        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      },
-      onQuickFilterChanged (event) {
-        this.gridOptions.api.setQuickFilter(event.target.value)
-      },
-      minmaxdefine () {
-        let log2foldlist = this.log2foldlist
-        let min = Math.min(...log2foldlist)
-        let max = Math.max(...log2foldlist)
-        this.log2foldmin = min
-        this.log2foldmax = max
       },
       percentCellRenderer (params) {
         let value = params.value
@@ -461,29 +319,102 @@
       },
       negotiateShowvalue (showvalue) {
         if (this.roundedValues === true) {
-          return this.roundValue(showvalue)
+          return this.returnRoundValue(showvalue)
         } else {
           return showvalue
         }
       },
-      roundValue (value) {
+      returnRoundValue (value) {
         return Math.round(value * 100) / 100
+      },
+      toggleRoundingChange () {
+        this.roundedValues = false
+        this.createRowData()
+      },
+      toggleTableReset () {
+        this.createStrucStorage()
+        this.createColumnDefs()
+      },
+      toggleSubsetCreation () {
+        let temparray = []
+        let genestaken = this.gridOptions.api.getSelectedRows()
+        for (let element of genestaken) {
+          temparray.push(element.name)
+        }
+        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
+      },
+      pad (num, totalStringSize) {
+        let asString = num + ''
+        while (asString.length < totalStringSize) asString = '0' + asString
+        return asString
+      },
+      calculateRowCount () {
+        if (this.gridOptions.api && this.rowData) {
+          let totalRows = this.rowData.length
+          // let model = this.gridOptions.api.getModel()
+          // let processedRows = model.getRowCount()
+          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          this.rowCount = totalRows.toLocaleString()
+        }
+      },
+      onModelUpdated () {
+        this.calculateRowCount()
+      },
+      onReady () {
+        this.calculateRowCount()
+      },
+      onSelectionChanged () {
+        let selectedRows = this.gridOptions.api.getSelectedRows()
+        let selectedRowsString = []
+        selectedRows.forEach(function (selectedRow) {
+          selectedRowsString.push(selectedRow.name)
+        })
+        let rowAmount = this.numberWithCommas(selectedRowsString.length)
+        this.rowAmount = rowAmount
+        document.querySelector('#selectedRows').innerHTML = selectedRowsString
+      },
+      numberWithCommas (number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      },
+      onQuickFilterChanged (event) {
+        this.gridOptions.api.setQuickFilter(event.target.value)
+      },
+      insertGridOptions () {
+        this.gridOptions = {
+          rowSelection: 'multiple',
+          rowMultiSelectWithClick: true,
+          suppressPropertyNamesCheck: true,
+          icons: {
+            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
+            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
+          }
+        }
+      },
+      readStructure () {
+        let strucArray = []
+        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
+        for (let entry of columngroups) {
+          let childArray = []
+          let fileName = entry.originalColumnGroup.colGroupDef.headerName
+          let children = entry.children
+          for (let child of children) {
+            let fieldArray = [child.colDef.headerName, child.colDef.field]
+            childArray.push(fieldArray)
+          }
+          strucArray.push([fileName, childArray])
+        }
+        this.$store.commit(ADD_STRUC, strucArray)
       }
     },
     beforeMount () {
-      this.createstoredict()
+      this.checkStorage()
       this.createRowData()
       this.minmaxdefine()
       this.createColumnDefs()
-      this.gridOptions = {
-        rowSelection: 'multiple',
-        rowMultiSelectWithClick: true,
-        suppressPropertyNamesCheck: true,
-        icons: {
-          columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
-          columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
-        }
-      }
+      this.insertGridOptions()
+    },
+    beforeDestroy () {
+      this.readStructure()
     }
   }
 </script>
