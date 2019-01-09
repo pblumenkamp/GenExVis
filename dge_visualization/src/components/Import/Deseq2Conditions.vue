@@ -165,7 +165,7 @@
         }
         // versus check block END
         for (let entry of this.$store.state.registeredConditions) {
-          let regex = RegExp('[^a-z0-9]' + entry.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i')
+          let regex = RegExp('[^a-z0-9]*' + entry.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'), 'i')
           let match = regex.exec(filename)
           if (match !== null) {
             tempdict[match.index] = entry
