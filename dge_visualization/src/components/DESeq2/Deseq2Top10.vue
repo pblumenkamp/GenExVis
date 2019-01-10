@@ -5,16 +5,14 @@
       Top {{ this.selectedAmount }} Genes
     </h1>
 
-    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''"
-                   @input="statusUpdate()">
+    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''" @input="statusUpdate()">
       <template slot="first">
         <option :value="''" disabled>-- Please select the first condition --</option>
       </template>
       <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''"
-                   @input="statusUpdate()">
+    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="statusUpdate()">
       <template slot="first">
         <option :value="''" disabled>-- Please select the second condition --</option>
       </template>
@@ -28,52 +26,16 @@
       </template>
       <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
     </b-form-select>
-    <hr style="margin-top: 2rem; margin-bottom: 2rem">
+      <hr style="margin-top: 2rem; margin-bottom: 2rem">
 
-
-    <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization"
-         align="center" style="margin-top: 2rem">
-
-      <!--<table id="mainControl" class="floatedTable" style="max-width: 100px; text-align: center">-->
-      <!--<tr>-->
-      <!--<td></td>-->
-      <!--<td></td>-->
-      <!--<td>Common Max Value:</td>-->
-      <!--<td>Ranking Size:</td>-->
-      <!--<td>Used parameter:</td>-->
-      <!--</tr>-->
-      <!--<tr>-->
-      <!--<td>Rounded values:</td>-->
-      <!--<td><b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox></td>-->
-      <!--<td>-->
-      <!--<b-input-group>-->
-      <!--<b-form-input v-model="commonMaxValue" type="number"-->
-      <!--placeholder="Please type in number" @keydown.enter.native="commonMaxNegotiator()" style="width: auto"></b-form-input>-->
-      <!--</b-input-group>-->
-      <!--</td>-->
-      <!--<td>-->
-      <!--<b-form-select v-model="selectedAmount" style="width: 10rem" @input="statusUpdate()">-->
-      <!--<option v-for="amount in optionsAmount" :value="amount">{{ amount }}</option>-->
-      <!--</b-form-select>-->
-      <!--</td>-->
-      <!--<td>-->
-      <!--<b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="statusUpdate()">-->
-      <!--<template slot="first">-->
-      <!--<option :value="''" disabled>&#45;&#45; Please select distribution type &#45;&#45;</option>-->
-      <!--</template>-->
-      <!--<option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>-->
-      <!--</b-form-select>-->
-      <!--</td>-->
-      <!--</tr>-->
-      <!--</table>-->
-
+    <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization" align="center" style="margin-top: 2rem">
       <div v-if="selectedAmount" align="center">
 
         <table class="orderTable" style="width: 100%">
-          <tr class="orderRow" style="width: 100%">
-            <td class="orderColumns" style="width: 25%; vertical-align: top" align="right">
+          <tr class="orderRows" style="width: 100%">
+            <td class="orderColumns" style="width: 22.5rem; vertical-align: top" align="right">
 
-              <table class="mainControl" style="position: fixed" align="right">
+              <table class="controlTable" style="position: fixed" align="right">
                 <tr>
                   <td><b>Use distribution type:</b></td>
                   <td></td>
@@ -84,8 +46,7 @@
                       <template slot="first">
                         <option :value="''" disabled>-- Please select distribution type --</option>
                       </template>
-                      <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}
-                      </option>
+                      <option v-for="distribution in optionsDistributionType" :value="distribution">{{ distribution }}</option>
                     </b-form-select>
                     <hr>
                   </td>
@@ -99,11 +60,9 @@
                   <td>
                     <b-input-group>
                       <b-form-input v-model="commonMaxValue" style="width: 80%" type="number"
-                                    placeholder="Please type in number"
-                                    @keydown.enter.native="setCommonMax()"></b-form-input>
+                                    placeholder="Please type in number" @keydown.enter.native="setCommonMax()"></b-form-input>
                     </b-input-group>
-                    <i id="highestValue" class="additionalInformation">Highest present value: {{ this.highestValue[0]
-                      }}</i>
+                    <i id="highestValue" class="additionalInformation">Highest present value: {{ this.highestValue[0] }}</i>
                     <hr>
                   </td>
                   <td></td>
@@ -124,46 +83,37 @@
                   <td></td>
                 </tr>
                 <tr>
-                  <td><b>Rounded values:</b>
-                    <hr>
-                  </td>
+                  <td><b>Rounded values:</b><hr></td>
                   <td>
                     <b-form-checkbox style="float: left;" v-model="isExponential"></b-form-checkbox>
                   </td>
                 </tr>
                 <tr>
-                  <td><b>Show plot title:</b>
-                    <hr>
-                  </td>
+                  <td><b>Show plot title:</b><hr></td>
                   <td>
-                    <b-form-checkbox style="float: left;" v-model="showPlotTitle"
-                                     @input="statusUpdate"></b-form-checkbox>
+                    <b-form-checkbox style="float: left;" v-model="showPlotTitle" @input="statusUpdate"></b-form-checkbox>
                   </td>
                 </tr>
               </table>
 
             </td>
-            <td class="orderColumns" style="width: 75%">
+            <td class="orderColumns">
 
               <b-card>
-                <table class="mainRanking" style="width: 100%; text-align: left">
-                  <tr v-for="(number, index) in this.selectedAmount">
-                    <td class="mainRankingColumns" style="width:5%">
+                <table class="rankingTable" style="width: 100%; text-align: left">
+                  <tr class="rankingRows" v-for="(number, index) in this.selectedAmount">
+                    <td class="rankingColumns" style="width:16.5rem">
                       <div style="font-size:4rem"><b>{{ number }}.</b></div>
-                    </td>
-                    <td class="mainRankingColumns" style="width:10%">
-                      <div style="font-size:1.75rem"><b> {{ returnKey(index) }}</b></div>
-                      <div v-if="!isExponential"> {{ nameNegotiator() }}: <p>{{ returnValue(index) }}</p></div>
-                      <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{
-                        returnAlteredValue(returnValue(index)) }}</p></div>
-                      <div style="text-align: center">
-                        <button type="button" class="btn btn-dark btn" @click="addGene(returnKey(index))">+ add gene
-                        </button>
+                      <div style="font-size:1.75rem"><b> {{ returnKey(index) }}</b>
+                        <span @click="addGene(returnKey(index))">
+                          <font-awesome-icon style="color: cornflowerblue" :icon="faPlusCircle"></font-awesome-icon>
+                        </span>
                       </div>
+                      <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ returnValue(index) }}</p></div>
+                      <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ returnAlteredValue(returnValue(index)) }}</p></div>
                     </td>
-                    <td class="mainRankingColumns" style="width: 85%">
-                      <div :id="returnKey(index)" style="height: 400px; max-width: 80%; margin: 0 auto"> no count data
-                      </div>
+                    <td class="rankingColumns">
+                      <div :id="returnKey(index)" style="height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
                       <hr style="margin-bottom: 2rem">
                     </td>
                   </tr>
@@ -183,6 +133,8 @@
 <script>
   import {ConditionPair} from '../../utilities/dge'
   import {SET_SUBDGE} from '../../store/action_constants'
+  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
@@ -190,6 +142,9 @@
 
   export default {
     name: 'Deseq2MAPlot',
+    components: {
+      FontAwesomeIcon
+    },
     data () {
       return {
         updateCheck: true,
@@ -201,15 +156,11 @@
         selectedDistributionType: 'p-value',
         selectedNormalization: '',
         selectedAmount: 10,
+        maxcount: 50,
         optionsAmount: [5, 10, 20, 50],
         entryData: null,
         optionsDistributionType: ['p-value', 'p-value (adjusted)', 'log2 fold change (ascending)', 'log2 fold change (descending)'],
-        optionsDict: {
-          'p-value': 'pValue',
-          'p-value (adjusted)': 'pAdj',
-          'log2 fold change (ascending)': 'log2FoldChange',
-          'log2 fold change (descending)': 'log2FoldChange_reverse'
-        },
+        optionsDict: {'p-value': 'pValue', 'p-value (adjusted)': 'pAdj', 'log2 fold change (ascending)': 'log2FoldChange', 'log2 fold change (descending)': 'log2FoldChange_reverse'},
         highestValue: [],
         FINALSTORAGE: {}
       }
@@ -222,7 +173,8 @@
           let cond1 = condPair['condition1']
           let cond2 = condPair['condition2']
           let dictName = condPair['_condition1'] + condPair['_condition2']
-          mainStorage[dictName] = this.collectAnalysisData(cond1, cond2)
+          let condDict = this.collectAnalysisData(cond1, cond2)
+          mainStorage[dictName] = condDict
         }
         this.FINALSTORAGE = mainStorage
       },
@@ -238,26 +190,22 @@
           for (let geneName of dge.geneNames) {
             let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key]
             if (isNaN(value)) {
-              console.log('Found NaN value in: ' + value)
+              console.log('Found NaN value in: ' + geneName)
             } else {
               valueDict = this.insertAnalysisData(valueDict, geneName, value)
               valueList.push(value)
             }
           }
 
+          this.maxcount = valueList.length
+          if (this.selectedAmount > this.maxcount) {
+            this.selectedAmount = this.maxcount
+          }
+
           let inversion = distributionDictionary[key][0]
           let reversion = distributionDictionary[key][1]
-          let mainList = null
-          let reverseList = null
-
-          console.log(inversion, reversion)
-
-          mainList = valueList.sort(function (a, b) {
-            return b - a
-          })
-          reverseList = valueList.sort(function (a, b) {
-            return b - a
-          })
+          let mainList = valueList.sort(function (a, b) { return b - a })
+          let reverseList = valueList.sort(function (a, b) { return b - a })
 
           if (inversion === false) {
             reverseList.reverse()
@@ -285,12 +233,11 @@
       },
       createRankingDict (valueDict, valueList) {
         for (let counter = 0; counter < 5;) {
-          console.log(valueList[counter])
           counter++
         }
         // valueList must be sorted
         let tempDict = {}
-        let maxcount = 50
+        let maxcount = this.maxcount
         let indexcount = 0
         let previousValue = null
 
@@ -319,7 +266,8 @@
       },
       createGlobalEntryData () {
         this.highestValue = []
-        this.entryData = this.FINALSTORAGE[this.selectedCondition1 + this.selectedCondition2][this.optionsDict[this.selectedDistributionType]]
+        let data = this.FINALSTORAGE[this.selectedCondition1 + this.selectedCondition2][this.optionsDict[this.selectedDistributionType]]
+        this.entryData = data
       },
       drawData () {
         this.updateCheck = false
@@ -382,8 +330,8 @@
               useHTML: true,
               headerFormat: '<table>',
               pointFormat:
-                '<tr><td>reads:</td><td><b>{point.y:,.2f}</b></td></tr>' +
-                '<tr><td>sample:</td><td><b>{point.file}</b></td></tr>',
+              '<tr><td>reads:</td><td><b>{point.y:,.2f}</b></td></tr>' +
+              '<tr><td>sample:</td><td><b>{point.file}</b></td></tr>',
               footerFormat: '</table>',
               followPointer: false
             },
@@ -421,9 +369,7 @@
           }
           let dataList = this.createData(element, categories)
 
-          this.highestValue.sort(function (a, b) {
-            return b - a
-          })
+          this.highestValue.sort(function (a, b) { return b - a })
 
           let data = dataList
           if (data.length === 0) {
@@ -435,13 +381,13 @@
           }
         }
       },
-      nameNegotiator () {
-        let nameDict = {
-          'p-value': 'p-value',
-          'p-value (adjusted)': 'adjusted p-value',
-          'log2 fold change (ascending)': 'log2 fold change',
-          'log2 fold change (descending)': 'log2 fold change'
+      amountCheck () {
+        if (this.selectedAmount > this.maxcount) {
+          this.selectedAmount = this.maxcount
         }
+      },
+      nameNegotiator () {
+        let nameDict = {'p-value': 'p-value', 'p-value (adjusted)': 'adjusted p-value', 'log2 fold change (ascending)': 'log2 fold change', 'log2 fold change (descending)': 'log2 fold change'}
         return (nameDict[this.selectedDistributionType])
       },
       // Return block
@@ -539,14 +485,17 @@
       },
       dge () {
         return this.$store.state.currentDGE
+      },
+      faPlusCircle () {
+        return faPlusCircle
       }
     },
     beforeMount () {
       this.mountData()
-      console.log(this.FINALSTORAGE)
     },
     updated () {
       if (this.updateCheck === true) {
+        this.amountCheck()
         this.drawData()
       }
     }
@@ -555,34 +504,60 @@
 
 <style scoped>
   tr, th, td {
+    border: 0px solid green;
+    border-collapse: collapse;
     padding-left: 0.4rem;
     vertical-align: center;
   }
-
   th {
     background-color: #F6F8F7;
   }
-
   .additionalInformation {
     color: lightslategrey;
   }
-
-  @media (max-width: 1700px) {
-    .orderColumns {
-      display: table-row;
+  @media(max-width: 1600px) {
+    tr, th, td {
+      border: 0px solid darkorange;
     }
-
-    td {
-      width: 100%;
+    .rankingTable {
+      display: table;
     }
-
-    .mainControl {
+    .rankingRows {
       display: contents;
     }
+    .rankingColumns {
+      display: table-row;
+    }
+  }
+  @media(max-width: 1200px) {
+    tr, th, td {
+      border: 0px solid red;
+    }
+    .orderTable {
+      display: table;
+    }
+    .orderRows {
+      display: contents;
+    }
+    .orderColumns {
+      display: table-row
+    }
 
-    .mainRankingColumns {
-      display: inline-block;
-      min-width: 10rem;
+    .controlTable {
+      display: contents; /* contents: only working value */
+    }
+
+    .rankingTable {
+      display: table;
+    }
+    .rankingRows {
+      display: contents;
+    }
+    .rankingColumns {
+      display: table-row;
+    }
+    td {
+      width: 100%;
     }
   }
 </style>
