@@ -185,7 +185,7 @@
         // distributionDictionary = {'OPTION': ['inversion, invert ranking?', 'reversion, provide reversion?']}
         let mainStorage = this.collectDataByKey(dge, distributionDictionary, cond1, cond2)
 
-        return(mainStorage)
+        return (mainStorage)
       },
       collectDataByKey (dge, distributionDictionary, cond1, cond2) {
         let mainStorage = {}
@@ -195,7 +195,7 @@
           let valueDict = dataLists[0]
           let valueList = dataLists[1]
 
-          this.checkMaxCount (valueList.length)
+          this.checkMaxCount(valueList.length)
 
           let inversion = distributionDictionary[key][0]
           let reversion = distributionDictionary[key][1]
@@ -245,7 +245,7 @@
         if (this.selectedAmount > this.maxcount) {
           this.selectedAmount = this.maxcount
         }
-      } ,
+      },
       createRankingDict (valueDict, valueList) {
         for (let counter = 0; counter < 5;) {
           counter++
