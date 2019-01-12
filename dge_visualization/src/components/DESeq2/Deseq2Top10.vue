@@ -26,7 +26,8 @@
       </template>
       <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
     </b-form-select>
-      <hr style="margin-top: 2rem; margin-bottom: 2rem">
+
+    <hr style="margin-top: 2rem; margin-bottom: 2rem">
 
     <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization" align="center" style="margin-top: 2rem">
       <div v-if="selectedAmount" align="center">
@@ -179,28 +180,22 @@
         this.FINALSTORAGE = mainStorage
       },
       collectAnalysisData (cond1, cond2) {
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2)
         let distributionDictionary = {'pValue': [true, false], 'pAdj': [true, false], 'log2FoldChange': [false, true]}
         // distributionDictionary = {'OPTION': ['inversion, invert ranking?', 'reversion, provide reversion?']}
+        let mainStorage = this.collectDataByKey(dge, distributionDictionary, cond1, cond2)
+
+        return(mainStorage)
+      },
+      collectDataByKey (dge, distributionDictionary, cond1, cond2) {
         let mainStorage = {}
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2)
 
         for (let key in distributionDictionary) {
-          let valueDict = {}
-          let valueList = []
-          for (let geneName of dge.geneNames) {
-            let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key]
-            if (isNaN(value)) {
-              console.log('Found NaN value in: ' + geneName)
-            } else {
-              valueDict = this.insertAnalysisData(valueDict, geneName, value)
-              valueList.push(value)
-            }
-          }
+          let dataLists = this.collectData(dge, cond1, cond2, key)
+          let valueDict = dataLists[0]
+          let valueList = dataLists[1]
 
-          this.maxcount = valueList.length
-          if (this.selectedAmount > this.maxcount) {
-            this.selectedAmount = this.maxcount
-          }
+          this.checkMaxCount (valueList.length)
 
           let inversion = distributionDictionary[key][0]
           let reversion = distributionDictionary[key][1]
@@ -221,6 +216,20 @@
         }
         return (mainStorage)
       },
+      collectData (dge, cond1, cond2, key) {
+        let valueDict = {}
+        let valueList = []
+        for (let geneName of dge.geneNames) {
+          let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key]
+          if (isNaN(value)) {
+            console.log('Found NaN value in: ' + geneName)
+          } else {
+            valueDict = this.insertAnalysisData(valueDict, geneName, value)
+            valueList.push(value)
+          }
+        }
+        return ([valueDict, valueList])
+      },
       insertAnalysisData (dict, geneName, value) {
         let optionDict = dict
         let key = geneName
@@ -231,6 +240,12 @@
         }
         return (optionDict)
       },
+      checkMaxCount (length) {
+        this.maxcount = length
+        if (this.selectedAmount > this.maxcount) {
+          this.selectedAmount = this.maxcount
+        }
+      } ,
       createRankingDict (valueDict, valueList) {
         for (let counter = 0; counter < 5;) {
           counter++
@@ -286,12 +301,12 @@
             let currentDistribution = this.nameNegotiator()
             let currentValue = this.entryData[element]
             let currentAlteredValue = this.returnAlteredValue(currentValue)
-            plotTitle = element
+            plotTitle = element + ', ' + this.selectedCondition1 + ' vs. ' + this.selectedCondition2
 
             if (this.isExponential === true) {
-              plotSubtitle = currentDistribution + ': ' + currentAlteredValue + ', ' + showCounter + '. rank'
+              plotSubtitle = currentDistribution + ': ' + currentAlteredValue + ', ' + showCounter + '. rank' + ', ' + this.selectedNormalization
             } else {
-              plotSubtitle = currentDistribution + ': ' + currentValue + ', ' + showCounter + '. rank'
+              plotSubtitle = currentDistribution + ': ' + currentValue + ', ' + showCounter + '. rank' + ', ' + this.selectedNormalization
             }
           }
 
