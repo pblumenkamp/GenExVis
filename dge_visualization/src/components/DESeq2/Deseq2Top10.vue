@@ -107,7 +107,7 @@
                       <div style="font-size:2rem"><b>{{ number }}.</b></div>
                       <div style="font-size:1.75rem"><b> {{ returnKey(index) }}</b>
                         <span @click="addGene(returnKey(index))">
-                          <font-awesome-icon class="text-secondary" :icon="faPlusCircle"></font-awesome-icon>
+                          <font-awesome-icon class="text-secondary" style="cursor: pointer;" :icon="faPlusCircle"></font-awesome-icon>
                         </span>
                       </div>
                       <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ returnValue(index) }}</p></div>
