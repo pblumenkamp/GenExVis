@@ -104,10 +104,14 @@
                 <table class="rankingTable" style="width: 100%; text-align: left">
                   <tr class="rankingRows" v-for="(number, index) in this.selectedAmount">
                     <td class="rankingColumns" style="width:16.5rem">
-                      <div style="font-size:4rem"><b>{{ number }}.</b></div>
-                      <div style="font-size:1.75rem"><b> {{ generateKey(index) }}</b>
-                        <span @click="addGene(generateKey(index))">
-                          <font-awesome-icon style="color: cornflowerblue" :icon="faPlusCircle"></font-awesome-icon>
+                      <!--<div style="font-size:4rem"><b>{{ number }}.</b></div>-->
+                      <!--<div style="font-size:1.75rem"><b> {{ generateKey(index) }}</b>-->
+                        <!--<span @click="addGene(generateKey(index))">-->
+                          <!--<font-awesome-icon style="color: cornflowerblue" :icon="faPlusCircle"></font-awesome-icon>-->
+                      <div style="font-size:2rem"><b>{{ number }}.</b></div>
+                      <div style="font-size:1.75rem"><b> {{ returnKey(index) }}</b>
+                        <span title="Add the Gene to Subset" @click="addGene(generateKey(index))">
+                          <font-awesome-icon class="text-secondary" style="cursor: pointer;" :icon="faPlusCircle"></font-awesome-icon>
                         </span>
                       </div>
                       <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ generateValue(index) }}</p></div>
