@@ -240,6 +240,8 @@
           }
           if (column[0] === 'log2 fold change') {
             entryDict['cellRenderer'] = this.percentCellRenderer
+          } else {
+            entryDict['cellRenderer'] = this.nanCellRenderer
           }
           returnArray.push(entryDict)
           colCounter = colCounter + 1
@@ -259,6 +261,16 @@
           }
         } else {
           return null
+        }
+      },
+      nanCellRenderer (params) {
+        let value = params.value
+        if (value === null || value === 0) {
+          // real 0s are normally saved as string text
+          // int 0s are "wrong"
+          return ('no data')
+        } else {
+          return (this.negotiateShowvalue(value))
         }
       },
       percentCellRenderer (params) {
@@ -329,6 +341,8 @@
         parent.append(div1)
         if (value !== null) {
           return parent
+        } else {
+          return ('no data')
         }
       },
       negotiateShowvalue (showvalue) {
