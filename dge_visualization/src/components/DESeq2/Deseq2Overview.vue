@@ -16,11 +16,16 @@
           </td>
           <td>
             <div style="padding: 0.25rem;" class="btn-group btn-group-sm">
-              <button type="button" class="btn btn-default" @click="toggleTableReset()">Reset Table</button>
-              <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
-              <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-              <button type="button" class="btn btn-primary" @click="toggleSubsetCreation()">Create A Subset</button>
-              <button type="button" class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
+              <button title="Resets the structure of the table"
+                      class="btn btn-default" @click="toggleTableReset()">Reset Table</button>
+              <button title="Selects all genes"
+                      class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
+              <button title="Undoes the current selection of genes"
+                      class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
+              <button title="Creates a new subset of the currently chosen genes"
+                      class="btn btn-dark btn-sm" @click="toggleSubsetCreation()">Create A Subset</button>
+              <button title="Adds a gene to a existing subset"
+                      class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
             </div>
           </td>
           <td align="left">
@@ -39,7 +44,7 @@
     </div>
 
     <div style="clear: both;"></div>
-    <ag-grid-vue style="width: 100%; height: 500px;" class="ag-theme-balham" align="left"
+    <ag-grid-vue class="ag-theme-balham" align="left"
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
@@ -53,6 +58,8 @@
 
                  :modelUpdated="onModelUpdated"
                  :selectionChanged="onSelectionChanged"
+                 :columnVisible="onVisionChanged"
+                 :columnMoved="onPositionChanged"
                  :gridReady="onReady"/>
     <div>
       <b-card class="currentlychosen">
@@ -104,24 +111,30 @@
         let genesToAdd = this.gridOptions.api.getSelectedRows()
         let geneList = []
         let currentSubDGE = this.$store.state.subDGE.geneNames
-        for (let entry of currentSubDGE) {
-          let check = true
-          for (let coentry of genesToAdd) {
-            if (entry === coentry) {
-              check = false
-            } else {
-              geneList.push(coentry.name)
+        if (currentSubDGE.size === 0) {
+          this.toggleSubsetCreation()
+        } else {
+          for (let entry of currentSubDGE) {
+            let check = true
+            for (let coentry of genesToAdd) {
+              if (entry === coentry) {
+                check = false
+              } else {
+                geneList.push(coentry.name)
+              }
+            }
+            if (check === true) {
+              geneList.push(entry)
             }
           }
-          if (check === true) {
-            geneList.push(entry)
-          }
+          geneList.sort()
+          this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
         }
-        geneList.sort()
-        this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
       checkStorage () {
         let mainStrucStore = this.$store.state.strucStore
+        console.log('strucStorage:')
+        console.log(mainStrucStore)
         if (mainStrucStore === null) {
           this.createStrucStorage()
         } else {
@@ -138,11 +151,12 @@
         for (let i = 1; i < fileAmount + 1; i++) {
           let childArray = []
           let headerName = fileStore[i - 1]
+          let openByDefault = true
           for (let entry in this.nameDict) {
             let fieldArray = [this.nameDict[entry], entry + '_' + i]
             childArray.push(fieldArray)
           }
-          strucArray.push([headerName, childArray])
+          strucArray.push([headerName, childArray, openByDefault])
         }
         this.strucStorage = strucArray
       },
@@ -184,10 +198,10 @@
         const columnDefs = []
         let strucStorage = this.strucStorage
         for (let file of strucStorage) {
-          if (file[0] === undefined) {
+          if (file[0] === undefined || file[0] === 'name') {
             columnDefs.push(this.nameColumn())
           } else {
-            let openBool = true
+            let openBool = file[2]
             let datadict = {
               headerName: file[0],
               openByDefault: openBool,
@@ -373,6 +387,13 @@
         this.rowAmount = rowAmount
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
+      onVisionChanged () {
+        this.readStructure()
+        this.createColumnDefs()
+      },
+      onPositionChanged () {
+        this.onVisionChanged()
+      },
       numberWithCommas (number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
       },
@@ -396,13 +417,19 @@
         for (let entry of columngroups) {
           let childArray = []
           let fileName = entry.originalColumnGroup.colGroupDef.headerName
+          let openByDefault = entry.originalColumnGroup.expanded
+          console.log(openByDefault)
           let children = entry.children
           for (let child of children) {
             let fieldArray = [child.colDef.headerName, child.colDef.field]
             childArray.push(fieldArray)
           }
-          strucArray.push([fileName, childArray])
+          strucArray.push([fileName, childArray, openByDefault])
         }
+        this.strucStorage = strucArray
+      },
+      pushStructure () {
+        let strucArray = this.strucStorage
         this.$store.commit(ADD_STRUC, strucArray)
       }
     },
@@ -415,13 +442,15 @@
     },
     beforeDestroy () {
       this.readStructure()
+      this.pushStructure()
     }
   }
 </script>
 
 <style scoped>
-  rightAlign {
-    text-align: right;
+  .ag-theme-balham {
+    width: 100%;
+    height: 30rem;
   }
   .currentlychosen {
     text-align: left;
@@ -447,6 +476,9 @@
   /* Add a background color on hover */
   .btn-group button:hover {
     background-color: deepskyblue;
+  }
+  .createButton {
+
   }
   /* Breaking columns when screen gets too small */
   @media(max-width: 1500px) {
