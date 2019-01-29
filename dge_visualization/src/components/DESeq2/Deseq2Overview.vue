@@ -44,7 +44,7 @@
     </div>
 
     <div style="clear: both;"></div>
-    <ag-grid-vue class="ag-theme-balham" align="left"
+    <ag-grid-vue class="ag-theme-fresh" align="left"
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
@@ -60,7 +60,8 @@
                  :selectionChanged="onSelectionChanged"
                  :columnVisible="onVisionChanged"
                  :columnMoved="onPositionChanged"
-                 :gridReady="onReady"/>
+                 :gridReady="onReady"
+    />
     <div>
       <b-card class="currentlychosen">
         Currently chosen:
@@ -90,7 +91,6 @@
         log2foldmax: 0,
         rowCount: null,
         rowAmount: 0,
-        setRowHeight: 500,
         nameDict: {
           '_log2FoldChange': 'log2 fold change',
           '_pAdj': 'p value (adjusted)',
@@ -133,8 +133,6 @@
       },
       checkStorage () {
         let mainStrucStore = this.$store.state.strucStore
-        console.log('strucStorage:')
-        console.log(mainStrucStore)
         if (mainStrucStore === null) {
           this.createStrucStorage()
         } else {
@@ -238,11 +236,11 @@
             valueFormatter: formattedValue,
             cellStyle: {textAlign: 'right'}
           }
-          if (column[0] === 'log2 fold change') {
-            entryDict['cellRenderer'] = this.percentCellRenderer
-          } else {
-            entryDict['cellRenderer'] = this.nanCellRenderer
-          }
+          // if (column[0] === 'log2 fold change') {
+          //   entryDict['cellRenderer'] = this.percentCellRenderer
+          // } else {
+          //   entryDict['cellRenderer'] = this.nanCellRenderer
+          // }
           returnArray.push(entryDict)
           colCounter = colCounter + 1
         }
@@ -379,9 +377,9 @@
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
           let totalRows = this.rowData.length
-          // let model = this.gridOptions.api.getModel()
-          // let processedRows = model.getRowCount()
-          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          let model = this.gridOptions.api.getModel()
+          let processedRows = model.getRowCount()
+          this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
           this.rowCount = totalRows.toLocaleString()
         }
       },
@@ -432,7 +430,6 @@
           let childArray = []
           let fileName = entry.originalColumnGroup.colGroupDef.headerName
           let openByDefault = entry.originalColumnGroup.expanded
-          console.log(openByDefault)
           let children = entry.children
           for (let child of children) {
             let fieldArray = [child.colDef.headerName, child.colDef.field]
@@ -466,6 +463,14 @@
     width: 100%;
     height: 30rem;
   }
+  .ag-theme-fresh {
+    width: 100%;
+    height: 30rem;
+  }
+  .ag-theme-material {
+    width: 100%;
+    height: 30rem;
+  }
   .currentlychosen {
     text-align: left;
     overflow-y: scroll;
@@ -491,10 +496,6 @@
   .btn-group button:hover {
     background-color: deepskyblue;
   }
-  .createButton {
-
-  }
-  /* Breaking columns when screen gets too small */
   @media(max-width: 1500px) {
     td {
       display: table-row;
