@@ -1,6 +1,5 @@
 <template>
   <div style="width: 100%; height: 600px">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <div style="text-align: center">
       <h1>DESeq2 - Overview</h1>
     </div>
@@ -8,43 +7,83 @@
     <div style="clear: both;"></div>
 
     <div>
-      <table style="width: 100%; text-align: center">
+      <table style="width: 100%; text-align: center" border="0px solid black">
         <tr>
-          <td style="width:25%;">
-            <div>Selected / Total</div>
-            <div style="font-size:2.5rem;">{{ rowAmount }} / <b>{{ rowCount }}</b></div>
+          <td style="width: 65rem">
+            <b-card>
+              <table style="width:100%" border="0px solid black">
+                <tr>
+                  <td style="width: 50%">
+                    <div ><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowAmount }} / <b title="The total amount of genes">{{ rowCount }} </b></a></div>
+                  </td>
+                  <td style="width: 50%">
+                    <div style="padding: 0.25rem;" class="btn-group btn-group-md">
+                      <button title="Selects all genes" id="selectAllButton"
+                              class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
+                      <button title="Undoes the current selection of genes" id="deselectAllButton"
+                              class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
+                      <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
+                              class="btn btn-dark btn-sm" @click="toggleSubsetCreation()">Create A Subset</button>
+                      <button title="Adds a gene to a existing subset" id="addGenesButton"
+                              class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div class="currentlyChosen">
+                      Currently chosen:
+                      <p id="selectedRows"> </p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </b-card>
           </td>
+          <td style="width: 10rem" align="left">
+            <b-card>
+              <div>
+                <div>
+                  <b-form-checkbox v-model="roundedValues"
+                                   @change="toggleRoundingChange">
+                    Rounded Values
+                  </b-form-checkbox>
+                  <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
+                  <table class="design-buttons" border="1px solid black">
+                    <tr>
+                      <td>
+                        <button class="btn-sm button-balham" @click="changeDesign('balham')">Balham</button>
+                      </td>
+                      <td>
+                        <button class="btn-sm button-fresh" @click="changeDesign('fresh')">Fresh</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <button class="btn-sm button-balhamdark" @click="changeDesign('balham-dark')">Dark</button>
+                      </td>
+                      <td>
+                        <button class="btn-sm button-blue" @click="changeDesign('blue')">Blue</button>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                <button class="btn-xl button-balham" title="Resets the table, with all columns and column groups" @click="toggleTableReset()"><font-awesome-icon :icon="faUndoAlt"></font-awesome-icon> Reset Table</button>
+              </div>
+            </b-card>
+          </td>
+        </tr>
+        <tr>
           <td>
-            <div style="padding: 0.25rem;" class="btn-group btn-group-sm">
-              <button title="Resets the structure of the table"
-                      class="btn btn-default" @click="toggleTableReset()">Reset Table</button>
-              <button title="Selects all genes"
-                      class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
-              <button title="Undoes the current selection of genes"
-                      class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-              <button title="Creates a new subset of the currently chosen genes"
-                      class="btn btn-dark btn-sm" @click="toggleSubsetCreation()">Create A Subset</button>
-              <button title="Adds a gene to a existing subset"
-                      class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
-            </div>
           </td>
-          <td align="left">
-            <div>
-              <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
-            </div>
-            <div>
-              <b-form-checkbox v-model="roundedValues"
-                               @change="toggleRoundingChange">
-                Rounded Values
-              </b-form-checkbox>
-            </div>
+          <td colspan="2" style="width: 40rem">
           </td>
+          <td></td>
         </tr>
       </table>
     </div>
 
-    <div style="clear: both;"></div>
-    <ag-grid-vue class="ag-theme-fresh" align="left"
+    <ag-grid-vue id="main-table" class="ag-theme-balham" align="left"
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
@@ -62,12 +101,6 @@
                  :columnMoved="onPositionChanged"
                  :gridReady="onReady"
     />
-    <div>
-      <b-card class="currentlychosen">
-        Currently chosen:
-        <p id="selectedRows"> </p>
-      </b-card>
-    </div>
   </div>
 </template>
 
@@ -77,6 +110,7 @@
 
   import {AgGridVue} from 'ag-grid-vue'
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
 
   export default {
     data () {
@@ -99,6 +133,7 @@
           '_pValue': 'p value',
           '_stat': 'stat'
         },
+        design: 'ag-theme-balham',
         strucStorage: null
       }
     },
@@ -107,6 +142,11 @@
       FontAwesomeIcon
     },
     methods: {
+      changeDesign (element) {
+        let design = 'ag-theme-' + element
+        document.getElementById('main-table').className = design
+        this.design = design
+      },
       addGene () {
         let genesToAdd = this.gridOptions.api.getSelectedRows()
         let geneList = []
@@ -132,11 +172,13 @@
         }
       },
       checkStorage () {
-        let mainStrucStore = this.$store.state.strucStore
-        if (mainStrucStore === null) {
+        let strucStorage = this.$store.state.strucStorage
+        if (strucStorage === null) {
+          console.log('>> storage null!')
           this.createStrucStorage()
         } else {
-          this.strucStorage = mainStrucStore
+          console.log('>> storage not null')
+          this.strucStorage = strucStorage
           // createColumnDefs takes non-null strucStorage from previous visit
         }
       },
@@ -144,6 +186,7 @@
         let fileStore = this.$store.state.deseqlist
         let fileAmount = fileStore.length
 
+        let strucStorage = {}
         let strucArray = []
         strucArray.push([undefined, ['Name', 'name']])
         for (let i = 1; i < fileAmount + 1; i++) {
@@ -156,7 +199,9 @@
           }
           strucArray.push([headerName, childArray, openByDefault])
         }
-        this.strucStorage = strucArray
+        strucStorage['data'] = strucArray
+        strucStorage['design'] = 'ag-theme-balham'
+        this.strucStorage = strucStorage
       },
       createRowData () {
         const rowData = []
@@ -192,9 +237,14 @@
         this.log2foldmin = min
         this.log2foldmax = max
       },
+      chooseDesign () {
+        // designStorage is simply the string name of the design
+        let designStorage = this.strucStorage['design']
+        document.getElementById('main-table').className = designStorage
+      },
       createColumnDefs () {
         const columnDefs = []
-        let strucStorage = this.strucStorage
+        let strucStorage = this.strucStorage['data']
         for (let file of strucStorage) {
           if (file[0] === undefined || file[0] === 'name') {
             columnDefs.push(this.nameColumn())
@@ -236,11 +286,12 @@
             valueFormatter: formattedValue,
             cellStyle: {textAlign: 'right'}
           }
-          // if (column[0] === 'log2 fold change') {
-          //   entryDict['cellRenderer'] = this.percentCellRenderer
-          // } else {
-          //   entryDict['cellRenderer'] = this.nanCellRenderer
-          // }
+          if (column[0] === 'log2 fold change') {
+            console.log('here')
+            entryDict['cellRenderer'] = this.percentCellRenderer
+          } else {
+            entryDict['cellRenderer'] = this.nanCellRenderer
+          }
           returnArray.push(entryDict)
           colCounter = colCounter + 1
         }
@@ -377,10 +428,11 @@
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
           let totalRows = this.rowData.length
-          let model = this.gridOptions.api.getModel()
-          let processedRows = model.getRowCount()
-          this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
-          this.rowCount = totalRows.toLocaleString()
+          // let model = this.gridOptions.api.getModel()
+          // let processedRows = model.getRowCount()
+          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          // this.rowCount = totalRows.toLocaleString()
+          this.rowCount = totalRows
         }
       },
       onModelUpdated () {
@@ -390,14 +442,40 @@
         this.calculateRowCount()
       },
       onSelectionChanged () {
+        console.log('changed selection')
         let selectedRows = this.gridOptions.api.getSelectedRows()
         let selectedRowsString = []
         selectedRows.forEach(function (selectedRow) {
-          selectedRowsString.push(selectedRow.name)
+          selectedRowsString.push(' ' + selectedRow.name)
         })
-        let rowAmount = this.numberWithCommas(selectedRowsString.length)
+        let rawRowAmount = selectedRowsString.length
+        let rowAmount = this.numberWithCommas(rawRowAmount)
         this.rowAmount = rowAmount
+        this.selectionNegotiator(rawRowAmount)
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
+      },
+      selectionNegotiator (rowAmount) {
+        // select all: id="selectAllButton"; clear selection: id="deselectAllButton"; create a subset: id="createSubsetButton"; add genes: id="addGenesButton"
+        console.log('Negotiator ist eingeschaltet!')
+        console.log(rowAmount)
+        console.log(this.rowCount)
+        if (rowAmount === this.rowCount) {
+          document.getElementById('selectAllButton').disabled = true
+          document.getElementById('deselectAllButton').disabled = false
+          document.getElementById('createSubsetButton').disabled = false
+          document.getElementById('addGenesButton').disabled = false
+        } else if (rowAmount < this.rowCount && rowAmount !== 0) {
+          document.getElementById('selectAllButton').disabled = false
+          document.getElementById('deselectAllButton').disabled = false
+          document.getElementById('createSubsetButton').disabled = false
+          document.getElementById('addGenesButton').disabled = false
+        } else if (rowAmount === 0) {
+          console.log('it is 0!!!')
+          document.getElementById('selectAllButton').disabled = false
+          document.getElementById('deselectAllButton').disabled = true
+          document.getElementById('createSubsetButton').disabled = true
+          document.getElementById('addGenesButton').disabled = true
+        }
       },
       onVisionChanged () {
         this.readStructure()
@@ -424,6 +502,7 @@
         }
       },
       readStructure () {
+        let strucStorage = {}
         let strucArray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
         for (let entry of columngroups) {
@@ -437,11 +516,18 @@
           }
           strucArray.push([fileName, childArray, openByDefault])
         }
-        this.strucStorage = strucArray
+        strucStorage['data'] = strucArray
+        strucStorage['design'] = this.design
+        this.strucStorage = strucStorage
       },
       pushStructure () {
-        let strucArray = this.strucStorage
-        this.$store.commit(ADD_STRUC, strucArray)
+        let strucStorage = this.strucStorage
+        this.$store.commit(ADD_STRUC, strucStorage)
+      }
+    },
+    computed: {
+      faUndoAlt () {
+        return faUndoAlt
       }
     },
     beforeMount () {
@@ -450,6 +536,10 @@
       this.minmaxdefine()
       this.createColumnDefs()
       this.insertGridOptions()
+    },
+    mounted () {
+      this.chooseDesign()
+      this.selectionNegotiator(0)
     },
     beforeDestroy () {
       this.readStructure()
@@ -460,40 +550,73 @@
 
 <style scoped>
   .ag-theme-balham {
+    border: 1px solid dimgrey;
     width: 100%;
     height: 30rem;
   }
   .ag-theme-fresh {
+    border: 1px solid dimgrey;
     width: 100%;
     height: 30rem;
   }
-  .ag-theme-material {
+  .ag-theme-balham-dark {
+    border: 1px solid dimgrey;
     width: 100%;
     height: 30rem;
   }
-  .currentlychosen {
+  .ag-theme-blue {
+    border: 1px solid dimgrey;
+    width: 100%;
+    height: 30rem;
+  }
+  .currentlyChosen {
     text-align: left;
     overflow-y: scroll;
-    height: 10rem;
+    height: 7rem;
+    width:  100%;
     padding: 1rem
   }
   label {
     font-weight: normal !important;
     text-align: right;
   }
-  .btn-group button {
+  button {
     border: 1px solid grey; /* Green border */
     padding: 10px 24px; /* Some padding */
     float: left; /* Float the buttons side by side */
   }
   /* Clear floats (clearfix hack) */
+  .button-balham {
+    background-color: lightgrey;
+  }
+  .button-fresh {
+    background-color: grey;
+  }
+  .button-balhamdark {
+    background-color: darkslategrey;
+    color: white;
+  }
+  .button-blue {
+    background-color: cornflowerblue;
+  }
+
   .btn-group:after {
     content: "";
     clear: both;
     display: table;
   }
+
   /* Add a background color on hover */
+  .design-buttons button:hover {
+    background-color: deepskyblue;
+  }
+  .btn-sm {
+    width: 100%;
+  }
   .btn-group button:hover {
+    background-color: deepskyblue;
+  }
+  .design-buttons button:hover {
     background-color: deepskyblue;
   }
   @media(max-width: 1500px) {
