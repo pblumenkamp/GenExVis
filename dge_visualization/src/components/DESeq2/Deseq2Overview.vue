@@ -7,78 +7,81 @@
     <div style="clear: both;"></div>
 
     <div>
-      <table style="width: 100%; text-align: center" border="0px solid black">
+      <table style="height: 10rem; width: 100%; text-align: center; align-content: center"
+             border="0px solid black">
         <tr>
-          <td style="width: 65rem">
-            <b-card>
-              <table style="width:100%" border="0px solid black">
+          <td style="width: 15%">
+            <b-card style="height: 100%; border: 1px solid lightslategray">
+              <table align="center" border="0px solid black">
                 <tr>
-                  <td style="width: 50%">
-                    <div ><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowAmount }} / <b title="The total amount of genes">{{ rowCount }} </b></a></div>
-                  </td>
-                  <td style="width: 50%">
-                    <div style="padding: 0.25rem;" class="btn-group btn-group-md">
-                      <button title="Selects all genes" id="selectAllButton"
-                              class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
-                      <button title="Undoes the current selection of genes" id="deselectAllButton"
-                              class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-                      <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
-                              class="btn btn-dark btn-sm" @click="toggleSubsetCreation()">Create A Subset</button>
-                      <button title="Adds a gene to a existing subset" id="addGenesButton"
-                              class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
-                    </div>
+                  <td>
+                    <i>designs</i>
                   </td>
                 </tr>
-                <tr>
-                  <td colspan="2">
-                    <div class="currentlyChosen">
-                      Currently chosen:
-                      <p id="selectedRows"> </p>
+                <tr style="height: 100%">
+                  <td style="height: 100%">
+                    <div class="btn-group-vertical" style="height: 100%">
+                      <button type="button" class="btn btn-sm button-balham" @click="changeDesign('balham')">Balham</button>
+                      <button type="button" class="btn btn-sm button-fresh" @click="changeDesign('fresh')">Fresh</button>
+                      <button type="button" class="btn btn-sm button-balhamdark" @click="changeDesign('balham-dark')">Dark</button>
+                      <button type="button" class="btn btn-sm button-blue" @click="changeDesign('blue')">Blue</button>
                     </div>
                   </td>
                 </tr>
               </table>
             </b-card>
           </td>
-          <td style="width: 10rem" align="left">
-            <b-card>
+          <td style="width: 70%">
+            <b-card style="height: 100%; border: 1px solid lightslategray; background-color: whitesmoke">
+              <table style="width:100%" border="0px solid black">
+                <tr>
+                  <td style="width: 40%; border: 1px solid gainsboro">
+                    <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowAmount }} / <b title="The total amount of genes">{{ rowCount }} </b></a></div>
+                  </td>
+                  <td style="width: 60%; border: 1px solid gainsboro">
+                    <div class="currentlyChosen">
+                      Currently chosen:
+                      <p id="selectedRows"> </p>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div style="padding: 0.25rem;" class="btn-group main-control">
+                      <button title="Selects all genes" id="selectAllButton"
+                              class="btn btn-default main-control-button" @click="gridOptions.api.selectAllFiltered()"> Select All </button>
+                      <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
+                              class="btn btn-dark main-control-button" @click="toggleSubsetCreation()">Create Subset</button>
+                      <button title="Adds a gene to a existing subset" id="addGenesButton"
+                              class="btn btn-dark main-control-button" @click="addGene()">+ Add Genes</button>
+                      <button title="Undoes the current selection of genes" id="deselectAllButton"
+                              class="btn btn-default main-control-button" @click="gridOptions.api.deselectAll()">Clear Selection</button>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </b-card>
+          </td>
+          <td style="width: 15%" align="left">
+            <b-card style="height: 100%; border: 1px solid lightslategray">
               <div>
                 <div>
+                  <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
+                  <hr>
                   <b-form-checkbox v-model="roundedValues"
                                    @change="toggleRoundingChange">
                     Rounded Values
                   </b-form-checkbox>
-                  <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
-                  <table class="design-buttons" border="1px solid black">
-                    <tr>
-                      <td>
-                        <button class="btn-sm button-balham" @click="changeDesign('balham')">Balham</button>
-                      </td>
-                      <td>
-                        <button class="btn-sm button-fresh" @click="changeDesign('fresh')">Fresh</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <button class="btn-sm button-balhamdark" @click="changeDesign('balham-dark')">Dark</button>
-                      </td>
-                      <td>
-                        <button class="btn-sm button-blue" @click="changeDesign('blue')">Blue</button>
-                      </td>
-                    </tr>
-                  </table>
                 </div>
-                <button class="btn-xl button-balham" title="Resets the table, with all columns and column groups" @click="toggleTableReset()"><font-awesome-icon :icon="faUndoAlt"></font-awesome-icon> Reset Table</button>
+                <hr>
+                <button class="btn-xl button"
+                        title="Resets the table, with all columns and column groups"
+                        @click="toggleTableReset()">
+                  <font-awesome-icon :icon="faUndoAlt"></font-awesome-icon> Reset Table
+                </button>
               </div>
             </b-card>
           </td>
-        </tr>
-        <tr>
-          <td>
-          </td>
-          <td colspan="2" style="width: 40rem">
-          </td>
-          <td></td>
         </tr>
       </table>
     </div>
@@ -588,16 +591,20 @@
   /* Clear floats (clearfix hack) */
   .button-balham {
     background-color: lightgrey;
+    height: 2rem;
   }
   .button-fresh {
     background-color: grey;
+    height: 2rem;
   }
   .button-balhamdark {
     background-color: darkslategrey;
+    height: 2rem;
     color: white;
   }
   .button-blue {
     background-color: cornflowerblue;
+    height: 2rem;
   }
 
   .btn-group:after {
@@ -618,6 +625,9 @@
   }
   .design-buttons button:hover {
     background-color: deepskyblue;
+  }
+  .main-control-button {
+    width: 9rem
   }
   @media(max-width: 1500px) {
     td {
