@@ -11,11 +11,11 @@
              border="0px solid black">
         <tr>
           <td style="width: 15%">
-            <b-card style="height: 100%; border: 1px solid lightslategray">
+            <b-card style="height: 100%; border: 0px solid lightslategray">
               <table align="center" border="0px solid black">
                 <tr>
                   <td>
-                    <i>designs</i>
+                    <i>themes</i>
                   </td>
                 </tr>
                 <tr style="height: 100%">
@@ -39,7 +39,7 @@
                     <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowAmount }} / <b title="The total amount of genes">{{ rowCount }} </b></a></div>
                   </td>
                   <td style="width: 60%; border: 1px solid gainsboro">
-                    <div class="currentlyChosen">
+                    <div id="currentlyChosen" class="currentlyChosen">
                       Currently chosen:
                       <p id="selectedRows"> </p>
                     </div>
@@ -63,7 +63,7 @@
             </b-card>
           </td>
           <td style="width: 15%" align="left">
-            <b-card style="height: 100%; border: 1px solid lightslategray">
+            <b-card style="height: 100%; border: 0px solid lightslategray">
               <div>
                 <div>
                   <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
@@ -86,7 +86,9 @@
       </table>
     </div>
 
-    <ag-grid-vue id="main-table" class="ag-theme-balham" align="left"
+    <hr>
+
+    <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
@@ -146,7 +148,7 @@
     },
     methods: {
       changeDesign (element) {
-        let design = 'ag-theme-' + element
+        let design = 'main-table ag-theme-' + element
         document.getElementById('main-table').className = design
         this.design = design
       },
@@ -177,10 +179,8 @@
       checkStorage () {
         let strucStorage = this.$store.state.strucStorage
         if (strucStorage === null) {
-          console.log('>> storage null!')
           this.createStrucStorage()
         } else {
-          console.log('>> storage not null')
           this.strucStorage = strucStorage
           // createColumnDefs takes non-null strucStorage from previous visit
         }
@@ -290,7 +290,6 @@
             cellStyle: {textAlign: 'right'}
           }
           if (column[0] === 'log2 fold change') {
-            console.log('here')
             entryDict['cellRenderer'] = this.percentCellRenderer
           } else {
             entryDict['cellRenderer'] = this.nanCellRenderer
@@ -445,7 +444,6 @@
         this.calculateRowCount()
       },
       onSelectionChanged () {
-        console.log('changed selection')
         let selectedRows = this.gridOptions.api.getSelectedRows()
         let selectedRowsString = []
         selectedRows.forEach(function (selectedRow) {
@@ -459,9 +457,6 @@
       },
       selectionNegotiator (rowAmount) {
         // select all: id="selectAllButton"; clear selection: id="deselectAllButton"; create a subset: id="createSubsetButton"; add genes: id="addGenesButton"
-        console.log('Negotiator ist eingeschaltet!')
-        console.log(rowAmount)
-        console.log(this.rowCount)
         if (rowAmount === this.rowCount) {
           document.getElementById('selectAllButton').disabled = true
           document.getElementById('deselectAllButton').disabled = false
@@ -473,7 +468,6 @@
           document.getElementById('createSubsetButton').disabled = false
           document.getElementById('addGenesButton').disabled = false
         } else if (rowAmount === 0) {
-          console.log('it is 0!!!')
           document.getElementById('selectAllButton').disabled = false
           document.getElementById('deselectAllButton').disabled = true
           document.getElementById('createSubsetButton').disabled = true
@@ -552,32 +546,17 @@
 </script>
 
 <style scoped>
-  .ag-theme-balham {
-    border: 1px solid dimgrey;
-    width: 100%;
-    height: 30rem;
-  }
-  .ag-theme-fresh {
-    border: 1px solid dimgrey;
-    width: 100%;
-    height: 30rem;
-  }
-  .ag-theme-balham-dark {
-    border: 1px solid dimgrey;
-    width: 100%;
-    height: 30rem;
-  }
-  .ag-theme-blue {
-    border: 1px solid dimgrey;
-    width: 100%;
-    height: 30rem;
-  }
   .currentlyChosen {
     text-align: left;
     overflow-y: scroll;
-    height: 7rem;
+    height: 6rem;
     width:  100%;
-    padding: 1rem
+    padding: 1rem;
+  }
+  .main-table {
+    border: 1px solid dimgrey;
+    width: 100%;
+    height: 26rem;
   }
   label {
     font-weight: normal !important;
@@ -606,7 +585,6 @@
     background-color: cornflowerblue;
     height: 2rem;
   }
-
   .btn-group:after {
     content: "";
     clear: both;
