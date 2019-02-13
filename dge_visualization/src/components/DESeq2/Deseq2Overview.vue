@@ -20,7 +20,7 @@
                 </tr>
                 <tr style="height: 100%">
                   <td style="height: 100%">
-                    <div class="btn-group-vertical" style="height: 100%">
+                    <div class="btn-group-vertical basic-button" style="height: 100%">
                       <button type="button" class="btn btn-sm button-balham" @click="changeDesign('balham')">Balham</button>
                       <button type="button" class="btn btn-sm button-fresh" @click="changeDesign('fresh')">Fresh</button>
                       <button type="button" class="btn btn-sm button-balhamdark" @click="changeDesign('balham-dark')">Dark</button>
@@ -32,7 +32,7 @@
             </b-card>
           </td>
           <td style="width: 70%">
-            <b-card style="height: 100%; border: 1px solid lightslategray; background-color: whitesmoke">
+            <b-card style="height: 100%; border: 1px solid lightslategray">
               <table style="width:100%" border="0px solid black">
                 <tr>
                   <td style="width: 40%; border: 1px solid gainsboro">
@@ -47,7 +47,7 @@
                 </tr>
                 <tr>
                   <td colspan="2">
-                    <div style="padding: 0.25rem;" class="btn-group main-control">
+                    <div style="padding: 0.25rem;" class="btn-group basic-button main-control">
                       <button title="Selects all genes" id="selectAllButton"
                               class="btn btn-default main-control-button" @click="gridOptions.api.selectAllFiltered()"> Select All </button>
                       <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
@@ -74,11 +74,13 @@
                   </b-form-checkbox>
                 </div>
                 <hr>
-                <button class="btn-xl button"
-                        title="Resets the table, with all columns and column groups"
-                        @click="toggleTableReset()">
-                  <font-awesome-icon :icon="faUndoAlt"></font-awesome-icon> Reset Table
-                </button>
+                <div class="basic-button">
+                  <button class="btn-xl basic-button"
+                          title="Resets the table, with all columns and column groups"
+                          @click="toggleTableReset()">
+                    <font-awesome-icon :icon="faUndoAlt"></font-awesome-icon> Reset Table
+                  </button>
+                </div>
               </div>
             </b-card>
           </td>
@@ -138,7 +140,7 @@
           '_pValue': 'p value',
           '_stat': 'stat'
         },
-        design: 'ag-theme-balham',
+        design: 'main-table ag-theme-balham',
         strucStorage: null
       }
     },
@@ -546,18 +548,6 @@
 </script>
 
 <style scoped>
-  .currentlyChosen {
-    text-align: left;
-    overflow-y: scroll;
-    height: 6rem;
-    width:  100%;
-    padding: 1rem;
-  }
-  .main-table {
-    border: 1px solid dimgrey;
-    width: 100%;
-    height: 26rem;
-  }
   label {
     font-weight: normal !important;
     text-align: right;
@@ -567,7 +557,19 @@
     padding: 10px 24px; /* Some padding */
     float: left; /* Float the buttons side by side */
   }
-  /* Clear floats (clearfix hack) */
+  .currentlyChosen {
+    text-align: left;
+    overflow-y: scroll;
+    height: 6rem;
+    width:  100%;
+    padding: 1rem;
+  }
+  .main-table {
+    /*adjustments for the main ag-grid table*/
+    border: 1px solid dimgrey;
+    width: 100%;
+    height: 26rem;
+  }
   .button-balham {
     background-color: lightgrey;
     height: 2rem;
@@ -590,22 +592,15 @@
     clear: both;
     display: table;
   }
-
-  /* Add a background color on hover */
-  .design-buttons button:hover {
-    background-color: deepskyblue;
-  }
   .btn-sm {
     width: 100%;
   }
-  .btn-group button:hover {
-    background-color: deepskyblue;
-  }
-  .design-buttons button:hover {
-    background-color: deepskyblue;
-  }
   .main-control-button {
     width: 9rem
+  }
+  /* Adds a background color on hover */
+  .basic-button button:hover:enabled {
+    background-color: deepskyblue;
   }
   @media(max-width: 1500px) {
     td {
