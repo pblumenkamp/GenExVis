@@ -205,34 +205,45 @@
           strucArray.push([headerName, childArray, openByDefault])
         }
         strucStorage['data'] = strucArray
-        strucStorage['design'] = 'ag-theme-balham'
+        strucStorage['design'] = 'main-table ag-theme-balham'
         this.strucStorage = strucStorage
       },
       createRowData () {
         const rowData = []
         let store = this.$store.state.dgeData
+        console.log(store)
+
+        // large file problem part
+        let rowCounter = 0
+
         for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          let dict = {}
-          dict.name = gene.name
-          let analysesList = gene.deseq2Analyses
-          let analysescounter = 1
-          for (let analysis of analysesList) {
-            for (let element in analysis) {
-              let currentcell = analysis[element]
-              if (element !== '_conditions' && isNaN(currentcell)) {
-                currentcell = null
-              } else {
-                if (element === '_log2FoldChange') {
-                  this.log2foldlist.push(currentcell)
+          if (rowCounter < 100000) {
+            let gene = store.getGene(geneName)
+            let dict = {}
+            dict.name = gene.name
+            let analysescounter = 1
+            for (let analysis of gene.deseq2Analyses) {
+              for (let element in analysis) {
+                let currentcell = analysis[element]
+                if (element !== '_conditions' && isNaN(currentcell)) {
+                  currentcell = null
+                } else {
+                  if (element === '_log2FoldChange') {
+                    this.log2foldlist.push(currentcell)
+                  }
                 }
+                let elementValue = element + '_' + analysescounter
+                dict[elementValue] = currentcell
               }
-              dict[element + '_' + analysescounter] = currentcell
+              analysescounter = analysescounter + 1
             }
-            analysescounter = analysescounter + 1
+            rowData.push(dict)
           }
-          rowData.push(dict)
+          rowCounter = rowCounter + 1
         }
+
+        // large file problem part
+
         this.rowData = rowData
       },
       minmaxdefine () {
@@ -530,6 +541,7 @@
       }
     },
     beforeMount () {
+      console.log('>>> start')
       this.checkStorage()
       this.createRowData()
       this.minmaxdefine()
@@ -537,8 +549,8 @@
       this.insertGridOptions()
     },
     mounted () {
-      this.chooseDesign()
       this.selectionNegotiator(0)
+      this.chooseDesign()
     },
     beforeDestroy () {
       this.readStructure()

@@ -15,20 +15,20 @@
         <b-col class="col" cols="9">
           <router-view/>
         </b-col>
-        <b-col class="col" cols="2">
-          <b-card id="filesBox" v-if="this.$store.state.deseqlist.length > 0" class="filesBox">
+        <b-col style="border: 1px solid green" class="col" cols="2">
+          <b-card id="filesBox"  class="filesBox" v-if="this.$store.state.deseqlist.length > 0">
             DESeq2 Files:
             <li v-for="fileName in this.$store.state.deseqlist" style="margin-left: 0.5rem">
               <small>{{ fileName }}</small>
             </li>
           </b-card>
-          <b-card id="countBox" v-if="this.$store.state.countlist.length > 0" class="filesBox">
+          <b-card id="countBox" class="filesBox" v-if="this.$store.state.countlist.length > 0">
             Count files:
             <li v-for="fileName in this.$store.state.countlist" style="margin-left: 0.5rem">
               <small>{{ fileName }}</small>
             </li>
           </b-card>
-          <b-card id="genesBox" v-if="this.$store.state.subDGE.geneNames.size > 0" class="card genesBox-small">
+          <b-card id="subsetBox" class="card subsetBox-small" v-if="this.$store.state.subDGE.geneNames.size > 0">
             Current Subset:
             <table style="width: 100%; border: 0px solid black">
               <tr>
@@ -48,7 +48,7 @@
             <table style="width: 100%; border: 1px solid lightslategray" >
              <tr>
                <td>
-                 <div id="genesWindow" class="genes-table-closed">
+                 <div id="genesTable" class="genesTable-closed">
                    <button v-for="gene in Array.from(this.$store.state.subDGE.geneNames)" @click="removeGene(gene)"
                            type="button" class="btn btn-outline-dark btn-xs gene-button" style="margin: 0.1rem">{{ gene }}
                    </button>
@@ -86,14 +86,12 @@
     },
     methods: {
       openGenesWindow () {
-        console.log(this.showGenes)
-        console.log(document.getElementById('genesWindow').className)
         if (this.showGenes === true) {
-          document.getElementById('genesWindow').className = 'genes-table-open'
-          document.getElementById('genesBox').className = 'card genesBox-large'
+          document.getElementById('genesTable').className = 'genesTable-open'
+          document.getElementById('subsetBox').className = 'card subsetBox-large'
         } else {
-          document.getElementById('genesWindow').className = 'genes-table-closed'
-          document.getElementById('genesBox').className = 'card genesBox-small'
+          document.getElementById('genesTable').className = 'genesTable-closed'
+          document.getElementById('subsetBox').className = 'card subsetBox-small'
         }
       },
       removeGene (item) {
@@ -137,15 +135,9 @@
     padding: 0.5rem
   }
 
-  .genesBox {
-    text-align: left;
-    height: fit-content;
-    /*margin: 0;*/
-  }
-
   .col {
     /*border: 1px solid limegreen;*/
-    /*height: 500px;*/
+    height: 100%;
   }
   .deseq2Navbar {
     height: 100%; /* 100% Full-height */
@@ -155,22 +147,25 @@
     padding-top: 2rem; /* Place content 60px from the top */
   }
   .genesBox-small {
+    min-height: 20rem;
     height: 20rem;
     margin-top: 0.5rem
   }
   .genesBox-large {
-    height: 100%;
+    min-height: 20rem;
+    height: 90%;
     margin-top: 0.5rem
   }
-  .genes-table-closed {
+  .genesTable-closed {
     text-align: left;
     overflow-y: scroll;
     height: 12rem;
     width:  100%;
   }
-  .genes-table-open {
+  .genesTable-open {
     text-align: left;
     overflow-y: scroll;
+    min-height: 12rem;
     height: 100%;
     width:  100%;
   }
