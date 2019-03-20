@@ -15,7 +15,7 @@
         <b-col class="col" cols="9">
           <router-view/>
         </b-col>
-        <b-col style="border: 1px solid green" class="col" cols="2">
+        <b-col class="col" cols="2">
           <b-card id="filesBox"  class="filesBox" v-if="this.$store.state.deseqlist.length > 0">
             DESeq2 Files:
             <li v-for="fileName in this.$store.state.deseqlist" style="margin-left: 0.5rem">
@@ -28,38 +28,43 @@
               <small>{{ fileName }}</small>
             </li>
           </b-card>
-          <b-card id="subsetBox" class="card subsetBox-small" v-if="this.$store.state.subDGE.geneNames.size > 0">
+
+          <b-card id="subsetBox"
+                  v-bind:class="{ 'subsetBox-small':!showGenes, 'subsetBox-large':showGenes }" v-if="this.$store.state.subDGE.geneNames.size > 0">
             Current Subset:
+            {{showGenes}}
             <table style="width: 100%; border: 0px solid black">
               <tr>
                 <td width="50%">
                   <b>{{ this.numberWithCommas(this.$store.state.subDGE.length) }}</b> genes
                 </td>
                 <td width="50%">
-                  <span style="float: right" @click="showGenes = true; openGenesWindow()" v-if="!showGenes">
+                  <span style="float: right" @click="showGenes = true" v-if="!showGenes">
                     <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
                   </span>
-                  <span style="float: right" @click="showGenes = false; openGenesWindow()" v-else>
+                  <span style="float: right" @click="showGenes = false" v-else>
                     <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
                   </span>
                 </td>
               </tr>
             </table>
             <table style="width: 100%; border: 1px solid lightslategray" >
-             <tr>
-               <td>
-                 <div id="genesTable" class="genesTable-closed">
-                   <button v-for="gene in Array.from(this.$store.state.subDGE.geneNames)" @click="removeGene(gene)"
-                           type="button" class="btn btn-outline-dark btn-xs gene-button" style="margin: 0.1rem">{{ gene }}
-                   </button>
-                 </div>
-               </td>
-             </tr>
+              <tr>
+                <td>
+                  <div id="genesTable"
+                       v-bind:class="{ 'genesTable-closed':!showGenes, 'genesTable-opened':showGenes }">
+                    <button v-for="gene in Array.from(this.$store.state.subDGE.geneNames)" @click="removeGene(gene)"
+                            type="button" class="btn btn-outline-dark btn-xs gene-button" style="margin: 0.1rem">{{ gene }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
             </table>
             <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right">
               <font-awesome-icon :icon="faTrashAlt"></font-awesome-icon> Clear
             </button>
           </b-card>
+
         </b-col>
       </b-row>
     </b-container>
@@ -85,15 +90,6 @@
       }
     },
     methods: {
-      openGenesWindow () {
-        if (this.showGenes === true) {
-          document.getElementById('genesTable').className = 'genesTable-open'
-          document.getElementById('subsetBox').className = 'card subsetBox-large'
-        } else {
-          document.getElementById('genesTable').className = 'genesTable-closed'
-          document.getElementById('subsetBox').className = 'card subsetBox-small'
-        }
-      },
       removeGene (item) {
         let geneList = []
         for (let entry of this.$store.state.subDGE.geneNames) {
