@@ -21,7 +21,7 @@ const store = new Vuex.Store({
     deseqlist: [],
     countlist: [],
     genelist: [],
-    strucStore: null
+    strucStorage: null
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
@@ -47,7 +47,7 @@ const store = new Vuex.Store({
       }
     },
     [ADD_STRUC] (state, array) {
-      state.strucStore = array
+      state.strucStorage = array
     },
     [ADD_CONDITION] (state, conditionName) {
       state.registeredConditions.push(conditionName)

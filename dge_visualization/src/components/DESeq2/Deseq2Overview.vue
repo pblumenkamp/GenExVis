@@ -1,6 +1,5 @@
 <template>
   <div style="width: 100%; height: 600px">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <div style="text-align: center">
       <h1>DESeq2 - Overview</h1>
     </div>
@@ -8,38 +7,90 @@
     <div style="clear: both;"></div>
 
     <div>
-      <table style="width: 100%; text-align: center">
+      <table style="height: 10rem; width: 100%; text-align: center; align-content: center"
+             border="0px solid black">
         <tr>
-          <td style="width:25%;">
-            <div>Selected / Total</div>
-            <div style="font-size:2.5rem;">{{ rowAmount }} / <b>{{ rowCount }}</b></div>
+          <td style="width: 15%">
+            <b-card style="height: 100%; border: 0px solid lightslategray">
+              <table align="center" border="0px solid black">
+                <tr>
+                  <td>
+                    <i>themes</i>
+                  </td>
+                </tr>
+                <tr style="height: 100%">
+                  <td style="height: 100%">
+                    <div class="btn-group-vertical basic-button" style="height: 100%">
+                      <button type="button" class="btn btn-sm button-balham" @click="changeDesign('balham')">Balham</button>
+                      <button type="button" class="btn btn-sm button-fresh" @click="changeDesign('fresh')">Fresh</button>
+                      <button type="button" class="btn btn-sm button-balhamdark" @click="changeDesign('balham-dark')">Dark</button>
+                      <button type="button" class="btn btn-sm button-blue" @click="changeDesign('blue')">Blue</button>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </b-card>
           </td>
-          <td>
-            <div style="padding: 0.25rem;" class="btn-group btn-group-sm">
-              <button type="button" class="btn btn-default" @click="toggleTableReset()">Reset Table</button>
-              <button type="button" class="btn btn-default" @click="gridOptions.api.selectAllFiltered()">Select All</button>
-              <button type="button" class="btn btn-default" @click="gridOptions.api.deselectAll()">Clear Selection</button>
-              <button type="button" class="btn btn-primary" @click="toggleSubsetCreation()">Create A Subset</button>
-              <button type="button" class="btn btn-dark btn-sm" @click="addGene()">+ Add Genes</button>
-            </div>
+          <td style="width: 70%">
+            <b-card style="height: 100%; border: 1px solid lightslategray">
+              <table style="width:100%" border="0px solid black">
+                <tr>
+                  <td style="width: 40%; border: 1px solid gainsboro">
+                    <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowAmount }} / <b title="The total amount of genes">{{ rowCount }} </b></a></div>
+                  </td>
+                  <td style="width: 60%; border: 1px solid gainsboro">
+                    <div id="currentlyChosen" class="currentlyChosen">
+                      Currently chosen:
+                      <p id="selectedRows"> </p>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2">
+                    <div style="padding: 0.25rem;" class="btn-group basic-button main-control">
+                      <button title="Selects all genes" id="selectAllButton"
+                              class="btn btn-default main-control-button" @click="gridOptions.api.selectAllFiltered()"> Select All </button>
+                      <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
+                              class="btn btn-dark main-control-button" @click="toggleSubsetCreation()">Create Subset</button>
+                      <button title="Adds a gene to a existing subset" id="addGenesButton"
+                              class="btn btn-dark main-control-button" @click="addGene()">+ Add Genes</button>
+                      <button title="Undoes the current selection of genes" id="deselectAllButton"
+                              class="btn btn-default main-control-button" @click="gridOptions.api.deselectAll()">Clear Selection</button>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </b-card>
           </td>
-          <td align="left">
-            <div>
-              <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
-            </div>
-            <div>
-              <b-form-checkbox v-model="roundedValues"
-                               @change="toggleRoundingChange">
-                Rounded Values
-              </b-form-checkbox>
-            </div>
+          <td style="width: 15%" align="left">
+            <b-card style="height: 100%; border: 0px solid lightslategray">
+              <div>
+                <div>
+                  <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
+                  <hr>
+                  <b-form-checkbox v-model="roundedValues"
+                                   @change="toggleRoundingChange">
+                    Rounded Values
+                  </b-form-checkbox>
+                </div>
+                <hr>
+                <div class="basic-button">
+                  <button class="btn-xl basic-button"
+                          title="Resets the table, with all columns and column groups"
+                          @click="toggleTableReset()">
+                    <font-awesome-icon :icon="faUndoAlt"></font-awesome-icon> Reset Table
+                  </button>
+                </div>
+              </div>
+            </b-card>
           </td>
         </tr>
       </table>
     </div>
 
-    <div style="clear: both;"></div>
-    <ag-grid-vue style="width: 100%; height: 500px;" class="ag-theme-balham" align="left"
+    <hr>
+
+    <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
@@ -53,13 +104,10 @@
 
                  :modelUpdated="onModelUpdated"
                  :selectionChanged="onSelectionChanged"
-                 :gridReady="onReady"/>
-    <div>
-      <b-card class="currentlychosen">
-        Currently chosen:
-        <p id="selectedRows"> </p>
-      </b-card>
-    </div>
+                 :columnVisible="onVisionChanged"
+                 :columnMoved="onPositionChanged"
+                 :gridReady="onReady"
+    />
   </div>
 </template>
 
@@ -69,6 +117,7 @@
 
   import {AgGridVue} from 'ag-grid-vue'
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
 
   export default {
     data () {
@@ -83,7 +132,6 @@
         log2foldmax: 0,
         rowCount: null,
         rowAmount: 0,
-        setRowHeight: 500,
         nameDict: {
           '_log2FoldChange': 'log2 fold change',
           '_pAdj': 'p value (adjusted)',
@@ -92,6 +140,7 @@
           '_pValue': 'p value',
           '_stat': 'stat'
         },
+        design: 'main-table ag-theme-balham',
         strucStorage: null
       }
     },
@@ -100,32 +149,41 @@
       FontAwesomeIcon
     },
     methods: {
+      changeDesign (element) {
+        let design = 'main-table ag-theme-' + element
+        document.getElementById('main-table').className = design
+        this.design = design
+      },
       addGene () {
         let genesToAdd = this.gridOptions.api.getSelectedRows()
         let geneList = []
         let currentSubDGE = this.$store.state.subDGE.geneNames
-        for (let entry of currentSubDGE) {
-          let check = true
-          for (let coentry of genesToAdd) {
-            if (entry === coentry) {
-              check = false
-            } else {
-              geneList.push(coentry.name)
+        if (currentSubDGE.size === 0) {
+          this.toggleSubsetCreation()
+        } else {
+          for (let entry of currentSubDGE) {
+            let check = true
+            for (let coentry of genesToAdd) {
+              if (entry === coentry) {
+                check = false
+              } else {
+                geneList.push(coentry.name)
+              }
+            }
+            if (check === true) {
+              geneList.push(entry)
             }
           }
-          if (check === true) {
-            geneList.push(entry)
-          }
+          geneList.sort()
+          this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
         }
-        geneList.sort()
-        this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
       checkStorage () {
-        let mainStrucStore = this.$store.state.strucStore
-        if (mainStrucStore === null) {
+        let strucStorage = this.$store.state.strucStorage
+        if (strucStorage === null) {
           this.createStrucStorage()
         } else {
-          this.strucStorage = mainStrucStore
+          this.strucStorage = strucStorage
           // createColumnDefs takes non-null strucStorage from previous visit
         }
       },
@@ -133,44 +191,59 @@
         let fileStore = this.$store.state.deseqlist
         let fileAmount = fileStore.length
 
+        let strucStorage = {}
         let strucArray = []
         strucArray.push([undefined, ['Name', 'name']])
         for (let i = 1; i < fileAmount + 1; i++) {
           let childArray = []
           let headerName = fileStore[i - 1]
+          let openByDefault = true
           for (let entry in this.nameDict) {
             let fieldArray = [this.nameDict[entry], entry + '_' + i]
             childArray.push(fieldArray)
           }
-          strucArray.push([headerName, childArray])
+          strucArray.push([headerName, childArray, openByDefault])
         }
-        this.strucStorage = strucArray
+        strucStorage['data'] = strucArray
+        strucStorage['design'] = 'main-table ag-theme-balham'
+        this.strucStorage = strucStorage
       },
       createRowData () {
         const rowData = []
         let store = this.$store.state.dgeData
+        console.log(store)
+
+        // large file problem part
+        let rowCounter = 0
+
         for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          let dict = {}
-          dict.name = gene.name
-          let analysesList = gene.deseq2Analyses
-          let analysescounter = 1
-          for (let analysis of analysesList) {
-            for (let element in analysis) {
-              let currentcell = analysis[element]
-              if (element !== '_conditions' && isNaN(currentcell)) {
-                currentcell = null
-              } else {
-                if (element === '_log2FoldChange') {
-                  this.log2foldlist.push(currentcell)
+          if (rowCounter < 100000) {
+            let gene = store.getGene(geneName)
+            let dict = {}
+            dict.name = gene.name
+            let analysescounter = 1
+            for (let analysis of gene.deseq2Analyses) {
+              for (let element in analysis) {
+                let currentcell = analysis[element]
+                if (element !== '_conditions' && isNaN(currentcell)) {
+                  currentcell = null
+                } else {
+                  if (element === '_log2FoldChange') {
+                    this.log2foldlist.push(currentcell)
+                  }
                 }
+                let elementValue = element + '_' + analysescounter
+                dict[elementValue] = currentcell
               }
-              dict[element + '_' + analysescounter] = currentcell
+              analysescounter = analysescounter + 1
             }
-            analysescounter = analysescounter + 1
+            rowData.push(dict)
           }
-          rowData.push(dict)
+          rowCounter = rowCounter + 1
         }
+
+        // large file problem part
+
         this.rowData = rowData
       },
       minmaxdefine () {
@@ -180,14 +253,19 @@
         this.log2foldmin = min
         this.log2foldmax = max
       },
+      chooseDesign () {
+        // designStorage is simply the string name of the design
+        let designStorage = this.strucStorage['design']
+        document.getElementById('main-table').className = designStorage
+      },
       createColumnDefs () {
         const columnDefs = []
-        let strucStorage = this.strucStorage
+        let strucStorage = this.strucStorage['data']
         for (let file of strucStorage) {
-          if (file[0] === undefined) {
+          if (file[0] === undefined || file[0] === 'name') {
             columnDefs.push(this.nameColumn())
           } else {
-            let openBool = true
+            let openBool = file[2]
             let datadict = {
               headerName: file[0],
               openByDefault: openBool,
@@ -226,6 +304,8 @@
           }
           if (column[0] === 'log2 fold change') {
             entryDict['cellRenderer'] = this.percentCellRenderer
+          } else {
+            entryDict['cellRenderer'] = this.nanCellRenderer
           }
           returnArray.push(entryDict)
           colCounter = colCounter + 1
@@ -245,6 +325,16 @@
           }
         } else {
           return null
+        }
+      },
+      nanCellRenderer (params) {
+        let value = params.value
+        if (value === null || value === 0) {
+          // real 0s are normally saved as string text
+          // int 0s are "wrong"
+          return ('no data')
+        } else {
+          return (this.negotiateShowvalue(value))
         }
       },
       percentCellRenderer (params) {
@@ -315,6 +405,8 @@
         parent.append(div1)
         if (value !== null) {
           return parent
+        } else {
+          return ('no data')
         }
       },
       negotiateShowvalue (showvalue) {
@@ -354,7 +446,8 @@
           // let model = this.gridOptions.api.getModel()
           // let processedRows = model.getRowCount()
           // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
-          this.rowCount = totalRows.toLocaleString()
+          // this.rowCount = totalRows.toLocaleString()
+          this.rowCount = totalRows
         }
       },
       onModelUpdated () {
@@ -367,11 +460,39 @@
         let selectedRows = this.gridOptions.api.getSelectedRows()
         let selectedRowsString = []
         selectedRows.forEach(function (selectedRow) {
-          selectedRowsString.push(selectedRow.name)
+          selectedRowsString.push(' ' + selectedRow.name)
         })
-        let rowAmount = this.numberWithCommas(selectedRowsString.length)
+        let rawRowAmount = selectedRowsString.length
+        let rowAmount = this.numberWithCommas(rawRowAmount)
         this.rowAmount = rowAmount
+        this.selectionNegotiator(rawRowAmount)
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
+      },
+      selectionNegotiator (rowAmount) {
+        // select all: id="selectAllButton"; clear selection: id="deselectAllButton"; create a subset: id="createSubsetButton"; add genes: id="addGenesButton"
+        if (rowAmount === this.rowCount) {
+          document.getElementById('selectAllButton').disabled = true
+          document.getElementById('deselectAllButton').disabled = false
+          document.getElementById('createSubsetButton').disabled = false
+          document.getElementById('addGenesButton').disabled = false
+        } else if (rowAmount < this.rowCount && rowAmount !== 0) {
+          document.getElementById('selectAllButton').disabled = false
+          document.getElementById('deselectAllButton').disabled = false
+          document.getElementById('createSubsetButton').disabled = false
+          document.getElementById('addGenesButton').disabled = false
+        } else if (rowAmount === 0) {
+          document.getElementById('selectAllButton').disabled = false
+          document.getElementById('deselectAllButton').disabled = true
+          document.getElementById('createSubsetButton').disabled = true
+          document.getElementById('addGenesButton').disabled = true
+        }
+      },
+      onVisionChanged () {
+        this.readStructure()
+        this.createColumnDefs()
+      },
+      onPositionChanged () {
+        this.onVisionChanged()
       },
       numberWithCommas (number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -391,64 +512,108 @@
         }
       },
       readStructure () {
+        let strucStorage = {}
         let strucArray = []
         let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
         for (let entry of columngroups) {
           let childArray = []
           let fileName = entry.originalColumnGroup.colGroupDef.headerName
+          let openByDefault = entry.originalColumnGroup.expanded
           let children = entry.children
           for (let child of children) {
             let fieldArray = [child.colDef.headerName, child.colDef.field]
             childArray.push(fieldArray)
           }
-          strucArray.push([fileName, childArray])
+          strucArray.push([fileName, childArray, openByDefault])
         }
-        this.$store.commit(ADD_STRUC, strucArray)
+        strucStorage['data'] = strucArray
+        strucStorage['design'] = this.design
+        this.strucStorage = strucStorage
+      },
+      pushStructure () {
+        let strucStorage = this.strucStorage
+        this.$store.commit(ADD_STRUC, strucStorage)
+      }
+    },
+    computed: {
+      faUndoAlt () {
+        return faUndoAlt
       }
     },
     beforeMount () {
+      console.log('>>> start')
       this.checkStorage()
       this.createRowData()
       this.minmaxdefine()
       this.createColumnDefs()
       this.insertGridOptions()
     },
+    mounted () {
+      this.selectionNegotiator(0)
+      this.chooseDesign()
+    },
     beforeDestroy () {
       this.readStructure()
+      this.pushStructure()
     }
   }
 </script>
 
 <style scoped>
-  rightAlign {
-    text-align: right;
-  }
-  .currentlychosen {
-    text-align: left;
-    overflow-y: scroll;
-    height: 10rem;
-    padding: 1rem
-  }
   label {
     font-weight: normal !important;
     text-align: right;
   }
-  .btn-group button {
+  button {
     border: 1px solid grey; /* Green border */
     padding: 10px 24px; /* Some padding */
     float: left; /* Float the buttons side by side */
   }
-  /* Clear floats (clearfix hack) */
+  .currentlyChosen {
+    text-align: left;
+    overflow-y: scroll;
+    height: 6rem;
+    width:  100%;
+    padding: 1rem;
+  }
+  .main-table {
+    /*adjustments for the main ag-grid table*/
+    border: 1px solid dimgrey;
+    width: 100%;
+    height: 26rem;
+  }
+  .button-balham {
+    background-color: lightgrey;
+    height: 2rem;
+  }
+  .button-fresh {
+    background-color: grey;
+    height: 2rem;
+  }
+  .button-balhamdark {
+    background-color: darkslategrey;
+    height: 2rem;
+    color: white;
+  }
+  .button-blue {
+    background-color: cornflowerblue;
+    height: 2rem;
+  }
   .btn-group:after {
     content: "";
     clear: both;
     display: table;
   }
-  /* Add a background color on hover */
-  .btn-group button:hover {
+  .btn-sm {
+    width: 100%;
+  }
+  .main-control-button {
+    width: 9rem
+  }
+  /* Adds a background color on hover */
+  .basic-button button:hover:enabled {
     background-color: deepskyblue;
   }
-  /* Breaking columns when screen gets too small */
   @media(max-width: 1500px) {
     td {
       display: table-row;
