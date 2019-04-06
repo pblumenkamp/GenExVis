@@ -30,9 +30,8 @@
           </b-card>
 
           <b-card id="subsetBox"
-                  v-bind:class="{ 'subsetBox-small':!showGenes, 'subsetBox-large':showGenes }" v-if="this.$store.state.subDGE.geneNames.size > 0">
+                  v-bind:class="{ 'genesBox-small':!showGenes, 'genesBox-large':showGenes }" v-if="this.$store.state.subDGE.geneNames.size > 0">
             Current Subset:
-            {{showGenes}}
             <table style="width: 100%; border: 0px solid black">
               <tr>
                 <td width="50%">
@@ -143,7 +142,7 @@
     padding-top: 2rem; /* Place content 60px from the top */
   }
   .genesBox-small {
-    min-height: 20rem;
+    min-height: 100px;
     height: 20rem;
     margin-top: 0.5rem
   }
@@ -158,12 +157,12 @@
     height: 12rem;
     width:  100%;
   }
-  .genesTable-open {
+  .genesTable-opened {
     text-align: left;
     overflow-y: scroll;
-    min-height: 12rem;
     height: 100%;
     width:  100%;
+    min-height: 12rem;
   }
   .gene-button {
     font-size: 0.7rem;
