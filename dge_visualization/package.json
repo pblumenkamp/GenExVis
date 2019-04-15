@@ -24,11 +24,12 @@
     "foundation-sites": "^6.4.4-rc1",
     "highcharts": "^6.0.7",
     "lodash.debounce": "^4.0.8",
-    "v-tooltip": "^2.0.0-rc.33",
+    "v-tooltip": "^2.0.1",
     "vue": "^2.5.16",
     "vue-router": "^3.0.1",
     "vue-switches": "^2.0.1",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "webpack-cli": "^3.3.0"
   },
   "devDependencies": {
     "autoprefixer": "^8.2.0",
@@ -83,7 +84,7 @@
     "vue-template-compiler": "^2.5.16",
     "webpack": "^4.5.0",
     "webpack-bundle-analyzer": "^2.11.1",
-    "webpack-cli": "^2.0.14",
+    "webpack-cli": "^3.0.14",
     "webpack-dev-server": "^3.1.1",
     "webpack-merge": "^4.1.2"
   },
