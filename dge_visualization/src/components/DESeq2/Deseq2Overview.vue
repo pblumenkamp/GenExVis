@@ -32,11 +32,11 @@
             </b-card>
           </td>
           <td style="width: 70%">
-            <b-card style="height: 100%; border: 1px solid lightslategray">
+            <b-card style="height: 90%; border: 1px solid lightslategray">
               <table style="width:100%" border="0px solid black">
                 <tr>
                   <td style="width: 40%; border: 1px solid gainsboro">
-                    <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowAmount }} / <b title="The total amount of genes">{{ rowCount }} </b></a></div>
+                    <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowChosenAmount }} / <b title="The total amount of genes">{{ rowTotalAmount }} </b></a></div>
                   </td>
                   <td style="width: 60%; border: 1px solid gainsboro">
                     <div id="currentlyChosen" class="currentlyChosen">
@@ -86,28 +86,34 @@
           </td>
         </tr>
       </table>
+    </div><p></p>
+
+    <div v-if="this.rowTotalAmount <= 100000">
+      <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
+                   :gridOptions="gridOptions"
+                   :columnDefs="columnDefs"
+                   :rowData="rowData"
+                   :showToolPanel="showToolPanel"
+
+                   :rowHeight=30
+                   :enableColResize="true"
+                   :enableSorting="true"
+                   :enableFilter="true"
+                   :groupHeaders="true"
+
+                   :modelUpdated="onModelUpdated"
+                   :selectionChanged="onSelectionChanged"
+                   :columnVisible="onVisionChanged"
+                   :columnMoved="onPositionChanged"
+                   :gridReady="onReady"
+      />
+    </div>
+    <div class="main-table" v-else>
+      <!-- Miriam's Excel Table -->
+
+      <!-- END -->
     </div>
 
-    <hr>
-
-    <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
-                 :gridOptions="gridOptions"
-                 :columnDefs="columnDefs"
-                 :rowData="rowData"
-                 :showToolPanel="showToolPanel"
-
-                 :rowHeight=30
-                 :enableColResize="true"
-                 :enableSorting="true"
-                 :enableFilter="true"
-                 :groupHeaders="true"
-
-                 :modelUpdated="onModelUpdated"
-                 :selectionChanged="onSelectionChanged"
-                 :columnVisible="onVisionChanged"
-                 :columnMoved="onPositionChanged"
-                 :gridReady="onReady"
-    />
   </div>
 </template>
 
@@ -125,13 +131,14 @@
         roundedValues: true,
         gridOptions: null,
         columnDefs: null,
+        excessLength: false,
         rowData: null,
         showToolPanel: false,
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
-        rowCount: null,
-        rowAmount: 0,
+        rowTotalAmount: null,
+        rowChosenAmount: 0,
         nameDict: {
           '_log2FoldChange': 'log2 fold change',
           '_pAdj': 'p value (adjusted)',
@@ -178,6 +185,14 @@
           this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
         }
       },
+      checkGeneAmount () {
+        let store = this.$store.state.dgeData
+        let storeLength = store.length
+        this.rowTotalAmount = storeLength
+        if (storeLength > 100000) {
+          this.excessLength = true
+        }
+      },
       checkStorage () {
         let strucStorage = this.$store.state.strucStorage
         if (strucStorage === null) {
@@ -211,13 +226,12 @@
       createRowData () {
         const rowData = []
         let store = this.$store.state.dgeData
-        console.log(store)
 
         // large file problem part
         let rowCounter = 0
 
         for (let geneName of store.geneNames) {
-          if (rowCounter < 100000) {
+          if (rowCounter > 0) {
             let gene = store.getGene(geneName)
             let dict = {}
             dict.name = gene.name
@@ -243,7 +257,7 @@
         }
 
         // large file problem part
-
+        console.log(rowData)
         this.rowData = rowData
       },
       minmaxdefine () {
@@ -445,9 +459,9 @@
           let totalRows = this.rowData.length
           // let model = this.gridOptions.api.getModel()
           // let processedRows = model.getRowCount()
-          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
-          // this.rowCount = totalRows.toLocaleString()
-          this.rowCount = totalRows
+          // this.rowTotalAmount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          // this.rowTotalAmount = totalRows.toLocaleString()
+          this.rowTotalAmount = totalRows
         }
       },
       onModelUpdated () {
@@ -463,24 +477,24 @@
           selectedRowsString.push(' ' + selectedRow.name)
         })
         let rawRowAmount = selectedRowsString.length
-        let rowAmount = this.numberWithCommas(rawRowAmount)
-        this.rowAmount = rowAmount
+        let rowChosenAmount = this.numberWithCommas(rawRowAmount)
+        this.rowChosenAmount = rowChosenAmount
         this.selectionNegotiator(rawRowAmount)
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
-      selectionNegotiator (rowAmount) {
+      selectionNegotiator (rowChosenAmount) {
         // select all: id="selectAllButton"; clear selection: id="deselectAllButton"; create a subset: id="createSubsetButton"; add genes: id="addGenesButton"
-        if (rowAmount === this.rowCount) {
+        if (rowChosenAmount === this.rowTotalAmount) {
           document.getElementById('selectAllButton').disabled = true
           document.getElementById('deselectAllButton').disabled = false
           document.getElementById('createSubsetButton').disabled = false
           document.getElementById('addGenesButton').disabled = false
-        } else if (rowAmount < this.rowCount && rowAmount !== 0) {
+        } else if (rowChosenAmount < this.rowTotalAmount && rowChosenAmount !== 0) {
           document.getElementById('selectAllButton').disabled = false
           document.getElementById('deselectAllButton').disabled = false
           document.getElementById('createSubsetButton').disabled = false
           document.getElementById('addGenesButton').disabled = false
-        } else if (rowAmount === 0) {
+        } else if (rowChosenAmount === 0) {
           document.getElementById('selectAllButton').disabled = false
           document.getElementById('deselectAllButton').disabled = true
           document.getElementById('createSubsetButton').disabled = true
@@ -542,19 +556,26 @@
     },
     beforeMount () {
       console.log('>>> start')
-      this.checkStorage()
-      this.createRowData()
-      this.minmaxdefine()
-      this.createColumnDefs()
-      this.insertGridOptions()
+      this.checkGeneAmount()
+      if (this.excessLength === false) {
+        this.checkStorage()
+        this.createRowData()
+        this.minmaxdefine()
+        this.createColumnDefs()
+        this.insertGridOptions()
+      }
     },
     mounted () {
-      this.selectionNegotiator(0)
-      this.chooseDesign()
+      if (this.excessLength === false) {
+        this.selectionNegotiator(0)
+        this.chooseDesign()
+      }
     },
     beforeDestroy () {
-      this.readStructure()
-      this.pushStructure()
+      if (this.excessLength === false) {
+        this.readStructure()
+        this.pushStructure()
+      }
     }
   }
 </script>
@@ -580,7 +601,7 @@
     /*adjustments for the main ag-grid table*/
     border: 1px solid dimgrey;
     width: 100%;
-    height: 26rem;
+    height: 30rem;
   }
   .button-balham {
     background-color: lightgrey;
