@@ -1,4 +1,4 @@
-<template>
+<template xmlns:position="http://www.w3.org/1999/xhtml">
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
       <h1>DESeq2 - Overview</h1>
@@ -110,6 +110,31 @@
     </div>
     <div class="main-table" v-else>
       <!-- Miriam's Excel Table -->
+      <br>
+      <table width="100%">
+        <tr align="center">
+          <th></th>
+          <th><h2>Unfortunately the table was too large to display</h2></th>
+          <th></th>
+        </tr>
+        <tr align="center">
+          <th></th>
+          <th><h3>You can download the full table below</h3></th>
+          <th></th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>np
+              <button
+                class="centerButton"
+                title="Download table as .xlsx"
+                @click="exportExcel">
+                <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .xlsx
+              </button>
+          </th>
+          <th></th>
+        </tr>
+      </table>
 
       <!-- END -->
     </div>
@@ -124,6 +149,8 @@
   import {AgGridVue} from 'ag-grid-vue'
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
+  import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
+
 
   export default {
     data () {
@@ -547,11 +574,42 @@
       pushStructure () {
         let strucStorage = this.strucStorage
         this.$store.commit(ADD_STRUC, strucStorage)
-      }
+      },
+      /*Miri function to export excel deSeq2 table*/
+      exportExcel(){
+        /*structure needed for Papa parse*/
+        /*[{"col1":value1a, "col2":value2a, "col3":value3a etc},{"col1",value1b, "col2": value2b etc}]*/
+        let papaArray=[]
+        let dict=[]
+
+        let store = this.$store.state.dgeData
+        for (let geneName of store.geneNames){
+          let gene= store.getGene(geneName)
+          dict.push(gene)
+          for (let analysis of gene.deseq2Analyses){
+            for(let element in analysis){
+              dict.push(element)
+            }
+          }
+
+          papaArray.push(dict)
+          dict=[]
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8," + papaArray.map(e=>e.join(",")).join("\n");
+        var encodedUri= encodeURI(csvContent);
+        window.open(encodedUri)
+
+        }
+
+
     },
     computed: {
       faUndoAlt () {
         return faUndoAlt
+      },
+      faDownload () {
+        return faDownload
       }
     },
     beforeMount () {
@@ -634,6 +692,13 @@
   /* Adds a background color on hover */
   .basic-button button:hover:enabled {
     background-color: deepskyblue;
+  }
+
+  /* Miri centered download button for .xlsx
+  position relative to parent element*/
+  .centerButton {
+    position: relative;
+    left: 45%;
   }
   @media(max-width: 1500px) {
     td {
