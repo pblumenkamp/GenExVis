@@ -22,7 +22,7 @@
     "bootstrap": "^4.0.0",
     "bootstrap-vue": "^2.0.0-rc.6",
     "foundation-sites": "^6.4.4-rc1",
-    "highcharts": "^6.0.7",
+    "highcharts": "^7.1.1",
     "lodash.debounce": "^4.0.8",
     "v-tooltip": "^2.0.0-rc.33",
     "vue": "^2.5.16",
@@ -82,10 +82,10 @@
     "vue-style-loader": "^4.1.0",
     "vue-template-compiler": "^2.5.16",
     "webpack": "^4.30",
-    "webpack-bundle-analyzer": "^2.11.1",
-    "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.1",
-    "webpack-merge": "^4.1.2"
+    "webpack-bundle-analyzer": "^3.3.2",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.3.1",
+    "webpack-merge": "^4.2.1"
   },
   "engines": {
     "node": ">= 4.0.0",
