@@ -94,7 +94,6 @@
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
-                 :showToolPanel="showToolPanel"
 
                  :rowHeight=30
                  :enableColResize="true"
@@ -102,11 +101,11 @@
                  :enableFilter="true"
                  :groupHeaders="true"
 
-                 :modelUpdated="onModelUpdated"
-                 :selectionChanged="onSelectionChanged"
-                 :columnVisible="onVisionChanged"
-                 :columnMoved="onPositionChanged"
-                 :gridReady="onReady"
+                 @modelUpdated="onModelUpdated"
+                 @selectionChanged="onSelectionChanged"
+                 @columnVisible="onVisionChanged"
+                 @columnMoved="onPositionChanged"
+                 @gridReady="onReady"
     />
   </div>
 </template>
@@ -126,7 +125,6 @@
         gridOptions: null,
         columnDefs: null,
         rowData: null,
-        showToolPanel: false,
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
