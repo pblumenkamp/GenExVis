@@ -115,8 +115,8 @@
   import {SET_SUBDGE} from '../../store/action_constants'
 
   import {AgGridVue} from 'ag-grid-vue'
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faUndoAlt} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     data () {

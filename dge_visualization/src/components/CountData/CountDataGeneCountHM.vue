@@ -81,9 +81,8 @@
 </template>
 
 <script>
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
-  import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faPlusCircle, faMinusCircle} from '@fortawesome/free-solid-svg-icons'
 
   let Highcharts = require('highcharts/highmaps')
   require('highcharts/modules/exporting')(Highcharts)

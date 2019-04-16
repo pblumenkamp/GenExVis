@@ -74,10 +74,8 @@
 <script>
   import {SET_SUBDGE} from '../../store/action_constants'
 
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faTrashAlt from '@fortawesome/fontawesome-free-solid/faTrashAlt'
-  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
-  import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faTrashAlt, faPlusCircle, faMinusCircle} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     name: 'DESeq2',

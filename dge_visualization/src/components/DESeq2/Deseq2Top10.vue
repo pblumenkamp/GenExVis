@@ -141,8 +141,9 @@
 <script>
   import {ConditionPair} from '../../utilities/dge'
   import {SET_SUBDGE} from '../../store/action_constants'
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
+
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faPlusCircle} from '@fortawesome/free-solid-svg-icons'
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)

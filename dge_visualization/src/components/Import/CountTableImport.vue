@@ -27,10 +27,15 @@
         </b-row>
         <b-row>
           <div style="width: 10rem; margin: 1rem auto 0;">
-            <b-button @click="integrateCountTable" :disabled="disabledImportButton" style="margin-bottom: 0.7rem; margin-right: 0.5rem">Import files</b-button>
-            <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary"></font-awesome-icon>
-            <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary"></font-awesome-icon>
-            <font-awesome-icon :icon="faTimesCircle" size="2x" v-if="missingGeneColumn" class="text-secondary"></font-awesome-icon>
+            <b-button @click="integrateCountTable" :disabled="disabledImportButton"
+                      style="margin-bottom: 0.7rem; margin-right: 0.5rem">Import files
+            </b-button>
+            <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles"
+                               class="text-secondary"></font-awesome-icon>
+            <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone"
+                               class="text-secondary"></font-awesome-icon>
+            <font-awesome-icon :icon="faTimesCircle" size="2x" v-if="missingGeneColumn"
+                               class="text-secondary"></font-awesome-icon>
           </div>
         </b-row>
         <b-row>
@@ -49,10 +54,8 @@
 
   import FileChooser from '../Misc/FileChooser'
 
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-  import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
-  import faTimesCircle from '@fortawesome/fontawesome-free-solid/faTimesCircle'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faSpinner, faCheckCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     name: 'count-table-import',

@@ -46,11 +46,8 @@
   import {STORE_DESEQ2_STATISTICS} from '@/store/action_constants'
   import {ADD_DESEQ} from '@/store/mutation_constants'
 
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-  import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
-  import faTimesCircle from '@fortawesome/fontawesome-free-solid/faTimesCircle'
-  import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faSpinner, faCheckCircle, faTimesCircle, faInfoCircle} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     name: 'deseq2-conditions',

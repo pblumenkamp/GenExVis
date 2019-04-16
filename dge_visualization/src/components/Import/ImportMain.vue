@@ -129,10 +129,8 @@
   import {REGISTER_CONDITION} from '@/store/action_constants'
   import {REMOVE_CONDITION} from '@/store/mutation_constants'
 
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
-  import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
-  import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faPlusCircle, faMinusCircle, faQuestionCircle} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     name: 'ImportMain',
