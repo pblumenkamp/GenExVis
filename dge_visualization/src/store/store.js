@@ -98,7 +98,7 @@ const store = new Vuex.Store({
           progress.counter = 0
           resolve()
         } catch (e) {
-          reject(Error("Could not parse DESeq2 content"))
+          reject(e)
         }
       })
     },
