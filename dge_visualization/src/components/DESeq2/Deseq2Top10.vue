@@ -1,22 +1,36 @@
 <template>
   <div style="text-align: center">
-
     <h1>
-      Top {{ this.selectedAmount }} Genes
+      Top {{ selectedAmount }} Genes
     </h1>
 
-    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''" @input="statusUpdate()">
+    <b-form-select
+      v-model="selectedCondition1"
+      style="width: auto"
+      @change="selectedCondition2 = ''"
+      @input="statusUpdate()"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select the first condition --</option>
+        <option :value="''" disabled>
+          -- Please select the first condition --
+        </option>
       </template>
       <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="statusUpdate()">
+    <b-form-select
+      v-model="selectedCondition2"
+      style="width: auto"
+      :disabled="selectedCondition1 === ''"
+      @input="statusUpdate()"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select the second condition --</option>
+        <option :value="''" disabled>
+          -- Please select the second condition --
+        </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}
+      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">
+        {{ cond }}
       </option>
     </b-form-select>
 
@@ -24,7 +38,9 @@
       <template slot="first">
         <option :value="''" disabled>-- Please select a normalization method --</option>
       </template>
-      <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
+      <option v-for="cond in registeredNormalizationMethods" :value="cond">
+        {{ cond }}
+      </option>
     </b-form-select>
 
     <hr style="margin-top: 2rem; margin-bottom: 2rem">
@@ -63,7 +79,7 @@
                       <b-form-input v-model="commonMaxValue" style="width: 80%" type="number"
                                     placeholder="Please type in number" @keydown.enter.native="setCommonMax()"></b-form-input>
                     </b-input-group>
-                    <i id="highestValue" class="additionalInformation">Highest present value: {{ this.highestValue[0] }}</i>
+                    <i id="highestValue" class="additionalInformation">Highest present value: {{ highestValue[0] }}</i>
                     <hr>
                   </td>
                   <td></td>

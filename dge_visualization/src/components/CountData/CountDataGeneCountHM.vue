@@ -1,3 +1,4 @@
+/*eslint-env node*/
 <template>
   <div>
     <h1 style="text-align: center">
@@ -6,34 +7,46 @@
 
     <div style="margin: 0 auto; width: 60%">
       <div>
-        <span @click="showCollapsedConditions = true" v-if="!showCollapsedConditions" style="cursor: pointer">
-          <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+        <span v-if="!showCollapsedConditions" style="cursor: pointer" @click="showCollapsedConditions = true">
+          <font-awesome-icon :icon="faPlusCircle" />
         </span>
-        <span @click="showCollapsedConditions = false" v-else style="cursor: pointer">
-          <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
+        <span v-else style="cursor: pointer" @click="showCollapsedConditions = false">
+          <font-awesome-icon :icon="faMinusCircle" />
         </span>
         Settings
       </div>
-      <b-collapse id="registeredConditions" class="mt-2" v-model="showCollapsedConditions">
+      <b-collapse id="registeredConditions" v-model="showCollapsedConditions" class="mt-2">
         <b-card class="text-center">
           <b-form-select v-model="selectedNormalization" style="width: auto" class="mb-2">
             <template slot="first">
               <option :value="''" disabled>-- Please select a normalization method --</option>
             </template>
-            <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
+            <option
+              v-for="cond in registeredNormalizationMethods"
+              :key="cond"
+              :value="cond"
+            >
+              {{ cond }}
+            </option>
           </b-form-select>
 
           <b-form-group label="Use conditions:">
-            <b-form-checkbox v-model="allConditionsSelected"
-                             :indeterminate="indeterminate"
-                             @change="toggleAllConditions"
+            <b-form-checkbox
+              v-model="allConditionsSelected"
+              :indeterminate="indeterminate"
+              @change="toggleAllConditions"
             >
               Select All
             </b-form-checkbox>
-            <b-form-checkbox-group id="countdatagenecounthm_condition_checkboxes" class="mt-2"
-                                   name="condition_checkboxes"
-                                   v-model="selectedConditions">
-              <b-form-checkbox v-for="cond in registeredConditions" :key="cond" :value="cond">{{cond}}</b-form-checkbox>
+            <b-form-checkbox-group
+              id="countdatagenecounthm_condition_checkboxes"
+              v-model="selectedConditions"
+              name="condition_checkboxes"
+              class="mt-2"
+            >
+              <b-form-checkbox v-for="cond in registeredConditions" :key="cond" :value="cond">
+                {{ cond }}
+              </b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
 
@@ -41,32 +54,65 @@
             <hr>
             <b-container fluid>
               <b-row class="my-1">
-                <b-col sm="3"><label style="margin-top: 0.4rem;">start color:</label></b-col>
-                <b-col sm="1">
-                  <b-form-input type="color" v-model="color1" @change="updateColorAxisStops" style="padding: 0.05rem; min-width: 1rem"></b-form-input>
+                <b-col sm="3">
+                  <label style="margin-top: 0.4rem;">start color:</label>
                 </b-col>
-                <b-col sm="3"><label style="margin-top: 0.4rem;">intermediate color:</label></b-col>
                 <b-col sm="1">
-                  <b-form-input type="color" v-model="color2" @change="updateColorAxisStops" style="padding: 0.05rem; min-width: 1rem"></b-form-input>
+                  <b-form-input
+                    v-model="color1"
+                    type="color"
+                    style="padding: 0.05rem; min-width: 1rem"
+                    @change="updateColorAxisStops"
+                  />
                 </b-col>
-                <b-col sm="3"><label style="margin-top: 0.4rem;">end color:</label></b-col>
+                <b-col sm="3">
+                  <label style="margin-top: 0.4rem;">intermediate color:</label>
+                </b-col>
                 <b-col sm="1">
-                  <b-form-input type="color" v-model="color3" @change="updateColorAxisStops" style="padding: 0.05rem; min-width: 1rem"></b-form-input>
+                  <b-form-input
+                    v-model="color2"
+                    type="color"
+                    style="padding: 0.05rem; min-width: 1rem"
+                    @change="updateColorAxisStops"
+                  />
+                </b-col>
+                <b-col sm="3">
+                  <label style="margin-top: 0.4rem;">end color:</label>
+                </b-col>
+                <b-col sm="1">
+                  <b-form-input
+                    v-model="color3"
+                    type="color"
+                    style="padding: 0.05rem; min-width: 1rem"
+                    @change="updateColorAxisStops"
+                  />
                 </b-col>
               </b-row>
               <b-row class="my-1">
-                <b-col sm="5"><label style="margin-top: 0.4rem;">intermediate color stop (value between 0 and 1):</label>
+                <b-col sm="5">
+                  <label style="margin-top: 0.4rem;">intermediate color stop (value between 0 and 1):</label>
                 </b-col>
                 <b-col sm="7">
-                  <b-form-input type="number" v-model="intermediateColorStop" step="0.1" max="1" min="0"
-                                style="width: 10rem;"></b-form-input>
+                  <b-form-input
+                    v-model="intermediateColorStop"
+                    type="number"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    style="width: 10rem;"
+                  />
                 </b-col>
               </b-row>
               <b-row class="my-1">
                 <b-col sm="5"><label style="margin-top: 0.4rem;">max value:</label></b-col>
                 <b-col sm="7">
-                  <b-form-input type="number" v-model="maxValue" step="100" min="0"
-                                style="width: 10rem;"></b-form-input>
+                  <b-form-input
+                    v-model="maxValue"
+                    type="number"
+                    min="0"
+                    step="100"
+                    style="width: 10rem;"
+                  />
                 </b-col>
               </b-row>
             </b-container>
@@ -75,8 +121,11 @@
       </b-collapse>
     </div>
 
-    <div id="countdatagenecounthm_highcharts" ref="countdatagenecounthm_highcharts"
-         style="min-width: 60%; max-width: 60%; margin: 0 auto"></div>
+    <div
+      id="countdatagenecounthm_highcharts"
+      ref="countdatagenecounthm_highcharts"
+      style="min-width: 60%; max-width: 60%; margin: 0 auto"
+    ></div>
   </div>
 </template>
 
@@ -112,6 +161,51 @@
         color1: '#FFFFFF',
         color2: '#276dff',
         color3: '#ff3a44'
+      }
+    },
+    computed: {
+      registeredNormalizationMethods () {
+        return this.$store.state.currentDGE.normalizationMethods
+      },
+      registeredConditions () {
+        return this.$store.state.registeredConditions
+      },
+      faPlusCircle () {
+        return faPlusCircle
+      },
+      faMinusCircle () {
+        return faMinusCircle
+      },
+      dge () {
+        return this.$store.state.currentDGE
+      }
+    },
+    watch: {
+      selectedConditions (newVal) {
+        // Handle changes in individual flavour checkboxes
+        if (newVal.length === 0) {
+          this.indeterminate = false
+          this.allConditionsSelected = false
+        } else if (newVal.length === this.registeredConditions.length) {
+          this.indeterminate = false
+          this.allConditionsSelected = true
+        } else {
+          this.indeterminate = true
+          this.allConditionsSelected = false
+        }
+        this.drawData()
+      },
+      intermediateColorStop () {
+        this.updateColorAxisStops()
+      },
+      maxValue () {
+        this.updateColorAxisMax()
+      },
+      selectedNormalization () {
+        this.drawData()
+      },
+      dge () {
+        this.clearChart()
       }
     },
     methods: {
@@ -280,60 +374,6 @@
         },
         500
       )
-    },
-    mounted () {
-      /*      this.$nextTick(() => {
-       // eslint-disable-next-line
-       let prom = new Promise((resolve) => {
-       setTimeout(this.drawData, 50)
-       resolve()
-       })
-       }) */
-    },
-    computed: {
-      registeredNormalizationMethods () {
-        return this.$store.state.currentDGE.normalizationMethods
-      },
-      registeredConditions () {
-        return this.$store.state.registeredConditions
-      },
-      faPlusCircle () {
-        return faPlusCircle
-      },
-      faMinusCircle () {
-        return faMinusCircle
-      },
-      dge () {
-        return this.$store.state.currentDGE
-      }
-    },
-    watch: {
-      selectedConditions (newVal, oldVal) {
-        // Handle changes in individual flavour checkboxes
-        if (newVal.length === 0) {
-          this.indeterminate = false
-          this.allConditionsSelected = false
-        } else if (newVal.length === this.registeredConditions.length) {
-          this.indeterminate = false
-          this.allConditionsSelected = true
-        } else {
-          this.indeterminate = true
-          this.allConditionsSelected = false
-        }
-        this.drawData()
-      },
-      intermediateColorStop (newVal, oldVal) {
-        this.updateColorAxisStops()
-      },
-      maxValue (newVal, oldVal) {
-        this.updateColorAxisMax()
-      },
-      selectedNormalization (newVal, oldVal) {
-        this.drawData()
-      },
-      dge (newDGE, oldDGE) {
-        this.clearChart()
-      }
     }
   }
 </script>

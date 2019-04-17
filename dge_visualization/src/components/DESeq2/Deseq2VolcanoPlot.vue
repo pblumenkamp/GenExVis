@@ -1,40 +1,75 @@
+/*eslint-env node*/
 <template>
   <div style="text-align: center">
     <h1>DESeq2 - Volcano Plot</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
-        <option :value="''" disabled>-- Please select the first condition --</option>
+        <option :value="''" disabled>
+          -- Please select the first condition --
+        </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
-    </b-form-select>
-
-    <b-form-select v-model="selectedCondition2" style="width: auto" @input="drawData"
-                   :disabled="selectedCondition1 === ''">
-      <template slot="first">
-        <option :value="''" disabled>-- Please select the second condition --</option>
-      </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}
+      <option
+        v-for="cond in Array.from(dgeConditions[0])"
+        :key="cond"
+        :value="cond"
+      >
+        {{ cond }}
       </option>
     </b-form-select>
 
-    <div id="deseq2volcanoplot_highcharts" ref="deseq2volcanoplot_highcharts"
-         style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
+    <b-form-select
+      v-model="selectedCondition2"
+      style="width: auto"
+      :disabled="selectedCondition1 === ''"
+      @input="drawData"
+    >
+      <template slot="first">
+        <option :value="''" disabled>
+          -- Please select the second condition --
+        </option>
+      </template>
+      <option
+        v-for="cond in Array.from(dgeConditions[1])"
+        :key="cond"
+        :value="cond"
+        :disabled="!conditions2.has(cond)"
+      >
+        {{ cond }}
+      </option>
+    </b-form-select>
+
+    <div
+      id="deseq2volcanoplot_highcharts"
+      ref="deseq2volcanoplot_highcharts"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+    ></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
       <b-container fluid border="1">
         <b-row class="my-1">
-          <b-col sm="3"><label style="margin-top: 0.4rem;">p-value threshold</label></b-col>
+          <b-col sm="3">
+            <label style="margin-top: 0.4rem;">p-value threshold</label>
+          </b-col>
           <b-col sm="9">
-            <b-form-input type="number" v-model="inputPThreshold" step="0.001" max="1" min="0" style="width: 10rem;"
-                          @change="updatePThreshold"></b-form-input>
+            <b-form-input
+              v-model="inputPThreshold"
+              type="number"
+              min="0"
+              max="1"
+              step="0.001"
+              style="width: 10rem;"
+              @change="updatePThreshold"
+            />
           </b-col>
         </b-row>
         <b-row class="my-1">
-          <b-col sm="3"><label>use adjusted p-value</label></b-col>
+          <b-col sm="3">
+            <label>use adjusted p-value</label>
+          </b-col>
           <b-col sm="9">
-            <b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData"></b-form-checkbox>
+            <b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData" />
           </b-col>
         </b-row>
       </b-container>
@@ -54,26 +89,26 @@
             <b-card>
               <table width="100%">
                 <thead>
-                <tr>
-                  <th width="14%" v-for="key in tableHeader">
-                    {{ key }}
-                  </th>
-                </tr>
+                  <tr>
+                    <th v-for="key in tableHeader" :key="key" width="14%">
+                      {{ key }}
+                    </th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr v-for="entry of tableData">
-                  <td width="14%" v-for="key of tableHeader">
-                    {{ entry[key] }}
-                  </td>
-                </tr>
+                  <tr v-for="entry of tableData" :key="entry">
+                    <td v-for="key of tableHeader" :key="key" width="14%">
+                      {{ entry[key] }}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </b-card>
           </b-col>
         </b-row>
       </b-container>
-      </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -98,6 +133,41 @@
         tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
         rowNames: [],
         tableData: []
+      }
+    },
+    computed: {
+      dgeConditions () {
+        let conditions1 = new Set()
+        let conditions2 = new Set()
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
+            this.$store.state.registeredConditions.indexOf(condition2) === -1) {
+            continue
+          }
+          conditions1.add(condition1)
+          conditions2.add(condition2)
+        }
+        return [conditions1, conditions2]
+      },
+      conditions2 () {
+        let conditions2 = new Set()
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+          if (condition1 === this.selectedCondition1) {
+            conditions2.add(condition2)
+          }
+        }
+        return conditions2
+      },
+      pThreshold () {
+        return parseFloat(this.inputPThreshold)
+      },
+      dge () {
+        return this.$store.state.currentDGE
+      }
+    },
+    watch: {
+      dge () {
+        this.clearChart()
       }
     },
     methods: {
@@ -305,12 +375,12 @@
         for (let geneName of dge.geneNames) {
           let gene = dge.getGene(geneName)
           let analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition1, vue.selectedCondition2))
-          let y = (vue.useAdjPValue) ? analysis.pAdj : analysis.pValue
+          let pValue = (vue.useAdjPValue) ? analysis.pAdj : analysis.pValue
           let dataPoint = {
             gene: geneName,
             x: analysis.log2FoldChange,
-            y: -Math.log10(y),
-            yTooltip: y.toExponential(2),
+            y: -Math.log10(pValue),
+            yTooltip: pValue.toExponential(2),
             baseMean: analysis.baseMean
           }
 
@@ -353,41 +423,6 @@
       },
       updatePThreshold () {
         this.drawData()
-      }
-    },
-    computed: {
-      dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
-              this.$store.state.registeredConditions.indexOf(condition2) === -1) {
-            continue
-          }
-          conditions1.add(condition1)
-          conditions2.add(condition2)
-        }
-        return [conditions1, conditions2]
-      },
-      conditions2 () {
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (condition1 === this.selectedCondition1) {
-            conditions2.add(condition2)
-          }
-        }
-        return conditions2
-      },
-      pThreshold () {
-        return parseFloat(this.inputPThreshold)
-      },
-      dge () {
-        return this.$store.state.currentDGE
-      }
-    },
-    watch: {
-      dge (newDGE, oldDGE) {
-        this.clearChart()
       }
     }
   }
