@@ -145,12 +145,10 @@
 <script>
   import {ADD_STRUC} from '../../store/mutation_constants'
   import {SET_SUBDGE} from '../../store/action_constants'
-
   import {AgGridVue} from 'ag-grid-vue'
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
   import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
-
 
   export default {
     data () {
@@ -575,34 +573,25 @@
         let strucStorage = this.strucStorage
         this.$store.commit(ADD_STRUC, strucStorage)
       },
-      /*Miri function to export excel deSeq2 table*/
-      exportExcel(){
-        /*structure needed for Papa parse*/
-        /*[{"col1":value1a, "col2":value2a, "col3":value3a etc},{"col1",value1b, "col2": value2b etc}]*/
-        let papaArray=[]
-        let dict=[]
+      // Miri
+      exportExcel () {
+        let papaArray = []
+        let dict = []
 
         let store = this.$store.state.dgeData
-        for (let geneName of store.geneNames){
-          let gene= store.getGene(geneName)
+        for (let geneName of store.geneNames) {
+          let gene = store.getGene(geneName)
           dict.push(gene)
-          for (let analysis of gene.deseq2Analyses){
-            for(let element in analysis){
+          for (let analysis of gene.deseq2Analyses) {
+            for (let element in analysis) {
               dict.push(element)
             }
           }
 
           papaArray.push(dict)
-          dict=[]
+          dict = []
         }
-
-        let csvContent = "data:text/csv;charset=utf-8," + papaArray.map(e=>e.join(",")).join("\n");
-        var encodedUri= encodeURI(csvContent);
-        window.open(encodedUri)
-
-        }
-
-
+      }
     },
     computed: {
       faUndoAlt () {
