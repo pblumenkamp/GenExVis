@@ -149,6 +149,8 @@
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
   import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
+  import XLSX from 'xlsx'
+  import FileSaver from 'file-saver'
 
   export default {
     data () {
@@ -575,22 +577,30 @@
       },
       // Miri
       exportExcel () {
-        let papaArray = []
-        let dict = []
-
-        let store = this.$store.state.dgeData
-        for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          dict.push(gene)
-          for (let analysis of gene.deseq2Analyses) {
-            for (let element in analysis) {
-              dict.push(element)
-            }
-          }
-
-          papaArray.push(dict)
-          dict = []
+        // create new workbook and assign workbook properties
+        let wb = XLSX.utils.book_new()
+        wb.Props = {
+          Title: 'Miri Test Sheet',
+          Subject: 'Test file',
+          Author: 'Miriam Mueller',
+          CreatedDate: new Date(2019, 17, 4)
         }
+        // create worksheet in new workbook, write test data, use array of arrays
+        wb.SheetNames.push('test sheet')
+        let wsData = [['hello', 'world']]
+        let ws = XLSX.utils.aoa_to_sheet(wsData)
+        wb.Sheets['test sheet'] = ws
+        let wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'binary'})
+        // until here the workbook with the test sheet is created, but not ready to be downloaded by user
+        // for saving, we use file-saver. it needs a different format (octet), which can be generated
+        // using the s2ab function
+        function s2ab (s) {
+          let buf = new ArrayBuffer(s.length)
+          let view = new Uint8Array(buf)
+          for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF
+          return buf
+        }
+        FileSaver.saveAs(new Blob([s2ab(wbout)], {type: 'application/octet-stream'}), 'test.xlsx')
       }
     },
     computed: {
