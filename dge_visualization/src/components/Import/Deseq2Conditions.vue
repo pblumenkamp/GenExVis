@@ -61,13 +61,14 @@
         class="text-secondary"
         style="margin-top: 0.1rem"
       />
-      <font-awesome-icon
-        v-if="importingFailed"
-        :icon="faTimesCircle"
-        size="2x"
-        class="text-secondary"
-        style="margin-top: 0.1rem"
-      />
+      <span v-if="importingFailed" v-tooltip.top="{content: importFailedMessage, placement: 'auto', offset: 30}" style="cursor: pointer">
+        <font-awesome-icon
+          :icon="faTimesCircle"
+          size="2x"
+          class="text-secondary"
+          style="margin-top: 0.1rem"
+        />
+      </span>
     </div>
     <b-progress
       v-if="!progress.done"
@@ -91,13 +92,14 @@
     components: {
       FontAwesomeIcon
     },
-    props: {'files': {type: Object, required: true}},
+    props: {'files': {type: FileList, required: true}},
     data () {
       return {
         dataObject: [],  // [{file: <file_obj>, conditions: [<cond1 as string>, <cond2 as string>], index: <unique identifier>}, ...]
         importingFiles: false,
         importingDone: false,
         importingFailed: false,
+        importFailedMessage: 'Import failed',
         parsedDeseq2Data: [],
         progress: {counter: 0, max: 1000, done: true}
       }
@@ -170,10 +172,11 @@
               .then(() => {
                 vue.importingFiles = false
                 vue.importingDone = true
-              })
-          }, reason => {
-            vue.importingFailed = true
-            console.warn(reason)
+              }, reason => {
+                vue.importingFailedMessage = reason
+                vue.importingFiles = false
+                vue.importingFailed = true
+            })
           })
       },
       validate (data) {
