@@ -1,7 +1,7 @@
 <template>
   <b-container>
     <b-row
-      v-for="{file, index, conditions, validEntry, errorText} in getDataObject"
+      v-for="{file, index, conditions, validEntry, errorText} in dataObject"
       :key="file.name"
       :style="{margin: '0.5rem', 'background-color': (validEntry !== false) ? '' : '#ff000055'}"
     >
@@ -105,17 +105,6 @@
       }
     },
     computed: {
-      getDataObject () {
-        let dataObject = []
-        let index = 0
-        for (var file of this.files) {
-          let sugglist = this.suggestregex(file.name)
-          dataObject.push({file: file, conditions: sugglist, index: index, validEntry: null, errorText: ''})
-          index++
-        }
-        this.dataObject = dataObject
-        return dataObject
-      },
       registeredConditions () {
         return this.$store.state.registeredConditions
       },
@@ -141,6 +130,20 @@
             }
             this.dataObject[i].conditions = this.suggestregex(this.dataObject[i].header)
           }
+        }
+      },
+      files: {
+        immediate: true,
+        handler (newfiles) {
+          let dataObject = []
+          let index = 0
+          for (var file of newfiles) {
+            let sugglist = this.suggestregex(file.name)
+            dataObject.push({file: file, conditions: sugglist, index: index, validEntry: null, errorText: ''})
+            index++
+          }
+          this.dataObject = dataObject
+          return dataObject
         }
       }
     },
