@@ -124,21 +124,21 @@
         </tr>
         <tr>
           <th></th>
-          <th>np
+          <th>
               <button
+                id = 'downloadXLSX'
                 class="centerButton"
                 title="Download table as .xlsx"
-                @click="exportExcel">
+                @click="exportExcel"
+              >
                 <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .xlsx
               </button>
           </th>
           <th></th>
         </tr>
       </table>
-
       <!-- END -->
     </div>
-
   </div>
 </template>
 
@@ -149,8 +149,11 @@
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
   import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
-  import XLSX from 'xlsx'
-  import FileSaver from 'file-saver'
+  // import XLSX from 'xlsx'
+//  import xlsxSTYLE from 'xlsx-style'
+//  import FileSaver from 'file-saver'
+//  import $ from 'jquery'
+  // import streamSaver from 'streamsaver'
 
   export default {
     data () {
@@ -577,30 +580,51 @@
       },
       // Miri
       exportExcel () {
-        // create new workbook and assign workbook properties
-        let wb = XLSX.utils.book_new()
-        wb.Props = {
-          Title: 'Miri Test Sheet',
-          Subject: 'Test file',
-          Author: 'Miriam Mueller',
-          CreatedDate: new Date(2019, 17, 4)
+        let rowData = []
+        let oneEntry = []
+        // let rowCounter = 0
+        let store = this.$store.state.dgeData
+        // iterate data
+        for (let geneName of store.geneNames) {
+          let gene = store.getGene(geneName)
+          let myName = gene.name
+          oneEntry.push(myName)
+          for (let analysis of gene.deseq2Analyses) {
+            let myMean = analysis.baseMean
+            let mylog2fold = analysis.log2FoldChange
+            let mylfcSE = analysis.lfcSE
+            let myStat = analysis.stat
+            let mypValue = analysis.pValue
+            let mypAdj = analysis.pAdj
+            oneEntry.push(myMean, mylog2fold, mylfcSE, myStat, mypValue, mypAdj)
+          }
+          // needed for array of array structure to pass to XLSX
+          rowData.push(oneEntry)
+          oneEntry = []
         }
-        // create worksheet in new workbook, write test data, use array of arrays
-        wb.SheetNames.push('test sheet')
-        let wsData = [['hello', 'world']]
-        let ws = XLSX.utils.aoa_to_sheet(wsData)
-        wb.Sheets['test sheet'] = ws
-        let wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'binary'})
-        // until here the workbook with the test sheet is created, but not ready to be downloaded by user
-        // for saving, we use file-saver. it needs a different format (octet), which can be generated
-        // using the s2ab function
-        function s2ab (s) {
-          let buf = new ArrayBuffer(s.length)
-          let view = new Uint8Array(buf)
-          for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF
-          return buf
+        console.log(rowData)
+        // expression to add row information taken from:
+        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+        let csvContent = 'data:text/csv;charset=utf-8' + rowData.map(e => e.join(',')).join('\n')
+        // function to download csv taken from:
+        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
+        function downloadFile (data, fileName) {
+          let csvData = data
+          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
+          if (window.navigator.msSaveBlob) {
+            navigator.msSaveBlob(blob, fileName)
+          } else {
+            let link = document.createElement('a')
+            let csvUrl = URL.createObjectURL(blob)
+            link.href = csvUrl
+            link.style = 'invisibility: hidden'
+            link.download = fileName
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          }
         }
-        FileSaver.saveAs(new Blob([s2ab(wbout)], {type: 'application/octet-stream'}), 'test.xlsx')
+        downloadFile(csvContent, 'text.csv')
       }
     },
     computed: {
