@@ -95,10 +95,6 @@
                  :columnDefs="columnDefs"
                  :rowData="rowData"
 
-                 :rowHeight=30
-                 :enableColResize="true"
-                 :enableSorting="true"
-                 :enableFilter="true"
                  :groupHeaders="true"
 
                  @modelUpdated="onModelUpdated"
@@ -506,7 +502,15 @@
           icons: {
             columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
             columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
+          },
+          // START: ag-grid-vue update (20.0+):
+          rowHeight: 30,
+          defaultColDef: {
+            sortable: true,
+            filter: true,
+            resizable: true
           }
+          // END
         }
       },
       readStructure () {
