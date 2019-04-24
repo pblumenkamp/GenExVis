@@ -107,6 +107,15 @@
                    :columnMoved="onPositionChanged"
                    :gridReady="onReady"
       />
+      <button
+        id = 'downloadSmallCSV'
+        class="centerButton"
+        title="Download table as .csv"
+        @click="exportCSV()"
+        style="float: left"
+      >
+        <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
+      </button>
     </div>
     <div class="main-table" v-else>
       <!-- Miriam's Excel Table -->
@@ -126,12 +135,12 @@
           <th></th>
           <th>
               <button
-                id = 'downloadXLSX'
+                id = 'downloadCSV'
                 class="centerButton"
-                title="Download table as .xlsx"
-                @click="exportExcel"
+                title="Download table as .csv"
+                @click="exportCSV"
               >
-                <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .xlsx
+                <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
               </button>
           </th>
           <th></th>
@@ -149,11 +158,6 @@
   import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
   import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
   import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
-  // import XLSX from 'xlsx'
-//  import xlsxSTYLE from 'xlsx-style'
-//  import FileSaver from 'file-saver'
-//  import $ from 'jquery'
-  // import streamSaver from 'streamsaver'
 
   export default {
     data () {
@@ -579,11 +583,41 @@
         this.$store.commit(ADD_STRUC, strucStorage)
       },
       // Miri
-      exportExcel () {
+      exportCSV () {
+        // first row with file names
+        let topColumns = []
+        let fileCounter = 0
+        let fileList = this.$store.state.deseqlist
+        for (let file of fileList) {
+          if (file[0] === undefined || file[0] === 'name') {
+            topColumns.push(this.nameColumn())
+          } else {
+            topColumns.push(file)
+            console.log(this.$store.state.deseqlist)
+            // "empty" cells to move fileName to the right position
+            topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
+            fileCounter = fileCounter + 1
+          }
+        }
+        // removing 1st array element, which was shown as object[object] in csv
+        // topColumns.shift()
+        console.log(topColumns)
+        // creating columnHeaders
+        let columnHeaders = []
+        while (fileCounter > 0) {
+          columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
+          fileCounter = fileCounter - 1
+        }
+        // adding name only in the beginning of the column headers
+        columnHeaders.unshift('name')
+        console.log(columnHeaders)
+        // creating correct row data
         let rowData = []
+        rowData.push(topColumns)
+        rowData.push(columnHeaders)
         let oneEntry = []
         // let rowCounter = 0
-        let store = this.$store.state.dgeData
+        let store = this.$store.state.currentDGE
         // iterate data
         for (let geneName of store.geneNames) {
           let gene = store.getGene(geneName)
@@ -596,16 +630,18 @@
             let myStat = analysis.stat
             let mypValue = analysis.pValue
             let mypAdj = analysis.pAdj
-            oneEntry.push(myMean, mylog2fold, mylfcSE, myStat, mypValue, mypAdj)
+            // order is important
+            oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
           }
-          // needed for array of array structure to pass to XLSX
+          // so far: array of arrays with inner array = one entry (entries in correct order)
           rowData.push(oneEntry)
           oneEntry = []
         }
         console.log(rowData)
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-        let csvContent = 'data:text/csv;charset=utf-8' + rowData.map(e => e.join(',')).join('\n')
+        // to write csv, one 1D big array is needed
+        let csvContent = rowData.map(e => e.join(',')).join('\n')
         // function to download csv taken from:
         // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
         function downloadFile (data, fileName) {
@@ -624,7 +660,7 @@
             document.body.removeChild(link)
           }
         }
-        downloadFile(csvContent, 'text.csv')
+        downloadFile(csvContent, 'testDeseqOverview.csv')
       }
     },
     computed: {
