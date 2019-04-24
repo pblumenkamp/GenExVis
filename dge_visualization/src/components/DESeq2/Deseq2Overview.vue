@@ -520,8 +520,8 @@
           rowMultiSelectWithClick: true,
           suppressPropertyNamesCheck: true,
           icons: {
-            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
-            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
+            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>',
+            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>'
           }
         }
       },
