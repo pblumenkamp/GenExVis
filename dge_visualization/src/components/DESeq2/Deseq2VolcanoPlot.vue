@@ -96,7 +96,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="entry of tableData" :key="entry">
+                  <tr v-for="entry of tableData" :key="entry.name">
                     <td v-for="key of tableHeader" :key="key" width="14%">
                       {{ entry[key] }}
                     </td>
