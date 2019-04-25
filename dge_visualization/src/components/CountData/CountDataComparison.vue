@@ -169,7 +169,7 @@
       return {
         selectedCondition1: '',
         selectedCondition2: '',
-        selectedNormalization: '',
+        selectedNormalization: this.$store.state.currentDGE.normalizationMethods[0] || '',
         useLogarithmicScale: true,
         colorSignificantGenes: '#cc1926',
         log2FoldChange: '1',
@@ -206,9 +206,6 @@
        return conditions2
        }, */
       registeredNormalizationMethods () {
-        if (this.$store.state.currentDGE.normalizationMethods.length > 0) {
-          this.selectedNormalization = this.$store.state.currentDGE.normalizationMethods[0]
-        }
         return this.$store.state.currentDGE.normalizationMethods
       },
       pThreshold () {
