@@ -10,6 +10,8 @@
             <b-nav-item to="/deseq2/ma_plot">MA Plot</b-nav-item>
             <b-nav-item to="/deseq2/distributions">Distributions</b-nav-item>
             <b-nav-item to="/deseq2/top_10">Top 10</b-nav-item>
+            <b-nav-item to="/deseq2/deseq2download">Download</b-nav-item>
+
           </b-nav>
         </b-col>
         <b-col class="col" cols="9">
@@ -62,14 +64,20 @@
             </table>
             <button
               id = 'downloadXLSX'
-              class="centerButton"
+              class="btn btn-dark btn-sm"
               title="Download table as .csv"
               @click="exportsubDGE()"
-              style="float: left"
+              style="float: left; margin: 0.1rem"
             >
               <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
             </button>
-            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right">
+            <div>
+              <b-form-checkbox v-model="roundedValues2"
+                               @change="toggleRoundingChange2">
+                Rounded Values
+              </b-form-checkbox>
+            </div>
+            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right; margin: 0.1rem;">
               <font-awesome-icon :icon="faTrashAlt"></font-awesome-icon> Clear
             </button>
 
@@ -97,7 +105,8 @@
     },
     data () {
       return {
-        showGenes: false
+        showGenes: false,
+        roundedValues2: true
       }
     },
     methods: {
@@ -127,12 +136,24 @@
             topColumns.push(this.nameColumn())
           } else {
             topColumns.push(file)
-            console.log(this.$store.state.deseqlist)
-            // "empty" cells to move fileName to the right position
-            topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
-            fileCounter = fileCounter + 1
+            // six empty cells will be added only for the first
+            // filename, since the columnheader "name" appears only once
+            if (fileCounter < 1) {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move fileName to the right position
+              topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
+            } else {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move filenames above column headers to right pos
+              topColumns.push(' ', ' ', ' ', ' ', ' ')
+            }
           }
+          fileCounter = fileCounter + 1
         }
+        console.log(fileCounter)
+        // removing 1st array element, which was shown as object[object] in csv
+        // topColumns.shift()
+        console.log(topColumns)
         // removing 1st array element, which was shown as object[object] in csv
         // topColumns.shift()
         console.log(topColumns)
@@ -164,6 +185,14 @@
             let myStat = analysis.stat
             let mypValue = analysis.pValue
             let mypAdj = analysis.pAdj
+            if (this.roundedValues2 === true) {
+              myMean = Math.round(myMean * 100) / 100
+              mylog2fold = Math.round(mylog2fold * 100) / 100
+              mylfcSE = Math.round(mylfcSE * 100) / 100
+              myStat = Math.round(myStat * 100) / 100
+              mypValue = Math.round(mypValue * 100) / 100
+              mypAdj = Math.round(mypAdj * 100) / 100
+            }
             oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
           }
           // needed for array of array structure to pass to XLSX
@@ -193,6 +222,9 @@
           }
         }
         downloadFile(csvContent, 'testDeseqMain.csv')
+      },
+      toggleRoundingChange2 () {
+        this.roundedValues2 = false
       }
     },
     computed: {
