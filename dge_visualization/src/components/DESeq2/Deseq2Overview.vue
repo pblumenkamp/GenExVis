@@ -7,6 +7,7 @@
     <div style="clear: both;"></div>
 
     <div>
+      <!-- Design selection -->
       <table style="height: 10rem; width: 100%; text-align: center; align-content: center"
              border="0px solid black">
         <tr>
@@ -31,6 +32,7 @@
               </table>
             </b-card>
           </td>
+          <!-- subset area -->
           <td style="width: 70%">
             <b-card style="height: 90%; border: 1px solid lightslategray">
               <table style="width:100%" border="0px solid black">
@@ -62,6 +64,7 @@
               </table>
             </b-card>
           </td>
+          <!-- Area right of subset table: Filter bar, view change (rounded), reset table button -->
           <td style="width: 15%" align="left">
             <b-card style="height: 100%; border: 0px solid lightslategray">
               <div>
@@ -87,7 +90,7 @@
         </tr>
       </table>
     </div><p></p>
-
+    <!-- Big gene table -->
     <div v-if="this.rowTotalAmount <= 100000">
       <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
                    :gridOptions="gridOptions"
@@ -109,16 +112,22 @@
       />
       <button
         id = 'downloadSmallCSV'
-        class="centerButton"
+        class="btn btn-dark btn-sm"
         title="Download table as .csv"
         @click="exportCSV()"
-        style="float: left"
+        style="float: left; margin: 0.1rem; width: 15%"
       >
         <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
       </button>
+      <div>
+        <b-form-checkbox v-model="roundedValues2"
+                         @change="toggleRoundingChange2">
+          Rounded Values
+        </b-form-checkbox>
+      </div>
     </div>
     <div class="main-table" v-else>
-      <!-- Miriam's Excel Table -->
+      <!-- Miri table view if table was too big to display -->
       <br>
       <table width="100%">
         <tr align="center">
@@ -131,17 +140,32 @@
           <th><h3>You can download the full table below</h3></th>
           <th></th>
         </tr>
-        <tr>
+        <tr align="center">
           <th></th>
           <th>
-              <button
-                id = 'downloadCSV'
-                class="centerButton"
-                title="Download table as .csv"
-                @click="exportCSV"
-              >
-                <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
-              </button>
+            <table layout="fixed">
+              <td width="33%">
+                <button
+                  id = 'downloadCSV'
+                  class="btn btn-dark btn-sm"
+                  title="Download table as .csv"
+                  @click="exportCSV"
+                  style = "width: 100%"
+                >
+                  <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
+                </button>
+              </td>
+              <td width="33%">
+              </td>
+              <td width="33%">
+                <div>
+                  <b-form-checkbox v-model="roundedValues2"
+                                   @change="toggleRoundingChange2">
+                    Rounded Values
+                  </b-form-checkbox>
+                </div>
+              </td>
+            </table>
           </th>
           <th></th>
         </tr>
@@ -162,6 +186,7 @@
   export default {
     data () {
       return {
+        roundedValues2: true,
         roundedValues: true,
         gridOptions: null,
         columnDefs: null,
@@ -471,6 +496,9 @@
         this.roundedValues = false
         this.createRowData()
       },
+      toggleRoundingChange2 () {
+        this.roundedValues2 = false
+      },
       toggleTableReset () {
         this.createStrucStorage()
         this.createColumnDefs()
@@ -593,12 +621,21 @@
             topColumns.push(this.nameColumn())
           } else {
             topColumns.push(file)
-            console.log(this.$store.state.deseqlist)
-            // "empty" cells to move fileName to the right position
-            topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
-            fileCounter = fileCounter + 1
+            // six empty cells will be added only for the first
+            // filename, since the columnheader "name" appears only once
+            if (fileCounter < 1) {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move fileName to the right position
+              topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
+            } else {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move filenames above column headers to right pos
+              topColumns.push(' ', ' ', ' ', ' ', ' ')
+            }
           }
+          fileCounter = fileCounter + 1
         }
+        console.log(fileCounter)
         // removing 1st array element, which was shown as object[object] in csv
         // topColumns.shift()
         console.log(topColumns)
@@ -630,6 +667,14 @@
             let myStat = analysis.stat
             let mypValue = analysis.pValue
             let mypAdj = analysis.pAdj
+            if (this.roundedValues2 === true) {
+              myMean = Math.round(myMean * 100) / 100
+              mylog2fold = Math.round(mylog2fold * 100) / 100
+              mylfcSE = Math.round(mylfcSE * 100) / 100
+              myStat = Math.round(myStat * 100) / 100
+              mypValue = Math.round(mypValue * 100) / 100
+              mypAdj = Math.round(mypAdj * 100) / 100
+            }
             // order is important
             oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
           }
@@ -640,7 +685,7 @@
         console.log(rowData)
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-        // to write csv, one 1D big array is needed
+        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
         let csvContent = rowData.map(e => e.join(',')).join('\n')
         // function to download csv taken from:
         // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
@@ -755,10 +800,10 @@
 
   /* Miri centered download button for .xlsx
   position relative to parent element*/
-  .centerButton {
+  /*.centerButton {
     position: relative;
     left: 45%;
-  }
+  }*/
   @media(max-width: 1500px) {
     td {
       display: table-row;
