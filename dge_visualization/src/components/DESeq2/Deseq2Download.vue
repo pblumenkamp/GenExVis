@@ -1,7 +1,7 @@
 <template xmlns:position="http://www.w3.org/1999/xhtml">
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
-      <h1>Downloads</h1>
+      <h1>Deseq2 - Downloads</h1>
     </div>
     <table style="height: 30rem; width: 100%; text-align: center; align-content: center"
          border="0px solid black">
