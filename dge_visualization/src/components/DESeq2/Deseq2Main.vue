@@ -30,7 +30,7 @@
               <small>{{ fileName }}</small>
             </li>
           </b-card>
-
+          <!-- small subset table on the right in overview -->
           <b-card id="subsetBox"
                   v-bind:class="{ 'subsetBox-small':!showGenes, 'subsetBox-large':showGenes }" v-if="this.$store.state.subDGE.geneNames.size > 0">
             Current Subset:
@@ -62,6 +62,7 @@
                 </td>
               </tr>
             </table>
+            <!--
             <button
               id = 'downloadXLSX'
               class="btn btn-dark btn-sm"
@@ -77,6 +78,7 @@
                 Rounded Values
               </b-form-checkbox>
             </div>
+             -->
             <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right; margin: 0.1rem;">
               <font-awesome-icon :icon="faTrashAlt"></font-awesome-icon> Clear
             </button>
