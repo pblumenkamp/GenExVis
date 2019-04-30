@@ -94,19 +94,14 @@
                  :gridOptions="gridOptions"
                  :columnDefs="columnDefs"
                  :rowData="rowData"
-                 :showToolPanel="showToolPanel"
 
-                 :rowHeight=30
-                 :enableColResize="true"
-                 :enableSorting="true"
-                 :enableFilter="true"
                  :groupHeaders="true"
 
-                 :modelUpdated="onModelUpdated"
-                 :selectionChanged="onSelectionChanged"
-                 :columnVisible="onVisionChanged"
-                 :columnMoved="onPositionChanged"
-                 :gridReady="onReady"
+                 @modelUpdated="onModelUpdated"
+                 @selectionChanged="onSelectionChanged"
+                 @columnVisible="onVisionChanged"
+                 @columnMoved="onPositionChanged"
+                 @gridReady="onReady"
     />
   </div>
 </template>
@@ -116,8 +111,8 @@
   import {SET_SUBDGE} from '../../store/action_constants'
 
   import {AgGridVue} from 'ag-grid-vue'
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faUndoAlt} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     data () {
@@ -126,7 +121,6 @@
         gridOptions: null,
         columnDefs: null,
         rowData: null,
-        showToolPanel: false,
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
@@ -508,7 +502,15 @@
           icons: {
             columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
             columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
+          },
+          // START: ag-grid-vue update (20.0+):
+          rowHeight: 30,
+          defaultColDef: {
+            sortable: true,
+            filter: true,
+            resizable: true
           }
+          // END
         }
       },
       readStructure () {

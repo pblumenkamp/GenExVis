@@ -5,7 +5,7 @@ function parseDeseq2 (content, conditions, deseqResult = new DGE()) {
   let header = content[0].split('\t')
 
   if (header.length !== 7) {
-    console.warn('Incorrect header!')
+    throw new Error('Incorrect header in DESeq2 file found. File should contain 7 columns.')
   }
 
   for (let i = 1, lenLines = content.length; i < lenLines; i++) {

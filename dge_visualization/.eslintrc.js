@@ -2,15 +2,20 @@
 
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
+  parser: 'vue-eslint-parser',
   parserOptions: {
-    sourceType: 'module'
+    parser: "babel-eslint",
+    sourceType: 'module',
+    allowImportExportEverywhere: false
   },
   env: {
     browser: true,
   },
   // https://github.com/standard/standard/blob/master/docs/RULES-en.md
-  extends: 'standard',
+  extends: [
+      'eslint:recommended',
+      'plugin:vue/recommended'
+  ],
   // required to lint *.vue files
   plugins: [
     'html'
@@ -26,6 +31,24 @@ module.exports = {
     // ignores multiple spaces before comments that occur at the end of lines
     'no-multi-spaces': [
       "error",
-      { ignoreEOLComments: true }]
+      { ignoreEOLComments: true }],
+    'object-curly-spacing': ["error", "never"],
+    'no-console': "warn",
+    'vue/max-attributes-per-line': ["error", {
+        "singleline": 3
+    }],
+    "vue/singleline-html-element-content-newline": "off",
+    "vue/html-self-closing": ["warn", {
+      "html": {
+        "void": "never",
+        "normal": "any",
+        "component": "always"
+      },
+      "svg": "always",
+      "math": "always"
+    }],
+    "vue/name-property-casing": ["error", "PascalCase"],
+    "vue/no-side-effects-in-computed-properties": "warn"
+
   }
 }

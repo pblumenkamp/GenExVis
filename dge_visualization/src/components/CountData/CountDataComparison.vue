@@ -1,20 +1,41 @@
+/*eslint-env node*/
 <template>
   <div style="text-align: center">
     <h1>Gene Count Comparison</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
-        <option :value="''" disabled>-- Please select the first condition --</option>
+        <option :value="''" disabled>
+          -- Please select the first condition --
+        </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions)" :value="cond">{{ cond }}</option>
+      <option
+        v-for="cond in Array.from(dgeConditions)"
+        :key="cond"
+        :value="cond"
+      >
+        {{ cond }}
+      </option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" @input="drawData"
-                   :disabled="selectedCondition1 === ''">
+    <b-form-select
+      v-model="selectedCondition2"
+      style="width: auto"
+      :disabled="selectedCondition1 === ''"
+      @input="drawData"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select the second condition --</option>
+        <option :value="''" disabled>
+          -- Please select the second condition --
+        </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions)" :value="cond" :disabled="cond === selectedCondition1">{{ cond }}
+      <option
+        v-for="cond in Array.from(dgeConditions)"
+        :key="cond"
+        :value="cond"
+        :disabled="cond === selectedCondition1"
+      >
+        {{ cond }}
       </option>
     </b-form-select>
 
@@ -22,37 +43,74 @@
 
     <b-form-select v-model="selectedNormalization" style="width: auto; margin-top: 1rem">
       <template slot="first">
-        <option :value="''" disabled>-- Please select a normalization method --</option>
+        <option :value="''" disabled>
+          -- Please select a normalization method --
+        </option>
       </template>
-      <option v-for="normalization in registeredNormalizationMethods" :value="normalization">{{ normalization }}</option>
+      <option
+        v-for="normalization in registeredNormalizationMethods"
+        :key="normalization"
+        :value="normalization"
+      >
+        {{ normalization }}
+      </option>
     </b-form-select>
 
-    <div id="countdata_countvscount" ref="countdata_countvscount"
-         style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
+    <div
+      id="countdata_countvscount"
+      ref="countdata_countvscount"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+    ></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
       <b-container fluid border="1">
         <b-row class="my-1">
-          <b-col sm="3"><label>use logarithmic scale</label></b-col>
           <b-col sm="3">
-            <b-form-checkbox v-model="useLogarithmicScale" style="float: left;" @input="drawData"></b-form-checkbox>
+            <label>use logarithmic scale</label>
           </b-col>
-          <b-col sm="3"><label>color of significant genes</label></b-col>
           <b-col sm="3">
-            <b-form-input type='color' v-model="colorSignificantGenes" style="float: left; padding: 0.05rem; min-width: 1rem; max-width: 2rem" @input="drawData"></b-form-input>
+            <b-form-checkbox v-model="useLogarithmicScale" style="float: left;" @input="drawData" />
+          </b-col>
+          <b-col sm="3">
+            <label>color of significant genes</label>
+          </b-col>
+          <b-col sm="3">
+            <b-form-input
+              v-model="colorSignificantGenes"
+              type="color"
+              style="float: left; padding: 0.05rem; min-width: 1rem; max-width: 2rem"
+              @input="drawData"
+            />
           </b-col>
         </b-row>
         <b-row class="my-3">
-          <b-col sm="3"><label style="margin-top: 0.4rem;">adjusted p-value threshold</label></b-col>
           <b-col sm="3">
-            <b-form-input type="number" v-model="adjPValueThreshold" step="0.001" max="1" min="0" style="width: 5rem;"
-                          @change="drawData"></b-form-input>
+            <label style="margin-top: 0.4rem;">adjusted p-value threshold</label>
           </b-col>
-          <b-col sm="3"><label style="margin-top: 0.4rem;">log2 fold change band</label></b-col>
           <b-col sm="3">
-            <b-form-input type="number" v-model="log2FoldChange" step="1"min="0" style="width: 5rem;"
-                          @change="drawData"></b-form-input>
+            <b-form-input
+              v-model="adjPValueThreshold"
+              type="number"
+              min="0"
+              max="1"
+              step="0.001"
+              style="width: 5rem;"
+              @change="drawData"
+            />
+          </b-col>
+          <b-col sm="3">
+            <label style="margin-top: 0.4rem;">log2 fold change band</label>
+          </b-col>
+          <b-col sm="3">
+            <b-form-input
+              v-model="log2FoldChange"
+              type="number"
+              min="0"
+              step="1"
+              style="width: 5rem;"
+              @change="drawData"
+            />
           </b-col>
         </b-row>
       </b-container>
@@ -72,26 +130,26 @@
             <b-card>
               <table width="100%">
                 <thead>
-                <tr>
-                  <th width="14%" v-for="key in tableHeader">
-                    {{ key }}
-                  </th>
-                </tr>
+                  <tr>
+                    <th v-for="key in tableHeader" :key="key" width="14%">
+                      {{ key }}
+                    </th>
+                  </tr>
                 </thead>
                 <tbody>
-                <tr v-for="entry of tableData">
-                  <td width="14%" v-for="key of tableHeader">
-                    {{ entry[key] }}
-                  </td>
-                </tr>
+                  <tr v-for="entry of tableData" :key="entry.name">
+                    <td v-for="key of tableHeader" :key="key" width="14%">
+                      {{ entry[key] }}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </b-card>
           </b-col>
         </b-row>
       </b-container>
-      </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -111,7 +169,7 @@
       return {
         selectedCondition1: '',
         selectedCondition2: '',
-        selectedNormalization: '',
+        selectedNormalization: this.$store.state.currentDGE.normalizationMethods[0] || '',
         useLogarithmicScale: true,
         colorSignificantGenes: '#cc1926',
         log2FoldChange: '1',
@@ -119,6 +177,47 @@
         tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
         rowNames: [],
         tableData: []
+      }
+    },
+    computed: {
+      dgeConditions () {
+        return this.$store.state.registeredConditions.slice().sort()
+      },
+      /* dgeConditions () {
+       let conditions1 = new Set()
+       let conditions2 = new Set()
+       for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+       if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
+       this.$store.state.registeredConditions.indexOf(condition2) === -1) {
+       continue
+       }
+       conditions1.add(condition1)
+       conditions2.add(condition2)
+       }
+       return [conditions1, conditions2]
+       },
+       conditions2 () {
+       let conditions2 = new Set()
+       for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+       if (condition1 === this.selectedCondition1) {
+       conditions2.add(condition2)
+       }
+       }
+       return conditions2
+       }, */
+      registeredNormalizationMethods () {
+        return this.$store.state.currentDGE.normalizationMethods
+      },
+      pThreshold () {
+        return parseFloat(this.inputPThreshold)
+      },
+      dge () {
+        return this.$store.state.currentDGE
+      }
+    },
+    watch: {
+      dge () {
+        this.clearChart()
       }
     },
     methods: {
@@ -399,50 +498,6 @@
       },
       updatePThreshold () {
         this.drawData()
-      }
-    },
-    computed: {
-      dgeConditions () {
-        return this.$store.state.registeredConditions.slice().sort()
-      },
-      /* dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
-              this.$store.state.registeredConditions.indexOf(condition2) === -1) {
-            continue
-          }
-          conditions1.add(condition1)
-          conditions2.add(condition2)
-        }
-        return [conditions1, conditions2]
-      },
-      conditions2 () {
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (condition1 === this.selectedCondition1) {
-            conditions2.add(condition2)
-          }
-        }
-        return conditions2
-      }, */
-      registeredNormalizationMethods () {
-        if (this.$store.state.currentDGE.normalizationMethods.length > 0) {
-          this.selectedNormalization = this.$store.state.currentDGE.normalizationMethods[0]
-        }
-        return this.$store.state.currentDGE.normalizationMethods
-      },
-      pThreshold () {
-        return parseFloat(this.inputPThreshold)
-      },
-      dge () {
-        return this.$store.state.currentDGE
-      }
-    },
-    watch: {
-      dge (newDGE, oldDGE) {
-        this.clearChart()
       }
     }
   }

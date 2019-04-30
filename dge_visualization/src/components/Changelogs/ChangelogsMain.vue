@@ -1,3 +1,4 @@
+/* eslint-disable */
 <template>
   <div style="margin: 0 auto; width: 95%">
     <h2 id="020" class="changelog">0.2.0</h2>
