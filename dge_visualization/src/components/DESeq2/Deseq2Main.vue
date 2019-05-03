@@ -34,7 +34,6 @@
           <b-card id="subsetBox"
                   v-bind:class="{ 'subsetBox-small':!showGenes, 'subsetBox-large':showGenes }" v-if="this.$store.state.subDGE.geneNames.size > 0">
             Current Subset:
-            {{showGenes}}
             <table style="width: 100%; border: 0px solid black">
               <tr>
                 <td width="50%">
