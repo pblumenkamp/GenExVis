@@ -91,7 +91,7 @@
       </table>
     </div><p></p>
     <!-- Big gene table -->
-    <div v-if="this.rowTotalAmount <= 100000">
+    <div v-if="this.rowTotalAmount*6 < 2000000">
       <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
                    :gridOptions="gridOptions"
                    :columnDefs="columnDefs"
@@ -319,6 +319,7 @@
         console.log(rowData)
         this.rowData = rowData
       },
+      // visualisation of log2FoldChange
       minmaxdefine () {
         let log2foldlist = this.log2foldlist
         let min = Math.min(...log2foldlist)
@@ -410,6 +411,7 @@
           return (this.negotiateShowvalue(value))
         }
       },
+      // visualisation of log2FoldChange
       percentCellRenderer (params) {
         let value = params.value
         let showvalue = params.value
@@ -582,8 +584,8 @@
           rowMultiSelectWithClick: true,
           suppressPropertyNamesCheck: true,
           icons: {
-            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
-            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
+            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>',
+            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>'
           }
         }
       },
