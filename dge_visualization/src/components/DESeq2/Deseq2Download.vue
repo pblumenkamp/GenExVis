@@ -65,6 +65,7 @@
                 :clear-on-select="false"
                 :preserve-search="true"
                 :show-labels="true"
+                :preselect-first="true"
                 placeholder="Choose files"
                 selected-label="Selected"
                 select-label="Click to select"
@@ -81,7 +82,35 @@
               <pre>{{ selected }}</pre> -->
         </td>
       </table>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <h4 align="center">Representative Download Preview</h4>
+      <!--Example table display -->
+      <div style="max-width: 1350px; max-height: 170px; overflow: auto;">
+      <table style="width:100%; table-layout: auto" border="1px">
+        <template v-for="(item, index) in this.tableData">
+          <tr >
+          <template v-for="value in item">
+            <td v-if="(index < 7)">{{value}}</td>
+          </template>
+          </tr>
+          <!--<tr v-if="(index < 8)">{{item}}</tr>-->
+        </template>
+      </table>
+      </div>
     </b-card>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <div>
       <br>
       <button
@@ -95,6 +124,8 @@
         <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download full .csv
       </button>
     </div>
+    <br>
+    <h4 align="center"> Download specified values for chosen subset only </h4>
     <div>
       <br>
       <button
@@ -128,6 +159,7 @@
         subTopColumns: null,
         subColumnHeaders: null,
         subRowData: null,
+        tableData: null,
         conditionPairList: [],
         // ticks in tickBoxes to select data and data options
         log2Tick: true,
@@ -158,6 +190,7 @@
         } else {
           this.buttonDisabled1 = false
         }
+        console.log('button disable 1')
       },
       setButtonDisable2 () {
         if (this.selected.length === 0 || this.$store.state.subDGE.geneNames.size === 0) {
@@ -165,9 +198,10 @@
         } else {
           this.buttonDisabled2 = false
         }
+        console.log('button disable 2')
       },
       getMyConditions () {
-        console.log('creating conditions')
+        console.log('get MyConditions')
         let conditionDicts = this.$store.state.currentDGE.conditionPairs
         let myConditions = []
         let i = 0
@@ -181,6 +215,7 @@
         this.options = myConditions
       },
       getSelected () {
+        console.log('getSelected')
         this.selected = this.selected
       },
       getConditionPairs () {
@@ -235,6 +270,8 @@
         // first row with file names
         let topColumns = []
         fileCounter = 0
+        // 6 spaces only for 1st filename, then 5!
+        let loopCounter = 1
         while (fileCounter < this.selected.length) {
           topColumns.push(this.selected[fileCounter])
           // six empty cells will be added only for the first
@@ -247,8 +284,15 @@
             spaceArray1.push(' ')
             k = k + 1
           }
-          topColumns.push(spaceArray1)
-          fileCounter = fileCounter + 1
+          if (loopCounter === 1) {
+            topColumns.push(spaceArray1)
+            fileCounter = fileCounter + 1
+          } else {
+            spaceArray1.pop()
+            topColumns.push(spaceArray1)
+            fileCounter = fileCounter + 1
+          }
+          loopCounter = loopCounter + 1
         }
         // console.log(fileCounter)
         // removing 1st array element, which was shown as object[object] in csv
@@ -363,6 +407,7 @@
         // first row with file names
         let subTopColumns = []
         fileCounter = 0
+        let loopCounter = 1
         while (fileCounter < this.selected.length) {
           subTopColumns.push(this.selected[fileCounter])
           // six empty cells will be added only for the first
@@ -375,8 +420,15 @@
             spaceArray1.push(' ')
             k = k + 1
           }
-          subTopColumns.push(spaceArray1)
-          fileCounter = fileCounter + 1
+          if (loopCounter === 1) {
+            subTopColumns.push(spaceArray1)
+            fileCounter = fileCounter + 1
+          } else {
+            spaceArray1.pop()
+            subTopColumns.push(spaceArray1)
+            fileCounter = fileCounter + 1
+          }
+          loopCounter = loopCounter + 1
         }
         // console.log(fileCounter)
         // removing 1st array element, which was shown as object[object] in csv
@@ -454,37 +506,87 @@
       },
       // toggling changes affecting data and recalculation of data
       toggleRoundingChange () {
-        this.roundedValues = false
+        if (this.roundedValues === true) {
+          this.roundedValues = false
+        } else if (this.roundedValues === false) {
+          this.roundedValues = true
+        }
+        this.makeCurrentData()
+        this.makeSubData()
+        this.makeTableData()
       },
       toggleLog2Change () {
-        this.log2Tick = false
+        if (this.log2Tick === true) {
+          this.log2Tick = false
+        } else if (this.log2Tick === false) {
+          this.log2Tick = true
+        }
         this.makeCurrentData()
         this.makeSubData()
+        this.makeTableData()
       },
       togglePadjChange () {
-        this.pAdjTick = false
+        if (this.pAdjTick === true) {
+          this.pAdjTick = false
+        } else if (this.pAdjTick === false) {
+          this.pAdjTick = true
+        }
         this.makeCurrentData()
         this.makeSubData()
+        this.makeTableData()
       },
       toggleMeanChange () {
-        this.meanTick = false
+        if (this.meanTick === true) {
+          this.meanTick = false
+        } else if (this.meanTick === false) {
+          this.meanTick = true
+        }
         this.makeCurrentData()
         this.makeSubData()
+        this.makeTableData()
       },
       toggleLFCSEchange () {
-        this.lfcseTick = false
+        if (this.lfcseTick === true) {
+          this.lfcseTick = false
+        } else if (this.lfcseTick === false) {
+          this.lfcseTick = true
+        }
         this.makeCurrentData()
         this.makeSubData()
+        this.makeTableData()
       },
       togglePchange () {
-        this.pTick = false
+        if (this.pTick === true) {
+          this.pTick = false
+        } else if (this.pTick === false) {
+          this.pTick = true
+        }
         this.makeCurrentData()
         this.makeSubData()
+        this.makeTableData()
       },
       toggleStatChange () {
-        this.statTick = false
+        if (this.statTick === true) {
+          this.statTick = false
+        } else if (this.statTick === false) {
+          this.statTick = true
+        }
         this.makeCurrentData()
         this.makeSubData()
+        this.makeTableData()
+      },
+      makeTableData () {
+        // for not appending to the already downloaded (each click made 1 header more etc)
+        this.makeCurrentData()
+        // expression to add row information taken from:
+        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
+        let tableData = this.rowData
+        let csvTops = this.topColumns
+        let csvHeaders = this.columnHeaders
+        tableData.unshift(csvHeaders)
+        tableData.unshift(csvTops)
+        this.tableData = tableData
       },
       downloadCSV () {
         // for not appending to the already downloaded (each click made 1 header more etc)
@@ -565,25 +667,26 @@
       this.setButtonDisable1()
       this.setButtonDisable2()
       this.getMyConditions()
-      console.log(this.options)
+      // console.log(this.options)
       this.getSelected()
       this.getConditionPairs()
-      console.log('beforeMount')
-      console.log(this.selected)
+      // console.log(this.selected)
       this.makeCurrentData()
       this.makeSubData()
+      this.makeTableData()
+      console.log('----- beforeMount done -----')
     },
     updated () {
+      console.log('----- start update -----')
       this.setButtonDisable1()
       this.setButtonDisable2()
       this.getSelected()
       this.getConditionPairs()
-      // console.log(this.selected)
-      // console.log(this.conditionPairList)
-      console.log('updated')
+      console.log('----- updated -----')
     }
   }
 </script>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css">
+
 </style>
