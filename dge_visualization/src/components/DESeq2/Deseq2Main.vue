@@ -61,23 +61,6 @@
                 </td>
               </tr>
             </table>
-            <!--
-            <button
-              id = 'downloadXLSX'
-              class="btn btn-dark btn-sm"
-              title="Download table as .csv"
-              @click="exportsubDGE()"
-              style="float: left; margin: 0.1rem"
-            >
-              <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
-            </button>
-            <div>
-              <b-form-checkbox v-model="roundedValues2"
-                               @change="toggleRoundingChange2">
-                Rounded Values
-              </b-form-checkbox>
-            </div>
-             -->
             <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right; margin: 0.1rem;">
               <font-awesome-icon :icon="faTrashAlt"></font-awesome-icon> Clear
             </button>
@@ -106,8 +89,7 @@
     },
     data () {
       return {
-        showGenes: false,
-        roundedValues2: true
+        showGenes: false
       }
     },
     methods: {
@@ -125,107 +107,6 @@
       },
       numberWithCommas (number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      },
-      // Miri
-      exportsubDGE () {
-        // first row with file names
-        let topColumns = []
-        let fileCounter = 0
-        let fileList = this.$store.state.deseqlist
-        for (let file of fileList) {
-          if (file[0] === undefined || file[0] === 'name') {
-            topColumns.push(this.nameColumn())
-          } else {
-            topColumns.push(file)
-            // six empty cells will be added only for the first
-            // filename, since the columnheader "name" appears only once
-            if (fileCounter < 1) {
-              // console.log(this.$store.state.deseqlist)
-              // "empty" cells to move fileName to the right position
-              topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
-            } else {
-              // console.log(this.$store.state.deseqlist)
-              // "empty" cells to move filenames above column headers to right pos
-              topColumns.push(' ', ' ', ' ', ' ', ' ')
-            }
-          }
-          fileCounter = fileCounter + 1
-        }
-        console.log(fileCounter)
-        // removing 1st array element, which was shown as object[object] in csv
-        // topColumns.shift()
-        console.log(topColumns)
-        // removing 1st array element, which was shown as object[object] in csv
-        // topColumns.shift()
-        console.log(topColumns)
-        // creating columnHeaders
-        let columnHeaders = []
-        while (fileCounter > 0) {
-          columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
-          fileCounter = fileCounter - 1
-        }
-        // adding name only in the beginning of the column headers
-        columnHeaders.unshift('name')
-        console.log(columnHeaders)
-        // creating correct row data
-        let rowData = []
-        rowData.push(topColumns)
-        rowData.push(columnHeaders)
-        let oneEntry = []
-        // let rowCounter = 0
-        let store = this.$store.state.subDGE
-        // iterate data
-        for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          let myName = gene.name
-          oneEntry.push(myName)
-          for (let analysis of gene.deseq2Analyses) {
-            let myMean = analysis.baseMean
-            let mylog2fold = analysis.log2FoldChange
-            let mylfcSE = analysis.lfcSE
-            let myStat = analysis.stat
-            let mypValue = analysis.pValue
-            let mypAdj = analysis.pAdj
-            if (this.roundedValues2 === true) {
-              myMean = Math.round(myMean * 100) / 100
-              mylog2fold = Math.round(mylog2fold * 100) / 100
-              mylfcSE = Math.round(mylfcSE * 100) / 100
-              myStat = Math.round(myStat * 100) / 100
-              mypValue = Math.round(mypValue * 100) / 100
-              mypAdj = Math.round(mypAdj * 100) / 100
-            }
-            oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
-          }
-          // needed for array of array structure to pass to XLSX
-          rowData.push(oneEntry)
-          oneEntry = []
-        }
-        console.log(rowData)
-        // expression to add row information taken from:
-        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-        let csvContent = rowData.map(e => e.join(',')).join('\n')
-        // function to download csv taken from:
-        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
-        function downloadFile (data, fileName) {
-          let csvData = data
-          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
-          if (window.navigator.msSaveBlob) {
-            navigator.msSaveBlob(blob, fileName)
-          } else {
-            let link = document.createElement('a')
-            let csvUrl = URL.createObjectURL(blob)
-            link.href = csvUrl
-            link.style = 'invisibility: hidden'
-            link.download = fileName
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-          }
-        }
-        downloadFile(csvContent, 'testDeseqMain.csv')
-      },
-      toggleRoundingChange2 () {
-        this.roundedValues2 = false
       }
     },
     computed: {
