@@ -86,7 +86,7 @@ export default new Router({
         {
           path: 'deseq2download',
           name: 'Deseq2_Download',
-          component: Deseq2Download
+          component: Deseq2Download,
         }
       ]
     },
