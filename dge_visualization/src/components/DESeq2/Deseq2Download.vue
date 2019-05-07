@@ -3,13 +3,12 @@
     <div style="text-align: center">
       <h1>Deseq2 - Downloads</h1>
     </div>
-    <div v-if="showGrid">
-
-    </div>
+    <div v-if="this.rowTotalAmount*6 < 2000000">
           <!-- Table with two cols: Options and select files -->
     <b-card style="height: 50%; border: 1px solid lightslategray">
       <table style="width:100%" border="0px solid black">
           <td width="50%">
+            <h4>Select parameters</h4>
             <tr>
               <div>
                 <b-form-checkbox v-model="roundedValues"
@@ -17,6 +16,7 @@
                   Rounded Values
                 </b-form-checkbox>
               </div>
+              <br>
             </tr>
             <tr>
             <b-form-checkbox v-model="log2Tick"
@@ -59,6 +59,7 @@
               <h4>Select files</h4>
               <multiselect
                 v-model="selected"
+                @input="previewMultiselect"
                 :options="options"
                 :multiple="true"
                 :close-on-select="false"
@@ -77,15 +78,8 @@
                   <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} options selected</span>
                 </template>
               </multiselect>
-          <!--
-              <h4>Selected files</h4>
-              <pre>{{ selected }}</pre> -->
         </td>
       </table>
-      <br>
-      <br>
-      <br>
-      <br>
       <br>
       <h4 align="center">Representative Download Preview</h4>
       <!--Example table display -->
@@ -101,20 +95,13 @@
         </template>
       </table>
       </div>
+      <br>
     </b-card>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
     <div>
       <br>
+      <br>
       <button
-        :disabled="buttonDisabled1"
+        :disabled="setButtonDisable1"
         id = 'downloadCSV'
         class="btn btn-dark btn-sm"
         title="Download table as .csv"
@@ -126,10 +113,9 @@
     </div>
     <br>
     <h4 align="center"> Download specified values for chosen subset only </h4>
-    <div>
       <br>
       <button
-        :disabled="buttonDisabled2"
+        :disabled="setButtonDisable2"
         id = 'downloadSub'
         class="btn btn-dark btn-sm"
         title="Download table as .csv"
@@ -139,7 +125,44 @@
         <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download subset .csv
       </button>
     </div>
-  </div>
+    <!-- DOWNLOAD IF FILE TOO LARGE -->
+      <div v-else>
+        <table width="100%">
+        <tr align="center">
+          <th><h2>Unfortunately the table was too large to display</h2></th>
+        </tr>
+        <tr align="center">
+          <th><h3>You can download the full table below</h3></th>
+        </tr>
+        <tr align="center">
+          <table>
+            <td width="33%">
+            </td>
+              <td width="33%">
+                <button
+                  id = 'exportBig'
+                  class="btn btn-dark btn-sm"
+                  title="Download table as .csv"
+                  @click="exportBig"
+                  style = "width: 100%"
+                >
+                  <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
+                </button>
+              </td>
+              <td width="33%">
+                <div>
+                  <b-form-checkbox v-model="roundedValues"
+                                   @change="toggleRoundingChange">
+                    Rounded Values
+                  </b-form-checkbox>
+                </div>
+              </td>
+            </table>
+          <th></th>
+        </tr>
+        </table>
+      </div>
+    </div>
 </template>
 
 <script>
@@ -159,7 +182,12 @@
         subTopColumns: null,
         subColumnHeaders: null,
         subRowData: null,
+        // data displayed in preview table
         tableData: null,
+        // total amount of rows to catch upload of large file
+        rowTotalAmount: null,
+        excessLength: false,
+        // variables
         conditionPairList: [],
         // ticks in tickBoxes to select data and data options
         log2Tick: true,
@@ -170,8 +198,6 @@
         statTick: true,
         roundedValues: true,
         showGrid: true,
-        buttonDisabled1: true,
-        buttonDisabled2: true,
         // dropdown related
         // selected = array of comparisons selected
         selected: [],
@@ -183,23 +209,40 @@
       FontAwesomeIcon,
       Multiselect
     },
-    methods: {
-      setButtonDisable1 () {
-        if (this.selected.length === 0 || this.$store.state.currentDGE.geneNames.size === 0) {
-          this.buttonDisabled1 = true
-        } else {
-          this.buttonDisabled1 = false
-        }
-        console.log('button disable 1')
-      },
+    computed: {
       setButtonDisable2 () {
         if (this.selected.length === 0 || this.$store.state.subDGE.geneNames.size === 0) {
-          this.buttonDisabled2 = true
+          return true
         } else {
-          this.buttonDisabled2 = false
+          return false
         }
-        console.log('button disable 2')
       },
+      setButtonDisable1 () {
+        if (this.selected.length === 0 || this.$store.state.currentDGE.geneNames.size === 0) {
+          return true
+        } else {
+          return false
+        }
+      },
+      faDownload () {
+        return faDownload
+      }
+    },
+    methods: {
+      checkGeneAmount () {
+        let store = this.$store.state.dgeData
+        let storeLength = store.length
+        this.rowTotalAmount = storeLength
+        if (storeLength > 100000) {
+          this.excessLength = true
+        }
+      },
+      previewMultiselect () {
+        console.log('Multiselect listened')
+        console.log(this.selected)
+        this.makeTableData()
+      },
+      // getting conditions to display in multiselect
       getMyConditions () {
         console.log('get MyConditions')
         let conditionDicts = this.$store.state.currentDGE.conditionPairs
@@ -218,13 +261,13 @@
         console.log('getSelected')
         this.selected = this.selected
       },
+      // getting condition pairs to get correct data from store
       getConditionPairs () {
         console.log('getConditionPairs')
         let conditionPairList = []
         // console.log(this.selected)
         for (let i = 0; i < this.selected.length; i++) {
-          // splitting at space to get e.g. t1, vs., t2
-          // console.log(this.selected[i])
+          // getting tx and ty from string
           let first = this.selected[i].slice(0, 2)
           let second = this.selected[i].slice(7, 9)
           conditionPairList.push(new ConditionPair(first, second))
@@ -364,6 +407,8 @@
           oneEntry = []
         }
         this.rowData = rowData
+        console.log('row Data creation done')
+        console.log(this.rowData)
         // console.log(rowData)
         // let rowDatasplit = rowData.map(e => e.join(',')).join('\n')
         // console.log(rowDatasplit)
@@ -576,7 +621,10 @@
         this.makeTableData()
       },
       makeTableData () {
+        console.log('creating table data')
+        console.log(this.conditionPairList)
         // for not appending to the already downloaded (each click made 1 header more etc)
+        this.getConditionPairs()
         this.makeCurrentData()
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
@@ -587,6 +635,7 @@
         tableData.unshift(csvHeaders)
         tableData.unshift(csvTops)
         this.tableData = tableData
+        console.log('table Data created')
       },
       downloadCSV () {
         // for not appending to the already downloaded (each click made 1 header more etc)
@@ -655,34 +704,117 @@
         }
         downloadFile(csvContent, 'testDeseqOverview.csv')
         console.log('end of subset download function')
-      }
-    },
-    computed: {
-      faDownload () {
-        return faDownload
+      },
+      exportBig () {
+        // first row with file names
+        let topColumns = []
+        let fileCounter = 0
+        let fileList = this.$store.state.deseqlist
+        for (let file of fileList) {
+          if (file[0] === undefined || file[0] === 'name') {
+            topColumns.push(this.nameColumn())
+          } else {
+            topColumns.push(file)
+            // six empty cells will be added only for the first
+            // filename, since the columnheader "name" appears only once
+            if (fileCounter < 1) {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move fileName to the right position
+              topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
+            } else {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move filenames above column headers to right pos
+              topColumns.push(' ', ' ', ' ', ' ', ' ')
+            }
+          }
+          fileCounter = fileCounter + 1
+        }
+        console.log(fileCounter)
+        // removing 1st array element, which was shown as object[object] in csv
+        // topColumns.shift()
+        console.log(topColumns)
+        // creating columnHeaders
+        let columnHeaders = []
+        while (fileCounter > 0) {
+          columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
+          fileCounter = fileCounter - 1
+        }
+        // adding name only in the beginning of the column headers
+        columnHeaders.unshift('name')
+        console.log(columnHeaders)
+        // creating correct row data
+        let rowData = []
+        rowData.push(topColumns)
+        rowData.push(columnHeaders)
+        let oneEntry = []
+        // let rowCounter = 0
+        let store = this.$store.state.currentDGE
+        // iterate data
+        for (let geneName of store.geneNames) {
+          let gene = store.getGene(geneName)
+          let myName = gene.name
+          oneEntry.push(myName)
+          for (let analysis of gene.deseq2Analyses) {
+            let myMean = analysis.baseMean
+            let mylog2fold = analysis.log2FoldChange
+            let mylfcSE = analysis.lfcSE
+            let myStat = analysis.stat
+            let mypValue = analysis.pValue
+            let mypAdj = analysis.pAdj
+            if (this.roundedValues === true) {
+              myMean = Math.round(myMean * 100) / 100
+              mylog2fold = Math.round(mylog2fold * 100) / 100
+              mylfcSE = Math.round(mylfcSE * 100) / 100
+              myStat = Math.round(myStat * 100) / 100
+              mypValue = Math.round(mypValue * 100) / 100
+              mypAdj = Math.round(mypAdj * 100) / 100
+            }
+            // order is important
+            oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
+          }
+          // so far: array of arrays with inner array = one entry (entries in correct order)
+          rowData.push(oneEntry)
+          oneEntry = []
+        }
+        console.log(rowData)
+        // expression to add row information taken from:
+        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
+        let csvContent = rowData.map(e => e.join(',')).join('\n')
+        // function to download csv taken from:
+        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
+        function downloadFile (data, fileName) {
+          let csvData = data
+          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
+          if (window.navigator.msSaveBlob) {
+            navigator.msSaveBlob(blob, fileName)
+          } else {
+            let link = document.createElement('a')
+            let csvUrl = URL.createObjectURL(blob)
+            link.href = csvUrl
+            link.style = 'invisibility: hidden'
+            link.download = fileName
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          }
+        }
+        downloadFile(csvContent, 'testDeseqOverview.csv')
       }
     },
     beforeMount () {
-      console.log('>>> start')
-      this.setButtonDisable1()
-      this.setButtonDisable2()
-      this.getMyConditions()
-      // console.log(this.options)
-      this.getSelected()
-      this.getConditionPairs()
-      // console.log(this.selected)
-      this.makeCurrentData()
-      this.makeSubData()
-      this.makeTableData()
-      console.log('----- beforeMount done -----')
-    },
-    updated () {
-      console.log('----- start update -----')
-      this.setButtonDisable1()
-      this.setButtonDisable2()
-      this.getSelected()
-      this.getConditionPairs()
-      console.log('----- updated -----')
+      this.checkGeneAmount()
+      if (this.excessLength === false) {
+        console.log('>>> start')
+        this.getMyConditions()
+        this.getSelected()
+        this.getConditionPairs()
+        // console.log(this.selected)
+        this.makeCurrentData()
+        this.makeSubData()
+        this.makeTableData()
+        console.log('----- beforeMount done -----')
+      }
     }
   }
 </script>
