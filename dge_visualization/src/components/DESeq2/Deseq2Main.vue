@@ -9,7 +9,7 @@
             <b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>
             <b-nav-item to="/deseq2/ma_plot">MA Plot</b-nav-item>
             <b-nav-item to="/deseq2/distributions">Distributions</b-nav-item>
-            <b-nav-item to="/deseq2/top_10">Top 10</b-nav-item>
+            <b-nav-item to="/deseq2/top_10">Top 1links0</b-nav-item>
           </b-nav>
         </b-col>
         <b-col class="col" cols="9">
@@ -142,7 +142,7 @@
     padding-top: 2rem; /* Place content 60px from the top */
   }
   .genesBox-small {
-    min-height: 100px;
+    min-height: 20rem;
     height: 20rem;
     margin-top: 0.5rem
   }

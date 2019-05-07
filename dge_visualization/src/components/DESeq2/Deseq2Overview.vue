@@ -88,7 +88,7 @@
       </table>
     </div><p></p>
 
-    <div v-if="this.rowTotalAmount <= 100000">
+    <div v-if="this.$store.state.deseqlist * 6 * this.rowData.length <= 2000000">
       <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
                    :gridOptions="gridOptions"
                    :columnDefs="columnDefs"
@@ -108,7 +108,7 @@
                    :gridReady="onReady"
       />
     </div>
-    <div class="main-table" v-else>
+    <div v-else class="main-table">
       <!-- Miriam's Excel Table -->
 
       <!-- END -->
