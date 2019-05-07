@@ -89,7 +89,7 @@
     },
     data () {
       return {
-        showGenes: false
+        showGenes: false,
       }
     },
     methods: {
