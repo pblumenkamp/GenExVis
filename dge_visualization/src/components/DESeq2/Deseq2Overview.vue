@@ -110,21 +110,6 @@
                    :columnMoved="onPositionChanged"
                    :gridReady="onReady"
       />
-      <button
-        id = 'downloadSmallCSV'
-        class="btn btn-dark btn-sm"
-        title="Download table as .csv"
-        @click="exportCSV()"
-        style="float: left; margin: 0.1rem; width: 15%"
-      >
-        <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
-      </button>
-      <div>
-        <b-form-checkbox v-model="roundedValues2"
-                         @change="toggleRoundingChange2">
-          Rounded Values
-        </b-form-checkbox>
-      </div>
     </div>
     <div class="main-table" v-else>
       <!-- Miri table view if table was too big to display -->
@@ -149,7 +134,7 @@
                   id = 'downloadCSV'
                   class="btn btn-dark btn-sm"
                   title="Download table as .csv"
-                  @click="exportCSV"
+                  @click="downloadCSV"
                   style = "width: 100%"
                 >
                   <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
@@ -613,7 +598,7 @@
         this.$store.commit(ADD_STRUC, strucStorage)
       },
       // Miri
-      exportCSV () {
+      downloadCSV () {
         // first row with file names
         let topColumns = []
         let fileCounter = 0
