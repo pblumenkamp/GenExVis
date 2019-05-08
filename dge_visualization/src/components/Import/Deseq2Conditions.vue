@@ -1,21 +1,30 @@
 <template>
   <b-container>
-    <b-row v-for="{file, index, conditions, validEntry, errorText} in getDataObject" :key="file.name"
-           :style="{margin: '0.5rem', 'background-color': (validEntry !== false) ? '' : '#ff000055'}">
+    <b-row
+      v-for="{file, index, conditions, validEntry, errorText} in dataObject"
+      :key="file.name"
+      :style="{margin: '0.5rem', 'background-color': (validEntry !== false) ? '' : '#ff000055'}"
+    >
       <b-col sm="5" class="align-self-center">
-        <b>{{index+1}}.</b> {{file.name}}
+        <b>{{ index+1 }}.</b> {{ file.name }}
       </b-col>
       <b-col sm="3">
-        <b-form-select v-model="conditions[0]" :options="registeredConditions"
-                       style="margin-top: 3%; margin-bottom: 3%">
+        <b-form-select
+          v-model="conditions[0]"
+          :options="registeredConditions"
+          style="margin-top: 3%; margin-bottom: 3%"
+        >
           <template slot="first">
             <option :value="''" disabled>-- Condition 1 --</option>
           </template>
         </b-form-select>
       </b-col>
       <b-col sm="3">
-        <b-form-select v-model="conditions[1]" :options="registeredConditions"
-                       style="margin-top: 3%; margin-bottom: 3%">
+        <b-form-select
+          v-model="conditions[1]"
+          :options="registeredConditions"
+          style="margin-top: 3%; margin-bottom: 3%"
+        >
           <template slot="first">
             <option :value="''" disabled>-- Condition 2 --</option>
           </template>
@@ -23,22 +32,51 @@
       </b-col>
       <b-col sm="1" class="align-self-center text-center">
         <span v-tooltip="{content: errorText, placement: 'right-center', offset: 50}" style="cursor: pointer">
-          <font-awesome-icon :icon="faInfoCircle" v-if="validEntry === false" class="text-secondary"
-                             transform="grow-10" :style="{'color': '#FF0000'}"></font-awesome-icon>
+          <font-awesome-icon
+            v-if="validEntry === false"
+            :icon="faInfoCircle"
+            class="text-secondary"
+            transform="grow-10"
+            :style="{'color': '#FF0000'}"
+          />
         </span>
       </b-col>
     </b-row>
     <div style="width: 10rem; margin: 2rem auto 0;">
-      <b-button @click="parseDataObject" style="float: left; margin-right: 1rem">Import files</b-button>
-      <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary"
-                         style="margin-top: 0.1rem"></font-awesome-icon>
-      <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary"
-                         style="margin-top: 0.1rem"></font-awesome-icon>
-      <font-awesome-icon :icon="faTimesCircle" size="2x" v-if="importingFailed" class="text-secondary"
-                         style="margin-top: 0.1rem"></font-awesome-icon>
+      <b-button style="float: left; margin-right: 1rem" @click="parseDataObject">
+        Import files
+      </b-button>
+      <font-awesome-icon
+        v-if="importingFiles"
+        :icon="faSpinner"
+        pulse
+        size="2x"
+        class="text-secondary"
+        style="margin-top: 0.1rem"
+      />
+      <font-awesome-icon
+        v-if="importingDone"
+        :icon="faCheckCircle"
+        size="2x"
+        class="text-secondary"
+        style="margin-top: 0.1rem"
+      />
+      <span v-if="importingFailed" v-tooltip.top="{content: importFailedMessage, placement: 'auto', offset: 30}" style="cursor: pointer">
+        <font-awesome-icon
+          :icon="faTimesCircle"
+          size="2x"
+          class="text-secondary"
+          style="margin-top: 0.1rem"
+        />
+      </span>
     </div>
-    <b-progress v-if="!progress.done" :value="progress.counter" :max="progress.max" animated
-                style="margin-top: 5rem"></b-progress>
+    <b-progress
+      v-if="!progress.done"
+      :value="progress.counter"
+      :max="progress.max"
+      animated
+      style="margin-top: 5rem"
+    />
   </b-container>
 </template>
 
@@ -46,26 +84,67 @@
   import {STORE_DESEQ2_STATISTICS} from '@/store/action_constants'
   import {ADD_DESEQ} from '@/store/mutation_constants'
 
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-  import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
-  import faTimesCircle from '@fortawesome/fontawesome-free-solid/faTimesCircle'
-  import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faSpinner, faCheckCircle, faTimesCircle, faInfoCircle} from '@fortawesome/free-solid-svg-icons'
 
   export default {
-    name: 'deseq2-conditions',
-    props: ['files'],
+    name: 'Deseq2Conditions',
     components: {
       FontAwesomeIcon
     },
+    props: {'files': {type: FileList, required: true}},
     data () {
       return {
         dataObject: [],  // [{file: <file_obj>, conditions: [<cond1 as string>, <cond2 as string>], index: <unique identifier>}, ...]
         importingFiles: false,
         importingDone: false,
         importingFailed: false,
+        importFailedMessage: 'Import failed',
         parsedDeseq2Data: [],
         progress: {counter: 0, max: 1000, done: true}
+      }
+    },
+    computed: {
+      registeredConditions () {
+        return this.$store.state.registeredConditions
+      },
+      faSpinner () {
+        return faSpinner
+      },
+      faCheckCircle () {
+        return faCheckCircle
+      },
+      faTimesCircle () {
+        return faTimesCircle
+      },
+      faInfoCircle () {
+        return faInfoCircle
+      }
+    },
+    watch: {
+      registeredConditions (conditions) {
+        for (let i = 0; i < this.dataObject.length; i++) {
+          for (let j = 0; j < 2; j++) {
+            if (conditions.indexOf(this.dataObject[i].conditions[j]) === -1) {
+              this.dataObject[i].conditions[j] = ''
+            }
+            this.dataObject[i].conditions = this.suggestregex(this.dataObject[i].header)
+          }
+        }
+      },
+      files: {
+        immediate: true,
+        handler (newfiles) {
+          let dataObject = []
+          let index = 0
+          for (var file of newfiles) {
+            let sugglist = this.suggestregex(file.name)
+            dataObject.push({file: file, conditions: sugglist, index: index, validEntry: null, errorText: ''})
+            index++
+          }
+          this.dataObject = dataObject
+          return dataObject
+        }
       }
     },
     methods: {
@@ -96,9 +175,11 @@
               .then(() => {
                 vue.importingFiles = false
                 vue.importingDone = true
-              })
-          }, reason => {
-            console.warn(reason)
+              }, reason => {
+                vue.importingFailedMessage = reason
+                vue.importingFiles = false
+                vue.importingFailed = true
+            })
           })
       },
       validate (data) {
@@ -188,46 +269,6 @@
           // (now) pass
         }
         return suggestionlist
-      }
-    },
-    computed: {
-      getDataObject () {
-        let dataObject = []
-        let index = 0
-        for (var file of this.files) {
-          let sugglist = this.suggestregex(file.name)
-          dataObject.push({file: file, conditions: sugglist, index: index, validEntry: null, errorText: ''})
-          index++
-        }
-        this.dataObject = dataObject
-        return dataObject
-      },
-      registeredConditions () {
-        return this.$store.state.registeredConditions
-      },
-      faSpinner () {
-        return faSpinner
-      },
-      faCheckCircle () {
-        return faCheckCircle
-      },
-      faTimesCircle () {
-        return faTimesCircle
-      },
-      faInfoCircle () {
-        return faInfoCircle
-      }
-    },
-    watch: {
-      registeredConditions (conditions) {
-        for (let i = 0; i < this.dataObject.length; i++) {
-          for (let j = 0; j < 2; j++) {
-            if (conditions.indexOf(this.dataObject[i].conditions[j]) === -1) {
-              this.dataObject[i].conditions[j] = ''
-            }
-            this.dataObject[i].conditions = this.suggestregex(this.dataObject[i].header)
-          }
-        }
       }
     }
   }

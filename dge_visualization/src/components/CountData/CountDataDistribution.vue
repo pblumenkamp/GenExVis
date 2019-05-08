@@ -1,52 +1,115 @@
+/*eslint-env node*/
 <template>
   <div style="text-align: center">
     <h1>Gene Count Distribution</h1>
 
-    <b-form-select v-model="selectedNormalization" style="width: auto" class="mb-2" @input="selectedCondition = ''">
+    <b-form-select
+      v-model="selectedNormalization"
+      style="width: auto"
+      class="mb-2"
+      @input="selectedCondition = ''"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select a normalization method --</option>
+        <option :value="''" disabled>
+          -- Please select a normalization method --
+        </option>
       </template>
-      <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
+      <option
+        v-for="cond in registeredNormalizationMethods"
+        :key="cond"
+        :value="cond"
+      >
+        {{ cond }}
+      </option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition" :disabled="selectedNormalization === ''" style="width: auto" class="mb-2" @input="initializeSettings">
+    <b-form-select
+      v-model="selectedCondition"
+      :disabled="selectedNormalization === ''"
+      style="width: auto"
+      class="mb-2"
+      @input="initializeSettings"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select a condition --</option>
+        <option :value="''" disabled>
+          -- Please select a condition --
+        </option>
       </template>
-      <option v-for="cond in countDataConditions" :value="cond">{{ cond }}</option>
+      <option
+        v-for="cond in countDataConditions"
+        :key="cond"
+        :value="cond"
+      >
+        {{ cond }}
+      </option>
     </b-form-select>
 
     <hr>
 
-    <div id="countdata_genecount_distribution_highcharts" ref="countdata_genecount_distribution_highcharts"
-         style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
+    <div
+      id="countdata_genecount_distribution_highcharts"
+      ref="countdata_genecount_distribution_highcharts"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+    ></div>
 
     <div v-if="selectedNormalization && selectedCondition">
       <hr>
       <b-container fluid border="1" style="text-align: right">
         <b-row class="my-2">
-          <b-col sm="2"><label>logarithmic y-axis</label></b-col>
+          <b-col sm="2">
+            <label>logarithmic y-axis</label>
+          </b-col>
           <b-col sm="10">
-            <b-form-checkbox v-model="useLogYAxis" style="float: left;" @input="updateYAxis"></b-form-checkbox>
+            <b-form-checkbox v-model="useLogYAxis" style="float: left;" @input="updateYAxis" />
           </b-col>
         </b-row>
         <b-row class="my-2">
-          <b-col sm="2"><label>min value x-axis</label></b-col>
           <b-col sm="2">
-            <b-form-input v-model="xAxisMinValue" :state="validMinValue" type="number" step="100" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
+            <label>min value x-axis</label>
           </b-col>
-          <b-col sm="2"><label>max value x-axis</label></b-col>
           <b-col sm="2">
-            <b-form-input v-model="xAxisMaxValue" :state="validMaxValue" type="number" step="100" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
+            <b-form-input
+              v-model="xAxisMinValue"
+              :state="validMinValue"
+              type="number"
+              step="100"
+              style="float: left; width: 6rem;"
+              @change="updateXAxis"
+            />
           </b-col>
-          <b-col sm="2"><label>stepsize</label></b-col>
           <b-col sm="2">
-            <b-form-input v-model="xAxisStepsize" :state="validStepsize" type="number" min="0" step="1" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
+            <label>max value x-axis</label>
+          </b-col>
+          <b-col sm="2">
+            <b-form-input
+              v-model="xAxisMaxValue"
+              :state="validMaxValue"
+              type="number"
+              step="100"
+              style="float: left; width: 6rem;"
+              @change="updateXAxis"
+            />
+          </b-col>
+          <b-col sm="2">
+            <label>stepsize</label>
+          </b-col>
+          <b-col sm="2">
+            <b-form-input
+              v-model="xAxisStepsize"
+              :state="validStepsize"
+              type="number"
+              min="0"
+              step="1"
+              style="float: left; width: 6rem;"
+              @change="updateXAxis"
+            />
           </b-col>
         </b-row>
         <b-row class="my-3">
           <b-col sm="12" style="text-align: center">
-            <b-button @click="resetSettings">Reset</b-button>
+            <b-button @click="resetSettings">
+              Reset
+            </b-button>
           </b-col>
         </b-row>
       </b-container>
@@ -67,7 +130,7 @@
   let chart = {}
 
   export default {
-    name: 'CountData_Distribution',
+    name: 'CountDataDistribution',
     data () {
       return {
         selectedNormalization: '',
@@ -76,6 +139,53 @@
         xAxisMaxValue: 1000,
         xAxisStepsize: 100,
         useLogYAxis: false
+      }
+    },
+    computed: {
+      registeredNormalizationMethods () {
+        return this.$store.state.currentDGE.normalizationMethods
+      },
+      dgeConditions () {
+        let conditions1 = new Set()
+        let conditions2 = new Set()
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+          conditions1.add(condition1)
+          conditions2.add(condition2)
+        }
+        return [conditions1, conditions2]
+      },
+      dge () {
+        return this.$store.state.currentDGE
+      },
+      validMinValue () {
+        return (this.xAxisMinValue >= 0 && this.xAxisMaxValue > this.xAxisMinValue) ? null : false
+      },
+      validMaxValue () {
+        return (this.xAxisMaxValue > this.xAxisMinValue) ? null : false
+      },
+      validStepsize () {
+        return (this.xAxisStepsize > 0) ? null : false
+      },
+      allCountData () {
+        return this.$store.state.currentDGE.getCountData(this.selectedNormalization)
+      },
+      countDataConditions () {
+        return Object.getOwnPropertyNames(this.allCountData).sort()
+      },
+      countDataForCondition () {
+        let countData = this.allCountData[this.selectedCondition]
+        let data = []
+        for (let geneName of Object.getOwnPropertyNames(countData)) {
+          let gene = countData[geneName]
+          let sum = Object.keys(gene).map(key => gene[key]).reduce(function (a, b) { return a + b })
+          data.push(sum / Object.keys(gene).length)
+        }
+        return data
+      }
+    },
+    watch: {
+      dge () {
+        this.clearChart()
       }
     },
     methods: {
@@ -264,53 +374,6 @@
         while (node.firstChild) {
           node.removeChild(node.firstChild)
         }
-      }
-    },
-    computed: {
-      registeredNormalizationMethods () {
-        return this.$store.state.currentDGE.normalizationMethods
-      },
-      dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          conditions1.add(condition1)
-          conditions2.add(condition2)
-        }
-        return [conditions1, conditions2]
-      },
-      dge () {
-        return this.$store.state.currentDGE
-      },
-      validMinValue () {
-        return (this.xAxisMinValue >= 0 && this.xAxisMaxValue > this.xAxisMinValue) ? null : false
-      },
-      validMaxValue () {
-        return (this.xAxisMaxValue > this.xAxisMinValue) ? null : false
-      },
-      validStepsize () {
-        return (this.xAxisStepsize > 0) ? null : false
-      },
-      allCountData () {
-        return this.$store.state.currentDGE.getCountData(this.selectedNormalization)
-      },
-      countDataConditions () {
-        return Object.getOwnPropertyNames(this.allCountData).sort()
-      },
-      countDataForCondition () {
-        let countData = this.allCountData[this.selectedCondition]
-        let data = []
-        for (let geneName of Object.getOwnPropertyNames(countData)) {
-          let gene = countData[geneName]
-          let sum = Object.keys(gene).map(key => gene[key]).reduce(function (a, b) { return a + b })
-          data.push(sum / Object.keys(gene).length)
-        }
-        return data
-      }
-    },
-    watch: {
-      dge () {
-        this.clearChart()
       }
     }
   }

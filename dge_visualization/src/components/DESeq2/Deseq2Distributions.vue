@@ -1,87 +1,183 @@
+/*eslint-env node*/
 <template>
   <div style="text-align: center">
     <h1>DESeq2 - Statistics Distribution</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
-        <option :value="''" disabled>-- Please select the first condition --</option>
+        <option :value="''" disabled>
+          -- Please select the first condition --
+        </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
+      <option
+        v-for="cond in Array.from(dgeConditions[0])"
+        :key="cond"
+        :value="cond"
+      >
+        {{ cond }}
+      </option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" @input="initializeSettings"
-                   :disabled="selectedCondition1 === ''">
+    <b-form-select
+      v-model="selectedCondition2"
+      style="width: auto"
+      :disabled="selectedCondition1 === ''"
+      @input="initializeSettings"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select the second condition --</option>
+        <option :value="''" disabled>
+          -- Please select the second condition --
+        </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}
+      <option
+        v-for="cond in Array.from(dgeConditions[1])"
+        :key="cond"
+        :value="cond"
+        :disabled="!conditions2.has(cond)"
+      >
+        {{ cond }}
       </option>
     </b-form-select>
 
     <b-form-select v-model="selectedDistributionType" style="width: auto; margin-left: 2rem" @input="initializeSettings">
       <template slot="first">
-        <option :value="distributionTypes[0]">{{distributionTypes[0]}}</option>
+        <option :value="distributionTypes[0]">
+          {{ distributionTypes[0] }}
+        </option>
       </template>
-      <option v-for="cond in Array.from(distributionTypes.slice(1))" :value="cond">{{ cond }}
+      <option
+        v-for="cond in Array.from(distributionTypes.slice(1))"
+        :key="cond"
+        :value="cond"
+      >
+        {{ cond }}
       </option>
     </b-form-select>
 
     <hr>
 
-    <div id="deseq2_pvalue_distribution_highcharts" ref="deseq2_pvalue_distribution_highcharts"
-         style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"></div>
+    <div
+      id="deseq2_pvalue_distribution_highcharts"
+      ref="deseq2_pvalue_distribution_highcharts"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+    ></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
       <hr>
       <b-container fluid border="1" style="text-align: right">
         <b-row class="my-2">
-          <b-col sm="2"><label>logarithmic y-axis</label></b-col>
+          <b-col sm="2">
+            <label>logarithmic y-axis</label>
+          </b-col>
           <b-col sm="10">
-            <b-form-checkbox v-model="useLogYAxis" style="float: left;" @input="updateYAxis"></b-form-checkbox>
+            <b-form-checkbox v-model="useLogYAxis" style="float: left;" @input="updateYAxis" />
           </b-col>
         </b-row>
-      <template v-if="selectedDistributionType === 'p-value' || selectedDistributionType === 'adj. p-value'">
-        <b-row class="my-2">
-          <b-col sm="2"><label>min value x-axis</label></b-col>
-          <b-col sm="2">
-            <b-form-input v-model="xAxisMinValue" :state="validPValueMin" type="number" step="0.01" max="1" min="0" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
-          </b-col>
-          <b-col sm="2"><label>max value x-axis</label></b-col>
-          <b-col sm="2">
-            <b-form-input v-model="xAxisMaxValue" :state="validPValueMax" type="number" step="0.01" max="1" min="0" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
-          </b-col>
-          <b-col sm="2"><label>stepsize</label></b-col>
-          <b-col sm="2">
-            <b-form-input v-model="xAxisStepsize" :state="validPValueStepsize" type="number" step="0.01" max="1" min="0" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
-          </b-col>
-        </b-row>
-        <b-row class="my-3">
-          <b-col sm="12" style="text-align: center">
-            <b-button @click="resetPValueSettings">Reset</b-button>
-          </b-col>
-        </b-row>
-      </template>
-      <template v-if="selectedDistributionType === 'log2 fold change'">
-        <b-row class="my-2">
-          <b-col sm="2"><label>min value x-axis</label></b-col>
-          <b-col sm="2">
-            <b-form-input v-model="xAxisMinValue" type="number" step="1" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
-          </b-col>
-          <b-col sm="2"><label>max value x-axis</label></b-col>
-          <b-col sm="2">
-            <b-form-input v-model="xAxisMaxValue" type="number" step="1" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
-          </b-col>
-          <b-col sm="2"><label>stepsize</label></b-col>
-          <b-col sm="2">
-            <b-form-input v-model="xAxisStepsize" :state="validLFCStepsize" type="number" min="0" step="1" style="float: left; width: 6rem;" @change="updateXAxis"></b-form-input>
-          </b-col>
-        </b-row>
-        <b-row class="my-3">
-          <b-col sm="12" style="text-align: center">
-            <b-button @click="resetLFCSettings">Reset</b-button>
-          </b-col>
-        </b-row>
-      </template>
+        <template v-if="selectedDistributionType === 'p-value' || selectedDistributionType === 'adj. p-value'">
+          <b-row class="my-2">
+            <b-col sm="2">
+              <label>min value x-axis</label>
+            </b-col>
+            <b-col sm="2">
+              <b-form-input
+                v-model="xAxisMinValue"
+                :state="validPValueMin"
+                type="number"
+                step="0.01"
+                max="1"
+                min="0"
+                style="float: left; width: 6rem;"
+                @change="updateXAxis"
+              />
+            </b-col>
+            <b-col sm="2">
+              <label>max value x-axis</label>
+            </b-col>
+            <b-col sm="2">
+              <b-form-input
+                v-model="xAxisMaxValue"
+                :state="validPValueMax"
+                type="number"
+                step="0.01"
+                max="1"
+                min="0"
+                style="float: left; width: 6rem;"
+                @change="updateXAxis"
+              />
+            </b-col>
+            <b-col sm="2">
+              <label>stepsize</label>
+            </b-col>
+            <b-col sm="2">
+              <b-form-input
+                v-model="xAxisStepsize"
+                :state="validPValueStepsize"
+                type="number"
+                step="0.01"
+                max="1"
+                min="0"
+                style="float: left; width: 6rem;"
+                @change="updateXAxis"
+              />
+            </b-col>
+          </b-row>
+          <b-row class="my-3">
+            <b-col sm="12" style="text-align: center">
+              <b-button @click="resetPValueSettings">
+                Reset
+              </b-button>
+            </b-col>
+          </b-row>
+        </template>
+        <template v-if="selectedDistributionType === 'log2 fold change'">
+          <b-row class="my-2">
+            <b-col sm="2">
+              <label>min value x-axis</label>
+            </b-col>
+            <b-col sm="2">
+              <b-form-input
+                v-model="xAxisMinValue"
+                type="number"
+                step="1"
+                style="float: left; width: 6rem;"
+                @change="updateXAxis"
+              />
+            </b-col>
+            <b-col sm="2">
+              <label>max value x-axis</label>
+            </b-col>
+            <b-col sm="2">
+              <b-form-input
+                v-model="xAxisMaxValue"
+                type="number"
+                step="1"
+                style="float: left; width: 6rem;"
+                @change="updateXAxis"
+              />
+            </b-col>
+            <b-col sm="2">
+              <label>stepsize</label>
+            </b-col>
+            <b-col sm="2">
+              <b-form-input
+                v-model="xAxisStepsize"
+                :state="validLFCStepsize"
+                type="number"
+                min="0"
+                step="1"
+                style="float: left; width: 6rem;"
+                @change="updateXAxis"
+              />
+            </b-col>
+          </b-row>
+          <b-row class="my-3">
+            <b-col sm="12" style="text-align: center">
+              <b-button @click="resetLFCSettings">
+                Reset
+              </b-button>
+            </b-col>
+          </b-row>
+        </template>
       </b-container>
     </div>
   </div>
@@ -114,6 +210,89 @@
         xAxisStepsize: 0.01,
         useLogYAxis: false,
         bins: 80
+      }
+    },
+    computed: {
+      dgeConditions () {
+        let conditions1 = new Set()
+        let conditions2 = new Set()
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
+            this.$store.state.registeredConditions.indexOf(condition2) === -1) {
+            continue
+          }
+          conditions1.add(condition1)
+          conditions2.add(condition2)
+        }
+        return [conditions1, conditions2]
+      },
+      conditions2 () {
+        let conditions2 = new Set()
+        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
+          if (condition1 === this.selectedCondition1) {
+            conditions2.add(condition2)
+          }
+        }
+        return conditions2
+      },
+      dge () {
+        return this.$store.state.currentDGE
+      },
+      validPValueMin () {
+        return (this.xAxisMinValue >= 0 && this.xAxisMaxValue > this.xAxisMinValue) ? null : false
+      },
+      validPValueMax () {
+        return (this.xAxisMaxValue <= 1 && this.xAxisMaxValue > this.xAxisMinValue) ? null : false
+      },
+      validPValueStepsize () {
+        return (this.xAxisStepsize > 0 && this.xAxisStepsize < 1) ? null : false
+      },
+      validLFCStepsize () {
+        return (this.xAxisStepsize > 0) ? null : false
+      },
+      lfcData () {
+        let data = []
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
+        for (let geneName of dge.geneNames) {
+          let gene = dge.getGene(geneName)
+          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
+          let value = analysis.log2FoldChange
+          if (!isNaN(value)) {
+            data.push(value)
+          }
+        }
+        return data
+      },
+      pValueData () {
+        let data = []
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
+        for (let geneName of dge.geneNames) {
+          let gene = dge.getGene(geneName)
+          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
+          let value = analysis.pValue
+          if (!isNaN(value)) {
+            data.push(value)
+          }
+        }
+        return data
+      },
+      adjustedPValueData () {
+        let data = []
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
+        for (let geneName of dge.geneNames) {
+          let gene = dge.getGene(geneName)
+          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
+          let value = analysis.pAdj
+          if (!isNaN(value)) {
+            data.push(value)
+          }
+        }
+        return data
+      }
+    },
+    watch: {
+      dge () {
+        this.clearChart()
       }
     },
     methods: {
@@ -329,89 +508,6 @@
         while (node.firstChild) {
           node.removeChild(node.firstChild)
         }
-      }
-    },
-    computed: {
-      dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
-            this.$store.state.registeredConditions.indexOf(condition2) === -1) {
-            continue
-          }
-          conditions1.add(condition1)
-          conditions2.add(condition2)
-        }
-        return [conditions1, conditions2]
-      },
-      conditions2 () {
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (condition1 === this.selectedCondition1) {
-            conditions2.add(condition2)
-          }
-        }
-        return conditions2
-      },
-      dge () {
-        return this.$store.state.currentDGE
-      },
-      validPValueMin () {
-        return (this.xAxisMinValue >= 0 && this.xAxisMaxValue > this.xAxisMinValue) ? null : false
-      },
-      validPValueMax () {
-        return (this.xAxisMaxValue <= 1 && this.xAxisMaxValue > this.xAxisMinValue) ? null : false
-      },
-      validPValueStepsize () {
-        return (this.xAxisStepsize > 0 && this.xAxisStepsize < 1) ? null : false
-      },
-      validLFCStepsize () {
-        return (this.xAxisStepsize > 0) ? null : false
-      },
-      lfcData () {
-        let data = []
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
-        for (let geneName of dge.geneNames) {
-          let gene = dge.getGene(geneName)
-          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          let value = analysis.log2FoldChange
-          if (!isNaN(value)) {
-            data.push(value)
-          }
-        }
-        return data
-      },
-      pValueData () {
-        let data = []
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
-        for (let geneName of dge.geneNames) {
-          let gene = dge.getGene(geneName)
-          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          let value = analysis.pValue
-          if (!isNaN(value)) {
-            data.push(value)
-          }
-        }
-        return data
-      },
-      adjustedPValueData () {
-        let data = []
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(this.selectedCondition1, this.selectedCondition2)
-        for (let geneName of dge.geneNames) {
-          let gene = dge.getGene(geneName)
-          let analysis = gene.getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          let value = analysis.pAdj
-          if (!isNaN(value)) {
-            data.push(value)
-          }
-        }
-        return data
-      }
-    },
-    watch: {
-      dge () {
-        this.clearChart()
       }
     }
   }

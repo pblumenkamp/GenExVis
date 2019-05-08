@@ -1,6 +1,6 @@
 <template>
   <div style="width: 100%; height: 100%">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <b-container fluid>
       <b-row rows="12">
         <b-col class="col" cols="1">
@@ -15,72 +15,85 @@
           </b-nav>
         </b-col>
         <b-col class="col" cols="9">
-          <router-view/>
+          <router-view />
         </b-col>
         <b-col class="col" cols="2">
-          <b-card id="filesBox"  class="filesBox" v-if="this.$store.state.deseqlist.length > 0">
+          <b-card v-if="this.$store.state.deseqlist.length > 0" id="filesBox" class="filesBox">
             DESeq2 Files:
-            <li v-for="fileName in this.$store.state.deseqlist" style="margin-left: 0.5rem">
+            <li
+              v-for="fileName in this.$store.state.deseqlist"
+              :key="fileName"
+              style="margin-left: 0.5rem"
+            >
               <small>{{ fileName }}</small>
             </li>
           </b-card>
-          <b-card id="countBox" class="filesBox" v-if="this.$store.state.countlist.length > 0">
+          <b-card v-if="this.$store.state.countlist.length > 0" id="countBox" class="filesBox">
             Count files:
-            <li v-for="fileName in this.$store.state.countlist" style="margin-left: 0.5rem">
+            <li
+              v-for="fileName in this.$store.state.countlist"
+              :key="fileName"
+              style="margin-left: 0.5rem"
+            >
               <small>{{ fileName }}</small>
             </li>
           </b-card>
-          <!-- small subset table on the right in overview -->
-          <b-card id="subsetBox"
-                  v-bind:class="{ 'subsetBox-small':!showGenes, 'subsetBox-large':showGenes }" v-if="this.$store.state.subDGE.geneNames.size > 0">
+          <b-card
+            v-if="this.$store.state.subDGE.geneNames.size > 0"
+            id="subsetBox"
+            :class="{ 'subsetBox-small':!showGenes, 'subsetBox-large':showGenes }"
+          >
             Current Subset:
-            <table style="width: 100%; border: 0px solid black">
+            <table style="width: 100%; border: 0 solid black">
               <tr>
                 <td width="50%">
-                  <b>{{ this.numberWithCommas(this.$store.state.subDGE.length) }}</b> genes
+                  <b>{{ numberWithCommas(this.$store.state.subDGE.length) }}</b> genes
                 </td>
                 <td width="50%">
-                  <span style="float: right" @click="showGenes = true" v-if="!showGenes">
-                    <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+                  <span v-if="!showGenes" style="float: right" @click="showGenes = true">
+                    <font-awesome-icon :icon="faPlusCircle" />
                   </span>
-                  <span style="float: right" @click="showGenes = false" v-else>
-                    <font-awesome-icon :icon="faMinusCircle"></font-awesome-icon>
+                  <span v-else style="float: right" @click="showGenes = false">
+                    <font-awesome-icon :icon="faMinusCircle" />
                   </span>
                 </td>
               </tr>
             </table>
-            <table style="width: 100%; border: 1px solid lightslategray" >
+            <table style="width: 100%; border: 1px solid lightslategray">
               <tr>
                 <td>
-                  <div id="genesTable"
-                       v-bind:class="{ 'genesTable-closed':!showGenes, 'genesTable-opened':showGenes }">
-                    <button v-for="gene in Array.from(this.$store.state.subDGE.geneNames)" @click="removeGene(gene)"
-                            type="button" class="btn btn-outline-dark btn-xs gene-button" style="margin: 0.1rem">{{ gene }}
+                  <div
+                    id="genesTable"
+                    :class="{ 'genesTable-closed':!showGenes, 'genesTable-opened':showGenes }"
+                  >
+                    <button
+                      v-for="gene in Array.from(this.$store.state.subDGE.geneNames)"
+                      :key="gene"
+                      type="button"
+                      class="btn btn-outline-dark btn-xs gene-button"
+                      style="margin: 0.1rem"
+                      @click="removeGene(gene)"
+                    >
+                      {{ gene }}
                     </button>
                   </div>
                 </td>
               </tr>
             </table>
-            <button @click="clearSubset()" class="btn btn-dark btn-sm" style="float: right; margin: 0.1rem;">
-              <font-awesome-icon :icon="faTrashAlt"></font-awesome-icon> Clear
+            <button class="btn btn-dark btn-sm" style="float: right; margin: 0.1rem;" @click="clearSubset()">
+              <font-awesome-icon :icon="faTrashAlt" /> Clear
             </button>
-
           </b-card>
-
         </b-col>
       </b-row>
     </b-container>
   </div>
 </template>
-
 <script>
   import {SET_SUBDGE} from '../../store/action_constants'
 
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faTrashAlt from '@fortawesome/fontawesome-free-solid/faTrashAlt'
-  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
-  import faMinusCircle from '@fortawesome/fontawesome-free-solid/faMinusCircle'
-  import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faTrashAlt, faPlusCircle, faMinusCircle, faDownload} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     name: 'DESeq2',
@@ -90,6 +103,20 @@
     data () {
       return {
         showGenes: false
+      }
+    },
+    computed: {
+      faTrashAlt () {
+        return faTrashAlt
+      },
+      faPlusCircle () {
+        return faPlusCircle
+      },
+      faMinusCircle () {
+        return faMinusCircle
+      },
+      faDownload () {
+        return faDownload
       }
     },
     methods: {
@@ -107,20 +134,6 @@
       },
       numberWithCommas (number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      }
-    },
-    computed: {
-      faTrashAlt () {
-        return faTrashAlt
-      },
-      faPlusCircle () {
-        return faPlusCircle
-      },
-      faMinusCircle () {
-        return faMinusCircle
-      },
-      faDownload () {
-        return faDownload
       }
     }
   }

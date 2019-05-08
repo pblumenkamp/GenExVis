@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid >
+  <b-container fluid>
     <b-row>
       <b-col cols="10">
         <b-row>
@@ -11,7 +11,7 @@
             </b-nav>
           </b-col>
           <b-col cols="10">
-            <router-view/>
+            <router-view />
           </b-col>
         </b-row>
       </b-col>
@@ -19,13 +19,21 @@
       <b-col cols="2">
         <b-card v-if="this.$store.state.deseqlist.length > 0" class="filesBox">
           DESeq2 Files:
-          <li v-for="fileName in this.$store.state.deseqlist" style="margin-left: 0.5rem">
+          <li
+            v-for="fileName in this.$store.state.deseqlist"
+            :key="fileName"
+            style="margin-left: 0.5rem"
+          >
             <small>{{ fileName }}</small>
           </li>
         </b-card>
         <b-card v-if="this.$store.state.countlist.length > 0" class="filesBox">
           Count files:
-          <li v-for="fileName in this.$store.state.countlist" style="margin-left: 0.5rem">
+          <li
+            v-for="fileName in this.$store.state.countlist"
+            :key="fileName"
+            style="margin-left: 0.5rem"
+          >
             <small>{{ fileName }}</small>
           </li>
         </b-card>

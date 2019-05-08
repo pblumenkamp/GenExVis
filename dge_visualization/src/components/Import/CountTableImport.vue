@@ -2,35 +2,69 @@
   <div>
     <div style="text-align: center">
       <!--<b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="importCountTable" style="width: 50%"></b-form-file>-->
-      <file-chooser @change="loadFiles"></file-chooser>
+      <file-chooser @change="loadFiles" />
     </div>
 
     <div v-if="headerConditionMapping.length !== 0" style="margin-top: 3rem">
       <div style="text-align: center">
         Normalization method:
         <b-form-select v-model="selectedNormalization" style="width: auto; margin-left: 0.5rem">
-          <option v-for="norm in normalization" :value="norm.toLowerCase()">{{ norm }}</option>
+          <option
+            v-for="norm in normalization"
+            :key="norm"
+            :value="norm.toLowerCase()"
+          >
+            {{ norm }}
+          </option>
         </b-form-select>
       </div>
       <b-container>
         <b-row v-for="mapping in headerConditionMapping" :key="mapping.header" style="margin: 1rem">
           <b-col style="padding-top: 0.4rem">
-            {{mapping.header}}
+            {{ mapping.header }}
           </b-col>
           <b-col>
             <b-form-select v-model="mapping.condition" @input="validate">
               <option value="">-- Ignore --</option>
               <option value="$$GENE_NAME$$">-- Gene name --</option>
-              <option v-for="cond in registeredConditions" :value="cond">{{cond}}</option>
+              <option
+                v-for="cond in registeredConditions"
+                :key="cond"
+                :value="cond"
+              >
+                {{ cond }}
+              </option>
             </b-form-select>
           </b-col>
         </b-row>
         <b-row>
           <div style="width: 10rem; margin: 1rem auto 0;">
-            <b-button @click="integrateCountTable" :disabled="disabledImportButton" style="margin-bottom: 0.7rem; margin-right: 0.5rem">Import files</b-button>
-            <font-awesome-icon :icon="faSpinner" pulse size="2x" v-if="importingFiles" class="text-secondary"></font-awesome-icon>
-            <font-awesome-icon :icon="faCheckCircle" size="2x" v-if="importingDone" class="text-secondary"></font-awesome-icon>
-            <font-awesome-icon :icon="faTimesCircle" size="2x" v-if="missingGeneColumn" class="text-secondary"></font-awesome-icon>
+            <b-button
+              :disabled="disabledImportButton"
+              style="margin-bottom: 0.7rem; margin-right: 0.5rem"
+              @click="integrateCountTable"
+            >
+              Import files
+            </b-button>
+            <font-awesome-icon
+              v-if="importingFiles"
+              :icon="faSpinner"
+              pulse
+              size="2x"
+              class="text-secondary"
+            />
+            <font-awesome-icon
+              v-if="importingDone"
+              :icon="faCheckCircle"
+              size="2x"
+              class="text-secondary"
+            />
+            <font-awesome-icon
+              v-if="missingGeneColumn"
+              :icon="faTimesCircle"
+              size="2x"
+              class="text-secondary"
+            />
           </div>
         </b-row>
         <b-row>
@@ -49,13 +83,11 @@
 
   import FileChooser from '../Misc/FileChooser'
 
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faSpinner from '@fortawesome/fontawesome-free-solid/faSpinner'
-  import faCheckCircle from '@fortawesome/fontawesome-free-solid/faCheckCircle'
-  import faTimesCircle from '@fortawesome/fontawesome-free-solid/faTimesCircle'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faSpinner, faCheckCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
 
   export default {
-    name: 'count-table-import',
+    name: 'CountTableImport',
     components: {
       FontAwesomeIcon,
       FileChooser
@@ -71,6 +103,30 @@
         normalization: ['Unnormalized', 'DESeq2'],
         selectedNormalization: 'unnormalized',
         headerConditionMapping: []      // [{header: <string>, condition: <string>}, ...]
+      }
+    },
+    computed: {
+      registeredConditions () {
+        return this.$store.state.registeredConditions
+      },
+      faSpinner () {
+        return faSpinner
+      },
+      faCheckCircle () {
+        return faCheckCircle
+      },
+      faTimesCircle () {
+        return faTimesCircle
+      }
+    },
+    watch: {
+      registeredConditions (conditions) {
+        for (let i = 0; i < this.headerConditionMapping.length; i++) {
+          if (conditions.indexOf(this.headerConditionMapping[i].condition) === -1) {
+            this.headerConditionMapping[i].condition = ''
+          }
+          this.headerConditionMapping[i].condition = this.suggestregex(this.headerConditionMapping[i].header)
+        }
       }
     },
     methods: {
@@ -192,30 +248,6 @@
           suggestion = tempdict[keyarray[0]]
         }
         return suggestion
-      }
-    },
-    computed: {
-      registeredConditions () {
-        return this.$store.state.registeredConditions
-      },
-      faSpinner () {
-        return faSpinner
-      },
-      faCheckCircle () {
-        return faCheckCircle
-      },
-      faTimesCircle () {
-        return faTimesCircle
-      }
-    },
-    watch: {
-      registeredConditions (conditions) {
-        for (let i = 0; i < this.headerConditionMapping.length; i++) {
-          if (conditions.indexOf(this.headerConditionMapping[i].condition) === -1) {
-            this.headerConditionMapping[i].condition = ''
-          }
-          this.headerConditionMapping[i].condition = this.suggestregex(this.headerConditionMapping[i].header)
-        }
       }
     }
   }

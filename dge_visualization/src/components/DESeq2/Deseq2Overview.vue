@@ -1,4 +1,4 @@
-<template xmlns:position="http://www.w3.org/1999/xhtml">
+<template>
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
       <h1>DESeq2 - Overview</h1>
@@ -89,30 +89,25 @@
           </td>
         </tr>
       </table>
-    </div><p></p>
+    </div>
+    <p></p>
     <!-- Big gene table -->
     <div v-if="this.rowTotalAmount*6 < 2000000">
       <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
                    :gridOptions="gridOptions"
                    :columnDefs="columnDefs"
                    :rowData="rowData"
-                   :showToolPanel="showToolPanel"
 
-                   :rowHeight=30
-                   :enableColResize="true"
-                   :enableSorting="true"
-                   :enableFilter="true"
                    :groupHeaders="true"
 
-                   :modelUpdated="onModelUpdated"
-                   :selectionChanged="onSelectionChanged"
-                   :columnVisible="onVisionChanged"
-                   :columnMoved="onPositionChanged"
-                   :gridReady="onReady"
+                   @modelUpdated="onModelUpdated"
+                   @selectionChanged="onSelectionChanged"
+                   @columnVisible="onVisionChanged"
+                   @columnMoved="onPositionChanged"
+                   @gridReady="onReady"
       />
     </div>
     <div class="main-table" v-else>
-      <!-- Miri table view if table was too big to display -->
       <br>
       <table width="100%">
         <tr align="center">
@@ -155,7 +150,6 @@
           <th></th>
         </tr>
       </table>
-      <!-- END -->
     </div>
   </div>
 </template>
@@ -164,9 +158,9 @@
   import {ADD_STRUC} from '../../store/mutation_constants'
   import {SET_SUBDGE} from '../../store/action_constants'
   import {AgGridVue} from 'ag-grid-vue'
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faUndoAlt from '@fortawesome/fontawesome-free-solid/faUndoAlt'
-  import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
+
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faUndoAlt, faDownload} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     data () {
@@ -177,7 +171,6 @@
         columnDefs: null,
         excessLength: false,
         rowData: null,
-        showToolPanel: false,
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
@@ -233,7 +226,7 @@
         let store = this.$store.state.dgeData
         let storeLength = store.length
         this.rowTotalAmount = storeLength
-        if (storeLength > 100000) {
+        if (storeLength*6 < 2000000) {
           this.excessLength = true
         }
       },
@@ -571,6 +564,12 @@
           icons: {
             columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>',
             columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>'
+          },
+          rowHeight: 30,
+          defaultColDef: {
+            sortable: true,
+            filter: true,
+            resizable: true
           }
         }
       },
