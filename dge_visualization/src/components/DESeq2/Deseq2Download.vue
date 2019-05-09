@@ -1,194 +1,127 @@
-<template xmlns:position="http://www.w3.org/1999/xhtml" xmlns:overflow="http://www.w3.org/1999/xhtml">
+<template>
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
       <h1>Deseq2 - Downloads</h1>
     </div>
-    <div v-if="this.rowTotalAmount*6 < 2000000">
-          <!-- Table with two cols: Options and select files -->
-    <b-card style="height: 50%; border: 1px solid lightslategray">
-      <table style="width:100%" border="0px solid black">
-          <td width="50%">
-            <h4>Select parameters</h4>
-            <tr>
-              <div>
-                <b-form-checkbox v-model="roundedValues"
-                                 @change="toggleRoundingChange">
-                  Rounded Values
-                </b-form-checkbox>
-              </div>
-              <br>
-            </tr>
-            <tr>
-            <b-form-checkbox v-model="log2Tick"
-                             @change="toggleLog2Change">
-              log2fold Change
-            </b-form-checkbox>
-            <tr>
-              <b-form-checkbox v-model="pAdjTick"
-                               @change="togglePadjChange">
-                p value (adjusted)
-              </b-form-checkbox>
-            </tr>
-            <tr>
-            <b-form-checkbox v-model="meanTick"
-                               @change="toggleMeanChange">
-                base mean
-              </b-form-checkbox>
-            </tr>
-            <tr>
-              <b-form-checkbox v-model="lfcseTick"
-                               @change="toggleLFCSEchange">
-                lfcSE
-              </b-form-checkbox>
-            </tr>
-            <tr>
-              <b-form-checkbox v-model="pTick"
-                               @change="togglePchange">
-                p value
-              </b-form-checkbox>
-            </tr>
-            <tr>
-              <b-form-checkbox v-model="statTick"
-                               @change="toggleStatChange">
-                stat
-              </b-form-checkbox>
-            </tr>
-          </td>
-            <!-- Dropdown menu for fileselection-->
-        <td width="50%">
+    <div>
+      <!-- Table with two cols: Options and select files -->
+      <b-card style="height: 50%; border: 1px solid lightslategray">
+        <b-container>
+          <b-row>
+            <b-col>
+              <h4>Select parameters</h4>
+              <table style="width:100%; border: none">
+                <tr>
+                  <b-form-checkbox v-model="roundedValues">
+                    Rounded Values
+                  </b-form-checkbox>
+                </tr>
+                <!-- Empty table row -->
+                <tr style="height: 1.5rem !important; background-color: white">
+                  <td colspan="1"></td>
+                </tr>
+                <tr>
+                  <b-form-checkbox v-model="log2Tick">
+                    log2fold Change
+                  </b-form-checkbox>
+                </tr>
+                <tr>
+                  <b-form-checkbox v-model="pAdjTick">
+                    p value (adjusted)
+                  </b-form-checkbox>
+                </tr>
+                <tr>
+                  <b-form-checkbox v-model="meanTick">
+                    base mean
+                  </b-form-checkbox>
+                </tr>
+                <tr>
+                  <b-form-checkbox v-model="lfcseTick">
+                    lfcSE
+                  </b-form-checkbox>
+                </tr>
+                <tr>
+                  <b-form-checkbox v-model="statTick">
+                    stat
+                  </b-form-checkbox>
+                </tr>
+                <tr>
+                  <b-form-checkbox v-model="pTick">
+                    p value
+                  </b-form-checkbox>
+                </tr>
+              </table>
+            </b-col>
+            <b-col>
               <h4>Select files</h4>
               <multiselect
-                v-model="selected"
-                @input="previewMultiselect"
-                :options="options"
+                v-model="selectedConditionPairs"
+                :options="conditionPairs"
                 :multiple="true"
                 :close-on-select="false"
                 :clear-on-select="false"
                 :preserve-search="true"
                 :show-labels="true"
                 :preselect-first="true"
+                track-by="name"
+                label="name"
                 placeholder="Choose files"
                 selected-label="Selected"
                 select-label="Click to select"
                 deselect-label="Click to remove"
               >
-                <template
-                  slot="selection"
-                  slot-scope="{ values, search, isOpen }">
-                  <span class="multiselect__single" v-if="values.length &amp;&amp; !isOpen">{{ values.length }} options selected</span>
+                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
                 </template>
               </multiselect>
-        </td>
-      </table>
-      <br>
-      <h4 align="center">Representative Download Preview</h4>
-      <!--Example table display -->
-      <div style="max-width: 1350px; max-height: 170px; overflow: auto;">
-      <table style="width:100%; table-layout: auto" border="1px">
-        <template v-for="(item, index) in this.tableData">
-          <tr >
-          <template v-for="value in item">
-            <td v-if="(index < 7)">{{value}}</td>
-          </template>
-          </tr>
-          <!--<tr v-if="(index < 8)">{{item}}</tr>-->
-        </template>
-      </table>
-      </div>
-      <br>
-    </b-card>
-    <div>
-      <br>
-      <br>
-      <button
-        :disabled="setButtonDisable1"
-        id = 'downloadCSV'
-        class="btn btn-dark btn-sm"
-        title="Download table as .csv"
-        @click="downloadCSV()"
-        style = "width: 100%"
-      >
-        <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download full .csv
-      </button>
-    </div>
-    <br>
-    <h4 align="center"> Download specified values for chosen subset only </h4>
-      <br>
-      <button
-        :disabled="setButtonDisable2"
-        id = 'downloadSub'
-        class="btn btn-dark btn-sm"
-        title="Download table as .csv"
-        @click="downloadSub()"
-        style = "width: 100%"
-      >
-        <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download subset .csv
-      </button>
-    </div>
-    <!-- DOWNLOAD IF FILE TOO LARGE -->
-      <div v-else>
-        <table width="100%">
-        <tr align="center">
-          <th><h2>Unfortunately the table was too large to display</h2></th>
-        </tr>
-        <tr align="center">
-          <th><h3>You can download the full table below</h3></th>
-        </tr>
-        <tr align="center">
-          <table>
-            <td width="33%">
-            </td>
-              <td width="33%">
-                <button
-                  id = 'exportBig'
-                  class="btn btn-dark btn-sm"
-                  title="Download table as .csv"
-                  @click="exportBig"
-                  style = "width: 100%"
-                >
-                  <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
-                </button>
-              </td>
-              <td width="33%">
-                <div>
-                  <b-form-checkbox v-model="roundedValues"
-                                   @change="toggleRoundingChange">
-                    Rounded Values
-                  </b-form-checkbox>
-                </div>
-              </td>
+            </b-col>
+          </b-row>
+        </b-container>
+        <br>
+        <div v-if="selectedConditionPairs.length > 0">
+          <h4 style="text-align: center">Representative Download Preview</h4>
+          <!--Example table display -->
+          <div style="max-width: 1350px; overflow: auto">
+            <table style="width:100%; table-layout: auto; border: 1px solid black; border-collapse: collapse">
+              <tr v-for="item in tablePreview" :key="item[0]">
+                <td v-for="(value, index_j) in item" :key="index_j" style="border: 1px solid black;">{{ value }}</td>
+              </tr>
             </table>
-          <th></th>
-        </tr>
-        </table>
+          </div>
+        </div>
+        <br>
+      </b-card>
+      <div>
+        <br>
+        <br>
+        <button
+          id="downloadCSV"
+          :disabled="setButtonDisable1"
+          class="btn btn-dark btn-sm"
+          title="Download table as .csv"
+          style="width: 100%"
+          @click="downloadCSV()"
+        >
+          <font-awesome-icon :icon="faDownload" /> Download full .csv
+        </button>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
   // imports
-  import faDownload from '@fortawesome/fontawesome-free-solid/faDownload'
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faDownload} from '@fortawesome/free-solid-svg-icons'
   import Multiselect from 'vue-multiselect'
-  import {ConditionPair} from '../../utilities/dge'
+
   export default {
+    components: {
+      FontAwesomeIcon,
+      Multiselect
+    },
     data () {
       return {
-        // currentDGE data (all)
-        topColumns: null,
-        columnHeaders: null,
-        rowData: null,
-        // subDGE data (subset)
-        subTopColumns: null,
-        subColumnHeaders: null,
-        subRowData: null,
-        // data displayed in preview table
-        tableData: null,
-        // total amount of rows to catch upload of large file
-        rowTotalAmount: null,
-        excessLength: false,
-        // variables
-        conditionPairList: [],
         // ticks in tickBoxes to select data and data options
         log2Tick: true,
         pAdjTick: true,
@@ -197,469 +130,153 @@
         pTick: true,
         statTick: true,
         roundedValues: true,
-        showGrid: true,
         // dropdown related
-        // selected = array of comparisons selected
-        selected: [],
-        // comparisons choosable in dropdown (according to uploaded files)
-        options: []
+        // selectedConditionPairs = array of comparisons selected
+        selectedConditionPairs: [],
       }
     },
-    components: {
-      FontAwesomeIcon,
-      Multiselect
-    },
     computed: {
-      setButtonDisable2 () {
-        if (this.selected.length === 0 || this.$store.state.subDGE.geneNames.size === 0) {
-          return true
-        } else {
-          return false
+      // getting conditions to display in multiselect
+      conditionPairs () {
+        let allConditionPairs = this.$store.state.currentDGE.conditionPairs
+        return allConditionPairs.map(conPair => (
+          {
+            name: conPair.condition1 + ' vs. ' + conPair.condition2,
+            conditionPair: conPair
+          }
+        ))
+      },
+      // isTableToLarge () {
+      //   let numberOfGenes = this.$store.state.dgeData.length
+      //   let selectedConditionPairs = this.selectedConditionPairs
+      //   return numberOfGenes*(selectedConditionPairs*5)+1 > 2000000
+      // },
+      tableColumnHeaders () {
+        // creating columnHeaders
+        let columnHeaders = ['name']
+        this.selectedConditionPairs.forEach(() => {
+          // columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
+          if (this.log2Tick) {
+            columnHeaders.push('log2foldChange')
+          }
+          if (this.pAdjTick) {
+            columnHeaders.push('p value (adjusted)')
+          }
+          if (this.meanTick) {
+            columnHeaders.push('base mean')
+          }
+          if (this.lfcseTick) {
+            columnHeaders.push('lfcSE')
+          }
+          if (this.statTick) {
+            columnHeaders.push('stat')
+          }
+          if (this.pTick) {
+            columnHeaders.push('p value')
+          }
+        })
+        return columnHeaders
+      },
+      tableConditionPairHeader () {
+        let uniqueColumnHeaders = Array.from(new Set(this.tableColumnHeaders))
+        // creating 1st row with filenames, resetting fileCounter
+        // first row with file names
+        let topColumns = [""]
+        for (let {name} of this.selectedConditionPairs) {
+          topColumns.push(name)
+          for (let i = 0; i < uniqueColumnHeaders.length - 2; i++) {
+            topColumns.push("")
+          }
         }
+        return topColumns
+      },
+      tablePreview () {
+        let dge = this.$store.state.currentDGE
+        return [this.tableConditionPairHeader, this.tableColumnHeaders].concat(this.getTableContent(Math.min(dge.length, 5)))
       },
       setButtonDisable1 () {
-        if (this.selected.length === 0 || this.$store.state.currentDGE.geneNames.size === 0) {
-          return true
-        } else {
-          return false
-        }
+        return this.selectedConditionPairs.length === 0 || this.$store.state.currentDGE.geneNames.size === 0
       },
       faDownload () {
         return faDownload
       }
     },
     methods: {
-      checkGeneAmount () {
-        let store = this.$store.state.dgeData
-        let storeLength = store.length
-        this.rowTotalAmount = storeLength
-        if (storeLength > 100000) {
-          this.excessLength = true
-        }
-      },
-      previewMultiselect () {
-        console.log('Multiselect listened')
-        console.log(this.selected)
-        this.makeTableData()
-      },
-      // getting conditions to display in multiselect
-      getMyConditions () {
-        console.log('get MyConditions')
-        let conditionDicts = this.$store.state.currentDGE.conditionPairs
-        let myConditions = []
-        let i = 0
-        while (i < conditionDicts.length) {
-          let first = conditionDicts[i]['_condition1']
-          let second = conditionDicts[i]['_condition2']
-          myConditions.push(first + ' vs. ' + second + ' ')
-          i = i + 1
-        }
-        // only for display in the dropdown
-        this.options = myConditions
-      },
-      getSelected () {
-        console.log('getSelected')
-        this.selected = this.selected
-      },
-      // getting condition pairs to get correct data from store
-      getConditionPairs () {
-        console.log('getConditionPairs')
-        let conditionPairList = []
-        // console.log(this.selected)
-        for (let i = 0; i < this.selected.length; i++) {
-          // getting tx and ty from string
-          let first = this.selected[i].slice(0, 2)
-          let second = this.selected[i].slice(7, 9)
-          conditionPairList.push(new ConditionPair(first, second))
-        }
-        this.conditionPairList = conditionPairList
-      },
-      makeCurrentData () {
-        console.log('creating currentData')
-        let fileCounter = this.selected.length
-        // creating columnHeaders
-        let columnHeaders = []
-        while (fileCounter > 0) {
-          // columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
-          if (this.log2Tick === true) {
-            columnHeaders.push('log2foldChange')
-          }
-          if (this.pAdjTick === true) {
-            columnHeaders.push('p value (adjusted)')
-          }
-          if (this.meanTick === true) {
-            columnHeaders.push('base mean')
-          }
-          if (this.lfcseTick === true) {
-            columnHeaders.push('lfcSE')
-          }
-          if (this.pTick === true) {
-            columnHeaders.push('p value')
-          }
-          if (this.statTick === true) {
-            columnHeaders.push('stat')
-          }
-          fileCounter = fileCounter - 1
-        }
-        // creating array to fit spaces of fileNames (unique elements only)
-        // https://stackoverflow.com/questions/15052702/count-unique-elements-in-array-without-sorting
-        let uniqueColumnHeaders = columnHeaders.filter(function (v, i) { return i === columnHeaders.lastIndexOf(v) })
-        // console.log(uniqueColumnHeaders)
-        // adding name only in the beginning of the column headers
-        columnHeaders.unshift('name')
-        this.columnHeaders = columnHeaders
-        // console.log(columnHeaders)
-        // creating 1st row with filenames, resetting fileCounter
-        // first row with file names
-        let topColumns = []
-        fileCounter = 0
-        // 6 spaces only for 1st filename, then 5!
-        let loopCounter = 1
-        while (fileCounter < this.selected.length) {
-          topColumns.push(this.selected[fileCounter])
-          // six empty cells will be added only for the first
-          // filename, since the columnheader "name" appears only once
-          let spaceArray1 = []
-          let k = 0
-          // "empty" cells to move fileName to the right position according to length of 2nd column with
-          // categories chosen
-          while (k < uniqueColumnHeaders.length) {
-            spaceArray1.push(' ')
-            k = k + 1
-          }
-          if (loopCounter === 1) {
-            topColumns.push(spaceArray1)
-            fileCounter = fileCounter + 1
-          } else {
-            spaceArray1.pop()
-            topColumns.push(spaceArray1)
-            fileCounter = fileCounter + 1
-          }
-          loopCounter = loopCounter + 1
-        }
-        // console.log(fileCounter)
-        // removing 1st array element, which was shown as object[object] in csv
-        // topColumns.shift()
-        // top columns need to be flattened
-        topColumns = [].concat.apply([], topColumns)
-        this.topColumns = topColumns
-        // console.log(topColumns)
-        //
-        //
-        //
-        // creating correct row data
+      getTableContent (numberOfRows) {
+        let dge = this.$store.state.currentDGE
+        numberOfRows = (numberOfRows) ? numberOfRows : dge.length
         let rowData = []
-        // rowData.push(topColumns)
-        // rowData.push(columnHeaders)
-        let oneEntry = []
-        // let rowCounter = 0
-        let store = this.$store.state.currentDGE
         // iterate data
-        for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          let myName = gene.name
-          oneEntry.push(myName)
-          for (let i = 0; i < this.conditionPairList.length; i++) {
-            let myPair = this.conditionPairList[i]
-            // console.log('myPair') FOR LOOP!
-            // console.log(myPair) FOR LOOP!
-            let myData = gene.getDESEQ2Analysis(myPair)
-            // console.log('myData') FOR LOOP
+        for (let geneName of dge.geneNames) {
+          // write only numberOfRows lines into table
+          if (rowData.length >= numberOfRows) {
+            break
+          }
+          let row = []
+          let gene = dge.getGene(geneName)
+          row.push(geneName)
+          for (let {conditionPair} of this.selectedConditionPairs) {
+            let deseq2Analysis = gene.getDESEQ2Analysis(conditionPair)
             // myData ist eine DEseq2 Analyse für ein Gen und ein Condition Pair
-            // console.log(myData) wenn einkommentiert, dann innerhalb FOR LOOP, Achtung!
-            let myMean = myData.baseMean
-            let mylog2fold = myData.log2FoldChange
-            let mylfcSE = myData.lfcSE
-            let myStat = myData.stat
-            let mypValue = myData.pValue
-            let mypAdj = myData.pAdj
+            let baseMean = deseq2Analysis.baseMean
+            let log2FoldChange = deseq2Analysis.log2FoldChange
+            let lfcSE = deseq2Analysis.lfcSE
+            let stat = deseq2Analysis.stat
+            let pValue = deseq2Analysis.pValue
+            let pAdj = deseq2Analysis.pAdj
             if (this.roundedValues === true) {
-              myMean = Math.round(myMean * 100) / 100
-              mylog2fold = Math.round(mylog2fold * 100) / 100
-              mylfcSE = Math.round(mylfcSE * 100) / 100
-              myStat = Math.round(myStat * 100) / 100
-              mypValue = Math.round(mypValue * 100) / 100
-              mypAdj = Math.round(mypAdj * 100) / 100
+              baseMean = Math.round(baseMean * 100) / 100
+              log2FoldChange = Math.round(log2FoldChange * 100) / 100
+              lfcSE = Math.round(lfcSE * 100) / 100
+              stat = Math.round(stat * 100) / 100
+              pValue = Math.round(pValue * 100) / 100
+              pAdj = Math.round(pAdj * 100) / 100
             }
             // order is important
             // oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
-            if (this.log2Tick === true) {
-              oneEntry.push(mylog2fold)
+            if (this.log2Tick) {
+              row.push(log2FoldChange)
             }
-            if (this.pAdjTick === true) {
-              oneEntry.push(mypAdj)
+            if (this.pAdjTick) {
+              row.push(pAdj)
             }
-            if (this.meanTick === true) {
-              oneEntry.push(myMean)
+            if (this.meanTick) {
+              row.push(baseMean)
             }
-            if (this.lfcseTick === true) {
-              oneEntry.push((mylfcSE))
+            if (this.lfcseTick) {
+              row.push(lfcSE)
             }
-            if (this.pTick === true) {
-              oneEntry.push(mypValue)
+            if (this.statTick) {
+              row.push(stat)
             }
-            if (this.statTick === true) {
-              oneEntry.push(myStat)
-            }
-          }
-          // so far: array of arrays with inner array = one entry (entries in correct order)
-          rowData.push(oneEntry)
-          oneEntry = []
-        }
-        this.rowData = rowData
-        console.log('row Data creation done')
-        console.log(this.rowData)
-        // console.log(rowData)
-        // let rowDatasplit = rowData.map(e => e.join(',')).join('\n')
-        // console.log(rowDatasplit)
-      },
-      makeSubData () {
-        console.log('creating subData')
-        let fileCounter = this.selected.length
-        // creating columnHeaders
-        let subColumnHeaders = []
-        while (fileCounter > 0) {
-          // columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
-          if (this.log2Tick === true) {
-            subColumnHeaders.push('log2foldChange')
-          }
-          if (this.pAdjTick === true) {
-            subColumnHeaders.push('p value (adjusted)')
-          }
-          if (this.meanTick === true) {
-            subColumnHeaders.push('base mean')
-          }
-          if (this.lfcseTick === true) {
-            subColumnHeaders.push('lfcSE')
-          }
-          if (this.pTick === true) {
-            subColumnHeaders.push('p value')
-          }
-          if (this.statTick === true) {
-            subColumnHeaders.push('stat')
-          }
-          fileCounter = fileCounter - 1
-        }
-        // creating array to fit spaces of fileNames (unique elements only)
-        // https://stackoverflow.com/questions/15052702/count-unique-elements-in-array-without-sorting
-        let uniqueColumnHeaders = subColumnHeaders.filter(function (v, i) { return i === subColumnHeaders.lastIndexOf(v) })
-        // console.log(uniqueColumnHeaders)
-        // adding name only in the beginning of the column headers
-        subColumnHeaders.unshift('name')
-        this.subColumnHeaders = subColumnHeaders
-        // console.log(columnHeaders)
-        // creating 1st row with filenames, resetting fileCounter
-        // first row with file names
-        let subTopColumns = []
-        fileCounter = 0
-        let loopCounter = 1
-        while (fileCounter < this.selected.length) {
-          subTopColumns.push(this.selected[fileCounter])
-          // six empty cells will be added only for the first
-          // filename, since the columnheader "name" appears only once
-          let spaceArray1 = []
-          let k = 0
-          // "empty" cells to move fileName to the right position according to length of 2nd column with
-          // categories chosen
-          while (k < uniqueColumnHeaders.length) {
-            spaceArray1.push(' ')
-            k = k + 1
-          }
-          if (loopCounter === 1) {
-            subTopColumns.push(spaceArray1)
-            fileCounter = fileCounter + 1
-          } else {
-            spaceArray1.pop()
-            subTopColumns.push(spaceArray1)
-            fileCounter = fileCounter + 1
-          }
-          loopCounter = loopCounter + 1
-        }
-        // console.log(fileCounter)
-        // removing 1st array element, which was shown as object[object] in csv
-        // topColumns.shift()
-        // top columns need to be flattened
-        subTopColumns = [].concat.apply([], subTopColumns)
-        this.subTopColumns = subTopColumns
-        // console.log(topColumns)
-        //
-        //
-        //
-        // creating correct row data
-        let subRowData = []
-        // rowData.push(topColumns)
-        // rowData.push(columnHeaders)
-        let oneEntry = []
-        // let rowCounter = 0
-        let store = this.$store.state.subDGE
-        // iterate data
-        for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          let myName = gene.name
-          oneEntry.push(myName)
-          for (let i = 0; i < this.conditionPairList.length; i++) {
-            let myPair = this.conditionPairList[i]
-            // console.log('myPair') FOR LOOP!
-            // console.log(myPair) FOR LOOP!
-            let myData = gene.getDESEQ2Analysis(myPair)
-            // console.log('myData') FOR LOOP
-            // myData ist eine DEseq2 Analyse für ein Gen und ein Condition Pair
-            // console.log(myData) wenn einkommentiert, dann innerhalb FOR LOOP, Achtung!
-            let myMean = myData.baseMean
-            let mylog2fold = myData.log2FoldChange
-            let mylfcSE = myData.lfcSE
-            let myStat = myData.stat
-            let mypValue = myData.pValue
-            let mypAdj = myData.pAdj
-            if (this.roundedValues === true) {
-              myMean = Math.round(myMean * 100) / 100
-              mylog2fold = Math.round(mylog2fold * 100) / 100
-              mylfcSE = Math.round(mylfcSE * 100) / 100
-              myStat = Math.round(myStat * 100) / 100
-              mypValue = Math.round(mypValue * 100) / 100
-              mypAdj = Math.round(mypAdj * 100) / 100
-            }
-            // order is important
-            // oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
-            if (this.log2Tick === true) {
-              oneEntry.push(mylog2fold)
-            }
-            if (this.pAdjTick === true) {
-              oneEntry.push(mypAdj)
-            }
-            if (this.meanTick === true) {
-              oneEntry.push(myMean)
-            }
-            if (this.lfcseTick === true) {
-              oneEntry.push((mylfcSE))
-            }
-            if (this.pTick === true) {
-              oneEntry.push(mypValue)
-            }
-            if (this.statTick === true) {
-              oneEntry.push(myStat)
+            if (this.pTick) {
+              row.push(pValue)
             }
           }
           // so far: array of arrays with inner array = one entry (entries in correct order)
-          subRowData.push(oneEntry)
-          oneEntry = []
+          rowData.push(row)
         }
-        this.subRowData = subRowData
-        // console.log(rowData)
-        // let rowDatasplit = rowData.map(e => e.join(',')).join('\n')
-        // console.log(rowDatasplit)
-      },
-      // toggling changes affecting data and recalculation of data
-      toggleRoundingChange () {
-        if (this.roundedValues === true) {
-          this.roundedValues = false
-        } else if (this.roundedValues === false) {
-          this.roundedValues = true
-        }
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-      },
-      toggleLog2Change () {
-        if (this.log2Tick === true) {
-          this.log2Tick = false
-        } else if (this.log2Tick === false) {
-          this.log2Tick = true
-        }
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-      },
-      togglePadjChange () {
-        if (this.pAdjTick === true) {
-          this.pAdjTick = false
-        } else if (this.pAdjTick === false) {
-          this.pAdjTick = true
-        }
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-      },
-      toggleMeanChange () {
-        if (this.meanTick === true) {
-          this.meanTick = false
-        } else if (this.meanTick === false) {
-          this.meanTick = true
-        }
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-      },
-      toggleLFCSEchange () {
-        if (this.lfcseTick === true) {
-          this.lfcseTick = false
-        } else if (this.lfcseTick === false) {
-          this.lfcseTick = true
-        }
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-      },
-      togglePchange () {
-        if (this.pTick === true) {
-          this.pTick = false
-        } else if (this.pTick === false) {
-          this.pTick = true
-        }
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-      },
-      toggleStatChange () {
-        if (this.statTick === true) {
-          this.statTick = false
-        } else if (this.statTick === false) {
-          this.statTick = true
-        }
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-      },
-      makeTableData () {
-        console.log('creating table data')
-        console.log(this.conditionPairList)
-        // for not appending to the already downloaded (each click made 1 header more etc)
-        this.getConditionPairs()
-        this.makeCurrentData()
-        // expression to add row information taken from:
-        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
-        let tableData = this.rowData
-        let csvTops = this.topColumns
-        let csvHeaders = this.columnHeaders
-        tableData.unshift(csvHeaders)
-        tableData.unshift(csvTops)
-        this.tableData = tableData
-        console.log('table Data created')
+        return rowData
       },
       downloadCSV () {
-        // for not appending to the already downloaded (each click made 1 header more etc)
-        this.makeCurrentData()
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
         // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
-        let csvData = this.rowData
-        let csvTops = this.topColumns
-        let csvHeaders = this.columnHeaders
+        let csvData = this.getTableContent()
+        let csvTops = this.tableConditionPairHeader
+        let csvHeaders = this.tableColumnHeaders
         csvData.unshift(csvHeaders)
         csvData.unshift(csvTops)
         let csvContent = csvData.map(e => e.join(',')).join('\n')
         // function to download csv taken from:
         // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
         function downloadFile (data, fileName) {
-          let csvData = data
-          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
+          let blob = new Blob([data], {type: 'application/csv;charset=utf-8;'})
           if (window.navigator.msSaveBlob) {
             navigator.msSaveBlob(blob, fileName)
           } else {
             let link = document.createElement('a')
-            let csvUrl = URL.createObjectURL(blob)
-            link.href = csvUrl
+            link.href = URL.createObjectURL(blob)
             link.style = 'invisibility: hidden'
             link.download = fileName
             document.body.appendChild(link)
@@ -669,151 +286,6 @@
         }
 
         downloadFile(csvContent, 'testDeseqOverview.csv')
-        console.log('end of download function')
-      },
-      downloadSub () {
-        // for not appending to the already downloaded (each click made 1 header more etc)
-        this.makeSubData()
-        // expression to add row information taken from:
-        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
-        let csvData = this.subRowData
-        let csvTops = this.subTopColumns
-        let csvHeaders = this.subColumnHeaders
-        csvData.unshift(csvHeaders)
-        csvData.unshift(csvTops)
-        // flatten array of arrays at commas, add newlines between the single innere arrays (which are not present anymore)
-        let csvContent = csvData.map(e => e.join(',')).join('\n')
-        // function to download csv taken from:
-        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
-        function downloadFile (data, fileName) {
-          let csvData = data
-          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
-          if (window.navigator.msSaveBlob) {
-            navigator.msSaveBlob(blob, fileName)
-          } else {
-            let link = document.createElement('a')
-            let csvUrl = URL.createObjectURL(blob)
-            link.href = csvUrl
-            link.style = 'invisibility: hidden'
-            link.download = fileName
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-          }
-        }
-        downloadFile(csvContent, 'testDeseqOverview.csv')
-        console.log('end of subset download function')
-      },
-      exportBig () {
-        // first row with file names
-        let topColumns = []
-        let fileCounter = 0
-        let fileList = this.$store.state.deseqlist
-        for (let file of fileList) {
-          if (file[0] === undefined || file[0] === 'name') {
-            topColumns.push(this.nameColumn())
-          } else {
-            topColumns.push(file)
-            // six empty cells will be added only for the first
-            // filename, since the columnheader "name" appears only once
-            if (fileCounter < 1) {
-              // console.log(this.$store.state.deseqlist)
-              // "empty" cells to move fileName to the right position
-              topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
-            } else {
-              // console.log(this.$store.state.deseqlist)
-              // "empty" cells to move filenames above column headers to right pos
-              topColumns.push(' ', ' ', ' ', ' ', ' ')
-            }
-          }
-          fileCounter = fileCounter + 1
-        }
-        console.log(fileCounter)
-        // removing 1st array element, which was shown as object[object] in csv
-        // topColumns.shift()
-        console.log(topColumns)
-        // creating columnHeaders
-        let columnHeaders = []
-        while (fileCounter > 0) {
-          columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
-          fileCounter = fileCounter - 1
-        }
-        // adding name only in the beginning of the column headers
-        columnHeaders.unshift('name')
-        console.log(columnHeaders)
-        // creating correct row data
-        let rowData = []
-        rowData.push(topColumns)
-        rowData.push(columnHeaders)
-        let oneEntry = []
-        // let rowCounter = 0
-        let store = this.$store.state.currentDGE
-        // iterate data
-        for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          let myName = gene.name
-          oneEntry.push(myName)
-          for (let analysis of gene.deseq2Analyses) {
-            let myMean = analysis.baseMean
-            let mylog2fold = analysis.log2FoldChange
-            let mylfcSE = analysis.lfcSE
-            let myStat = analysis.stat
-            let mypValue = analysis.pValue
-            let mypAdj = analysis.pAdj
-            if (this.roundedValues === true) {
-              myMean = Math.round(myMean * 100) / 100
-              mylog2fold = Math.round(mylog2fold * 100) / 100
-              mylfcSE = Math.round(mylfcSE * 100) / 100
-              myStat = Math.round(myStat * 100) / 100
-              mypValue = Math.round(mypValue * 100) / 100
-              mypAdj = Math.round(mypAdj * 100) / 100
-            }
-            // order is important
-            oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
-          }
-          // so far: array of arrays with inner array = one entry (entries in correct order)
-          rowData.push(oneEntry)
-          oneEntry = []
-        }
-        console.log(rowData)
-        // expression to add row information taken from:
-        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
-        let csvContent = rowData.map(e => e.join(',')).join('\n')
-        // function to download csv taken from:
-        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
-        function downloadFile (data, fileName) {
-          let csvData = data
-          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
-          if (window.navigator.msSaveBlob) {
-            navigator.msSaveBlob(blob, fileName)
-          } else {
-            let link = document.createElement('a')
-            let csvUrl = URL.createObjectURL(blob)
-            link.href = csvUrl
-            link.style = 'invisibility: hidden'
-            link.download = fileName
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-          }
-        }
-        downloadFile(csvContent, 'testDeseqOverview.csv')
-      }
-    },
-    beforeMount () {
-      this.checkGeneAmount()
-      if (this.excessLength === false) {
-        console.log('>>> start')
-        this.getMyConditions()
-        this.getSelected()
-        this.getConditionPairs()
-        // console.log(this.selected)
-        this.makeCurrentData()
-        this.makeSubData()
-        this.makeTableData()
-        console.log('----- beforeMount done -----')
       }
     }
   }
