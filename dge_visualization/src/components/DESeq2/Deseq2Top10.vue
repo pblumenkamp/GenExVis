@@ -1,22 +1,36 @@
 <template>
   <div style="text-align: center">
-
     <h1>
-      Top {{ this.selectedAmount }} Genes
+      Top {{ selectedAmount }} Genes
     </h1>
 
-    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''" @input="statusUpdate()">
+    <b-form-select
+      v-model="selectedCondition1"
+      style="width: auto"
+      @change="selectedCondition2 = ''"
+      @input="statusUpdate()"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select the first condition --</option>
+        <option :value="''" disabled>
+          -- Please select the first condition --
+        </option>
       </template>
       <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
     </b-form-select>
 
-    <b-form-select v-model="selectedCondition2" style="width: auto" :disabled="selectedCondition1 === ''" @input="statusUpdate()">
+    <b-form-select
+      v-model="selectedCondition2"
+      style="width: auto"
+      :disabled="selectedCondition1 === ''"
+      @input="statusUpdate()"
+    >
       <template slot="first">
-        <option :value="''" disabled>-- Please select the second condition --</option>
+        <option :value="''" disabled>
+          -- Please select the second condition --
+        </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">{{ cond }}
+      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">
+        {{ cond }}
       </option>
     </b-form-select>
 
@@ -24,7 +38,9 @@
       <template slot="first">
         <option :value="''" disabled>-- Please select a normalization method --</option>
       </template>
-      <option v-for="cond in registeredNormalizationMethods" :value="cond">{{ cond }}</option>
+      <option v-for="cond in registeredNormalizationMethods" :value="cond">
+        {{ cond }}
+      </option>
     </b-form-select>
 
     <hr style="margin-top: 2rem; margin-bottom: 2rem">
@@ -63,7 +79,7 @@
                       <b-form-input v-model="commonMaxValue" style="width: 80%" type="number"
                                     placeholder="Please type in number" @keydown.enter.native="setCommonMax()"></b-form-input>
                     </b-input-group>
-                    <i id="highestValue" class="additionalInformation">Highest present value: {{ this.highestValue[0] }}</i>
+                    <i id="highestValue" class="additionalInformation">Highest present value: {{ highestValue[0] }}</i>
                     <hr>
                   </td>
                   <td></td>
@@ -104,19 +120,26 @@
                 <table class="rankingTable" style="width: 100%; text-align: left">
                   <tr class="rankingRows" v-for="(number, index) in this.selectedAmount">
                     <td class="rankingColumns" style="width:16.5rem">
+                      <!--<div style="font-size:4rem"><b>{{ number }}.</b></div>-->
+                      <!--<div style="font-size:1.75rem"><b> {{ generateKey(index) }}</b>-->
+                        <!--<span @click="addGene(generateKey(index))">-->
+                          <!--<font-awesome-icon style="color: cornflowerblue" :icon="faPlusCircle"></font-awesome-icon>-->
                       <div style="font-size:2rem"><b>{{ number }}.</b></div>
                       <div style="font-size:1.75rem"><b> {{ returnKey(index) }}</b>
-                        <span @click="addGene(returnKey(index))">
+                        <span title="Add the Gene to Subset" @click="addGene(generateKey(index))">
                           <font-awesome-icon class="text-secondary" style="cursor: pointer;" :icon="faPlusCircle"></font-awesome-icon>
                         </span>
                       </div>
-                      <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ returnValue(index) }}</p></div>
-                      <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ returnAlteredValue(returnValue(index)) }}</p></div>
+                      <div v-if="!isExponential">     {{ nameNegotiator() }}: <p>{{ generateValue(index) }}</p></div>
+                      <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ returnAlteredValue(generateValue(index)) }}</p></div>
                     </td>
                     <td class="rankingColumns">
-                      <div :id="returnKey(index)" style="height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
-                      <hr style="margin-bottom: 2rem">
+                      <div :id="generateKey(index)" :ref="returnKey(index)" style="height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
+                      <!--<hr style="margin-bottom: 2rem">-->
                     </td>
+                  </tr>
+                  <tr>
+                    <hr style="margin-bottom: 2rem">
                   </tr>
                 </table>
               </b-card>
@@ -134,8 +157,9 @@
 <script>
   import {ConditionPair} from '../../utilities/dge'
   import {SET_SUBDGE} from '../../store/action_constants'
-  import FontAwesomeIcon from '@fortawesome/vue-fontawesome'
-  import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle'
+
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faPlusCircle} from '@fortawesome/free-solid-svg-icons'
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
@@ -184,7 +208,6 @@
         let distributionDictionary = {'pValue': [true, false], 'pAdj': [true, false], 'log2FoldChange': [false, true]}
         // distributionDictionary = {'OPTION': ['inversion, invert ranking?', 'reversion, provide reversion?']}
         let mainStorage = this.collectDataByKey(dge, distributionDictionary, cond1, cond2)
-
         return (mainStorage)
       },
       collectDataByKey (dge, distributionDictionary, cond1, cond2) {
@@ -222,7 +245,7 @@
         for (let geneName of dge.geneNames) {
           let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key]
           if (isNaN(value)) {
-            console.log('Found NaN value in: ' + geneName)
+            // console.log('Found NaN value in: ' + geneName)
           } else {
             valueDict = this.insertAnalysisData(valueDict, geneName, value)
             valueList.push(value)
@@ -272,6 +295,7 @@
       },
 
       statusUpdate () {
+        this.amountNegotiator()
         if (this.selectedCondition1 !== '' && this.selectedCondition2 !== '' && this.selectedNormalization !== '') {
           this.updateCheck = true
           this.createGlobalEntryData()
@@ -396,7 +420,7 @@
           }
         }
       },
-      amountCheck () {
+      amountNegotiator () {
         if (this.selectedAmount > this.maxcount) {
           this.selectedAmount = this.maxcount
         }
@@ -407,11 +431,15 @@
       },
       // Return block
       returnKey (index) {
+        let htmlref = this.generateKey(index)
+        return (htmlref)
+      },
+      generateKey (index) {
         let data = this.entryData
         let object = Object.keys(data)
         return (object[index])
       },
-      returnValue (index) {
+      generateValue (index) {
         let data = this.entryData
         let object = Object.values(data)
         return (object[index])
@@ -505,12 +533,21 @@
         return faPlusCircle
       }
     },
+    watch: {
+      dge (newDGE, oldDGE) {
+        this.updateCheck = true
+        this.selectedAmount = 10
+        this.selectedAmount = 10
+        this.mountData()
+        this.statusUpdate()
+      }
+    },
     beforeMount () {
       this.mountData()
     },
     updated () {
       if (this.updateCheck === true) {
-        this.amountCheck()
+        this.amountNegotiator()
         this.drawData()
       }
     }
@@ -526,6 +563,9 @@
   }
   th {
     background-color: #F6F8F7;
+  }
+  .rankingRows {
+    border-bottom: 1px solid lightgrey;
   }
   .additionalInformation {
     color: lightslategrey;
