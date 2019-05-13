@@ -7,6 +7,7 @@
     <div style="clear: both;"></div>
 
     <div>
+      <!-- Design selection -->
       <table style="height: 10rem; width: 100%; text-align: center; align-content: center"
              border="0px solid black">
         <tr>
@@ -31,12 +32,13 @@
               </table>
             </b-card>
           </td>
+          <!-- subset area -->
           <td style="width: 70%">
-            <b-card style="height: 100%; border: 1px solid lightslategray">
+            <b-card style="height: 90%; border: 1px solid lightslategray">
               <table style="width:100%" border="0px solid black">
                 <tr>
                   <td style="width: 40%; border: 1px solid gainsboro">
-                    <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowAmount }} / <b title="The total amount of genes">{{ rowCount }} </b></a></div>
+                    <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowChosenAmount }} / <b title="The total amount of genes">{{ rowTotalAmount }} </b></a></div>
                   </td>
                   <td style="width: 60%; border: 1px solid gainsboro">
                     <div id="currentlyChosen" class="currentlyChosen">
@@ -62,6 +64,7 @@
               </table>
             </b-card>
           </td>
+          <!-- Area right of subset table: Filter bar, view change (rounded), reset table button -->
           <td style="width: 15%" align="left">
             <b-card style="height: 100%; border: 0px solid lightslategray">
               <div>
@@ -87,45 +90,92 @@
         </tr>
       </table>
     </div>
+    <p></p>
+    <!-- Big gene table -->
+    <div v-if="this.rowTotalAmount*6 < 2000000">
+      <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
+                   :gridOptions="gridOptions"
+                   :columnDefs="columnDefs"
+                   :rowData="rowData"
 
-    <hr>
+                   :groupHeaders="true"
 
-    <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
-                 :gridOptions="gridOptions"
-                 :columnDefs="columnDefs"
-                 :rowData="rowData"
-
-                 :groupHeaders="true"
-
-                 @modelUpdated="onModelUpdated"
-                 @selectionChanged="onSelectionChanged"
-                 @columnVisible="onVisionChanged"
-                 @columnMoved="onPositionChanged"
-                 @gridReady="onReady"
-    />
+                   @modelUpdated="onModelUpdated"
+                   @selectionChanged="onSelectionChanged"
+                   @columnVisible="onVisionChanged"
+                   @columnMoved="onPositionChanged"
+                   @gridReady="onReady"
+      />
+    </div>
+    <div class="main-table" v-else>
+      <br>
+      <table width="100%">
+        <tr align="center">
+          <th></th>
+          <th><h2>Unfortunately the table was too large to display</h2></th>
+          <th></th>
+        </tr>
+        <tr align="center">
+          <th></th>
+          <th><h3>You can download the full table below</h3></th>
+          <th></th>
+        </tr>
+        <tr align="center">
+          <th></th>
+          <th>
+            <table layout="fixed">
+              <td width="33%">
+                <button
+                  id = 'downloadCSV'
+                  class="btn btn-dark btn-sm"
+                  title="Download table as .csv"
+                  @click="downloadCSV"
+                  style = "width: 100%"
+                >
+                  <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
+                </button>
+              </td>
+              <td width="33%">
+              </td>
+              <td width="33%">
+                <div>
+                  <b-form-checkbox v-model="roundedValues2"
+                                   @change="toggleRoundingChange2">
+                    Rounded Values
+                  </b-form-checkbox>
+                </div>
+              </td>
+            </table>
+          </th>
+          <th></th>
+        </tr>
+      </table>
+    </div>
   </div>
 </template>
 
 <script>
   import {ADD_STRUC} from '../../store/mutation_constants'
   import {SET_SUBDGE} from '../../store/action_constants'
-
   import {AgGridVue} from 'ag-grid-vue'
+
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-  import {faUndoAlt} from '@fortawesome/free-solid-svg-icons'
+  import {faUndoAlt, faDownload} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     data () {
       return {
+        roundedValues2: true,
         roundedValues: true,
         gridOptions: null,
         columnDefs: null,
+        excessLength: false,
         rowData: null,
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
-        rowCount: null,
-        rowAmount: 0,
+        rowTotalAmount: null,
+        rowChosenAmount: 0,
         nameDict: {
           '_log2FoldChange': 'log2 fold change',
           '_pAdj': 'p value (adjusted)',
@@ -172,6 +222,14 @@
           this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
         }
       },
+      checkGeneAmount () {
+        let store = this.$store.state.dgeData
+        let storeLength = store.length
+        this.rowTotalAmount = storeLength
+        if (storeLength*6 < 2000000) {
+          this.excessLength = true
+        }
+      },
       checkStorage () {
         let strucStorage = this.$store.state.strucStorage
         if (strucStorage === null) {
@@ -205,13 +263,12 @@
       createRowData () {
         const rowData = []
         let store = this.$store.state.dgeData
-        console.log(store)
 
         // large file problem part
         let rowCounter = 0
 
         for (let geneName of store.geneNames) {
-          if (rowCounter < 100000) {
+          if (rowCounter > 0) {
             let gene = store.getGene(geneName)
             let dict = {}
             dict.name = gene.name
@@ -237,9 +294,10 @@
         }
 
         // large file problem part
-
+        console.log(rowData)
         this.rowData = rowData
       },
+      // visualisation of log2FoldChange
       minmaxdefine () {
         let log2foldlist = this.log2foldlist
         let min = Math.min(...log2foldlist)
@@ -331,6 +389,7 @@
           return (this.negotiateShowvalue(value))
         }
       },
+      // visualisation of log2FoldChange
       percentCellRenderer (params) {
         let value = params.value
         let showvalue = params.value
@@ -417,6 +476,9 @@
         this.roundedValues = false
         this.createRowData()
       },
+      toggleRoundingChange2 () {
+        this.roundedValues2 = false
+      },
       toggleTableReset () {
         this.createStrucStorage()
         this.createColumnDefs()
@@ -439,9 +501,9 @@
           let totalRows = this.rowData.length
           // let model = this.gridOptions.api.getModel()
           // let processedRows = model.getRowCount()
-          // this.rowCount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
-          // this.rowCount = totalRows.toLocaleString()
-          this.rowCount = totalRows
+          // this.rowTotalAmount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
+          // this.rowTotalAmount = totalRows.toLocaleString()
+          this.rowTotalAmount = totalRows
         }
       },
       onModelUpdated () {
@@ -457,24 +519,24 @@
           selectedRowsString.push(' ' + selectedRow.name)
         })
         let rawRowAmount = selectedRowsString.length
-        let rowAmount = this.numberWithCommas(rawRowAmount)
-        this.rowAmount = rowAmount
+        let rowChosenAmount = this.numberWithCommas(rawRowAmount)
+        this.rowChosenAmount = rowChosenAmount
         this.selectionNegotiator(rawRowAmount)
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
-      selectionNegotiator (rowAmount) {
+      selectionNegotiator (rowChosenAmount) {
         // select all: id="selectAllButton"; clear selection: id="deselectAllButton"; create a subset: id="createSubsetButton"; add genes: id="addGenesButton"
-        if (rowAmount === this.rowCount) {
+        if (rowChosenAmount === this.rowTotalAmount) {
           document.getElementById('selectAllButton').disabled = true
           document.getElementById('deselectAllButton').disabled = false
           document.getElementById('createSubsetButton').disabled = false
           document.getElementById('addGenesButton').disabled = false
-        } else if (rowAmount < this.rowCount && rowAmount !== 0) {
+        } else if (rowChosenAmount < this.rowTotalAmount && rowChosenAmount !== 0) {
           document.getElementById('selectAllButton').disabled = false
           document.getElementById('deselectAllButton').disabled = false
           document.getElementById('createSubsetButton').disabled = false
           document.getElementById('addGenesButton').disabled = false
-        } else if (rowAmount === 0) {
+        } else if (rowChosenAmount === 0) {
           document.getElementById('selectAllButton').disabled = false
           document.getElementById('deselectAllButton').disabled = true
           document.getElementById('createSubsetButton').disabled = true
@@ -500,17 +562,15 @@
           rowMultiSelectWithClick: true,
           suppressPropertyNamesCheck: true,
           icons: {
-            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>',
-            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>'
+            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>',
+            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>'
           },
-          // START: ag-grid-vue update (20.0+):
           rowHeight: 30,
           defaultColDef: {
             sortable: true,
             filter: true,
             resizable: true
           }
-          // END
         }
       },
       readStructure () {
@@ -535,28 +595,135 @@
       pushStructure () {
         let strucStorage = this.strucStorage
         this.$store.commit(ADD_STRUC, strucStorage)
+      },
+      // Miri
+      downloadCSV () {
+        // first row with file names
+        let topColumns = []
+        let fileCounter = 0
+        let fileList = this.$store.state.deseqlist
+        for (let file of fileList) {
+          if (file[0] === undefined || file[0] === 'name') {
+            topColumns.push(this.nameColumn())
+          } else {
+            topColumns.push(file)
+            // six empty cells will be added only for the first
+            // filename, since the columnheader "name" appears only once
+            if (fileCounter < 1) {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move fileName to the right position
+              topColumns.push(' ', ' ', ' ', ' ', ' ', ' ')
+            } else {
+              // console.log(this.$store.state.deseqlist)
+              // "empty" cells to move filenames above column headers to right pos
+              topColumns.push(' ', ' ', ' ', ' ', ' ')
+            }
+          }
+          fileCounter = fileCounter + 1
+        }
+        console.log(fileCounter)
+        // removing 1st array element, which was shown as object[object] in csv
+        // topColumns.shift()
+        console.log(topColumns)
+        // creating columnHeaders
+        let columnHeaders = []
+        while (fileCounter > 0) {
+          columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
+          fileCounter = fileCounter - 1
+        }
+        // adding name only in the beginning of the column headers
+        columnHeaders.unshift('name')
+        console.log(columnHeaders)
+        // creating correct row data
+        let rowData = []
+        rowData.push(topColumns)
+        rowData.push(columnHeaders)
+        let oneEntry = []
+        // let rowCounter = 0
+        let store = this.$store.state.currentDGE
+        // iterate data
+        for (let geneName of store.geneNames) {
+          let gene = store.getGene(geneName)
+          let myName = gene.name
+          oneEntry.push(myName)
+          for (let analysis of gene.deseq2Analyses) {
+            let myMean = analysis.baseMean
+            let mylog2fold = analysis.log2FoldChange
+            let mylfcSE = analysis.lfcSE
+            let myStat = analysis.stat
+            let mypValue = analysis.pValue
+            let mypAdj = analysis.pAdj
+            if (this.roundedValues2 === true) {
+              myMean = Math.round(myMean * 100) / 100
+              mylog2fold = Math.round(mylog2fold * 100) / 100
+              mylfcSE = Math.round(mylfcSE * 100) / 100
+              myStat = Math.round(myStat * 100) / 100
+              mypValue = Math.round(mypValue * 100) / 100
+              mypAdj = Math.round(mypAdj * 100) / 100
+            }
+            // order is important
+            oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
+          }
+          // so far: array of arrays with inner array = one entry (entries in correct order)
+          rowData.push(oneEntry)
+          oneEntry = []
+        }
+        console.log(rowData)
+        // expression to add row information taken from:
+        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
+        let csvContent = rowData.map(e => e.join(',')).join('\n')
+        // function to download csv taken from:
+        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
+        function downloadFile (data, fileName) {
+          let csvData = data
+          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
+          if (window.navigator.msSaveBlob) {
+            navigator.msSaveBlob(blob, fileName)
+          } else {
+            let link = document.createElement('a')
+            let csvUrl = URL.createObjectURL(blob)
+            link.href = csvUrl
+            link.style = 'invisibility: hidden'
+            link.download = fileName
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+          }
+        }
+        downloadFile(csvContent, 'testDeseqOverview.csv')
       }
     },
     computed: {
       faUndoAlt () {
         return faUndoAlt
+      },
+      faDownload () {
+        return faDownload
       }
     },
     beforeMount () {
       console.log('>>> start')
-      this.checkStorage()
-      this.createRowData()
-      this.minmaxdefine()
-      this.createColumnDefs()
-      this.insertGridOptions()
+      this.checkGeneAmount()
+      if (this.excessLength === false) {
+        this.checkStorage()
+        this.createRowData()
+        this.minmaxdefine()
+        this.createColumnDefs()
+        this.insertGridOptions()
+      }
     },
     mounted () {
-      this.selectionNegotiator(0)
-      this.chooseDesign()
+      if (this.excessLength === false) {
+        this.selectionNegotiator(0)
+        this.chooseDesign()
+      }
     },
     beforeDestroy () {
-      this.readStructure()
-      this.pushStructure()
+      if (this.excessLength === false) {
+        this.readStructure()
+        this.pushStructure()
+      }
     }
   }
 </script>
@@ -582,7 +749,7 @@
     /*adjustments for the main ag-grid table*/
     border: 1px solid dimgrey;
     width: 100%;
-    height: 26rem;
+    height: 30rem;
   }
   .button-balham {
     background-color: lightgrey;
@@ -616,6 +783,13 @@
   .basic-button button:hover:enabled {
     background-color: deepskyblue;
   }
+
+  /* Miri centered download button for .xlsx
+  position relative to parent element*/
+  /*.centerButton {
+    position: relative;
+    left: 45%;
+  }*/
   @media(max-width: 1500px) {
     td {
       display: table-row;

@@ -10,6 +10,7 @@
             <b-nav-item to="/deseq2/ma_plot">MA Plot</b-nav-item>
             <b-nav-item to="/deseq2/distributions">Distributions</b-nav-item>
             <b-nav-item to="/deseq2/top_10">Top 10</b-nav-item>
+            <b-nav-item to="/deseq2/deseq2download">Download</b-nav-item>
           </b-nav>
         </b-col>
         <b-col class="col" cols="9">
@@ -36,14 +37,12 @@
               <small>{{ fileName }}</small>
             </li>
           </b-card>
-
           <b-card
             v-if="this.$store.state.subDGE.geneNames.size > 0"
             id="subsetBox"
             :class="{ 'subsetBox-small':!showGenes, 'subsetBox-large':showGenes }"
           >
             Current Subset:
-            {{ showGenes }}
             <table style="width: 100%; border: 0 solid black">
               <tr>
                 <td width="50%">
@@ -80,7 +79,7 @@
                 </td>
               </tr>
             </table>
-            <button class="btn btn-dark btn-sm" style="float: right" @click="clearSubset()">
+            <button class="btn btn-dark btn-sm" style="float: right; margin: 0.1rem;" @click="clearSubset()">
               <font-awesome-icon :icon="faTrashAlt" /> Clear
             </button>
           </b-card>
@@ -89,12 +88,11 @@
     </b-container>
   </div>
 </template>
-
 <script>
   import {SET_SUBDGE} from '../../store/action_constants'
 
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-  import {faTrashAlt, faPlusCircle, faMinusCircle} from '@fortawesome/free-solid-svg-icons'
+  import {faTrashAlt, faPlusCircle, faMinusCircle, faDownload} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     name: 'DESeq2',
@@ -115,6 +113,9 @@
       },
       faMinusCircle () {
         return faMinusCircle
+      },
+      faDownload () {
+        return faDownload
       }
     },
     methods: {
