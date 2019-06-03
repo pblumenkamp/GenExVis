@@ -179,11 +179,11 @@
       },
       tableConditionPairHeader () {
         let uniqueColumnHeaders = Array.from(new Set(this.tableColumnHeaders))
-        // creating 1st row with filenames, resetting fileCounter
         // first row with file names
         let topColumns = [""]
         for (let {name} of this.selectedConditionPairs) {
           topColumns.push(name)
+          // creating spaces between filenames according to unique! number of values selected in tickboxes
           for (let i = 0; i < uniqueColumnHeaders.length - 2; i++) {
             topColumns.push("")
           }
@@ -192,8 +192,10 @@
       },
       tablePreview () {
         let dge = this.$store.state.currentDGE
+        // returning a big array to iterate in html (v-for). Displaying the first 5 columns of data only
         return [this.tableConditionPairHeader, this.tableColumnHeaders].concat(this.getTableContent(Math.min(dge.length, 5)))
       },
+      // download button disable
       setButtonDisable1 () {
         return this.selectedConditionPairs.length === 0 || this.$store.state.currentDGE.geneNames.size === 0
       },
@@ -285,7 +287,7 @@
           }
         }
 
-        downloadFile(csvContent, 'testDeseqOverview.csv')
+        downloadFile(csvContent, 'testDownload.csv')
       }
     }
   }
