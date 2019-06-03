@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE} from './action_constants'
+import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GFF3_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -64,6 +64,10 @@ const store = new Vuex.Store({
       } else if (normalization === 'deseq2') {
         state.dgeData.addDeseq2CountData(geneName, condition, values)
       }
+    },
+    [ADD_GFF3_DATA] (state, {typ, start, end, strand, phase, attributes}) {
+      console.log('ADD_GFF3_DATA')
+      state.dgeData.addGFF3data(typ, start, end, strand, phase, attributes)
     },
     [ADD_SEQRUN_MAPPING] (state, {normalization, mapping}) {
       state.dgeData.setSeqRunMapping(normalization, mapping)
@@ -148,6 +152,24 @@ const store = new Vuex.Store({
               values: countData[cond]
             })
           }
+        }
+        resolve()
+      })
+    },
+    [STORE_GFF3_DATA] ({commit,state},{gffContent}){
+      console.log('STORE_GFF3_DATA')
+      return new Promise ((resolve, reject) => {
+        // data of commit need to be "made"
+        for (let entry of gffContent) {
+          // committing to store
+          commit(ADD_GFF3_DATA, {
+            typ: entry[0],
+            start: entry[1],
+            end: entry[2],
+            strand: entry[3],
+            phase: entry[4],
+            attributes: entry[5]
+          })
         }
         resolve()
       })
