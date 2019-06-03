@@ -278,29 +278,29 @@ export class DGE {
    * @param attributes
    * @returns {DGE}
    */
-  addGFF3data (typ, start, end, strand, phase, attributes){
+  addGFF3data (typ, start, end, strand, phase, attributes) {
     console.log('addGFF3data');
     let attributesArray = attributes.split(';');
-    let geneID= "";
-    for (let entry in attributesArray){
-      if (attributesArray[entry].substr(0,2) === 'ID'){
+    let geneID = "";
+    for (let entry in attributesArray) {
+      if (attributesArray[entry].substr(0, 2) === 'ID') {
         geneID = attributesArray[entry].substr(3,);
-        console.log('geneID');
-        console.log(geneID)
+        //console.log('geneID');
+        //console.log(geneID)
+        let gene;
+        if (this.hasGene(geneID)) {
+          gene = this.getGene(geneID)
+        } else {
+          gene = new Gene(geneID)
+          this._addGene(gene)
+        }
+        //console.log(gene)
+        // console.log(typ)
+        // console.log(strand)
+        gene.addGFF3(typ, start, end, strand, phase, attributes)
       }
     }
-    let gene;
-    if (this.hasGene(geneID)) {
-      gene = this.getGene(geneID)
-    } else {
-      gene = new Gene(geneID)
-      this._addGene(gene)
-    }
-    console.log(gene)
-    // console.log(typ)
-    // console.log(strand)
-    gene.addGFF3(typ, start, end , strand, phase, attributes)
-    }
+  }
 
   /**
    *
