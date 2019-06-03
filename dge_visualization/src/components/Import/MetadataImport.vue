@@ -98,17 +98,23 @@
             for (let i=0; i<lineContent.length; i++){
               // splitting entry in the gff3 fields
               let splitEntry = lineContent[i].split('\t');
-              // selecting CDS fields only
+              // selecting CDS fields only and entries with IDs only
+              // without ID, metadata cannot be assigned to
+              // gene of transcriptomic data
               // 6 splitEntry[8].contains('ID')...
-              if(splitEntry[2] === 'CDS'){
+              if(splitEntry[2] === 'CDS' && splitEntry[8].includes('ID')){
                 // discarding seqID, source and score
                 // splitEntry is indexed newly after spLicing!
                 splitEntry.splice(0,1);
                 splitEntry.splice(0,1);
                 splitEntry.splice(3,1);
+                //let attributeArray = splitEntry[5].split(';');
+                //console.log('attributeArray');
+                //console.log(attributeArray);
+
                 // discarding phase if period or zero
                 //if(splitEntry[4] === '.'|| splitEntry[4] === '0'){
-                  //splitEntry[4] = '0';
+                // splitEntry.splice(4,1);
                 //}
               console.log(splitEntry);
                 filteredContent.push(splitEntry)
