@@ -1,0 +1,8 @@
+ctg123	.	mRNA	1300	9950	.	+	.	ID=t_012143;gene_name=EDEN
+ctg123	.	exon	1300	1500	.	+	.	ID=Saci_0001.gene;Parent=t_012143
+ctg123	.	exon	3000	3902	.	+	.	ID=Saci_0002.gene;Parent=t_012143
+ctg123	.	CDS	3301	3902	.	+	0	ID=Saci_0003.gene;Parent=t_012143
+ctg123	.	exon	5000	5500	.	+	.	ID=Saci_0004.gene;Parent=t_012143
+ctg123	.	CDS	5000	5500	.	+	1	ID=Saci_0005.gene;Parent=t_012143
+ctg123	.	exon	7000	9000	.	+	.	ID=Saci_0006.gene;Parent=t_012143
+ctg123	.	CDS	7000	7600	.	+	1	ID=Saci_0007.gene;Parent=t_012143
