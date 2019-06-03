@@ -266,6 +266,44 @@ export class DGE {
 
   /**
    *
+   * @param geneName
+   * @param seqID
+   * @param source
+   * @param typ
+   * @param start
+   * @param end
+   * @param score
+   * @param strand
+   * @param phase
+   * @param attributes
+   * @returns {DGE}
+   */
+  addGFF3data (typ, start, end, strand, phase, attributes){
+    console.log('addGFF3data');
+    let attributesArray = attributes.split(';');
+    let geneID= "";
+    for (let entry in attributesArray){
+      if (attributesArray[entry].substr(0,2) === 'ID'){
+        geneID = attributesArray[entry].substr(3,);
+        console.log('geneID');
+        console.log(geneID)
+      }
+    }
+    let gene;
+    if (this.hasGene(geneID)) {
+      gene = this.getGene(geneID)
+    } else {
+      gene = new Gene(geneID)
+      this._addGene(gene)
+    }
+    console.log(gene)
+    // console.log(typ)
+    // console.log(strand)
+    gene.addGFF3(typ, start, end , strand, phase, attributes)
+    }
+
+  /**
+   *
    * @param {DGE} other
    */
   mergeDGEs (other) {
@@ -440,6 +478,12 @@ export class Gene {
      * @private
      */
     this._deseq2_analyses = []
+    /**
+     *
+     * @type {Array<GFF3>}
+     * @private
+     */
+    this._gff3_data = []
   }
 
   get name () {
@@ -555,6 +599,25 @@ export class Gene {
     }
 
     return null
+  }
+
+  /** adding gff3-data for the gene based on gene's name equals seqID
+   * @param seqID
+   * @param source
+   * @param typ
+   * @param start
+   * @param end
+   * @param score
+   * @param strand
+   * @param phase
+   * @param attributes
+   */
+  addGFF3 (typ, start, end, strand, phase, attributes) {
+    // adding gff3-data of one gene to the gene entry
+    // geneName === seqID is checked before in dge-class
+    console.log('addGFF3')
+    this._gff3_data.push(new GFF3(typ, start, end, strand, phase = 0, attributes))
+    console.log(this._gff3_data)
   }
 
   /**
@@ -696,6 +759,57 @@ export class AnalysisDuplicateError extends Error {
     } else {
       this.stack = (new Error(message)).stack
     }
+  }
+}
+
+/**
+ * @constructor
+ * @geneName {string}
+ * @seqID {string}
+ * @source {string}
+ * @typ {string}
+ * @start {number}
+ * @end {number}
+ * @score {number}
+ * @strand {string}
+ * @phase {number}
+ * @attributes {dictionary}
+ */
+export class GFF3 {
+  constructor (typ, start, end, strand, phase, attributes) {
+    this._typ = typ
+    this._start = start
+    this._end = end
+    this._strand = strand
+    this._phase = phase
+    this._attributes = attributes
+  }
+
+  get source () {
+    return this._source
+  }
+
+  get typ () {
+    return this._typ
+  }
+  get start () {
+    return this._start
+  }
+
+  get end () {
+    return this._end
+  }
+
+  get strand () {
+    return this._strand
+  }
+
+  get phase () {
+    return this._phase
+  }
+
+  get attributes () {
+    return this._attributes
   }
 }
 
