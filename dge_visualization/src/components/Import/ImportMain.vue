@@ -140,6 +140,29 @@
                   </b-card-body>
                 </b-collapse>
               </b-card>
+              <!-- Miri -->
+              <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                  <b-btn
+                    v-b-toggle="'accordion_metadata'"
+                    block
+                    href="#"
+                    variant="secondary"
+                  >
+                    4. Import MetaData (gff3)
+                  </b-btn>
+                </b-card-header>
+                <b-collapse
+                  id="accordion_metadata"
+                  accordion="my-accordion"
+                  role="tabpanel"
+                  style="padding-bottom: 1rem"
+                >
+                  <b-card-body>
+                    <metadata-import />
+                  </b-card-body>
+                </b-collapse>
+              </b-card>
             </div>
           </b-row>
         </b-col>
@@ -174,6 +197,7 @@
 <script>
   import CountTableImport from './CountTableImport.vue'
   import Deseq2Import from './Deseq2Import.vue'
+  import MetadataImport from './MetadataImport.vue'
 
   import {REGISTER_CONDITION} from '@/store/action_constants'
   import {REMOVE_CONDITION} from '@/store/mutation_constants'
@@ -186,6 +210,7 @@
     components: {
       CountTableImport: CountTableImport,
       Deseq2Import: Deseq2Import,
+      MetadataImport: MetadataImport,
       FontAwesomeIcon
     },
     data () {
