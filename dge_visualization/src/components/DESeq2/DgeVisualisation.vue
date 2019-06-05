@@ -4,7 +4,7 @@
 
 <script>
     export default {
-        name: "DGEvisualisation"
+        name: "DgeVisualisation"
     }
 </script>
 
