@@ -76,10 +76,12 @@
         this.disabledImportButton = false;
         this.importingDone = false;
         // eslint-disable-next-line no-console
-        console.log('file chosen');
+        //console.log('file chosen');
         this.importGFF3()
       },
       readGFF3 (file) {
+        // source gff3
+        // ftp://ftp.ensemblgenomes.org/pub/bacteria/release-43/gff3/bacteria_8_collection/sulfolobus_acidocaldarius_dsm_639
         const reader = new FileReader();
 
         return new Promise ((resolve, reject) => {
@@ -98,11 +100,10 @@
             for (let i=0; i<lineContent.length; i++){
               // splitting entry in the gff3 fields
               let splitEntry = lineContent[i].split('\t');
-              // selecting CDS fields only and entries with IDs only
+              // selecting gene fields only and entries with gene_ids only
               // without ID, metadata cannot be assigned to
               // gene of transcriptomic data
-              // 6 splitEntry[8].contains('ID')...
-              if(splitEntry[2] === 'CDS' && splitEntry[8].includes('ID')){
+              if(splitEntry[2] === 'gene' && splitEntry[8].includes('gene_id')){
                 // discarding seqID, source and score
                 // splitEntry is indexed newly after spLicing!
                 splitEntry.splice(0,1);
@@ -116,7 +117,7 @@
                 //if(splitEntry[4] === '.'|| splitEntry[4] === '0'){
                 // splitEntry.splice(4,1);
                 //}
-              console.log(splitEntry);
+              //console.log(splitEntry);
                 filteredContent.push(splitEntry)
               }else{
                 continue
@@ -127,12 +128,12 @@
           };
           reader.readAsText(file);
           // eslint-disable-next-line no-console
-          console.log('done parsing!')
+          //console.log('done parsing!')
         })
       },
       importGFF3 () {
         // eslint-disable-next-line no-console
-        console.log('in import function');
+        //console.log('in import function');
         let vueData = this;
         // eslint-disable-next-line no-console
         // console.log(vueData.file)
@@ -140,7 +141,7 @@
       },
       integrateGFF3 () {
         // eslint-disable-next-line no-console
-        console.log('In integrate function!');
+        //console.log('In integrate function!');
         this.disabledImportButton = true;
         this.importingFiles = true;
         this.$store.dispatch(STORE_GFF3_DATA, {
