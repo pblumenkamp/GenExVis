@@ -267,26 +267,21 @@ export class DGE {
   /**
    *
    * @param geneName
-   * @param seqID
-   * @param source
    * @param typ
    * @param start
    * @param end
-   * @param score
    * @param strand
    * @param phase
    * @param attributes
    * @returns {DGE}
    */
   addGFF3data (typ, start, end, strand, phase, attributes) {
-    console.log('addGFF3data');
+    // console.log('addGFF3data');
     let attributesArray = attributes.split(';');
     let geneID = "";
     for (let entry in attributesArray) {
-      if (attributesArray[entry].substr(0, 2) === 'ID') {
-        geneID = attributesArray[entry].substr(3,);
-        //console.log('geneID');
-        //console.log(geneID)
+      if (attributesArray[entry].substr(0, 7) === 'gene_id') {
+        geneID = attributesArray[entry].substr(8,);
         let gene;
         if (this.hasGene(geneID)) {
           gene = this.getGene(geneID)
@@ -294,9 +289,6 @@ export class DGE {
           gene = new Gene(geneID)
           this._addGene(gene)
         }
-        //console.log(gene)
-        // console.log(typ)
-        // console.log(strand)
         gene.addGFF3(typ, start, end, strand, phase, attributes)
       }
     }
@@ -553,6 +545,18 @@ export class Gene {
 
   /**
    *
+   * @returns {{}|Array<GFF3>}
+   */
+  getGFF3data () {
+    if(this._gff3_data){
+      return this._gff3_data
+    }else{
+      return {}
+    }
+  }
+
+  /**
+   *
    * @param {string} normalization
    * @return {Object<Object<Array<number>>>} {conditionA: [{seqRunName: values}, ...], ...}
    */
@@ -601,13 +605,10 @@ export class Gene {
     return null
   }
 
-  /** adding gff3-data for the gene based on gene's name equals seqID
-   * @param seqID
-   * @param source
+  /** adding gff3-data for the gene
    * @param typ
    * @param start
    * @param end
-   * @param score
    * @param strand
    * @param phase
    * @param attributes
@@ -615,9 +616,9 @@ export class Gene {
   addGFF3 (typ, start, end, strand, phase, attributes) {
     // adding gff3-data of one gene to the gene entry
     // geneName === seqID is checked before in dge-class
-    console.log('addGFF3')
+    // console.log('addGFF3')
     this._gff3_data.push(new GFF3(typ, start, end, strand, phase = 0, attributes))
-    console.log(this._gff3_data)
+    // console.log(this._gff3_data)
   }
 
   /**
