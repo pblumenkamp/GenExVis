@@ -181,6 +181,19 @@ export class DGE {
     }
   }
 
+  /**
+   * 
+   * @param geneName
+   * @returns {{}|{}|Array<GFF3>}
+   */
+  getAllGFF3dataByGene(geneName){
+    if (this.hasGene(geneName)){
+      return this.getGene(geneName).getGFF3data()
+    } else {
+      return {}
+    }
+  }
+
   getAllUnnormalizedCountDataByCondition (condition) {
     return this.getCountDataByCondition('unnormalized', condition)
   }
@@ -280,17 +293,22 @@ export class DGE {
     let attributesArray = attributes.split(';');
     let geneID = "";
     for (let entry in attributesArray) {
-      if (attributesArray[entry].substr(0, 7) === 'gene_id') {
+      // gene ID can be written in different places of attributes
+      if (attributesArray[entry].substr(0, 7) === 'gene_id'){
         geneID = attributesArray[entry].substr(8,);
-        let gene;
-        if (this.hasGene(geneID)) {
-          gene = this.getGene(geneID)
-        } else {
-          gene = new Gene(geneID)
-          this._addGene(gene)
-        }
-        gene.addGFF3(typ, start, end, strand, phase, attributes)
+      } else if (attributesArray[entry].substr(0,8) === 'ID=gene:') {
+        geneID = attributesArray[entry].substr(9,);
+      } else {
+        continue
       }
+      let gene;
+      if (this.hasGene(geneID)) {
+        gene = this.getGene(geneID)
+      } else {
+        gene = new Gene(geneID)
+        this._addGene(gene)
+      }
+      gene.addGFF3(typ, start, end, strand, phase, attributes)
     }
   }
 
@@ -617,7 +635,7 @@ export class Gene {
     // adding gff3-data of one gene to the gene entry
     // geneName === seqID is checked before in dge-class
     // console.log('addGFF3')
-    this._gff3_data.push(new GFF3(typ, start, end, strand, phase = 0, attributes))
+    this._gff3_data.push(new GFF3(typ, start, end, strand, phase, attributes))
     // console.log(this._gff3_data)
   }
 
