@@ -103,21 +103,12 @@
               // selecting gene fields only and entries with gene_ids only
               // without ID, metadata cannot be assigned to
               // gene of transcriptomic data
-              if(splitEntry[2] === 'gene' && splitEntry[8].includes('gene_id')){
+              if(splitEntry[2] === 'gene' && (splitEntry[8].includes('gene_id')|| splitEntry[8].includes('ID=gene:'))){
                 // discarding seqID, source and score
-                // splitEntry is indexed newly after spLicing!
+                // splitEntry is indexed newly after sPlicing!
                 splitEntry.splice(0,1);
                 splitEntry.splice(0,1);
                 splitEntry.splice(3,1);
-                //let attributeArray = splitEntry[5].split(';');
-                //console.log('attributeArray');
-                //console.log(attributeArray);
-
-                // discarding phase if period or zero
-                //if(splitEntry[4] === '.'|| splitEntry[4] === '0'){
-                // splitEntry.splice(4,1);
-                //}
-              //console.log(splitEntry);
                 filteredContent.push(splitEntry)
               }else{
                 continue
