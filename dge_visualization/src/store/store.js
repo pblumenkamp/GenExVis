@@ -66,7 +66,7 @@ const store = new Vuex.Store({
       }
     },
     [ADD_GFF3_DATA] (state, {typ, start, end, strand, phase, attributes}) {
-      console.log('ADD_GFF3_DATA')
+      //console.log('ADD_GFF3_DATA')
       state.dgeData.addGFF3data(typ, start, end, strand, phase, attributes)
     },
     [ADD_SEQRUN_MAPPING] (state, {normalization, mapping}) {
@@ -157,7 +157,7 @@ const store = new Vuex.Store({
       })
     },
     [STORE_GFF3_DATA] ({commit,state},{gffContent}){
-      console.log('STORE_GFF3_DATA')
+      //console.log('STORE_GFF3_DATA')
       return new Promise ((resolve, reject) => {
         // data of commit need to be "made"
         for (let entry of gffContent) {
