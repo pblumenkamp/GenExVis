@@ -14,6 +14,7 @@ import Deseq2Distributions from '@/components/DESeq2/Deseq2Distributions'
 import Deseq2Top10 from '@/components/DESeq2/Deseq2Top10'
 import Changelogs from '@/components/Changelogs/ChangelogsMain'
 import Deseq2Download from '@/components/DESeq2/Deseq2Download'
+import DgeVisualisation from '@/components/DESeq2/DgeVisualisation'
 
 Vue.use(Router)
 
@@ -87,6 +88,11 @@ export default new Router({
           path: 'deseq2download',
           name: 'Deseq2_Download',
           component: Deseq2Download
+        },
+        {
+          path: 'dge_visualisation',
+          name: 'Dge_Visualisation,',
+          component: DgeVisualisation
         }
       ]
     },
