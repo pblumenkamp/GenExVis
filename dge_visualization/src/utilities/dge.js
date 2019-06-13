@@ -33,6 +33,7 @@ export class DGE {
      * @type {Set<string>}
      */
     this._normalizationMethods = new Set()
+
   }
 
   /**
@@ -176,19 +177,6 @@ export class DGE {
   getAllCountDataByGene (geneName, normalization) {
     if (this.hasGene(geneName)) {
       return this.getGene(geneName).getAllCountData(normalization)
-    } else {
-      return {}
-    }
-  }
-
-  /**
-   * 
-   * @param geneName
-   * @returns {{}|{}|Array<GFF3>}
-   */
-  getAllGFF3dataByGene(geneName){
-    if (this.hasGene(geneName)){
-      return this.getGene(geneName).getGFF3data()
     } else {
       return {}
     }
@@ -488,6 +476,7 @@ export class Gene {
      * @private
      */
     this._deseq2_analyses = []
+
     /**
      *
      * @type {Array<GFF3>}
@@ -557,18 +546,6 @@ export class Gene {
     if (this._countData.hasOwnProperty(normalization) && this._countData[normalization].hasOwnProperty(condition)) {
       return this._countData[normalization][condition]
     } else {
-      return {}
-    }
-  }
-
-  /**
-   *
-   * @returns {{}|Array<GFF3>}
-   */
-  getGFF3data () {
-    if(this._gff3_data){
-      return this._gff3_data
-    }else{
       return {}
     }
   }
