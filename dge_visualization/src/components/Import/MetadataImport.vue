@@ -14,40 +14,63 @@
           >
             Import files
           </b-button>
-          <font-awesome-icon
-            v-if="importingFiles"
-            :icon="faSpinner"
-            pulse
-            size="2x"
-            class="text-secondary"
-          />
-          <font-awesome-icon
-            v-if="importingDone"
-            :icon="faCheckCircle"
-            size="2x"
-            class="text-secondary"
-          />
         </div>
       </b-row>
+      <b-row>
+        <h4>Select Features</h4>
+        <multiselect
+          v-model="deseq2Features"
+          :options="sofa"
+          :multiple="true"
+          :max="3"
+          :close-on-select="false"
+          :clear-on-select="false"
+          :preserve-search="true"
+          :show-labels="true"
+          :preselect-first="false"
+          selected-label="Selected"
+          select-label="Click to select"
+          deselect-label="Click to remove"
+          placeholder="Choose features to analyze"
+        >
+          <template slot="selection" slot-scope="{ values, search, isOpen }">
+            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+          </template>
+        </multiselect>
+      </b-row>
     </b-container>
+    <font-awesome-icon
+      v-if="importingFiles"
+      :icon="faSpinner"
+      pulse
+      size="2x"
+      class="text-secondary"
+      style="margin-top: 0.1rem"
+    />
+    <font-awesome-icon
+      v-if="importingDone"
+      :icon="faCheckCircle"
+      size="2x"
+      class="text-secondary"
+      style="margin-top: 0.1rem"
+    />
   </div>
 </template>
 
 <script>
   import FileChooser from '../Misc/FileChooser'
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-  import {faSpinner, faCheckCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
+  import {faSpinner, faCheckCircle} from '@fortawesome/free-solid-svg-icons'
   import {STORE_GFF3_DATA} from "../../store/action_constants";
-  // import gff from 'biojs-io-gff'
-  // import gff from '@gmod/gff/dist/api.js'
-  // import fs from 'fs'
-  // import fileReaderStream from 'filereader-stream'
+  import Multiselect from 'vue-multiselect'
+
 
   export default {
     name: "MetadataImport",
     components: {
       FileChooser,
-      FontAwesomeIcon
+      FontAwesomeIcon,
+      Multiselect
     },
     data () {
       return {
@@ -56,7 +79,9 @@
         contentTry: null,
         importingFiles: false,
         importingDone: false,
-        disabledImportButton: true
+        disabledImportButton: true,
+        deseq2Features: [],
+        sofa: ['antisense primary transcript','antisense RNA','ARS','assembly component','attenuator','autocatalytically spliced intron','binding site','branch site','C D box snoRNA','cap','cDNA match','CDS','centromere','chromosomal structural element','chromosome','chromosome band','clip','clone','clone insert end','clone insert start','coding conserved region','coding exon','codon','conserved region','contig','CpG island','cross genome match','decayed exon','deletion','deletion junction','direct repeat','dispersed repeat','ds oligo','enhancer','enzymatic RNA','EST','EST match','exon','exon junction','experimental result region','expressed sequence match','five prime cis splice site','five prime coding exon','five prime coding exon coding region','five prime coding exon noncoding region','five prime exon coding region','five prime splice site','five prime UTR','flanking region','gene','gene part','golden path','golden path fragment','group I intron','group II intron','guide RNA','hammerhead ribozyme','insertion','insertion site','insulator','intergenic region','interior coding exon','intron','inverted repeat','junction','large subunit rRNA','match','match part','match set','mature protein region','mature transcript','methylated A','methylated base feature','methylated C','microsatellite','minisatellite','miRNA','modified base','modified base site','mRNA','nc conserved region','nc primary transcript','ncRNA','non transcribed region','noncoding exon','nuclease binding site','nuclease sensitive site','nucleotide match','nucleotide motif','oligo','operator','operon','ORF','origin of replication','PCR product','polyA sequence','polyA signal sequence','polyA site','polypeptide','polypyrimidine tract','possible assembly error','possible base call error','primary transcript','primer','promoter','protein binding site','protein coding primary transcript','protein match','proviral region','pseudogene','pseudogenic region','rasiRNA','read','read pair','reading frame','reagent','region','remark','repeat family','repeat region','restriction fragment','RFLP fragment','ribosome entry site','ribozyme','RNA motif','RNAi reagent','RNase MRP RNA','RNase P RNA','rRNA','rRNA 18S','rRNA 28S','rRNA 5','rRNA 5 8S','rRNA 5S','rRNA large subunit primary transcript','rRNA primary transcript','SAGE tag','satellite DNA','scRNA','sequence assembly','sequence difference','sequence feature','Sequence Ontology','sequence variant obs','signal peptide','silencer','siRNA','small regulatory ncRNA','small subunit rRNA','snoRNA','SNP','snRNA','splice enhancer','splice site','spliceosomal intron','SRP RNA','ss oligo','start codon','stop codon','stRNA','STS','supercontig','tag','tandem repeat','telomerase RNA','telomere','terminator','TF binding site','three prime cis splice site','three prime coding exon coding region','three prime coding exon noncoding region','three prime exon coding region','three prime splice site','three prime UTR','tiling path','tiling path fragment','trans splice acceptor site','transcribed region','transcript','transcription end site','translated nucleotide match','transposable element','transposable element insertion site','tRNA','TSS','U1 snRNA','U11 snRNA','U12 snRNA','U14 snoRNA','U2 snRNA','U4 snRNA','U4atac snRNA','U5 snRNA','U6 snRNA','U6atac snRNA','ultracontig','UTR','vault RNA','virtual sequence','Y RNA']
       }
     },
     computed: {
@@ -65,18 +90,16 @@
       },
       faCheckCircle() {
         return faCheckCircle
-      },
-      faTimesCircle() {
-        return faTimesCircle
       }
+    },
+    updated () {
+      this.updateDeseq2Features();
     },
     methods: {
       loadFiles(event) {
         this.file = event.target.files[0];
         this.disabledImportButton = false;
         this.importingDone = false;
-        // eslint-disable-next-line no-console
-        //console.log('file chosen');
         this.importGFF3()
       },
       readGFF3 (file) {
@@ -110,29 +133,19 @@
                 splitEntry.splice(0,1);
                 splitEntry.splice(3,1);
                 filteredContent.push(splitEntry)
-              }else{
-                continue
               }
             }
             this.content = filteredContent;
             resolve(this.content)
           };
           reader.readAsText(file);
-          // eslint-disable-next-line no-console
-          //console.log('done parsing!')
         })
       },
       importGFF3 () {
-        // eslint-disable-next-line no-console
-        //console.log('in import function');
         let vueData = this;
-        // eslint-disable-next-line no-console
-        // console.log(vueData.file)
         this.readGFF3(vueData.file)
       },
       integrateGFF3 () {
-        // eslint-disable-next-line no-console
-        //console.log('In integrate function!');
         this.disabledImportButton = true;
         this.importingFiles = true;
         this.$store.dispatch(STORE_GFF3_DATA, {
@@ -142,6 +155,12 @@
           this.importingDone = true
         });
       },
+      updateDeseq2Features (){
+        let storeValue = this.$store.state.deseq2Type;
+        if(!this.deseq2Features.includes(storeValue)){
+          this.deseq2Features.push(storeValue)
+        }
+      }
     }
   }
 </script>
