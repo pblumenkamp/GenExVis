@@ -1,15 +1,29 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GFF3_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE, STORE_DESEQ2Type} from './action_constants'
+import {
+  ADD_DATA,
+  ADD_DESEQ,
+  ADD_COUNT,
+  ADD_CONDITION,
+  REMOVE_CONDITION,
+  ADD_COUNT_DATA,
+  ADD_GFF3_DATA,
+  ADD_GENE,
+  DEL_GENE,
+  ADD_STRUC,
+  ADD_SEQRUN_MAPPING,
+  ADD_SUBSET_DGE,
+  SWITCH_DGE,
+  ADD_DESEQ2TYPE,
+} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
-let mainDGE = new DGE()
-
+let mainDGE = new DGE();
 const store = new Vuex.Store({
   strict: true,
   state: {
@@ -21,9 +35,19 @@ const store = new Vuex.Store({
     deseqlist: [],
     countlist: [],
     genelist: [],
-    strucStorage: null
+    strucStorage: null,
+    deseq2Type: " "
+  },
+  getters: {
+    deseq2Type: (state) => {
+      return state.deseq2Type
+    }
   },
   mutations: {
+
+    [ADD_DESEQ2TYPE] (state, deseq2type){
+      state.deseq2Type=deseq2type;
+    },
     [ADD_DATA] (state, dgeData) {
       state.dgeData.mergeDGEs(dgeData)
     },
@@ -34,11 +58,11 @@ const store = new Vuex.Store({
       state.countlist.push(file)
     },
     [ADD_GENE] (state, gene) {
-      state.genelist.push(gene)
+      state.genelist.push(gene);
       state.genelist.sort()
     },
     [DEL_GENE] (state, gene) {
-      let index = 0
+      let index = 0;
       for (let entry of state.genelist) {
         if (entry === gene) {
           state.genelist.splice(index, 1)
@@ -53,7 +77,7 @@ const store = new Vuex.Store({
       state.registeredConditions.push(conditionName)
     },
     [REMOVE_CONDITION] (state, conditionName) {
-      let index = state.registeredConditions.indexOf(conditionName)
+      let index = state.registeredConditions.indexOf(conditionName);
       if (index > -1) {
         state.registeredConditions.splice(index, 1)
       }
@@ -73,17 +97,17 @@ const store = new Vuex.Store({
       state.dgeData.setSeqRunMapping(normalization, mapping)
     },
     [ADD_SUBSET_DGE] (state, {subsetDGE}) {
-      state.subDGE = subsetDGE
+      state.subDGE = subsetDGE;
       if (state.useSubDGE) {
         state.currentDGE = state.subDGE
       }
     },
     [SWITCH_DGE] (state, {useSubDGE}) {
       if (useSubDGE) {
-        state.useSubDGE = true
+        state.useSubDGE = true;
         state.currentDGE = state.subDGE
       } else {
-        state.useSubDGE = false
+        state.useSubDGE = false;
         state.currentDGE = state.dgeData
       }
     }
@@ -92,14 +116,14 @@ const store = new Vuex.Store({
     [STORE_DESEQ2_STATISTICS] ({commit, state}, {deseq2Contents, progress}) { // deseq2Content: [{content: <Content as String>, conditions: [c1, c2]}, ...]
       return new Promise((resolve, reject) => {
         try {
-          progress.max = deseq2Contents.length
+          progress.max = deseq2Contents.length;
           for (let {content, conditions} of deseq2Contents) {
-            let dge = parseDeseq2(content, conditions)
-            commit(ADD_DATA, dge)
+            let dge = parseDeseq2(content, conditions);
+            commit(ADD_DATA, dge);
             progress.counter++
           }
-          progress.done = true
-          progress.counter = 0
+          progress.done = true;
+          progress.counter = 0;
           resolve()
         } catch (e) {
           reject(e)
@@ -113,11 +137,11 @@ const store = new Vuex.Store({
       return new Promise((resolve, reject) => {
         for (let registeredCond of state.registeredConditions) {
           if (conditionName === registeredCond) {
-            reject(new Error(`Condition ${conditionName} already registered!`))
+            reject(new Error(`Condition ${conditionName} already registered!`));
             return
           }
         }
-        commit(ADD_CONDITION, conditionName)
+        commit(ADD_CONDITION, conditionName);
         resolve()
       })
     },
@@ -129,9 +153,9 @@ const store = new Vuex.Store({
         commit(ADD_SEQRUN_MAPPING, {
           normalization: normalization,
           mapping: headerConditionMapping
-        })
+        });
         for (let gene of table) {
-          let countData = {}
+          let countData = {};
           // get all conditions
           for (let [, condition] of Object.entries(headerConditionMapping)) {
             if (!countData.hasOwnProperty(condition)) {
@@ -174,14 +198,20 @@ const store = new Vuex.Store({
         resolve()
       })
     },
+    [STORE_DESEQ2Type]({commit}, deseq2type){
+      return new Promise ((resolve, reject) => {
+        commit(ADD_DESEQ2TYPE,deseq2type);
+        resolve()
+      })
+    },
     [SET_SUBDGE] ({commit, state}, {geneList}) {
       return new Promise((resolve, reject) => {
-        let subsetDGE = state.dgeData.getSubset(geneList)
-        commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
+        let subsetDGE = state.dgeData.getSubset(geneList);
+        commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE});
         resolve()
       })
     }
   }
-})
+});
 
 export default store
