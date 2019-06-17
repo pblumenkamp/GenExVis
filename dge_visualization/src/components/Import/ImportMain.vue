@@ -135,6 +135,7 @@
                   role="tabpanel"
                   style="padding-bottom: 1rem"
                 >
+                  <!-- Actual Import Component Deseq2Import.vue -->
                   <b-card-body>
                     <deseq2-import />
                   </b-card-body>
@@ -148,6 +149,7 @@
                     block
                     href="#"
                     variant="secondary"
+                    :disabled="metaDataImportDisable"
                   >
                     4. Import MetaData (gff3)
                   </b-btn>
@@ -218,7 +220,8 @@
         conditionName: '',
         validCondition: null,
         showCollapsedConditions: false,
-        showConditionsHelp: false
+        showConditionsHelp: false,
+        metaDataImportDisable: true
       }
     },
     computed: {
@@ -235,16 +238,26 @@
         return faQuestionCircle
       }
     },
+    updated(){
+      this.updateMetaDataImportDisable()
+    },
     methods: {
+      // getting deseq2TypeChosen store value
+      // true, if deseq2Type was chosen in dropdown 3, false, if not
+      updateMetaDataImportDisable (){
+        this.$root.$on('metaDataImportDisableFalse', (metaDataImportDisable) =>{
+          this.metaDataImportDisable=metaDataImportDisable
+        })
+      },
       registerCondition () {
-        let vueData = this
+        let vueData = this;
         if (vueData.conditionName === '') {
-          vueData.validCondition = false
+          vueData.validCondition = false;
           return
         }
         vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: vueData.conditionName})
           .then(() => {
-            vueData.conditionName = ''
+            vueData.conditionName = '';
             vueData.validCondition = null
           }).catch(() => {
             vueData.validCondition = false
