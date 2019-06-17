@@ -36,12 +36,8 @@ const store = new Vuex.Store({
     countlist: [],
     genelist: [],
     strucStorage: null,
-    deseq2Type: " "
-  },
-  getters: {
-    deseq2Type: (state) => {
-      return state.deseq2Type
-    }
+    // selection in Deseq2Conditions.vue for type of deseq2 analysis
+    deseq2Type: " ",
   },
   mutations: {
 
