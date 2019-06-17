@@ -50,30 +50,6 @@
           </b-button>
         </div>
       </b-col>
-      <div style="width: 100%; margin: 2rem auto 0">
-        <b-col>
-          <h4>Select DESeq2 Type</h4>
-          <multiselect
-            v-model="DESeq2Type"
-            :options="sofa"
-            :multiple="false"
-            :close-on-select="false"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="true"
-            :preselect-first="false"
-            selected-label="Selected"
-            select-label="Click to select"
-            deselect-label="Click to remove"
-            placeholder="Choose DESeq2 type"
-            @input="setDeseq2Type"
-          >
-            <template slot="selection" slot-scope="{ values, search, isOpen }">
-              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-            </template>
-          </multiselect>
-        </b-col>
-      </div>
     </b-row>
     <font-awesome-icon
       v-if="importingFiles"
@@ -105,6 +81,50 @@
       animated
       style="margin-top: 5rem"
     />
+    <div style="width: 100%; margin: 2rem auto 0">
+      <b-row>
+        <b-col>
+          <h4>Select DESeq2 Type</h4>
+          <multiselect
+            v-model="DESeq2Type"
+            :options="sofa"
+            :multiple="false"
+            :close-on-select="false"
+            :clear-on-select="false"
+            :preserve-search="true"
+            :show-labels="true"
+            :preselect-first="false"
+            selected-label="Selected"
+            select-label="Click to select"
+            deselect-label="Click to remove"
+            placeholder="Choose DESeq2 type"
+            @input="setDeseq2Type"
+          >
+            <template slot="selection" slot-scope="{ values, search, isOpen }">
+              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+            </template>
+          </multiselect>
+        </b-col>
+        <!-- Questionmark with Deseq2Type help -->
+        <b-col sm="2" style="padding-left: 0">
+          <span style="cursor: pointer; float: left" @click="showDeseq2TypeHelp = !showDeseq2TypeHelp">
+            <font-awesome-icon :icon="faQuestionCircle" />
+          </span>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <b-collapse id="helpConditions" v-model="showDeseq2TypeHelp" class="mt-2">
+            <transition name="fade">
+              <b-card style="width:80%; margin: auto">
+                Chose the type of feature, the Deseq2 Analysis was performed for. This value is relevant for the subsequent analysis of the metadata. If the type is
+                unknown, chose "gene".
+              </b-card>
+            </transition>
+          </b-collapse>
+        </b-col>
+      </b-row>
+    </div>
   </b-container>
 </template>
 
@@ -113,7 +133,7 @@
   import {ADD_DESEQ} from '../../store/mutation_constants'
 
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-  import {faSpinner, faCheckCircle, faTimesCircle, faInfoCircle} from '@fortawesome/free-solid-svg-icons'
+  import {faSpinner, faCheckCircle, faTimesCircle, faInfoCircle, faQuestionCircle} from '@fortawesome/free-solid-svg-icons'
 
   import Multiselect from 'vue-multiselect'
   import {STORE_DESEQ2Type} from "../../store/action_constants";
@@ -134,6 +154,10 @@
         importFailedMessage: 'Import failed',
         parsedDeseq2Data: [],
         progress: {counter: 0, max: 1000, done: true},
+        showDeseq2TypeHelp: false,
+        // variable to check if type was chosen
+        // used to disable metadata-import dropdown, if no type was chosen
+        metaDataImportDisable: true,
         // multiselect Miri
         // will contain selected item
         DESeq2Type: " ",
@@ -156,6 +180,9 @@
       },
       faInfoCircle () {
         return faInfoCircle
+      },
+      faQuestionCircle () {
+        return faQuestionCircle
       }
     },
     watch: {
@@ -309,11 +336,19 @@
       },
       // setting the Deseq2Type whenever the selection changes
       setDeseq2Type () {
+        // set chosen validator according to value of DESeq2Type
+        // if DESeq2Type is chosen, validator becomes true, else, validator stays false
+        if (this.DESeq2Type !== null){
+          this.metaDataImportDisable = false;
+        }else if(this.DESeq2Type === null){
+          this.metaDataImportDisable = true;
+        }
+        // emitting an event to listen to in ImportMain, so that the button
+        // to toggle down the metadata-Import Menu is not disable anymore, if a deseq2
+        // analysis type was chosen
+        this.$root.$emit('metaDataImportDisableFalse', this.metaDataImportDisable)
+        // dispatch chosen option to store
         this.$store.dispatch(STORE_DESEQ2Type, this.DESeq2Type);
-        // eslint-disable-next-line no-console
-        console.log(this.$store.state.deseq2Type);
-        // eslint-disable-next-line no-console
-        console.log(typeof (this.$store.state.deseq2Type));
       }
     }
   }
