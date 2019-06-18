@@ -346,7 +346,7 @@
         // emitting an event to listen to in ImportMain, so that the button
         // to toggle down the metadata-Import Menu is not disable anymore, if a deseq2
         // analysis type was chosen
-        this.$root.$emit('metaDataImportDisableFalse', this.metaDataImportDisable)
+        this.$root.$emit('metaDataImportDisableFalse', this.metaDataImportDisable);
         // dispatch chosen option to store
         this.$store.dispatch(STORE_DESEQ2Type, this.DESeq2Type);
       }
