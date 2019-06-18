@@ -147,9 +147,9 @@
                   <b-btn
                     v-b-toggle="'accordion_metadata'"
                     block
-                    href="#"
                     variant="secondary"
                     :disabled="metaDataImportDisable"
+                    @click="clickListener"
                   >
                     4. Import MetaData (gff3)
                   </b-btn>
@@ -221,7 +221,7 @@
         validCondition: null,
         showCollapsedConditions: false,
         showConditionsHelp: false,
-        metaDataImportDisable: true
+        metaDataImportDisable: true,
       }
     },
     computed: {
@@ -265,6 +265,13 @@
       },
       removeCondition (event) {
         this.$store.commit(REMOVE_CONDITION, event.target.textContent)
+      },
+      // dispatching an event to listen to in MetaDataImport.vue in order
+      // to correctly initialize the gff3 feature multiselect dropdown
+      clickListener (){
+        // eslint-disable-next-line no-console
+        console.log('listened to click');
+        this.$root.$emit("hello", true)
       }
     }
   }
