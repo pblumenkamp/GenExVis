@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE, STORE_DESEQ2Type} from './action_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE, STORE_DESEQ2Type, STORE_GFF3FEATURES} from './action_constants'
 import {
   ADD_DATA,
   ADD_DESEQ,
@@ -17,6 +17,7 @@ import {
   ADD_SUBSET_DGE,
   SWITCH_DGE,
   ADD_DESEQ2TYPE,
+  ADD_GFF3_FEATURES
 } from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
@@ -200,6 +201,7 @@ const store = new Vuex.Store({
         resolve()
       })
     },
+
     [SET_SUBDGE] ({commit, state}, {geneList}) {
       return new Promise((resolve, reject) => {
         let subsetDGE = state.dgeData.getSubset(geneList);
