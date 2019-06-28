@@ -81,50 +81,6 @@
       animated
       style="margin-top: 5rem"
     />
-    <div style="width: 100%; margin: 2rem auto 0">
-      <b-row>
-        <b-col>
-          <h4>Select DESeq2 Type</h4>
-          <multiselect
-            v-model="DESeq2Type"
-            :options="sofa"
-            :multiple="false"
-            :close-on-select="false"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="true"
-            :preselect-first="false"
-            selected-label="Selected"
-            select-label="Click to select"
-            deselect-label="Click to remove"
-            placeholder="Choose DESeq2 type"
-            @input="setDeseq2Type"
-          >
-            <template slot="selection" slot-scope="{ values, search, isOpen }">
-              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-            </template>
-          </multiselect>
-        </b-col>
-        <!-- Questionmark with Deseq2Type help -->
-        <b-col sm="2" style="padding-left: 0">
-          <span style="cursor: pointer; float: left" @click="showDeseq2TypeHelp = !showDeseq2TypeHelp">
-            <font-awesome-icon :icon="faQuestionCircle" />
-          </span>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col>
-          <b-collapse id="helpConditions" v-model="showDeseq2TypeHelp" class="mt-2">
-            <transition name="fade">
-              <b-card style="width:80%; margin: auto">
-                Chose the type of feature, the Deseq2 Analysis was performed for. This value is relevant for the subsequent analysis of the metadata. If the type is
-                unknown, chose "gene".
-              </b-card>
-            </transition>
-          </b-collapse>
-        </b-col>
-      </b-row>
-    </div>
   </b-container>
 </template>
 
@@ -135,14 +91,11 @@
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
   import {faSpinner, faCheckCircle, faTimesCircle, faInfoCircle, faQuestionCircle} from '@fortawesome/free-solid-svg-icons'
 
-  import Multiselect from 'vue-multiselect'
-  import {STORE_DESEQ2Type} from "../../store/action_constants";
 
   export default {
     name: 'Deseq2Conditions',
     components: {
-      FontAwesomeIcon,
-      Multiselect
+      FontAwesomeIcon
     },
     props: {'files': {type: FileList, required: true}},
     data () {
@@ -154,15 +107,9 @@
         importFailedMessage: 'Import failed',
         parsedDeseq2Data: [],
         progress: {counter: 0, max: 1000, done: true},
-        showDeseq2TypeHelp: false,
         // variable to check if type was chosen
         // used to disable metadata-import dropdown, if no type was chosen
         metaDataImportDisable: true,
-        // multiselect Miri
-        // will contain selected item
-        DESeq2Type: " ",
-        // options to select from
-        sofa: ['antisense primary transcript','antisense RNA','ARS','assembly component','attenuator','autocatalytically spliced intron','binding site','branch site','C D box snoRNA','cap','cDNA match','CDS','centromere','chromosomal structural element','chromosome','chromosome band','clip','clone','clone insert end','clone insert start','coding conserved region','coding exon','codon','conserved region','contig','CpG island','cross genome match','decayed exon','deletion','deletion junction','direct repeat','dispersed repeat','ds oligo','enhancer','enzymatic RNA','EST','EST match','exon','exon junction','experimental result region','expressed sequence match','five prime cis splice site','five prime coding exon','five prime coding exon coding region','five prime coding exon noncoding region','five prime exon coding region','five prime splice site','five prime UTR','flanking region','gene','gene part','golden path','golden path fragment','group I intron','group II intron','guide RNA','hammerhead ribozyme','insertion','insertion site','insulator','intergenic region','interior coding exon','intron','inverted repeat','junction','large subunit rRNA','match','match part','match set','mature protein region','mature transcript','methylated A','methylated base feature','methylated C','microsatellite','minisatellite','miRNA','modified base','modified base site','mRNA','nc conserved region','nc primary transcript','ncRNA','non transcribed region','noncoding exon','nuclease binding site','nuclease sensitive site','nucleotide match','nucleotide motif','oligo','operator','operon','ORF','origin of replication','PCR product','polyA sequence','polyA signal sequence','polyA site','polypeptide','polypyrimidine tract','possible assembly error','possible base call error','primary transcript','primer','promoter','protein binding site','protein coding primary transcript','protein match','proviral region','pseudogene','pseudogenic region','rasiRNA','read','read pair','reading frame','reagent','region','remark','repeat family','repeat region','restriction fragment','RFLP fragment','ribosome entry site','ribozyme','RNA motif','RNAi reagent','RNase MRP RNA','RNase P RNA','rRNA','rRNA 18S','rRNA 28S','rRNA 5','rRNA 5 8S','rRNA 5S','rRNA large subunit primary transcript','rRNA primary transcript','SAGE tag','satellite DNA','scRNA','sequence assembly','sequence difference','sequence feature','Sequence Ontology','sequence variant obs','signal peptide','silencer','siRNA','small regulatory ncRNA','small subunit rRNA','snoRNA','SNP','snRNA','splice enhancer','splice site','spliceosomal intron','SRP RNA','ss oligo','start codon','stop codon','stRNA','STS','supercontig','tag','tandem repeat','telomerase RNA','telomere','terminator','TF binding site','three prime cis splice site','three prime coding exon coding region','three prime coding exon noncoding region','three prime exon coding region','three prime splice site','three prime UTR','tiling path','tiling path fragment','trans splice acceptor site','transcribed region','transcript','transcription end site','translated nucleotide match','transposable element','transposable element insertion site','tRNA','TSS','U1 snRNA','U11 snRNA','U12 snRNA','U14 snoRNA','U2 snRNA','U4 snRNA','U4atac snRNA','U5 snRNA','U6 snRNA','U6atac snRNA','ultracontig','UTR','vault RNA','virtual sequence','Y RNA']
       }
     },
     computed: {
@@ -213,6 +160,9 @@
     },
     methods: {
       parseDataObject () {
+        this.metaDataImportDisable = false
+        this.$root.$emit('metaDataImportDisableFalse', this.metaDataImportDisable);
+
         let vue = this;
         if (!vue.validate(vue.dataObject)) {
           vue.importingFailed = true;
@@ -244,7 +194,7 @@
                 vue.importingFiles = false;
                 vue.importingFailed = true
             })
-          })
+          });
       },
       validate (data) {
         let valid = true;
@@ -333,22 +283,6 @@
           // (now) pass
         }
         return suggestionlist
-      },
-      // setting the Deseq2Type whenever the selection changes
-      setDeseq2Type () {
-        // set chosen validator according to value of DESeq2Type
-        // if DESeq2Type is chosen, validator becomes true, else, validator stays false
-        if (this.DESeq2Type !== null){
-          this.metaDataImportDisable = false;
-        }else if(this.DESeq2Type === null){
-          this.metaDataImportDisable = true;
-        }
-        // emitting an event to listen to in ImportMain, so that the button
-        // to toggle down the metadata-Import Menu is not disable anymore, if a deseq2
-        // analysis type was chosen
-        this.$root.$emit('metaDataImportDisableFalse', this.metaDataImportDisable);
-        // dispatch chosen option to store
-        this.$store.dispatch(STORE_DESEQ2Type, this.DESeq2Type);
       }
     }
   }
