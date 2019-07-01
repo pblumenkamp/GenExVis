@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE, STORE_DESEQ2Type, STORE_GFF3FEATURES} from './action_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE} from './action_constants'
 import {
   ADD_DATA,
   ADD_DESEQ,
@@ -16,8 +16,6 @@ import {
   ADD_SEQRUN_MAPPING,
   ADD_SUBSET_DGE,
   SWITCH_DGE,
-  ADD_DESEQ2TYPE,
-  ADD_GFF3_FEATURES
 } from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
@@ -37,14 +35,8 @@ const store = new Vuex.Store({
     countlist: [],
     genelist: [],
     strucStorage: null,
-    // selection in Deseq2Conditions.vue for type of deseq2 analysis
-    deseq2Type: " ",
   },
   mutations: {
-
-    [ADD_DESEQ2TYPE] (state, deseq2type){
-      state.deseq2Type=deseq2type;
-    },
     [ADD_DATA] (state, dgeData) {
       state.dgeData.mergeDGEs(dgeData)
     },
@@ -86,9 +78,9 @@ const store = new Vuex.Store({
         state.dgeData.addDeseq2CountData(geneName, condition, values)
       }
     },
-    [ADD_GFF3_DATA] (state, {typ, start, end, strand, phase, attributes}) {
-      //console.log('ADD_GFF3_DATA')
-      state.dgeData.addGFF3data(typ, start, end, strand, phase, attributes)
+    [ADD_GFF3_DATA] (state, {gffContentDict}) {
+      console.log('ADD_GFF3_DATA');
+      state.dgeData.addGFF3data(gffContentDict)
     },
     [ADD_SEQRUN_MAPPING] (state, {normalization, mapping}) {
       state.dgeData.setSeqRunMapping(normalization, mapping)
@@ -177,31 +169,15 @@ const store = new Vuex.Store({
         resolve()
       })
     },
-    [STORE_GFF3_DATA] ({commit,state},{gffContent}){
-      //console.log('STORE_GFF3_DATA')
+    [STORE_GFF3_DATA] ({commit,state},{gffContentDict}){
+      console.log('STORE_GFF3_DATA');
       return new Promise ((resolve, reject) => {
-        // data of commit need to be "made"
-        for (let entry of gffContent) {
           // committing to store
-          commit(ADD_GFF3_DATA, {
-            typ: entry[0],
-            start: entry[1],
-            end: entry[2],
-            strand: entry[3],
-            phase: entry[4],
-            attributes: entry[5]
-          })
-        }
-        resolve()
-      })
-    },
-    [STORE_DESEQ2Type]({commit}, deseq2type){
-      return new Promise ((resolve, reject) => {
-        commit(ADD_DESEQ2TYPE,deseq2type);
-        resolve()
-      })
-    },
+          commit(ADD_GFF3_DATA, {gffContentDict});
 
+        resolve()
+      })
+    },
     [SET_SUBDGE] ({commit, state}, {geneList}) {
       return new Promise((resolve, reject) => {
         let subsetDGE = state.dgeData.getSubset(geneList);
