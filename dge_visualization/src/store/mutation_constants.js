@@ -11,4 +11,3 @@ export const ADD_SEQRUN_MAPPING = 'add_seqrun_mapping';
 export const ADD_SUBSET_DGE = 'add_subset_dge';
 export const SWITCH_DGE = 'switch_dge';
 export const ADD_GFF3_DATA = 'add_gff3_data';
-export const ADD_DESEQ2TYPE = 'update_deseq2type';
