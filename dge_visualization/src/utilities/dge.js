@@ -11,31 +11,40 @@ export class DGE {
      * @type {Set<string>}
      * @private
      */
-    this._geneNames = new Set() // List of Gene instances
+    this._geneNames = new Set(); // List of Gene instances
     /**
      * @type {Array<ConditionPair>}
      * @private
      */
-    this._conditionPairs = []
+    this._conditionPairs = [];
     /**
      *
      * @type {Object<Gene>} Contains Gene instances with gene name as property
      * @private
      */
-    this._data = {}
+    this._data = {};
     /**
      *
      * @type {Object<Object<string>>>} Map seqRun to condition {normalization: {<seqRun>: <condition>}}
      * @private
      */
-    this._seqRunConditionMapping = {}
+    this._seqRunConditionMapping = {};
     /**
      * @type {Set<string>}
      */
-    this._normalizationMethods = new Set()
+    this._normalizationMethods = new Set();
+
+    this._gff3Data={};
 
   }
 
+  /**
+   *
+   * @returns {{}|*}
+   */
+  get gff3Data (){
+    return this._gff3Data
+  }
   /**
    * @return {Set<string>}
    */
@@ -113,7 +122,7 @@ export class DGE {
         return pair
       }
     }
-    this._conditionPairs.push(conditionPair)
+    this._conditionPairs.push(conditionPair);
     return conditionPair
   }
 
@@ -126,7 +135,7 @@ export class DGE {
    * @private
    */
   _addGene (gene) {
-    this.geneNames.add(gene.name)
+    this.geneNames.add(gene.name);
     this._data[gene.name] = gene
   }
 
@@ -139,12 +148,12 @@ export class DGE {
   }
 
   _addCountData (geneName, normalization, condition, values) {
-    this._registerNormalizationMethod(normalization)
-    let gene
+    this._registerNormalizationMethod(normalization);
+    let gene;
     if (this.hasGene(geneName)) {
       gene = this.getGene(geneName)
     } else {
-      gene = new Gene(geneName)
+      gene = new Gene(geneName);
       this._addGene(gene)
     }
     gene.addCountData(normalization, condition, values)
@@ -193,7 +202,7 @@ export class DGE {
   getCountDataByCondition (normalization, condition) {
     let countData = {}
     for (let geneName of this.geneNames) {
-      let counts = this.getGene(geneName).getCountData(normalization, condition)
+      let counts = this.getGene(geneName).getCountData(normalization, condition);
       if (Object.keys(counts).length !== 0) {
         countData[geneName] = counts
       }
@@ -224,9 +233,9 @@ export class DGE {
    * @return {Object<Object<Object<number>>>} {<condition>: {<gene name>: {<sequence run name>: counts}}}
    */
   getCountData (normalization) {
-    let countData = {}
+    let countData = {};
     for (let geneName of this.geneNames) {
-      let counts = this.getGene(geneName).getAllCountData(normalization)
+      let counts = this.getGene(geneName).getAllCountData(normalization);
       for (let condition of Object.keys(counts)) {
         if (!countData.hasOwnProperty(condition)) {
           countData[condition] = {}
@@ -252,53 +261,26 @@ export class DGE {
    * @return {DGE}
    */
   addDESeq2Data (geneName, condition1, condition2, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj) {
-    let condPair = this._registerConditionPair(new ConditionPair(condition1, condition2))
+    let condPair = this._registerConditionPair(new ConditionPair(condition1, condition2));
 
     if (this.geneNames.has(geneName)) {
-      this.getGene(geneName).addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
+      this.getGene(geneName).addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj);
       return this
     }
 
-    let gene = new Gene(geneName)
-    gene.addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj)
-    this._addGene(gene)
+    let gene = new Gene(geneName);
+    gene.addDESEQ2Analysis(condPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj);
+    this._addGene(gene);
     return this
   }
 
   /**
    *
-   * @param geneName
-   * @param typ
-   * @param start
-   * @param end
-   * @param strand
-   * @param phase
-   * @param attributes
-   * @returns {DGE}
+   * @param gffContentDict
    */
-  addGFF3data (typ, start, end, strand, phase, attributes) {
-    // console.log('addGFF3data');
-    let attributesArray = attributes.split(';');
-    let geneID = "";
-    for (let entry in attributesArray) {
-      // gene ID can be written in different places of attributes
-      if (attributesArray[entry].substr(0, 7) === 'gene_id'){
-        geneID = attributesArray[entry].substr(8,);
-      } else if (attributesArray[entry].substr(0,8) === 'ID=gene:') {
-        geneID = attributesArray[entry].substr(9,);
-      } else {
-        continue
-      }
-      let gene;
-      if (this.hasGene(geneID)) {
-        gene = this.getGene(geneID)
-      } else {
-        gene = new Gene(geneID)
-        this._addGene(gene)
-      }
-      gene.addGFF3(typ, start, end, strand, phase, attributes)
+  addGFF3data (gffContentDict) {
+    this._gff3Data = gffContentDict;
     }
-  }
 
   /**
    *
@@ -307,10 +289,10 @@ export class DGE {
   mergeDGEs (other) {
     // merge conditionPair lists
     for (let otherPair of other.conditionPairs) {
-      let found = false
+      let found = false;
       for (let thisPair of this.conditionPairs) {
         if (thisPair.isEqual(otherPair)) {
-          found = true
+          found = true;
           break
         }
       }
@@ -338,8 +320,8 @@ export class DGE {
    * @return {Set<string>} Gene names
    */
   getNamesOfSignificantGenesFromDESeq2 (maxP, condition1, condition2, adjustedValues = false) {
-    let genes = new Set()
-    let conditions = new ConditionPair(condition1, condition2)
+    let genes = new Set();
+    let conditions = new ConditionPair(condition1, condition2);
 
     if (adjustedValues) {
       for (let geneName of this.geneNames) {
@@ -373,8 +355,8 @@ export class DGE {
    * @return {Set<string>}
    */
   getNamesOfAllGenesFromDESeq2 (condition1, condition2) {
-    let genes = new Set()
-    let conditions = new ConditionPair(condition1, condition2)
+    let genes = new Set();
+    let conditions = new ConditionPair(condition1, condition2);
 
     for (let geneName of this.geneNames) {
       for (let analysis of this.getGene(geneName).deseq2Analyses) {
@@ -394,13 +376,13 @@ export class DGE {
    * @return {DGE}
    */
   getAllGenesFromDESeq2 (condition1, condition2) {
-    let dge = new DGE()
-    let conditions = new ConditionPair(condition1, condition2)
+    let dge = new DGE();
+    let conditions = new ConditionPair(condition1, condition2);
 
     for (let geneName of this.geneNames) {
       for (let analysis of this.getGene(geneName).deseq2Analyses) {
         if (analysis.hasEqualConditions(conditions)) {
-          dge._addGene(this.getGene(geneName))
+          dge._addGene(this.getGene(geneName));
           for (let conditionPair of this.getGene(geneName).deseq2ConditionPairs) {
             dge._registerConditionPair(conditionPair)
           }
@@ -416,21 +398,21 @@ export class DGE {
    * @param genes {Array<string>} list of gene names
    */
   getSubset (genes) {
-    let newDGE = new DGE()
-    newDGE._seqRunConditionMapping = this._seqRunConditionMapping
-    newDGE._normalizationMethods = this._normalizationMethods
-    newDGE._geneNames = new Set(genes)
-    newDGE._conditionPairs = []
+    let newDGE = new DGE();
+    newDGE._seqRunConditionMapping = this._seqRunConditionMapping;
+    newDGE._normalizationMethods = this._normalizationMethods;
+    newDGE._geneNames = new Set(genes);
+    newDGE._conditionPairs = [];
     for (let gene of genes) {
       if (this._data.hasOwnProperty(gene)) {
-        newDGE._data[gene] = this._data[gene]
+        newDGE._data[gene] = this._data[gene];
 
-        let newCondPairs = newDGE.getGene(gene).deseq2ConditionPairs
+        let newCondPairs = newDGE.getGene(gene).deseq2ConditionPairs;
         for (let newPair of newCondPairs) {
-          let alreadyAdded = false
+          let alreadyAdded = false;
           for (let alreadyAddedCondPair of newDGE._conditionPairs) {
             if (newPair.isEqual(alreadyAddedCondPair)) {
-              alreadyAdded = true
+              alreadyAdded = true;
               break
             }
           }
@@ -458,31 +440,24 @@ export class Gene {
      * @type {string} gene name
      * @private
      */
-    this._name = name
+    this._name = name;
     /**
      *
      * @type {Object<Object<Object<Array<number>>>>} {normalizationMethod{string}: {condition{string}: {seqRunName: values{Array{number}}}}
      * @private
      */
-    this._countData = {}
+    this._countData = {};
     /**
      * @type {Array<ConditionPair>}
      * @private
      */
-    this._deseq2_conditionPairs = []
+    this._deseq2_conditionPairs = [];
     /**
      *
      * @type {Array<DESeq2Analysis>}
      * @private
      */
-    this._deseq2_analyses = []
-
-    /**
-     *
-     * @type {Array<GFF3>}
-     * @private
-     */
-    this._gff3_data = []
+    this._deseq2_analyses = [];
   }
 
   get name () {
@@ -514,7 +489,7 @@ export class Gene {
         return pair
       }
     }
-    this._deseq2_conditionPairs.push(conditionPair)
+    this._deseq2_conditionPairs.push(conditionPair);
     return conditionPair
   }
 
@@ -574,7 +549,7 @@ export class Gene {
    * @param {number} pAdj
    */
   addDESEQ2Analysis (conditionPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj) {
-    this._registerDeseq2ConditionPair(conditionPair)
+    this._registerDeseq2ConditionPair(conditionPair);
 
     for (let thisAnalysis of this._deseq2_analyses) {
       if (thisAnalysis.hasEqualConditions(conditionPair)) {
@@ -600,22 +575,6 @@ export class Gene {
     return null
   }
 
-  /** adding gff3-data for the gene
-   * @param typ
-   * @param start
-   * @param end
-   * @param strand
-   * @param phase
-   * @param attributes
-   */
-  addGFF3 (typ, start, end, strand, phase, attributes) {
-    // adding gff3-data of one gene to the gene entry
-    // geneName === seqID is checked before in dge-class
-    // console.log('addGFF3')
-    this._gff3_data.push(new GFF3(typ, start, end, strand, phase, attributes))
-    // console.log(this._gff3_data)
-  }
-
   /**
    *
    * @param {Gene} gene
@@ -624,10 +583,10 @@ export class Gene {
   mergeGenes (gene) {
     // merge conditionPair lists
     for (let otherPair of gene.deseq2ConditionPairs) {
-      let found = false
+      let found = false;
       for (let thisPair of this.deseq2ConditionPairs) {
         if (thisPair.isEqual(otherPair)) {
-          found = true
+          found = true;
           break
         }
       }
@@ -662,12 +621,12 @@ export class DESeq2Analysis {
    * @param {number} pAdj
    */
   constructor (conditionPair, baseMean, log2FoldChange, lfcSE, stat, pValue, pAdj) {
-    this._conditions = conditionPair
-    this._baseMean = baseMean
-    this._log2FoldChange = log2FoldChange
-    this._lfcSE = lfcSE
-    this._stat = stat
-    this._pValue = pValue
+    this._conditions = conditionPair;
+    this._baseMean = baseMean;
+    this._log2FoldChange = log2FoldChange;
+    this._lfcSE = lfcSE;
+    this._stat = stat;
+    this._pValue = pValue;
     this._pAdj = pAdj
   }
 
@@ -715,7 +674,7 @@ export class ConditionPair {
    * @param {string} condition2
    */
   constructor (condition1, condition2) {
-    this._condition1 = condition1
+    this._condition1 = condition1;
     this._condition2 = condition2
   }
 
@@ -748,64 +707,13 @@ export class ConditionPair {
 export class AnalysisDuplicateError extends Error {
   constructor (conditionPair) {
     let message = `Analysis (Cond: ${conditionPair.condition1}, ${conditionPair.condition2}) found more than ones`
-    super(message)
-    this.name = this.constructor.name
+    super(message);
+    this.name = this.constructor.name;
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, this.constructor)
     } else {
       this.stack = (new Error(message)).stack
     }
-  }
-}
-
-/**
- * @constructor
- * @geneName {string}
- * @seqID {string}
- * @source {string}
- * @typ {string}
- * @start {number}
- * @end {number}
- * @score {number}
- * @strand {string}
- * @phase {number}
- * @attributes {dictionary}
- */
-export class GFF3 {
-  constructor (typ, start, end, strand, phase, attributes) {
-    this._typ = typ
-    this._start = start
-    this._end = end
-    this._strand = strand
-    this._phase = phase
-    this._attributes = attributes
-  }
-
-  get source () {
-    return this._source
-  }
-
-  get typ () {
-    return this._typ
-  }
-  get start () {
-    return this._start
-  }
-
-  get end () {
-    return this._end
-  }
-
-  get strand () {
-    return this._strand
-  }
-
-  get phase () {
-    return this._phase
-  }
-
-  get attributes () {
-    return this._attributes
   }
 }
 
