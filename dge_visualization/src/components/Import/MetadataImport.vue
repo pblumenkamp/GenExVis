@@ -92,7 +92,7 @@
       <div style="text-align: center">
         <file-chooser @change="loadFiles" />
       </div>
-      <b-container>
+      <b-container style="max-width: 100%">
         <b-row>
           <div style="width: 10rem; margin: 1rem auto 0;">
             <b-button
@@ -119,6 +119,24 @@
           class="text-secondary"
           style="margin-top: 0.1rem"
         />
+        <b-row>
+          <div v-if="showRemovedFeatures">
+            <h4 style="margin-top: 20px">
+              GFF3 counts for the chosen features:
+            </h4>
+            <b-table
+              :items="featuresCounted"
+              :fields="tableHeaders"
+              :striped="striped"
+              :bordered="bordered"
+            />
+            <p v-if="featureZero" style="margin-top: 20px; color:red">
+              Some features were not found in the GFF3 file. They will not be available for
+              visualisation. You might want to check the selected features and/or the chosen GFF3-file
+              before importing.
+            </p>
+          </div>
+        </b-row>
       </b-container>
     </div>
   </div>
@@ -141,14 +159,26 @@
     },
     data () {
       return {
+        // chosen feature table properties
+        bordered: true,
+        striped: true,
+        tableHeaders: ["feature", "count"],
         file: null,
         content: {},
         contentTry: null,
         importingFiles: false,
         importingDone: false,
+        // import possible after feature selection
         disabledImportButton: true,
+        // questionmark validators for help
         showMetadataFeatureHelp: false,
         showDeseq2TypeHelp: false,
+        // array to show features removed due to no entries in gff3
+        // and validator for v-if to show it only, if entries have been removed
+        featuresCounted: [],
+        showRemovedFeatures: false,
+        // validator for notation display to check features because some were not found in gff3
+        featureZero: false,
         // multiselects
         // deseq2Features is array for additional features to investigate
         // Deseq2Type is type of Deseq2Analysis
@@ -169,19 +199,36 @@
         return faQuestionCircle
       },
     },
-    // watcher example
     watch: {
       // data to watch
-      deseq2Features(){
-        // things to do, if deseq2Features changes
-        let storeValue = this.DESeq2Type;
-        // deseq2Type cannot be selected twice
-        if(this.deseq2Features.includes(storeValue)){
-          for( var i = 0; i < this.deseq2Features.length; i++){
-            if ( this.deseq2Features[i] === storeValue) {
-              this.deseq2Features.splice(i, 1);
-            }
-          }
+      DESeq2Type (){
+        // things to do if DESeq2Type changes
+        this.showRemovedFeatures = false;
+        // if a file is already uploaded,
+        // everything is reset and read-in newly
+        // cannot be done without file, since then
+        // there is no data to display
+        if (this.file){
+          this.featureZero = false;
+          this.content= {};
+          this.featuresCounted = [];
+          // new read-in to update data and table
+          this.importGFF3();
+        }
+      },
+      deseq2Features (){
+        // things to do if deseq2Features changes
+        this.showRemovedFeatures = false;
+        // if a file is already uploaded,
+        // everything is reset and read-in newly
+        // cannot be done without file, since then
+        // there is no data to display
+        if (this.file){
+          this.featureZero = false;
+          this.content= {};
+          this.featuresCounted= [];
+          // new read-in to update data and table
+          this.importGFF3();
         }
       }
   },
@@ -195,7 +242,6 @@
       readGFF3 (file) {
         // source gff3
         // ftp://ftp.ensemblgenomes.org/pub/bacteria/release-43/gff3/bacteria_8_collection/sulfolobus_acidocaldarius_dsm_639
-
         const reader = new FileReader();
 
         return new Promise ((resolve, reject) => {
@@ -208,11 +254,23 @@
             // dictionary for filtered content
             // initialized and keys set in order to append splitEntries to value later
             let filteredContent ={};
-            // selectedTypees
-            let selectedTypes= this.deseq2Features;
-            selectedTypes.push(this.DESeq2Type);
+            // generation of selectedTypes for gff3 read-in
+            if(this.deseq2Features.length >0){
+              var selectedTypes = [];
+              for (let i=0; i<this.deseq2Features.length; i++){
+                selectedTypes.push(this.deseq2Features[i])
+              }
+              selectedTypes.push(this.DESeq2Type)
+            }
+            else if (this.deseq2Features.length === 0){
+              var selectedTypes= [];
+              selectedTypes.push(this.DESeq2Type)
+            }
             for (let i=0; i<selectedTypes.length; i++){
-              filteredContent[selectedTypes[i]]=[]
+              filteredContent[selectedTypes[i]]=[];
+              // array of dicts structure needed for b-table
+              // key initialization needed later for display of feature upload statistics
+              //this.featuresCounted.push({[selectedTypes[i]]:0})
             }
             // begin of actual read in
             let text = reader.result;
@@ -237,19 +295,26 @@
               }
             // removing empty entries (if feature was not in metadata
             // there would be nothing to display anyways
-            // removeArray is to display message to user,
-            // which features were removed
-            let removeArray=[];
+
             // final cleaned up dict
             let cleanFilteredDict= {};
             for (const [key, value] of Object.entries(filteredContent)){
+              // for display of feature statistic in slider 4 of import
+              // structure for b-table. feature and count are specified as "fields"
+              // = table headers, which are recognized in the array of dicts
+              // to correctly assign values of rows
+              this.featuresCounted.push({"feature": key, "count" : value.length});
               if (value.length === 0){
-                removeArray.push(key);
+                // as soon as a feature was not found in the GFF3
+                // the red paragraph notification will be show in slider 4
+                this.featureZero = true;
+                //removeArray.push(key);
               } else {
                 cleanFilteredDict[key] = value
               }
             }
             this.content = cleanFilteredDict;
+            this.showRemovedFeatures = true;
             resolve(this.content)
           };
           reader.readAsText(file);
@@ -269,7 +334,7 @@
           this.importingDone = true
         });
       },
-    }
+    },
   }
 </script>
 
