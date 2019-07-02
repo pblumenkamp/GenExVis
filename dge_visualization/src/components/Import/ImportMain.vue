@@ -246,7 +246,7 @@
       updateMetaDataImportDisable (){
         this.$root.$on('metaDataImportDisableFalse', (metaDataImportDisable) =>{
           this.metaDataImportDisable=metaDataImportDisable
-        })
+        });
       },
       registerCondition () {
         let vueData = this;
