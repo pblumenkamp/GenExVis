@@ -70,7 +70,6 @@
                       :key="gene"
                       type="button"
                       class="btn btn-outline-dark btn-xs gene-button"
-                      style="margin: 0.1rem"
                       @click="removeGene(gene)"
                     >
                       {{ gene }}
@@ -176,16 +175,21 @@
     height: 12rem;
     width:  100%;
   }
-  .genesTable-open {
+  .genesTable-opened {
     text-align: left;
     overflow-y: scroll;
-    min-height: 12rem;
     height: 100%;
     width:  100%;
+    min-height: 12rem;
   }
   .gene-button {
-    font-size: 0.7rem;
-    height: 1.8rem;
-    width: 6.5rem;
+    background-color: #353D40;
+    color: white;
+    font-size: 0.8rem;
+    padding: 0.1rem;
+    margin: 0.1rem;
+  }
+  .gene-button:hover {
+    background-color: deepskyblue;
   }
 </style>

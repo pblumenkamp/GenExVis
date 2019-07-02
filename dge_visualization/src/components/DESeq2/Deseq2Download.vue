@@ -1,11 +1,13 @@
 <template>
   <div style="width: 100%; height: 600px">
     <div style="text-align: center">
-      <h1>Deseq2 - Downloads</h1>
+      <h1>
+        DESeq2 - Downloads
+      </h1>
     </div>
     <div>
       <!-- Table with two cols: Options and select files -->
-      <b-card style="height: 50%; border: 1px solid lightslategray">
+      <b-card class="downloadCard">
         <b-container>
           <b-row>
             <b-col>
@@ -77,7 +79,9 @@
             </b-col>
           </b-row>
         </b-container>
-        <br>
+      </b-card>
+      <br>
+      <b-card class="downloadCard">
         <div v-if="selectedConditionPairs.length > 0">
           <h4 style="text-align: center">Representative Download Preview</h4>
           <!--Example table display -->
@@ -89,25 +93,39 @@
             </table>
           </div>
         </div>
-        <br>
       </b-card>
-      <div>
-        <br>
+      <div class="downloadButtonWrapper">
         <br>
         <button
-          id="downloadCSV"
+          id="downloadButton"
           :disabled="setButtonDisable1"
           class="btn btn-dark btn-sm"
           title="Download table as .csv"
-          style="width: 100%"
           @click="downloadCSV()"
         >
-          <font-awesome-icon :icon="faDownload" /> Download full .csv
+          <font-awesome-icon :icon="faDownload" /> Download .csv file
         </button>
       </div>
     </div>
   </div>
 </template>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css">
+</style>
+<style type="text/css">
+  .downloadButtonWrapper {
+    text-align: right;
+  }
+  #downloadButton {
+    font-size: 1rem;
+    width: 15rem;
+    height: 3rem;
+  }
+  .downloadCard {
+    height: 50%;
+    border: 1px solid lightslategray;
+  }
+</style>
 
 <script>
   // imports
@@ -290,7 +308,3 @@
     }
   }
 </script>
-
-<style src="vue-multiselect/dist/vue-multiselect.min.css">
-
-</style>

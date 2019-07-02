@@ -89,10 +89,9 @@
           </td>
         </tr>
       </table>
-    </div>
-    <p></p>
-    <!-- Big gene table -->
-    <div v-if="this.rowTotalAmount*6 < 2000000">
+    </div><p></p>
+
+    <div v-if="this.excessLength === false">
       <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
                    :gridOptions="gridOptions"
                    :columnDefs="columnDefs"
@@ -107,7 +106,7 @@
                    @gridReady="onReady"
       />
     </div>
-    <div class="main-table" v-else>
+    <div v-else class="main-table" >
       <br>
       <table width="100%">
         <tr align="center">
@@ -223,10 +222,14 @@
         }
       },
       checkGeneAmount () {
-        let store = this.$store.state.dgeData
-        let storeLength = store.length
-        this.rowTotalAmount = storeLength
-        if (storeLength*6 < 2000000) {
+        console.log('checkGeneAmount')
+        let fileList = this.$store.state.deseqlist.length
+        let fileLength = this.$store.state.dgeData.length
+        this.rowTotalAmount = fileLength
+
+        console.log(fileList, fileLength)
+
+        if (fileList * 6 * fileLength > 2000000) {
           this.excessLength = true
         }
       },
@@ -261,10 +264,10 @@
         this.strucStorage = strucStorage
       },
       createRowData () {
+        console.log('CREATE ROW DATA:')
         const rowData = []
         let store = this.$store.state.dgeData
 
-        // large file problem part
         let rowCounter = 0
 
         for (let geneName of store.geneNames) {
@@ -293,7 +296,6 @@
           rowCounter = rowCounter + 1
         }
 
-        // large file problem part
         console.log(rowData)
         this.rowData = rowData
       },
@@ -329,6 +331,7 @@
         this.columnDefs = columnDefs
       },
       nameColumn () {
+        // returns the first - always same - name column
         let dataDict = {
           headerName: 'Name',
           field: 'name',
@@ -345,19 +348,19 @@
           let showstate = null
           if (colCounter > 1) { showstate = 'closed' }
           let formattedValue = this.roundingFormatter
+          console.log('   !! ' + formattedValue)
           let entryDict = {
             headerName: column[0],
             field: column[1],
             width: 150,
             filter: 'agNumberColumnFilter',
             columnGroupShow: showstate,
-            valueFormatter: formattedValue,
             cellStyle: {textAlign: 'right'}
           }
           if (column[0] === 'log2 fold change') {
             entryDict['cellRenderer'] = this.percentCellRenderer
           } else {
-            entryDict['cellRenderer'] = this.nanCellRenderer
+            entryDict['cellRenderer'] = this.negotiateShowValue
           }
           returnArray.push(entryDict)
           colCounter = colCounter + 1
@@ -365,28 +368,38 @@
         return (returnArray)
       },
       roundingFormatter (number) {
-        if (this.roundedValues === true) {
-          if (number.colDef.headerName === 'p value' || number.colDef.headerName === 'p value (adjusted)') {
-            try {
-              return number.value.toExponential(2)
-            } catch (err) {
-              return null
-            }
-          } else {
-            return this.returnRoundValue(number.value)
-          }
-        } else {
-          return null
-        }
+        console.log('is called')
+        let testValue = number.value + '€'
+
+        return testValue
+
+        // if (this.roundedValues === true) {
+        //   if (number.colDef.headerName === 'p value' || number.colDef.headerName === 'p value (adjusted)') {
+        //     if (number.value !== null) {
+        //       return (number.value.toExponential(2))
+        //     } else {
+        //       return (null)
+        //     }
+        //   } else {
+        //     return (this.returnRoundValue(number.value))
+        //   }
+        // } else {
+        //   return (null)
+        // }
+        // return null
       },
-      nanCellRenderer (params) {
+      negotiateShowValue (params) {
         let value = params.value
         if (value === null || value === 0) {
-          // real 0s are normally saved as string text
-          // int 0s are "wrong"
+          // real 0s are ag-grid-conform saved as string text
+          // Therefore, int 0s are "wrong"
           return ('no data')
         } else {
-          return (this.negotiateShowvalue(value))
+          if (params.colDef.headerName === 'p value' || params.colDef.headerName === 'p value (adjusted)') {
+            return (this.returnExponentialValue(value))
+          } else {
+            return (this.returnRoundedValue(value))
+          }
         }
       },
       // visualisation of log2FoldChange
@@ -443,7 +456,7 @@
         div2.style.height = 100 + '%'
         div2.align = 'center'
         // x!
-        div1.innerHTML = this.negotiateShowvalue(showvalue)
+        div1.innerHTML = this.returnRoundedValue(showvalue)
         div1.style.cssText = 'text-align:right'
         div2.append(table)
         let parent = document.createElement('div')
@@ -462,11 +475,18 @@
           return ('no data')
         }
       },
-      negotiateShowvalue (showvalue) {
+      returnRoundedValue (rawValue) {
         if (this.roundedValues === true) {
-          return this.returnRoundValue(showvalue)
+          return this.returnRoundValue(rawValue)
         } else {
-          return showvalue
+          return rawValue
+        }
+      },
+      returnExponentialValue (rawValue) {
+        if (this.roundedValues === true) {
+          return rawValue.toExponential(2)
+        } else {
+          return rawValue
         }
       },
       returnRoundValue (value) {
@@ -703,8 +723,8 @@
       }
     },
     beforeMount () {
-      console.log('>>> start')
       this.checkGeneAmount()
+
       if (this.excessLength === false) {
         this.checkStorage()
         this.createRowData()
@@ -777,7 +797,7 @@
     width: 100%;
   }
   .main-control-button {
-    width: 9rem
+    width: 11rem
   }
   /* Adds a background color on hover */
   .basic-button button:hover:enabled {
@@ -794,6 +814,9 @@
     td {
       display: table-row;
       text-align: center;
+    }
+    .main-control-button {
+      width: 8.5rem;
     }
   }
 </style>
