@@ -79,7 +79,7 @@ const store = new Vuex.Store({
       }
     },
     [ADD_GFF3_DATA] (state, {gffContentDict}) {
-      console.log('ADD_GFF3_DATA');
+      //console.log('ADD_GFF3_DATA');
       state.dgeData.addGFF3data(gffContentDict)
     },
     [ADD_SEQRUN_MAPPING] (state, {normalization, mapping}) {
@@ -170,7 +170,7 @@ const store = new Vuex.Store({
       })
     },
     [STORE_GFF3_DATA] ({commit,state},{gffContentDict}){
-      console.log('STORE_GFF3_DATA');
+      //console.log('STORE_GFF3_DATA');
       return new Promise ((resolve, reject) => {
           // committing to store
           commit(ADD_GFF3_DATA, {gffContentDict});
