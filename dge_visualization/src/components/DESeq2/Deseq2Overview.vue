@@ -8,12 +8,11 @@
 
     <div>
       <!-- Design selection -->
-      <table style="height: 10rem; width: 100%; text-align: center; align-content: center"
-             border="0px solid black">
+      <table style="height: 10rem; width: 100%; text-align: center; align-content: center; border: 0 solid black">
         <tr>
           <td style="width: 15%">
-            <b-card style="height: 100%; border: 0px solid lightslategray">
-              <table align="center" border="0px solid black">
+            <b-card style="height: 100%;">
+              <table style="text-align: center">
                 <tr>
                   <td>
                     <i>themes</i>
@@ -35,7 +34,7 @@
           <!-- subset area -->
           <td style="width: 70%">
             <b-card style="height: 90%; border: 1px solid lightslategray">
-              <table style="width:100%" border="0px solid black">
+              <table style="width:100%; border: 0px solid black">
                 <tr>
                   <td style="width: 40%; border: 1px solid gainsboro">
                     <div><a style="font-size:2.5rem" title="The currently chosen amount of genes">{{ rowChosenAmount }} / <b title="The total amount of genes">{{ rowTotalAmount }} </b></a></div>
@@ -65,8 +64,8 @@
             </b-card>
           </td>
           <!-- Area right of subset table: Filter bar, view change (rounded), reset table button -->
-          <td style="width: 15%" align="left">
-            <b-card style="height: 100%; border: 0px solid lightslategray">
+          <td style="width: 15%; text-align: left">
+            <b-card style="height: 100%">
               <div>
                 <div>
                   <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
@@ -89,11 +88,10 @@
           </td>
         </tr>
       </table>
-    </div>
-    <p></p>
-    <!-- Big gene table -->
-    <div v-if="this.rowTotalAmount*6 < 2000000">
-      <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
+    </div><p></p>
+
+    <div v-if="this.excessLength === false">
+      <ag-grid-vue id="main-table" class="main-table ag-theme-balham" style="text-align: left"
                    :gridOptions="gridOptions"
                    :columnDefs="columnDefs"
                    :rowData="rowData"
@@ -107,24 +105,28 @@
                    @gridReady="onReady"
       />
     </div>
-    <div class="main-table" v-else>
+    <div v-else class="main-table" >
       <br>
-      <table width="100%">
-        <tr align="center">
-          <th></th>
-          <th><h2>Unfortunately the table was too large to display</h2></th>
-          <th></th>
-        </tr>
-        <tr align="center">
-          <th></th>
-          <th><h3>You can download the full table below</h3></th>
-          <th></th>
-        </tr>
-        <tr align="center">
+      <table style="width: 100%">
+        <tr style="text-align: center">
           <th></th>
           <th>
-            <table layout="fixed">
-              <td width="33%">
+            <h2>Unfortunately the table was too large to display</h2>
+          </th>
+          <th></th>
+        </tr>
+        <tr style="text-align: center">
+          <th></th>
+          <th>
+            <h3>You can download the full table below</h3>
+          </th>
+          <th></th>
+        </tr>
+        <tr style="text-align: center">
+          <th></th>
+          <th>
+            <table style="table-layout:fixed">
+              <td style="width: 33%">
                 <button
                   id = 'downloadCSV'
                   class="btn btn-dark btn-sm"
@@ -135,9 +137,9 @@
                   <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
                 </button>
               </td>
-              <td width="33%">
+              <td style="width: 33%">
               </td>
-              <td width="33%">
+              <td style="width: 33%">
                 <div>
                   <b-form-checkbox v-model="roundedValues2"
                                    @change="toggleRoundingChange2">
@@ -194,19 +196,19 @@
     },
     methods: {
       changeDesign (element) {
-        let design = 'main-table ag-theme-' + element
-        document.getElementById('main-table').className = design
+        let design = 'main-table ag-theme-' + element;
+        document.getElementById('main-table').className = design;
         this.design = design
       },
       addGene () {
-        let genesToAdd = this.gridOptions.api.getSelectedRows()
-        let geneList = []
-        let currentSubDGE = this.$store.state.subDGE.geneNames
+        let genesToAdd = this.gridOptions.api.getSelectedRows();
+        let geneList = [];
+        let currentSubDGE = this.$store.state.subDGE.geneNames;
         if (currentSubDGE.size === 0) {
           this.toggleSubsetCreation()
         } else {
           for (let entry of currentSubDGE) {
-            let check = true
+            let check = true;
             for (let coentry of genesToAdd) {
               if (entry === coentry) {
                 check = false
@@ -218,20 +220,24 @@
               geneList.push(entry)
             }
           }
-          geneList.sort()
+          geneList.sort();
           this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
         }
       },
       checkGeneAmount () {
-        let store = this.$store.state.dgeData
-        let storeLength = store.length
-        this.rowTotalAmount = storeLength
-        if (storeLength*6 < 2000000) {
+        console.log('checkGeneAmount');
+        let fileList = this.$store.state.deseqlist.length;
+        let fileLength = this.$store.state.dgeData.length;
+        this.rowTotalAmount = fileLength;
+
+        console.log(fileList, fileLength);
+
+        if (fileList * 6 * fileLength > 2000000) {
           this.excessLength = true
         }
       },
       checkStorage () {
-        let strucStorage = this.$store.state.strucStorage
+        let strucStorage = this.$store.state.strucStorage;
         if (strucStorage === null) {
           this.createStrucStorage()
         } else {
@@ -240,42 +246,42 @@
         }
       },
       createStrucStorage () {
-        let fileStore = this.$store.state.deseqlist
-        let fileAmount = fileStore.length
+        let fileStore = this.$store.state.deseqlist;
+        let fileAmount = fileStore.length;
 
-        let strucStorage = {}
-        let strucArray = []
-        strucArray.push([undefined, ['Name', 'name']])
+        let strucStorage = {};
+        let strucArray = [];
+        strucArray.push([undefined, ['Name', 'name']]);
         for (let i = 1; i < fileAmount + 1; i++) {
-          let childArray = []
-          let headerName = fileStore[i - 1]
-          let openByDefault = true
+          let childArray = [];
+          let headerName = fileStore[i - 1];
+          let openByDefault = true;
           for (let entry in this.nameDict) {
-            let fieldArray = [this.nameDict[entry], entry + '_' + i]
+            let fieldArray = [this.nameDict[entry], entry + '_' + i];
             childArray.push(fieldArray)
           }
           strucArray.push([headerName, childArray, openByDefault])
         }
-        strucStorage['data'] = strucArray
-        strucStorage['design'] = 'main-table ag-theme-balham'
+        strucStorage['data'] = strucArray;
+        strucStorage['design'] = 'main-table ag-theme-balham';
         this.strucStorage = strucStorage
       },
       createRowData () {
-        const rowData = []
-        let store = this.$store.state.dgeData
+        console.log('CREATE ROW DATA:');
+        const rowData = [];
+        let store = this.$store.state.dgeData;
 
-        // large file problem part
-        let rowCounter = 0
+        let rowCounter = 0;
 
         for (let geneName of store.geneNames) {
           if (rowCounter > 0) {
-            let gene = store.getGene(geneName)
-            let dict = {}
-            dict.name = gene.name
-            let analysescounter = 1
+            let gene = store.getGene(geneName);
+            let dict = {};
+            dict.name = gene.name;
+            let analysescounter = 1;
             for (let analysis of gene.deseq2Analyses) {
               for (let element in analysis) {
-                let currentcell = analysis[element]
+                let currentcell = analysis[element];
                 if (element !== '_conditions' && isNaN(currentcell)) {
                   currentcell = null
                 } else {
@@ -283,7 +289,7 @@
                     this.log2foldlist.push(currentcell)
                   }
                 }
-                let elementValue = element + '_' + analysescounter
+                let elementValue = element + '_' + analysescounter;
                 dict[elementValue] = currentcell
               }
               analysescounter = analysescounter + 1
@@ -293,212 +299,228 @@
           rowCounter = rowCounter + 1
         }
 
-        // large file problem part
-        console.log(rowData)
+        console.log(rowData);
         this.rowData = rowData
       },
       // visualisation of log2FoldChange
       minmaxdefine () {
-        let log2foldlist = this.log2foldlist
-        let min = Math.min(...log2foldlist)
-        let max = Math.max(...log2foldlist)
-        this.log2foldmin = min
-        this.log2foldmax = max
+        let log2foldlist = this.log2foldlist;
+        let min = Math.min(...log2foldlist);
+        let max = Math.max(...log2foldlist);
+        this.log2foldmin = min;
+        this.log2foldmax = max;
       },
       chooseDesign () {
         // designStorage is simply the string name of the design
-        let designStorage = this.strucStorage['design']
+        let designStorage = this.strucStorage['design'];
         document.getElementById('main-table').className = designStorage
       },
       createColumnDefs () {
-        const columnDefs = []
-        let strucStorage = this.strucStorage['data']
+        const columnDefs = [];
+        let strucStorage = this.strucStorage['data'];
         for (let file of strucStorage) {
           if (file[0] === undefined || file[0] === 'name') {
             columnDefs.push(this.nameColumn())
           } else {
-            let openBool = file[2]
+            let openBool = file[2];
             let datadict = {
               headerName: file[0],
               openByDefault: openBool,
               children: this.createChildren(file[1])
-            }
+            };
             columnDefs.push(datadict)
           }
         }
         this.columnDefs = columnDefs
       },
       nameColumn () {
+        // returns the first - always same - name column
         let dataDict = {
           headerName: 'Name',
           field: 'name',
           width: 150,
           hide: false,
           pinned: false
-        }
+        };
         return (dataDict)
       },
       createChildren (columnArray) {
-        let returnArray = []
-        let colCounter = 0
+        let returnArray = [];
+        let colCounter = 0;
         for (let column of columnArray) {
-          let showstate = null
+          let showstate = null;
           if (colCounter > 1) { showstate = 'closed' }
-          let formattedValue = this.roundingFormatter
+          let formattedValue = this.roundingFormatter;
+          console.log('   !! ' + formattedValue);
           let entryDict = {
             headerName: column[0],
             field: column[1],
             width: 150,
             filter: 'agNumberColumnFilter',
             columnGroupShow: showstate,
-            valueFormatter: formattedValue,
             cellStyle: {textAlign: 'right'}
-          }
+          };
           if (column[0] === 'log2 fold change') {
             entryDict['cellRenderer'] = this.percentCellRenderer
           } else {
-            entryDict['cellRenderer'] = this.nanCellRenderer
+            entryDict['cellRenderer'] = this.negotiateShowValue
           }
-          returnArray.push(entryDict)
+          returnArray.push(entryDict);
           colCounter = colCounter + 1
         }
         return (returnArray)
       },
       roundingFormatter (number) {
-        if (this.roundedValues === true) {
-          if (number.colDef.headerName === 'p value' || number.colDef.headerName === 'p value (adjusted)') {
-            try {
-              return number.value.toExponential(2)
-            } catch (err) {
-              return null
-            }
-          } else {
-            return this.returnRoundValue(number.value)
-          }
-        } else {
-          return null
-        }
+        let testValue = number.value + '€';
+
+        return testValue
+
+        // if (this.roundedValues === true) {
+        //   if (number.colDef.headerName === 'p value' || number.colDef.headerName === 'p value (adjusted)') {
+        //     if (number.value !== null) {
+        //       return (number.value.toExponential(2))
+        //     } else {
+        //       return (null)
+        //     }
+        //   } else {
+        //     return (this.returnRoundValue(number.value))
+        //   }
+        // } else {
+        //   return (null)
+        // }
+        // return null
       },
-      nanCellRenderer (params) {
-        let value = params.value
+      negotiateShowValue (params) {
+        let value = params.value;
         if (value === null || value === 0) {
-          // real 0s are normally saved as string text
-          // int 0s are "wrong"
+          // real 0s are ag-grid-conform saved as string text
+          // Therefore, int 0s are "wrong"
           return ('no data')
         } else {
-          return (this.negotiateShowvalue(value))
+          if (params.colDef.headerName === 'p value' || params.colDef.headerName === 'p value (adjusted)') {
+            return (this.returnExponentialValue(value))
+          } else {
+            return (this.returnRoundedValue(value))
+          }
         }
       },
       // visualisation of log2FoldChange
       percentCellRenderer (params) {
-        let value = params.value
-        let showvalue = params.value
+        let value = params.value;
+        let showvalue = params.value;
 
-        let min = this.log2foldmin
-        let max = this.log2foldmax
+        let min = this.log2foldmin;
+        let max = this.log2foldmax;
 
-        let table = document.createElement('table')
-        table.align = 'center'
-        table.style.width = 100 + '%'
-        table.style.height = 100 + '%'
-        let firstrow = document.createElement('tr')
+        let table = document.createElement('table');
+        table.align = 'center';
+        table.style.width = 100 + '%';
+        table.style.height = 100 + '%';
+        let firstrow = document.createElement('tr');
         // all 4 parts (2 bars, 2 spaces)
-        let leftbar = document.createElement('td')
-        let rightbar = document.createElement('td')
-        let leftpush = document.createElement('td')
-        let rightpush = document.createElement('td')
+        let leftbar = document.createElement('td');
+        let rightbar = document.createElement('td');
+        let leftpush = document.createElement('td');
+        let rightpush = document.createElement('td');
         //
-        leftbar.style.padding = 0
-        rightbar.style.padding = 0
-        leftpush.style.padding = 0
-        rightpush.style.padding = 0
+        leftbar.style.padding = 0;
+        rightbar.style.padding = 0;
+        leftpush.style.padding = 0;
+        rightpush.style.padding = 0;
 
         if (value < 0) {
-          let percent = (value * 50) / min
-          leftpush.style.width = (50 - percent) + '%'
-          leftbar.style.width = percent + '%'
-          rightbar.style.width = 25 + '%'
-          rightpush.style.width = 25 + '%'
+          let percent = (value * 50) / min;
+          leftpush.style.width = (50 - percent) + '%';
+          leftbar.style.width = percent + '%';
+          rightbar.style.width = 25 + '%';
+          rightpush.style.width = 25 + '%';
           leftbar.style.backgroundColor = 'rgba(238, 16, 16, 0.4)'
         } else {
-          let percent = (value * 50) / max
-          leftpush.style.width = 25 + '%'
-          leftbar.style.width = 25 + '%'
-          rightbar.style.width = percent + '%'
-          rightpush.style.width = (50 - percent) + '%'
+          let percent = (value * 50) / max;
+          leftpush.style.width = 25 + '%';
+          leftbar.style.width = 25 + '%';
+          rightbar.style.width = percent + '%';
+          rightpush.style.width = (50 - percent) + '%';
           rightbar.style.backgroundColor = 'rgba(16, 16, 238, 0.4)'
         }
 
-        firstrow.append(leftpush, leftbar, rightbar, rightpush)
-        table.append(firstrow)
+        firstrow.append(leftpush, leftbar, rightbar, rightpush);
+        table.append(firstrow);
 
-        let div1 = document.createElement('div')
-        let div2 = document.createElement('div')
-        div1.id = 'child_1'
-        div2.id = 'child_2'
+        let div1 = document.createElement('div');
+        let div2 = document.createElement('div');
+        div1.id = 'child_1';
+        div2.id = 'child_2';
         // o!
-        div1.style.position = 'absolute'
-        div2.style.position = 'absolute'
-        div2.style.width = 100 + '%'
-        div2.style.height = 100 + '%'
-        div2.align = 'center'
+        div1.style.position = 'absolute';
+        div2.style.position = 'absolute';
+        div2.style.width = 100 + '%';
+        div2.style.height = 100 + '%';
+        div2.align = 'center';
         // x!
-        div1.innerHTML = this.negotiateShowvalue(showvalue)
-        div1.style.cssText = 'text-align:right'
-        div2.append(table)
-        let parent = document.createElement('div')
-        parent.id = 'parent'
+        div1.innerHTML = this.returnRoundedValue(showvalue);
+        div1.style.cssText = 'text-align:right';
+        div2.append(table);
+        let parent = document.createElement('div');
+        parent.id = 'parent';
         // o!
-        parent.style.position = 'relative'
-        parent.style.width = 100 + '%'
-        parent.style.height = 100 + '%'
-        parent.align = 'center'
+        parent.style.position = 'relative';
+        parent.style.width = 100 + '%';
+        parent.style.height = 100 + '%';
+        parent.align = 'center';
         // x!
-        parent.append(div2)
-        parent.append(div1)
+        parent.append(div2);
+        parent.append(div1);
         if (value !== null) {
           return parent
         } else {
           return ('no data')
         }
       },
-      negotiateShowvalue (showvalue) {
+      returnRoundedValue (rawValue) {
         if (this.roundedValues === true) {
-          return this.returnRoundValue(showvalue)
+          return this.returnRoundValue(rawValue)
         } else {
-          return showvalue
+          return rawValue
+        }
+      },
+      returnExponentialValue (rawValue) {
+        if (this.roundedValues === true) {
+          return rawValue.toExponential(2)
+        } else {
+          return rawValue
         }
       },
       returnRoundValue (value) {
         return Math.round(value * 100) / 100
       },
       toggleRoundingChange () {
-        this.roundedValues = false
+        this.roundedValues = false;
         this.createRowData()
       },
       toggleRoundingChange2 () {
         this.roundedValues2 = false
       },
       toggleTableReset () {
-        this.createStrucStorage()
+        this.createStrucStorage();
         this.createColumnDefs()
       },
       toggleSubsetCreation () {
-        let temparray = []
-        let genestaken = this.gridOptions.api.getSelectedRows()
+        let temparray = [];
+        let genestaken = this.gridOptions.api.getSelectedRows();
         for (let element of genestaken) {
           temparray.push(element.name)
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
       pad (num, totalStringSize) {
-        let asString = num + ''
-        while (asString.length < totalStringSize) asString = '0' + asString
+        let asString = num + '';
+        while (asString.length < totalStringSize) asString = '0' + asString;
         return asString
       },
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
-          let totalRows = this.rowData.length
+          let totalRows = this.rowData.length;
           // let model = this.gridOptions.api.getModel()
           // let processedRows = model.getRowCount()
           // this.rowTotalAmount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
@@ -513,42 +535,42 @@
         this.calculateRowCount()
       },
       onSelectionChanged () {
-        let selectedRows = this.gridOptions.api.getSelectedRows()
-        let selectedRowsString = []
+        let selectedRows = this.gridOptions.api.getSelectedRows();
+        let selectedRowsString = [];
         selectedRows.forEach(function (selectedRow) {
           selectedRowsString.push(' ' + selectedRow.name)
-        })
-        let rawRowAmount = selectedRowsString.length
-        let rowChosenAmount = this.numberWithCommas(rawRowAmount)
-        this.rowChosenAmount = rowChosenAmount
-        this.selectionNegotiator(rawRowAmount)
+        });
+        let rawRowAmount = selectedRowsString.length;
+        let rowChosenAmount = this.numberWithCommas(rawRowAmount);
+        this.rowChosenAmount = rowChosenAmount;
+        this.selectionNegotiator(rawRowAmount);
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
       selectionNegotiator (rowChosenAmount) {
         // select all: id="selectAllButton"; clear selection: id="deselectAllButton"; create a subset: id="createSubsetButton"; add genes: id="addGenesButton"
         if (rowChosenAmount === this.rowTotalAmount) {
-          document.getElementById('selectAllButton').disabled = true
-          document.getElementById('deselectAllButton').disabled = false
-          document.getElementById('createSubsetButton').disabled = false
-          document.getElementById('addGenesButton').disabled = false
+          document.getElementById('selectAllButton').disabled = true;
+          document.getElementById('deselectAllButton').disabled = false;
+          document.getElementById('createSubsetButton').disabled = false;
+          document.getElementById('addGenesButton').disabled = false;
         } else if (rowChosenAmount < this.rowTotalAmount && rowChosenAmount !== 0) {
-          document.getElementById('selectAllButton').disabled = false
-          document.getElementById('deselectAllButton').disabled = false
-          document.getElementById('createSubsetButton').disabled = false
-          document.getElementById('addGenesButton').disabled = false
+          document.getElementById('selectAllButton').disabled = false;
+          document.getElementById('deselectAllButton').disabled = false;
+          document.getElementById('createSubsetButton').disabled = false;
+          document.getElementById('addGenesButton').disabled = false;
         } else if (rowChosenAmount === 0) {
-          document.getElementById('selectAllButton').disabled = false
-          document.getElementById('deselectAllButton').disabled = true
-          document.getElementById('createSubsetButton').disabled = true
-          document.getElementById('addGenesButton').disabled = true
+          document.getElementById('selectAllButton').disabled = false;
+          document.getElementById('deselectAllButton').disabled = true;
+          document.getElementById('createSubsetButton').disabled = true;
+          document.getElementById('addGenesButton').disabled = true;
         }
       },
       onVisionChanged () {
-        this.readStructure()
-        this.createColumnDefs()
+        this.readStructure();
+        this.createColumnDefs();
       },
       onPositionChanged () {
-        this.onVisionChanged()
+        this.onVisionChanged();
       },
       numberWithCommas (number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -574,39 +596,39 @@
         }
       },
       readStructure () {
-        let strucStorage = {}
-        let strucArray = []
-        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups()
+        let strucStorage = {};
+        let strucArray = [];
+        let columngroups = this.gridOptions.columnApi.getAllDisplayedColumnGroups();
         for (let entry of columngroups) {
-          let childArray = []
-          let fileName = entry.originalColumnGroup.colGroupDef.headerName
-          let openByDefault = entry.originalColumnGroup.expanded
-          let children = entry.children
+          let childArray = [];
+          let fileName = entry.originalColumnGroup.colGroupDef.headerName;
+          let openByDefault = entry.originalColumnGroup.expanded;
+          let children = entry.children;
           for (let child of children) {
-            let fieldArray = [child.colDef.headerName, child.colDef.field]
+            let fieldArray = [child.colDef.headerName, child.colDef.field];
             childArray.push(fieldArray)
           }
           strucArray.push([fileName, childArray, openByDefault])
         }
-        strucStorage['data'] = strucArray
-        strucStorage['design'] = this.design
+        strucStorage['data'] = strucArray;
+        strucStorage['design'] = this.design;
         this.strucStorage = strucStorage
       },
       pushStructure () {
-        let strucStorage = this.strucStorage
+        let strucStorage = this.strucStorage;
         this.$store.commit(ADD_STRUC, strucStorage)
       },
       // Miri
       downloadCSV () {
         // first row with file names
-        let topColumns = []
-        let fileCounter = 0
-        let fileList = this.$store.state.deseqlist
+        let topColumns = [];
+        let fileCounter = 0;
+        let fileList = this.$store.state.deseqlist;
         for (let file of fileList) {
           if (file[0] === undefined || file[0] === 'name') {
             topColumns.push(this.nameColumn())
           } else {
-            topColumns.push(file)
+            topColumns.push(file);
             // six empty cells will be added only for the first
             // filename, since the columnheader "name" appears only once
             if (fileCounter < 1) {
@@ -621,73 +643,73 @@
           }
           fileCounter = fileCounter + 1
         }
-        console.log(fileCounter)
+        console.log(fileCounter);
         // removing 1st array element, which was shown as object[object] in csv
         // topColumns.shift()
-        console.log(topColumns)
+        console.log(topColumns);
         // creating columnHeaders
-        let columnHeaders = []
+        let columnHeaders = [];
         while (fileCounter > 0) {
-          columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
+          columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat');
           fileCounter = fileCounter - 1
         }
         // adding name only in the beginning of the column headers
-        columnHeaders.unshift('name')
-        console.log(columnHeaders)
+        columnHeaders.unshift('name');
+        console.log(columnHeaders);
         // creating correct row data
-        let rowData = []
-        rowData.push(topColumns)
-        rowData.push(columnHeaders)
-        let oneEntry = []
+        let rowData = [];
+        rowData.push(topColumns);
+        rowData.push(columnHeaders);
+        let oneEntry = [];
         // let rowCounter = 0
-        let store = this.$store.state.currentDGE
+        let store = this.$store.state.currentDGE;
         // iterate data
         for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName)
-          let myName = gene.name
-          oneEntry.push(myName)
+          let gene = store.getGene(geneName);
+          let myName = gene.name;
+          oneEntry.push(myName);
           for (let analysis of gene.deseq2Analyses) {
-            let myMean = analysis.baseMean
-            let mylog2fold = analysis.log2FoldChange
-            let mylfcSE = analysis.lfcSE
-            let myStat = analysis.stat
-            let mypValue = analysis.pValue
-            let mypAdj = analysis.pAdj
+            let myMean = analysis.baseMean;
+            let mylog2fold = analysis.log2FoldChange;
+            let mylfcSE = analysis.lfcSE;
+            let myStat = analysis.stat;
+            let mypValue = analysis.pValue;
+            let mypAdj = analysis.pAdj;
             if (this.roundedValues2 === true) {
-              myMean = Math.round(myMean * 100) / 100
-              mylog2fold = Math.round(mylog2fold * 100) / 100
-              mylfcSE = Math.round(mylfcSE * 100) / 100
-              myStat = Math.round(myStat * 100) / 100
-              mypValue = Math.round(mypValue * 100) / 100
-              mypAdj = Math.round(mypAdj * 100) / 100
+              myMean = Math.round(myMean * 100) / 100;
+              mylog2fold = Math.round(mylog2fold * 100) / 100;
+              mylfcSE = Math.round(mylfcSE * 100) / 100;
+              myStat = Math.round(myStat * 100) / 100;
+              mypValue = Math.round(mypValue * 100) / 100;
+              mypAdj = Math.round(mypAdj * 100) / 100;
             }
             // order is important
             oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
           }
           // so far: array of arrays with inner array = one entry (entries in correct order)
-          rowData.push(oneEntry)
+          rowData.push(oneEntry);
           oneEntry = []
         }
-        console.log(rowData)
+        console.log(rowData);
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
         // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
-        let csvContent = rowData.map(e => e.join(',')).join('\n')
+        let csvContent = rowData.map(e => e.join(',')).join('\n');
         // function to download csv taken from:
         // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
         function downloadFile (data, fileName) {
-          let csvData = data
-          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'})
+          let csvData = data;
+          let blob = new Blob([csvData], {type: 'application/csv;charset=utf-8;'});
           if (window.navigator.msSaveBlob) {
             navigator.msSaveBlob(blob, fileName)
           } else {
-            let link = document.createElement('a')
-            let csvUrl = URL.createObjectURL(blob)
-            link.href = csvUrl
-            link.style = 'invisibility: hidden'
-            link.download = fileName
-            document.body.appendChild(link)
-            link.click()
+            let link = document.createElement('a');
+            let csvUrl = URL.createObjectURL(blob);
+            link.href = csvUrl;
+            link.style = 'invisibility: hidden';
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
             document.body.removeChild(link)
           }
         }
@@ -703,26 +725,26 @@
       }
     },
     beforeMount () {
-      console.log('>>> start')
-      this.checkGeneAmount()
+      this.checkGeneAmount();
+
       if (this.excessLength === false) {
-        this.checkStorage()
-        this.createRowData()
-        this.minmaxdefine()
-        this.createColumnDefs()
-        this.insertGridOptions()
+        this.checkStorage();
+        this.createRowData();
+        this.minmaxdefine();
+        this.createColumnDefs();
+        this.insertGridOptions();
       }
     },
     mounted () {
       if (this.excessLength === false) {
-        this.selectionNegotiator(0)
-        this.chooseDesign()
+        this.selectionNegotiator(0);
+        this.chooseDesign();
       }
     },
     beforeDestroy () {
       if (this.excessLength === false) {
-        this.readStructure()
-        this.pushStructure()
+        this.readStructure();
+        this.pushStructure();
       }
     }
   }
@@ -777,7 +799,7 @@
     width: 100%;
   }
   .main-control-button {
-    width: 9rem
+    width: 11rem
   }
   /* Adds a background color on hover */
   .basic-button button:hover:enabled {
@@ -794,6 +816,9 @@
     td {
       display: table-row;
       text-align: center;
+    }
+    .main-control-button {
+      width: 8.5rem;
     }
   }
 </style>
