@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 100%; height: 600px">
+  <div style="width: 100%; height: 600px; margin-left: 48px">
     <div style="text-align: center">
       <h1>Deseq2 - Downloads</h1>
     </div>
