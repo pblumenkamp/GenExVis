@@ -16,7 +16,7 @@ import Changelogs from '@/components/Changelogs/ChangelogsMain'
 import Deseq2Download from '@/components/DESeq2/Deseq2Download'
 import DgeVisualisation from '@/components/DESeq2/DgeVisualisation'
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   routes: [
