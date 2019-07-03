@@ -25,7 +25,7 @@
                       <button type="button" class="btn btn-sm button-balham" @click="changeDesign('balham')">Balham</button>
                       <button type="button" class="btn btn-sm button-fresh" @click="changeDesign('fresh')">Fresh</button>
                       <button type="button" class="btn btn-sm button-balhamdark" @click="changeDesign('balham-dark')">Dark</button>
-                      <button type="button" class="btn btn-sm button-blue" @click="changeDesign('blue')">Blue</button>
+                      <button type="button" class="btn btn-sm button-blue" @click="changeDesign('bootstrap')">Blue</button>
                     </div>
                   </td>
                 </tr>
@@ -271,28 +271,26 @@
         let rowCounter = 0
 
         for (let geneName of store.geneNames) {
-          if (rowCounter > 0) {
-            let gene = store.getGene(geneName)
-            let dict = {}
-            dict.name = gene.name
-            let analysescounter = 1
-            for (let analysis of gene.deseq2Analyses) {
-              for (let element in analysis) {
-                let currentcell = analysis[element]
-                if (element !== '_conditions' && isNaN(currentcell)) {
-                  currentcell = null
-                } else {
-                  if (element === '_log2FoldChange') {
-                    this.log2foldlist.push(currentcell)
-                  }
+          let gene = store.getGene(geneName)
+          let dict = {}
+          dict.name = gene.name
+          let analysescounter = 1
+          for (let analysis of gene.deseq2Analyses) {
+            for (let element in analysis) {
+              let currentcell = analysis[element]
+              if (element !== '_conditions' && isNaN(currentcell)) {
+                currentcell = null
+              } else {
+                if (element === '_log2FoldChange') {
+                  this.log2foldlist.push(currentcell)
                 }
-                let elementValue = element + '_' + analysescounter
-                dict[elementValue] = currentcell
               }
-              analysescounter = analysescounter + 1
+              let elementValue = element + '_' + analysescounter
+              dict[elementValue] = currentcell
             }
-            rowData.push(dict)
+            analysescounter = analysescounter + 1
           }
+          rowData.push(dict)
           rowCounter = rowCounter + 1
         }
 
