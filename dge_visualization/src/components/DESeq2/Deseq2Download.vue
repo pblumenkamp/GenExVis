@@ -53,7 +53,7 @@
               </table>
             </b-col>
             <b-col>
-              <h4>Select files</h4>
+              <h4>Select conditions</h4>
               <multiselect
                 v-model="selectedConditionPairs"
                 :options="conditionPairs"
@@ -65,7 +65,7 @@
                 :preselect-first="true"
                 track-by="name"
                 label="name"
-                placeholder="Choose files"
+                placeholder="Choose conditions"
                 selected-label="Selected"
                 select-label="Click to select"
                 deselect-label="Click to remove"
@@ -138,7 +138,7 @@
     computed: {
       // getting conditions to display in multiselect
       conditionPairs () {
-        let allConditionPairs = this.$store.state.currentDGE.conditionPairs
+        let allConditionPairs = this.$store.state.currentDGE.conditionPairs;
         return allConditionPairs.map(conPair => (
           {
             name: conPair.condition1 + ' vs. ' + conPair.condition2,
@@ -153,7 +153,7 @@
       // },
       tableColumnHeaders () {
         // creating columnHeaders
-        let columnHeaders = ['name']
+        let columnHeaders = ['name'];
         this.selectedConditionPairs.forEach(() => {
           // columnHeaders.push('log2foldChange', 'p value (adjusted)', 'base mean', 'lfcSE', 'p value', 'stat')
           if (this.log2Tick) {
@@ -174,15 +174,15 @@
           if (this.pTick) {
             columnHeaders.push('p value')
           }
-        })
+        });
         return columnHeaders
       },
       tableConditionPairHeader () {
-        let uniqueColumnHeaders = Array.from(new Set(this.tableColumnHeaders))
+        let uniqueColumnHeaders = Array.from(new Set(this.tableColumnHeaders));
         // first row with file names
-        let topColumns = [""]
+        let topColumns = [""];
         for (let {name} of this.selectedConditionPairs) {
-          topColumns.push(name)
+          topColumns.push(name);
           // creating spaces between filenames according to unique! number of values selected in tickboxes
           for (let i = 0; i < uniqueColumnHeaders.length - 2; i++) {
             topColumns.push("")
@@ -191,7 +191,7 @@
         return topColumns
       },
       tablePreview () {
-        let dge = this.$store.state.currentDGE
+        let dge = this.$store.state.currentDGE;
         // returning a big array to iterate in html (v-for). Displaying the first 5 columns of data only
         return [this.tableConditionPairHeader, this.tableColumnHeaders].concat(this.getTableContent(Math.min(dge.length, 5)))
       },
@@ -205,34 +205,34 @@
     },
     methods: {
       getTableContent (numberOfRows) {
-        let dge = this.$store.state.currentDGE
-        numberOfRows = (numberOfRows) ? numberOfRows : dge.length
-        let rowData = []
+        let dge = this.$store.state.currentDGE;
+        numberOfRows = (numberOfRows) ? numberOfRows : dge.length;
+        let rowData = [];
         // iterate data
         for (let geneName of dge.geneNames) {
           // write only numberOfRows lines into table
           if (rowData.length >= numberOfRows) {
             break
           }
-          let row = []
-          let gene = dge.getGene(geneName)
-          row.push(geneName)
+          let row = [];
+          let gene = dge.getGene(geneName);
+          row.push(geneName);
           for (let {conditionPair} of this.selectedConditionPairs) {
-            let deseq2Analysis = gene.getDESEQ2Analysis(conditionPair)
+            let deseq2Analysis = gene.getDESEQ2Analysis(conditionPair);
             // myData ist eine DEseq2 Analyse für ein Gen und ein Condition Pair
-            let baseMean = deseq2Analysis.baseMean
-            let log2FoldChange = deseq2Analysis.log2FoldChange
-            let lfcSE = deseq2Analysis.lfcSE
-            let stat = deseq2Analysis.stat
-            let pValue = deseq2Analysis.pValue
-            let pAdj = deseq2Analysis.pAdj
+            let baseMean = deseq2Analysis.baseMean;
+            let log2FoldChange = deseq2Analysis.log2FoldChange;
+            let lfcSE = deseq2Analysis.lfcSE;
+            let stat = deseq2Analysis.stat;
+            let pValue = deseq2Analysis.pValue;
+            let pAdj = deseq2Analysis.pAdj;
             if (this.roundedValues === true) {
-              baseMean = Math.round(baseMean * 100) / 100
-              log2FoldChange = Math.round(log2FoldChange * 100) / 100
-              lfcSE = Math.round(lfcSE * 100) / 100
-              stat = Math.round(stat * 100) / 100
-              pValue = Math.round(pValue * 100) / 100
-              pAdj = Math.round(pAdj * 100) / 100
+              baseMean = Math.round(baseMean * 100) / 100;
+              log2FoldChange = Math.round(log2FoldChange * 100) / 100;
+              lfcSE = Math.round(lfcSE * 100) / 100;
+              stat = Math.round(stat * 100) / 100;
+              pValue = Math.round(pValue * 100) / 100;
+              pAdj = Math.round(pAdj * 100) / 100;
             }
             // order is important
             // oneEntry.push(mylog2fold, mypAdj, myMean, mylfcSE, mypValue, myStat)
@@ -264,25 +264,25 @@
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
         // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
-        let csvData = this.getTableContent()
-        let csvTops = this.tableConditionPairHeader
-        let csvHeaders = this.tableColumnHeaders
-        csvData.unshift(csvHeaders)
-        csvData.unshift(csvTops)
-        let csvContent = csvData.map(e => e.join(',')).join('\n')
+        let csvData = this.getTableContent();
+        let csvTops = this.tableConditionPairHeader;
+        let csvHeaders = this.tableColumnHeaders;
+        csvData.unshift(csvHeaders);
+        csvData.unshift(csvTops);
+        let csvContent = csvData.map(e => e.join(',')).join('\n');
         // function to download csv taken from:
         // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
         function downloadFile (data, fileName) {
-          let blob = new Blob([data], {type: 'application/csv;charset=utf-8;'})
+          let blob = new Blob([data], {type: 'application/csv;charset=utf-8;'});
           if (window.navigator.msSaveBlob) {
             navigator.msSaveBlob(blob, fileName)
           } else {
-            let link = document.createElement('a')
-            link.href = URL.createObjectURL(blob)
-            link.style = 'invisibility: hidden'
-            link.download = fileName
-            document.body.appendChild(link)
-            link.click()
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.style = 'invisibility: hidden';
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
             document.body.removeChild(link)
           }
         }
