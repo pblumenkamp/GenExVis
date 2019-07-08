@@ -34,17 +34,8 @@ export class DGE {
      */
     this._normalizationMethods = new Set();
 
-    this._gff3Data={};
-
   }
 
-  /**
-   *
-   * @returns {{}|*}
-   */
-  get gff3Data (){
-    return this._gff3Data
-  }
   /**
    * @return {Set<string>}
    */
@@ -273,14 +264,6 @@ export class DGE {
     this._addGene(gene);
     return this
   }
-
-  /**
-   *
-   * @param gffContentDict
-   */
-  addGFF3data (gffContentDict) {
-    this._gff3Data = gffContentDict;
-    }
 
   /**
    *
