@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE} from './action_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, STORE_GFF3_DATA, SET_SUBDGE, STORE_DESEQ2TYPE} from './action_constants'
 import {
   ADD_DATA,
   ADD_DESEQ,
@@ -16,6 +16,7 @@ import {
   ADD_SEQRUN_MAPPING,
   ADD_SUBSET_DGE,
   SWITCH_DGE,
+  ADD_DESEQ2TYPE
 } from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
@@ -35,8 +36,13 @@ const store = new Vuex.Store({
     countlist: [],
     genelist: [],
     strucStorage: null,
+    deseq2Type: null,
+    gff3Data: null
   },
   mutations: {
+    [ADD_DESEQ2TYPE](state, deseq2Type){
+      state.deseq2Type = deseq2Type;
+    },
     [ADD_DATA] (state, dgeData) {
       state.dgeData.mergeDGEs(dgeData)
     },
@@ -80,7 +86,7 @@ const store = new Vuex.Store({
     },
     [ADD_GFF3_DATA] (state, {gffContentDict}) {
       //console.log('ADD_GFF3_DATA');
-      state.dgeData.addGFF3data(gffContentDict)
+      state.gff3Data = gffContentDict;
     },
     [ADD_SEQRUN_MAPPING] (state, {normalization, mapping}) {
       state.dgeData.setSeqRunMapping(normalization, mapping)
@@ -175,6 +181,12 @@ const store = new Vuex.Store({
           // committing to store
           commit(ADD_GFF3_DATA, {gffContentDict});
 
+        resolve()
+      })
+    },
+    [STORE_DESEQ2TYPE]({commit,state}, {deseq2Type}){
+      return new Promise ((resolve, reject) => {
+        commit(ADD_DESEQ2TYPE, {deseq2Type});
         resolve()
       })
     },
