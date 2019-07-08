@@ -45,7 +45,7 @@
       style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
     ></div>
 
-    <div v-if="selectedCondition1 && selectedCondition2">
+    <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
       <hr>
       <b-container fluid border="1">
         <b-row class="my-1">
@@ -115,12 +115,12 @@
   import {ConditionPair} from '../../utilities/dge'
   import {SET_SUBDGE} from '../../store/action_constants'
 
-  let Highcharts = require('highcharts')
-  require('highcharts/modules/exporting')(Highcharts)
-  require('highcharts/modules/offline-exporting')(Highcharts)
+  let Highcharts = require('highcharts');
+  require('highcharts/modules/exporting')(Highcharts);
+  require('highcharts/modules/offline-exporting')(Highcharts);
 
-  const AXIS_COLOR = '#000000'
-  const CHART_ID = 'deseq2volcanoplot_highcharts'
+  const AXIS_COLOR = '#000000';
+  const CHART_ID = 'deseq2volcanoplot_highcharts';
 
   export default {
     name: 'DESeq2VolcanoPlot',
@@ -137,20 +137,20 @@
     },
     computed: {
       dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
+        let conditions1 = new Set();
+        let conditions2 = new Set();
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
             this.$store.state.registeredConditions.indexOf(condition2) === -1) {
             continue
           }
-          conditions1.add(condition1)
-          conditions2.add(condition2)
+          conditions1.add(condition1);
+          conditions2.add(condition2);
         }
         return [conditions1, conditions2]
       },
       conditions2 () {
-        let conditions2 = new Set()
+        let conditions2 = new Set();
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           if (condition1 === this.selectedCondition1) {
             conditions2.add(condition2)
@@ -172,36 +172,36 @@
     },
     methods: {
       clearTable () {
-        this.rowNames = []
-        this.tableData = []
+        this.rowNames = [];
+        this.tableData = [];
       },
       sortGenes () {
-        this.rowNames.sort()
+        this.rowNames.sort();
         this.collectData()
       },
       collectData () {
-        this.tableData = []
-        let storage = this.$store.state.currentDGE
+        this.tableData = [];
+        let storage = this.$store.state.currentDGE;
         for (let geneName of this.rowNames) {
-          let tableRow = {}
-          let deseq2Analysis = storage.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
+          let tableRow = {};
+          let deseq2Analysis = storage.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
           for (let colName of this.tableHeader) {
             tableRow[colName] = deseq2Analysis[colName]
           }
-          tableRow.name = geneName
+          tableRow.name = geneName;
           this.tableData.push(tableRow)
         }
       },
       createSubset () {
-        let geneNames = []
+        let geneNames = [];
         for (let geneName of this.rowNames) {
           geneNames.push(geneName)
         }
-        geneNames.sort()
+        geneNames.sort();
         this.$store.dispatch(SET_SUBDGE, {geneList: geneNames})
       },
       drawData () {
-        let vue = this
+        let vue = this;
         if (!(vue.selectedCondition1 && vue.selectedCondition2)) {
           return
         }
@@ -299,11 +299,11 @@
                       if (event.ctrlKey === true || event.shiftKey === true) {
                         vue.rowNames.push(this.gene)
                       } else {
-                        vue.rowNames = []
+                        vue.rowNames = [];
                         vue.rowNames.push(this.gene)
                       }
                     } else {
-                      vue.tableData = []
+                      vue.tableData = [];
                       vue.rowNames.push(this.gene)
                     }
                     vue.collectData()
@@ -342,7 +342,7 @@
             }
           },
           series: [{
-            name: '|log2 fold change|cd ..' +
+            name: '|log2 fold change|' +
             ' >= 2 AND p-value <= ' + vue.pThreshold.toExponential(2),
             color: '#cc1926',
             zIndex: 2,
@@ -363,42 +363,42 @@
             id: 2,
             data: []
           }]
-        }
+        };
 
-        let series = options.series
+        let series = options.series;
 
-        series[0].data = []
-        series[1].data = []
-        series[2].data = []
-        let dge = vue.$store.state.currentDGE.getAllGenesFromDESeq2(vue.selectedCondition1, vue.selectedCondition2)
-        let logPThreshold = -Math.log10(vue.pThreshold)
+        series[0].data = [];
+        series[1].data = [];
+        series[2].data = [];
+        let dge = vue.$store.state.currentDGE.getAllGenesFromDESeq2(vue.selectedCondition1, vue.selectedCondition2);
+        let logPThreshold = -Math.log10(vue.pThreshold);
         for (let geneName of dge.geneNames) {
-          let gene = dge.getGene(geneName)
-          let analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition1, vue.selectedCondition2))
-          let pValue = (vue.useAdjPValue) ? analysis.pAdj : analysis.pValue
+          let gene = dge.getGene(geneName);
+          let analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition1, vue.selectedCondition2));
+          let pValue = (vue.useAdjPValue) ? analysis.pAdj : analysis.pValue;
           let dataPoint = {
             gene: geneName,
             x: analysis.log2FoldChange,
             y: -Math.log10(pValue),
             yTooltip: pValue.toExponential(2),
             baseMean: analysis.baseMean
-          }
+          };
 
           if (gene.normalizationMethods.length !== 0) {
             let average = list => {
-              let sum = 0
-              let n = 0
+              let sum = 0;
+              let n = 0;
               for (let key in list) {
                 if (list.hasOwnProperty(key)) {
-                  sum += list[key]
+                  sum += list[key];
                   n++
                 }
               }
               return sum / n
-            }
+            };
             for (let normalization of gene.normalizationMethods) {
-              dataPoint[normalization + '_counts1'] = average(gene.getCountData(normalization, vue.selectedCondition1))
-              dataPoint[normalization + '_counts2'] = average(gene.getCountData(normalization, vue.selectedCondition2))
+              dataPoint[normalization + '_counts1'] = average(gene.getCountData(normalization, vue.selectedCondition1));
+              dataPoint[normalization + '_counts2'] = average(gene.getCountData(normalization, vue.selectedCondition2));
             }
           }
 
@@ -414,9 +414,9 @@
         Highcharts.chart(CHART_ID, options)
       },
       clearChart () {
-        this.selectedCondition1 = ''
-        this.selectedCondition2 = ''
-        let node = this.$refs[CHART_ID]
+        this.selectedCondition1 = '';
+        this.selectedCondition2 = '';
+        let node = this.$refs[CHART_ID];
         while (node.firstChild) {
           node.removeChild(node.firstChild)
         }
