@@ -148,6 +148,7 @@
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
   import {faSpinner, faCheckCircle, faQuestionCircle} from '@fortawesome/free-solid-svg-icons'
   import {STORE_GFF3_DATA} from "../../store/action_constants";
+  import {STORE_DESEQ2TYPE} from "../../store/action_constants";
   import Multiselect from 'vue-multiselect'
 
   export default {
@@ -254,16 +255,15 @@
             // dictionary for filtered content
             // initialized and keys set in order to append splitEntries to value later
             let filteredContent ={};
+            let selectedTypes= [];
             // generation of selectedTypes for gff3 read-in
             if(this.deseq2Features.length >0){
-              var selectedTypes = [];
               for (let i=0; i<this.deseq2Features.length; i++){
                 selectedTypes.push(this.deseq2Features[i])
               }
               selectedTypes.push(this.DESeq2Type)
             }
             else if (this.deseq2Features.length === 0){
-              var selectedTypes= [];
               selectedTypes.push(this.DESeq2Type)
             }
             for (let i=0; i<selectedTypes.length; i++){
@@ -314,9 +314,14 @@
               }
             }
             this.content = cleanFilteredDict;
+            //console.log(this.content);
             this.showRemovedFeatures = true;
             resolve(this.content)
           };
+          this.$store.dispatch(STORE_DESEQ2TYPE, {
+            deseq2Type: this.DESeq2Type
+          });
+          //console.log(this.$store.state.deseq2Type);
           reader.readAsText(file);
         })
       },
@@ -333,6 +338,7 @@
           this.importingFiles = false;
           this.importingDone = true
         });
+        // console.log(this.$store.state.gff3Data);
       },
     },
   }
