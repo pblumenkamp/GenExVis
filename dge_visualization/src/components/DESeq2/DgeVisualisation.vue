@@ -1,3 +1,4 @@
+/*eslint-env node*/
 <template>
   <div style="width: 90%; height: 600px; margin-left: 48px; text-align: center">
     <h1>Differential Gene Expression - Visualisations</h1>
@@ -96,9 +97,9 @@
         </b-container>
       </b-card>
       <!-- P-VALUE and LOG2FOLD THRESHOLD INPUTS -->
-      <div v-if="selectedRegulationType && selectedOperonSize" style="margin-top: 10px">
+      <div v-if="selectedRegulationType && selectedOperonSize" style="margin-top: 10px; width: 100%">
         <hr>
-        <b-container fluid border="1">
+        <b-container fluid border="1" style="max-width: 100%">
           <b-row>
             <label style="margin-top: 0.4rem;">p-value threshold:</label>
             <b-col>
@@ -127,12 +128,26 @@
           </b-row>
         </b-container>
       </div>
+      <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" style="margin-top: 10px; width: 100%">
+        <!-- index is the for-loop index used to generate unique keys. It must be passed as variable to a function(index) in order to use the index for the highcharts renderTo -->
+        <div v-for="(item, index) in filteredOperonList" :key="index" style="width:100%">
+          <tr :id="index" style="height: 600px; max-width: 1200px; margin: 0 auto">
+            <!-- <td>Length of List: {{ item.length }} </td> -->
+            <!-- unique ID is the for loop index. since it runs exactly the amount of times = the amount of operons, this should fit :)-->
+          </tr>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
   import Multiselect from 'vue-multiselect'
+  import {ConditionPair} from '../../utilities/dge'
+
+  let Highcharts = require('highcharts');
+  require('highcharts/modules/exporting')(Highcharts);
+  require('highcharts/modules/offline-exporting')(Highcharts);
 
   export default {
     name: 'DgeVisualisation',
@@ -152,17 +167,15 @@
         regulationDirections: ["upregulated", "downregulated", "both"],
         //operon Size SingleSelect
         selectedOperonSize: "",
-        operonSizes:["2","3","4","5","6","7","8","open end"]
+        operonSizes:["2","3","4","5","6","7","8","open end"],
+        // big dictionary of data for the operon BARCHART
+        geneDict: null,
+        geneGapSize: 1000,
+        filteredOperonList: null,
+        rowAmount: 0
       }
     },
     computed: {
-      // deseq2Type from store to correctly get infos from gff3-data
-      deseq2Type (){
-        return this.$store.state.deseq2Type;
-      },
-      gff3data (){
-        return this.$store.state.gff3data;
-      },
       // condition computing for dropdown selection based
       // on conditions available after the user
       // registered their conditions
@@ -193,6 +206,9 @@
         }
         // returning all conditions but the selected on in first dropdown
         return conditions2
+      },
+      dge () {
+        return this.$store.state.currentDGE
       }
     },
     watch: {
@@ -206,20 +222,266 @@
         else if(this.selectedRegulationType === "both"){
           this.inputLog2FoldThreshold = 1.5;
         }
-      }
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
+      },
+      selectedOperonSize (){
+        // if the user does not provide a size distinct size
+        // the size is set so small, that all putative operons pass
+        if (this.selectedOperonSize === "open end"){
+          this.selectedOperonSize = 2;
+        }
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
+      },
+      inputPThreshold (){
+        this.updatePThreshold();
+      },
+      inputLog2FoldThreshold (){
+        this.updateLog2foldThreshold();
+      },
     },
-    methods:{
-      drawData(){
-        return "hello"
+    updated(){
+      this.$nextTick(()=>{
+        this.drawBARCHART();
+      })
+    },
+    methods: {
+      getBARCHARTStoreData() {
+        // initializing geneDict
+        this.geneDict = {};
+        // whole dge data
+        let dge = this.$store.state.currentDGE;
+        // iterating one gene
+        for (let originalGeneName of dge.geneNames) {
+          // originalGeneName would be Saci_0001.gene for example. The .gene must be discarded, since the
+          // gff3-IDs dont have it
+          let geneName = originalGeneName.slice(0, -5);
+          // one gene's deseq2Analysis
+          let deseq2Analysis = dge.getGene(originalGeneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
+          // if pValue matches user criteria
+          if (deseq2Analysis.pValue <= this.inputPThreshold) {
+            // getting data based on regulation type and inputLog2FoldThreshold
+            if (this.selectedRegulationType === "upregulated") {
+              if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
+                this.geneDict[geneName] = {
+                  name: geneName,
+                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                  pValue: (deseq2Analysis.pValue).toPrecision(2)
+                }
+              }
+            } else if (this.selectedRegulationType === "downregulated") {
+              if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
+                this.geneDict[geneName] = {
+                  name: geneName,
+                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                  pValue: (deseq2Analysis.pValue).toPrecision(2)
+                }
+              }
+            } else if (this.selectedRegulationType === "both") {
+              if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
+                this.geneDict[geneName] = {
+                  name: geneName,
+                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                  pValue: (deseq2Analysis.pValue).toPrecision(2)
+                }
+              }
+            }
+          }
+        }
+        // screening gff3 data for matching entries
+        let gff3 = this.$store.state.gff3Data;
+        let deseq2Dummy = this.$store.state.deseq2Type;
+        // deseq2Type is object with string value. Getting string only for
+        // search in geneDict
+        let deseq2Type = Object.values(deseq2Dummy);
+        //all gff3-entries for dese2Type
+        //console.log(gff3[deseq2Type]);
+        // one whole gff3-Entry
+        //console.log(gff3[deseq2Type][(gff3[deseq2Type]).length -1]);
+        // attributes of one gff3-entry
+        //console.log(gff3[deseq2Type][(gff3[deseq2Type]).length -1][(gff3[deseq2Type][(gff3[deseq2Type]).length -1]).length -1]);
+
+        // iterating geneDict via keys
+        for (var key in this.geneDict) {
+          // iterating gff3 based on deseq2Type
+          for (let entry of gff3[deseq2Type]) {
+            // checking, if the geneDict's key can be found in the attributes (one long string)
+            let attributes = entry[entry.length - 1];
+            if (attributes.includes(key)) {
+              // if found, getting start, end and strand of the gene's gff3 entry as array
+              let start = entry[entry.length - 5];
+              let end = entry[entry.length - 4];
+              let strand = entry[entry.length - 3];
+              this.geneDict[key]['start'] = start;
+              this.geneDict[key]['end'] = end;
+              this.geneDict[key]['strand'] = strand;
+              // checking, if a description can be found
+              if (attributes.includes("description")) {
+                // splitting attributes of the gene's gff3 entry only at the semicolon
+                let attributeArray = attributes.split(";");
+                // iterating the attributeArray
+                for (let i = 0; i < attributeArray.length; i++) {
+                  // at the point of the description, spliting the description=whatIwant at the '='
+                  if (attributeArray[i].includes("description")) {
+                    let itemArray = attributeArray[i].split("=");
+                    let description = itemArray[itemArray.length - 1];
+                    this.geneDict[key]['description'] = description;
+                  }
+                }
+              }
+            }
+          }
+        }
+        // geneDict: {gene1: {name: gene1, log2fold: log2fold1, pValue: pValue1, start: start1 etc}}
+        // console.log(this.geneDict);
+      },
+      formatBARCHARTdata(){
+        // sort by start
+        // abandon need to check if element is before a previous one, only
+        // gap now relevant
+        let values = Object.values(this.geneDict).sort(function(a,b){return a.start - b.start});
+        //console.log(values);
+        //console.log(sortedValues);
+        let operonDummy=[];
+        let operonList=[];
+
+        for (let i=0; i<values.length;i++){
+          // very first element (first element of first operon)
+          if(operonDummy.length === 0 && operonList.length === 0){
+            operonDummy.push(values[i]);
+          // if we have started
+          }else{
+              // if next gene starts too far away
+            if((parseInt(values[i]['start']) > parseInt(values[i-1]['end'])+this.geneGapSize)){
+                // push operon to operonList
+                operonList.push(operonDummy);
+                // and start new operon
+                operonDummy=[];
+                operonDummy.push(values[i]);
+              } else{
+                // value is not too far away
+                // add value to existing operon
+                operonDummy.push(values[i]);
+              }
+          }
+        }
+        //console.log(operonList);
+        // discard "operons" of length 1 (not an operon)
+        // and discard operons smaller than selected size
+        this.filteredOperonList=[];
+        for (let i=0; i< operonList.length; i++){
+          if(operonList[i].length < 2){
+            continue;
+          }else if (operonList[i].length >= parseInt(this.selectedOperonSize)) {
+            this.filteredOperonList.push(operonList[i]);
+          }
+        }
+        let counter = 0;
+        for (let i=0; i<this.filteredOperonList.length; i++){
+          while(counter<this.filteredOperonList[i].length){
+            this.filteredOperonList[i][counter]['x']=counter;
+            counter=counter+1;
+          }
+          counter=0;
+        }
+        console.log(this.filteredOperonList);
+      },
+      drawBARCHART(){
+        let dataList = this.filteredOperonList;
+        for (var index in dataList){
+          let plotTitle= "";
+          let header = dataList[index];
+          for(var item in header){
+            plotTitle= plotTitle + header[item]['name']+", ";
+          }
+          plotTitle = plotTitle.slice(0,-2);
+          //console.log(dataList[index]);
+          // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:...},{},{},{}]
+          // index in this loop is the same as in the v-for loop -> maybe move dataFormat in this method or one big method for graphic rendering with everything (getting data, formatting ,drawing)
+
+          let options = {
+            chart: {
+              type: 'column',
+              zoomType: 'xy'
+            },
+            title: {
+              text: plotTitle
+            },
+            subtitle: {
+              text: this.selectedCondition1+ " vs. "+this.selectedCondition2
+            },
+            xAxis: {
+              startOnTick: true,
+              endOnTick: true,
+              showLastLabel: true,
+              labels: {
+                style: {
+                  fontSize: '14px'
+                }
+              }
+            },
+            yAxis: {
+              max: this.commonMaxValue,
+              title: {
+                text: 'log2Fold Change',
+                style: {
+                  fontSize: '16px'
+                }
+              },
+              labels: {
+                style: {
+                  fontSize: '14px'
+                }
+              }
+            },
+            legend: {
+              enabled: false
+            },
+            tooltip: {
+              useHTML: true,
+              headerFormat: "",
+              pointFormat:'{point.name}<br/>' +
+                'log2Fold: {point.y}<br/>' +
+                'pValue: {point.pValue}<br/>' +
+                'location: {point.start} - {point.end}<br/>' +
+                'strand: {point.strand}',
+              followPointer: false
+            },
+            exporting: {
+              buttons: {
+                contextButton: {
+                  menuItems: ['downloadPNG', 'downloadSVG', 'separator']
+                }
+              }
+            },
+            series: [{
+              name: 'GENES',
+              pointWidth: 40,
+              color: 'rgba(223, 83, 83, .5)'
+            }]
+          };
+          // generating data series and setting them in the chart options (still in for loop, this is done for each series in the dataList one after the other
+          let data = dataList[index];
+          console.log(data);
+          options.series[0].data = data;
+
+          // making highcharts render to html with id = index with given options
+          Highcharts.chart(index, options);
+        }
       },
       updatePThreshold () {
-        this.drawData()
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
       },
       updateLog2foldThreshold () {
-        this.drawData()
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
       }
     }
   }
+
+
 
 
 </script>
