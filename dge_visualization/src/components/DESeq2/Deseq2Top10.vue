@@ -161,9 +161,9 @@
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
   import {faPlusCircle} from '@fortawesome/free-solid-svg-icons'
 
-  let Highcharts = require('highcharts')
-  require('highcharts/modules/exporting')(Highcharts)
-  require('highcharts/modules/offline-exporting')(Highcharts)
+  let Highcharts = require('highcharts');
+  require('highcharts/modules/exporting')(Highcharts);
+  require('highcharts/modules/offline-exporting')(Highcharts);
 
   export default {
     name: 'Deseq2MAPlot',
@@ -192,38 +192,38 @@
     },
     methods: {
       mountData () {
-        let mainStorage = {}
-        let condArray = this.$store.state.currentDGE.conditionPairs
+        let mainStorage = {};
+        let condArray = this.$store.state.currentDGE.conditionPairs;
         for (let condPair of condArray) {
-          let cond1 = condPair['condition1']
-          let cond2 = condPair['condition2']
-          let dictName = condPair['_condition1'] + condPair['_condition2']
-          let condDict = this.collectAnalysisData(cond1, cond2)
+          let cond1 = condPair['condition1'];
+          let cond2 = condPair['condition2'];
+          let dictName = condPair['_condition1'] + condPair['_condition2'];
+          let condDict = this.collectAnalysisData(cond1, cond2);
           mainStorage[dictName] = condDict
         }
         this.FINALSTORAGE = mainStorage
       },
       collectAnalysisData (cond1, cond2) {
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2)
-        let distributionDictionary = {'pValue': [true, false], 'pAdj': [true, false], 'log2FoldChange': [false, true]}
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2);
+        let distributionDictionary = {'pValue': [true, false], 'pAdj': [true, false], 'log2FoldChange': [false, true]};
         // distributionDictionary = {'OPTION': ['inversion, invert ranking?', 'reversion, provide reversion?']}
-        let mainStorage = this.collectDataByKey(dge, distributionDictionary, cond1, cond2)
-        return (mainStorage)
+        let mainStorage = this.collectDataByKey(dge, distributionDictionary, cond1, cond2);
+        return (mainStorage);
       },
       collectDataByKey (dge, distributionDictionary, cond1, cond2) {
-        let mainStorage = {}
+        let mainStorage = {};
 
         for (let key in distributionDictionary) {
-          let dataLists = this.collectData(dge, cond1, cond2, key)
-          let valueDict = dataLists[0]
-          let valueList = dataLists[1]
+          let dataLists = this.collectData(dge, cond1, cond2, key);
+          let valueDict = dataLists[0];
+          let valueList = dataLists[1];
 
-          this.checkMaxCount(valueList.length)
+          this.checkMaxCount(valueList.length);
 
-          let inversion = distributionDictionary[key][0]
-          let reversion = distributionDictionary[key][1]
-          let mainList = valueList.sort(function (a, b) { return b - a })
-          let reverseList = valueList.sort(function (a, b) { return b - a })
+          let inversion = distributionDictionary[key][0];
+          let reversion = distributionDictionary[key][1];
+          let mainList = valueList.sort(function (a, b) { return b - a });
+          let reverseList = valueList.sort(function (a, b) { return b - a });
 
           if (inversion === false) {
             reverseList.reverse()
@@ -231,31 +231,31 @@
             mainList.reverse()
           }
           if (reversion === false) {
-            mainStorage[key] = this.createRankingDict(valueDict, mainList)
+            mainStorage[key] = this.createRankingDict(valueDict, mainList);
           } else {
-            mainStorage[key] = this.createRankingDict(valueDict, mainList)
-            mainStorage[key + '_reverse'] = this.createRankingDict(valueDict, reverseList.reverse())
+            mainStorage[key] = this.createRankingDict(valueDict, mainList);
+            mainStorage[key + '_reverse'] = this.createRankingDict(valueDict, reverseList.reverse());
           }
         }
-        return (mainStorage)
+        return (mainStorage);
       },
       collectData (dge, cond1, cond2, key) {
-        let valueDict = {}
-        let valueList = []
+        let valueDict = {};
+        let valueList = [];
         for (let geneName of dge.geneNames) {
-          let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key]
+          let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key];
           if (isNaN(value)) {
             // console.log('Found NaN value in: ' + geneName)
           } else {
-            valueDict = this.insertAnalysisData(valueDict, geneName, value)
+            valueDict = this.insertAnalysisData(valueDict, geneName, value);
             valueList.push(value)
           }
         }
         return ([valueDict, valueList])
       },
       insertAnalysisData (dict, geneName, value) {
-        let optionDict = dict
-        let key = geneName
+        let optionDict = dict;
+        let key = geneName;
         if (optionDict[value] === undefined) {
           optionDict[value] = [key] // if no key for a value: Open new key-list (key always in a list (for multiple entries))
         } else {
@@ -264,7 +264,7 @@
         return (optionDict)
       },
       checkMaxCount (length) {
-        this.maxcount = length
+        this.maxcount = length;
         if (this.selectedAmount > this.maxcount) {
           this.selectedAmount = this.maxcount
         }
@@ -274,63 +274,63 @@
           counter++
         }
         // valueList must be sorted
-        let tempDict = {}
-        let maxcount = this.maxcount
-        let indexcount = 0
-        let previousValue = null
+        let tempDict = {};
+        let maxcount = this.maxcount;
+        let indexcount = 0;
+        let previousValue = null;
 
         for (let counter = 0; counter < maxcount;) {
-          let value = valueList[counter]
+          let value = valueList[counter];
           if (value === previousValue) {
-            indexcount++
+            indexcount++;
           } else {
-            indexcount = 0
+            indexcount = 0;
           }
-          let key = valueDict[value][indexcount]
-          tempDict[key] = value
-          previousValue = value
+          let key = valueDict[value][indexcount];
+          tempDict[key] = value;
+          previousValue = value;
           counter++
         }
         return (tempDict)
       },
 
       statusUpdate () {
-        this.amountNegotiator()
+        this.amountNegotiator();
         if (this.selectedCondition1 !== '' && this.selectedCondition2 !== '' && this.selectedNormalization !== '') {
-          this.updateCheck = true
+          this.updateCheck = true;
           this.createGlobalEntryData()
         } else {
           this.updateCheck = false
         }
       },
       createGlobalEntryData () {
-        this.highestValue = []
-        let data = this.FINALSTORAGE[this.selectedCondition1 + this.selectedCondition2][this.optionsDict[this.selectedDistributionType]]
+        this.highestValue = [];
+        let data = this.FINALSTORAGE[this.selectedCondition1 + this.selectedCondition2][this.optionsDict[this.selectedDistributionType]];
         this.entryData = data
       },
       drawData () {
-        this.updateCheck = false
-        let categories = this.registeredConditions
-        let plotTitle = ''
-        let plotSubtitle = ''
-        let counter = 0
+        this.updateCheck = false;
+        let categories = this.registeredConditions;
+        let plotTitle = '';
+        let plotSubtitle = '';
+        let counter = 0;
         for (let element in this.entryData) {
           // this.entryData = 50 elements. Check if selected amount is probably lower (default is 10)
           if (counter === (this.selectedAmount)) {
-            break
+            break;
           }
 
           if (this.showPlotTitle === true) {
-            let showCounter = counter + 1
-            let currentDistribution = this.nameNegotiator()
-            let currentValue = this.entryData[element]
-            let currentAlteredValue = this.returnAlteredValue(currentValue)
-            plotTitle = element + ', ' + this.selectedCondition1 + ' vs. ' + this.selectedCondition2
+            let showCounter = counter + 1;
+            let currentDistribution = this.nameNegotiator();
+            let currentValue = this.entryData[element];
+            let currentAlteredValue = this.returnAlteredValue(currentValue);
+            plotTitle = element + ', ' + this.selectedCondition1 + ' vs. ' + this.selectedCondition2;
 
             if (this.isExponential === true) {
-              plotSubtitle = currentDistribution + ': ' + currentAlteredValue + ', ' + showCounter + '. rank' + ', ' + this.selectedNormalization
+              plotSubtitle = currentDistribution + ': ' + currentAlteredValue + ', ' + showCounter + '. rank' + ', ' + this.selectedNormalization;
             } else {
-              plotSubtitle = currentDistribution + ': ' + currentValue + ', ' + showCounter + '. rank' + ', ' + this.selectedNormalization
+              plotSubtitle = currentDistribution + ': ' + currentValue + ', ' + showCounter + '. rank' + ', ' + this.selectedNormalization;
             }
           }
 
@@ -405,18 +405,22 @@
               name: 'READS',
               color: 'rgba(223, 83, 83, .5)'
             }]
-          }
-          let dataList = this.createData(element, categories)
+          };
+          // creatingData for element
+          let dataList = this.createData(element, categories);
 
-          this.highestValue.sort(function (a, b) { return b - a })
+          this.highestValue.sort(function (a, b) { return b - a });
 
-          let data = dataList
+          let data = dataList;
           if (data.length === 0) {
             // pass
           } else {
-            options.series[0].data = data
-            counter = counter + 1
-            Highcharts.chart(element, options)
+            // setting data
+            options.series[0].data = data;
+            // counting up
+            counter = counter + 1;
+            // making highcharts render to html "element" with given options
+            Highcharts.chart(element, options);
           }
         }
       },
@@ -431,32 +435,32 @@
       },
       // Return block
       returnKey (index) {
-        let htmlref = this.generateKey(index)
+        let htmlref = this.generateKey(index);
         return (htmlref)
       },
       generateKey (index) {
-        let data = this.entryData
-        let object = Object.keys(data)
-        return (object[index])
+        let data = this.entryData;
+        let object = Object.keys(data);
+        return (object[index]);
       },
       generateValue (index) {
-        let data = this.entryData
-        let object = Object.values(data)
-        return (object[index])
+        let data = this.entryData;
+        let object = Object.values(data);
+        return (object[index]);
       },
       returnAlteredValue (value) {
         if (this.nameNegotiator() === 'log2 fold change') {
-          value = Math.round(value * 100) / 100
-          return (value)
+          value = Math.round(value * 100) / 100;
+          return (value);
         } else {
-          value = value.toExponential(2)
-          return (value)
+          value = value.toExponential(2);
+          return (value);
         }
       },
       // END Return block
       createData (element, categories) {
-        let dataList = []
-        let geneCountData = null
+        let dataList = [];
+        let geneCountData = null;
         if (this.selectedNormalization === 'deseq2') {
           geneCountData = this.$store.state.currentDGE.getAllDeseq2CountDataByGene(element)
         } else {
@@ -464,21 +468,21 @@
         }
 
         for (let entry in geneCountData) {
-          let index = categories.indexOf(entry)
-          let entryList = geneCountData[entry]
+          let index = categories.indexOf(entry);
+          let entryList = geneCountData[entry];
           for (let subentry in entryList) {
-            let pointDict = {}
-            let value = parseInt(entryList[subentry])
-            pointDict['x'] = index
-            pointDict['y'] = value
-            pointDict['cond'] = entry
-            pointDict['file'] = subentry
-            dataList.push(pointDict)
+            let pointDict = {};
+            let value = parseInt(entryList[subentry]);
+            pointDict['x'] = index;
+            pointDict['y'] = value;
+            pointDict['cond'] = entry;
+            pointDict['file'] = subentry;
+            dataList.push(pointDict);
 
-            this.highestValue.push(value)
+            this.highestValue.push(value);
           }
         }
-        return (dataList)
+        return (dataList);
       },
       setCommonMax () {
         if (this.commonMaxValue === '' || this.commonMaxValue === '0') {
@@ -487,14 +491,14 @@
         this.drawData()
       },
       addGene (key) {
-        let geneList = [key]
-        let currentSubDGE = this.$store.state.subDGE.geneNames
+        let geneList = [key];
+        let currentSubDGE = this.$store.state.subDGE.geneNames;
         for (let entry of currentSubDGE) {
           if (entry !== key) {
             geneList.push(entry)
           }
         }
-        geneList.sort()
+        geneList.sort();
         this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       }
     },
@@ -506,28 +510,28 @@
         return this.$store.state.registeredConditions
       },
       dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
+        let conditions1 = new Set();
+        let conditions2 = new Set();
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          conditions1.add(condition1)
-          conditions2.add(condition2)
+          conditions1.add(condition1);
+          conditions2.add(condition2);
         }
         return [conditions1, conditions2]
       },
       conditions2 () {
-        let conditions2 = new Set()
+        let conditions2 = new Set();
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           if (condition1 === this.selectedCondition1) {
-            conditions2.add(condition2)
+            conditions2.add(condition2);
           }
         }
         return conditions2
       },
       pThreshold () {
-        return parseFloat(this.inputPThreshold)
+        return parseFloat(this.inputPThreshold);
       },
       dge () {
-        return this.$store.state.currentDGE
+        return this.$store.state.currentDGE;
       },
       faPlusCircle () {
         return faPlusCircle
@@ -535,20 +539,20 @@
     },
     watch: {
       dge (newDGE, oldDGE) {
-        this.updateCheck = true
-        this.selectedAmount = 10
-        this.selectedAmount = 10
-        this.mountData()
-        this.statusUpdate()
+        this.updateCheck = true;
+        this.selectedAmount = 10;
+        this.selectedAmount = 10;
+        this.mountData();
+        this.statusUpdate();
       }
     },
     beforeMount () {
-      this.mountData()
+      this.mountData();
     },
     updated () {
       if (this.updateCheck === true) {
-        this.amountNegotiator()
-        this.drawData()
+        this.amountNegotiator();
+        this.drawData();
       }
     }
   }
