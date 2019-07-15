@@ -160,6 +160,7 @@
                 </div>
               </b-col>
               <b-col style="width: 50%; max-width: 50%">
+                <!-- OLD HTML TABLE -->
                 <div v-for="(operon, index) in tableList" :key="index" style="height: 600px; margin-top: 10px">
                   <table style="border: 1px solid black; overflow: auto; width: 100%; display: block">
                     <tr v-for="(row, index_j) in operon" :key="index_j" style="border: 1px solid black">
@@ -613,6 +614,7 @@
         console.log("end of drawBARCHART()");
       },
       createOperonTableData(){
+        // -----OLD HTML TABLE----- //
         this.tableList=[];
         for(let i =0; i<this.filteredOperonList.length; i++){
           let oneTable= [];
@@ -626,6 +628,19 @@
           }
           this.tableList.push(oneTable);
         }
+        // -----END OLD TABLE----- //
+        // v-data-table test (failed)
+        //this.operonTableHeaders = [{text:"name", value:"name", fixed: true}, {text:"start", value:"start"}, {text:"end", value:"end"}, {text:"strand", value:"strand"}, {text: "description", value: "description"},
+          //{text: "log2Fold-change", value: "log2fold"}, {text: "pValue", value: "pValue"},{text: "pValue (adjusted)", value: "pAdj"}, {text: "lfcSE", value: "lfcSE"}, {text: "base mean", value: "baseMean"}, {text: "stat", value: "stat"}];
+        //this.operonTableData = [];
+        //for(let i =0; i<this.filteredOperonList.length; i++) {
+          //let oneTableData = this.filteredOperonList[i];
+          //for(let k=0; k<oneTableData.length; k++){
+            //let oneTableRow;
+            //oneTableRow={value: false, name: oneTableData[k]['name'], start: oneTableData[k]['start'], end: oneTableData[k]['end'], strand: oneTableData[k]['strand'], description: oneTableData[k]['description'], log2fold: oneTableData[k]['log2fold'], pValue: oneTableData[k]['pValue'], pAdj: oneTableData[k]['pAdj'], lfcSE: oneTableData[k]['lfcSE'], baseMean: oneTableData[k]['baseMean'], stat: oneTableData[k]['stat']};
+            //this.operonTableData.push(oneTableRow);
+          //}
+        //}
       }
     }
   }
