@@ -156,11 +156,11 @@
                 <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
                 <div v-for="(item, index) in filteredOperonList" :key="index" style="width:100%">
                   <!-- Element for Highchart graphic -->
-                  <div :id="index" style="height: 600px; width: 100%; max-width: 100%; margin: 0 auto"></div>
+                  <div :id="index" style="height: 600px; width: 100%; max-width: 100%; margin-top: 10px; border: 1px solid black"></div>
                 </div>
               </b-col>
               <b-col style="width: 50%; max-width: 50%">
-                <div v-for="(operon, index) in tableList" :key="index" style="height: 600px;">
+                <div v-for="(operon, index) in tableList" :key="index" style="height: 600px; margin-top: 10px">
                   <table style="border: 1px solid black; overflow: auto; width: 100%; display: block">
                     <tr v-for="(row, index_j) in operon" :key="index_j" style="border: 1px solid black">
                       <td v-for="(value, index_k) in row" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ value }}</td>
@@ -171,6 +171,10 @@
             </b-row>
           </b-container>
         </div>
+      </div>
+      <!-- HEATMAP CODE-->
+      <div v-if="showHeatMap">
+        hello
       </div>
     </b-card>
   </div>
