@@ -2,142 +2,163 @@
 <template>
   <div style="width: 90%; height: 600px; margin-left: 48px; text-align: center">
     <h1>Differential Gene Expression - Visualisations</h1>
-    <div>
-      <!-- Dropdown to selecte the first condition -->
-      <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
-        <!-- Display before dropdown is openend -->
-        <template slot="first">
-          <option :value="''" disabled>
-            -- Please select the first condition --
-          </option>
-        </template>
-        <!-- Actual options displayed. dgeConditions[0] is a Set with one member -->
-        <option
-          v-for="cond in Array.from(dgeConditions[0])"
-          :key="cond"
-          :value="cond"
+    <b-card style="height: 60%; border: 1px solid lightslategray; width: 100%">
+      <!-- REGULATION TYPE SINGLE SELECT-->
+      <b-col>
+        <h4>Select graphic to display</h4>
+        <multiselect
+          v-model="selectedGraphic"
+          :options="graphicTypes"
+          :multiple="false"
+          :close-on-select="false"
+          :clear-on-select="false"
+          :preserve-search="true"
+          :show-labels="true"
+          :preselect-first="false"
+          placeholder="Choose regulation"
+          selected-label="Selected"
+          select-label="Click to select"
+          deselect-label="Click to remove"
         >
-          {{ cond }}
-        </option>
-      </b-form-select>
-      <!-- Dropdown for second condition. Disabled, if no first condition was chosen -->
-      <b-form-select
-        v-model="selectedCondition2"
-        style="width: auto"
-        :disabled="selectedCondition1 === ''"
-      >
-        <!-- Display before dropdown is openend -->
-        <template slot="first">
-          <option :value="''" disabled>
-            -- Please select the second condition --
+          <template slot="selection" slot-scope="{ values, search, isOpen }">
+            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+          </template>
+        </multiselect>
+      </b-col>
+      <div v-if="showOperon">
+        <!-- Dropdown to selecte the first condition -->
+        <b-form-select v-model="selectedCondition1" style="width: auto; margin-top: 15px" @change="selectedCondition2 = ''">
+          <!-- Display before dropdown is openend -->
+          <template slot="first">
+            <option :value="''" disabled>
+              -- Please select the first condition --
+            </option>
+          </template>
+          <!-- Actual options displayed. dgeConditions[0] is a Set with one member -->
+          <option
+            v-for="cond in Array.from(dgeConditions[0])"
+            :key="cond"
+            :value="cond"
+          >
+            {{ cond }}
           </option>
-        </template>
-        <!-- Actual options displayed. dgeConditions[1] is a Set with members without the member of dgeConditions[0] -->
-        <!-- Disabled: if condition without dgeConditions[0] does not match remaining ones (double check?) -->
-        <option
-          v-for="cond in Array.from(dgeConditions[1])"
-          :key="cond"
-          :value="cond"
-          :disabled="!conditions2.has(cond)"
+        </b-form-select>
+        <!-- Dropdown for second condition. Disabled, if no first condition was chosen -->
+        <b-form-select
+          v-model="selectedCondition2"
+          style="width: auto; margin-top: 15px"
+          :disabled="selectedCondition1 === ''"
         >
-          {{ cond }}
-        </option>
-      </b-form-select>
-    </div>
-    <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
-      <h4>Chose chart specifications</h4>
-      <b-card style="height: 50%; border: 1px solid lightslategray">
-        <b-container>
-          <b-row>
-            <!-- REGULATION TYPE SINGLE SELECT-->
-            <b-col>
-              <h4>Select log2Fold Change type</h4>
-              <multiselect
-                v-model="selectedRegulationType"
-                :options="regulationDirections"
-                :multiple="false"
-                :close-on-select="false"
-                :clear-on-select="false"
-                :preserve-search="true"
-                :show-labels="true"
-                :preselect-first="false"
-                placeholder="Choose regulation"
-                selected-label="Selected"
-                select-label="Click to select"
-                deselect-label="Click to remove"
-              >
-                <template slot="selection" slot-scope="{ values, search, isOpen }">
-                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                </template>
-              </multiselect>
-            </b-col>
-            <!-- OPERON SIZE SINGLE SELECT -->
-            <b-col>
-              <h4>Select Operon Size</h4>
-              <multiselect
-                v-model="selectedOperonSize"
-                :options="operonSizes"
-                :multiple="false"
-                :close-on-select="false"
-                :clear-on-select="false"
-                :preserve-search="true"
-                :show-labels="true"
-                :preselect-first="false"
-                placeholder="Choose operon size"
-                selected-label="Selected"
-                select-label="Click to select"
-                deselect-label="Click to remove"
-              >
-                <template slot="selection" slot-scope="{ values, search, isOpen }">
-                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                </template>
-              </multiselect>
-            </b-col>
-          </b-row>
-        </b-container>
-      </b-card>
-      <!-- P-VALUE and LOG2FOLD THRESHOLD INPUTS -->
-      <div v-if="selectedRegulationType && selectedOperonSize" style="margin-top: 10px; width: 100%">
-        <hr>
-        <b-container fluid border="1" style="max-width: 100%">
-          <b-row>
-            <label style="margin-top: 0.4rem;">p-value threshold:</label>
-            <b-col>
-              <b-form-input
-                v-model="inputPThreshold"
-                type="number"
-                min="0"
-                max="1"
-                step="0.001"
-                style="width: 10rem;"
-                @change="updatePThreshold"
-              />
-            </b-col>
-            <label style="margin-top: 0.4rem;">log2Fold Change threshold:</label>
-            <b-col>
-              <b-form-input
-                v-model="inputLog2FoldThreshold"
-                type="number"
-                min="0"
-                max="1"
-                step="0.1"
-                style="width: 10rem;"
-                @change="updateLog2foldThreshold"
-              />
-            </b-col>
-          </b-row>
-        </b-container>
-      </div>
-      <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" style="margin-top: 10px; width: 100%">
-        <!-- index is the for-loop index used to generate unique keys. It must be passed as variable to a function(index) in order to use the index for the highcharts renderTo -->
-        <div v-for="(item, index) in filteredOperonList" :key="index" style="width:100%">
-          <tr :id="index" style="height: 600px; max-width: 1200px; margin: 0 auto">
-            <!-- <td>Length of List: {{ item.length }} </td> -->
-            <!-- unique ID is the for loop index. since it runs exactly the amount of times = the amount of operons, this should fit :)-->
-          </tr>
+          <!-- Display before dropdown is openend -->
+          <template slot="first">
+            <option :value="''" disabled>
+              -- Please select the second condition --
+            </option>
+          </template>
+          <!-- Actual options displayed. dgeConditions[1] is a Set with members without the member of dgeConditions[0] -->
+          <!-- Disabled: if condition without dgeConditions[0] does not match remaining ones (double check?) -->
+          <option
+            v-for="cond in Array.from(dgeConditions[1])"
+            :key="cond"
+            :value="cond"
+            :disabled="!conditions2.has(cond)"
+          >
+            {{ cond }}
+          </option>
+        </b-form-select>
+        <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
+          <h4>Chose chart specifications</h4>
+          <b-container>
+            <b-row>
+              <!-- REGULATION TYPE SINGLE SELECT-->
+              <b-col>
+                <h4>Select log2Fold Change type</h4>
+                <multiselect
+                  v-model="selectedRegulationType"
+                  :options="regulationDirections"
+                  :multiple="false"
+                  :close-on-select="false"
+                  :clear-on-select="false"
+                  :preserve-search="true"
+                  :show-labels="true"
+                  :preselect-first="false"
+                  placeholder="Choose regulation"
+                  selected-label="Selected"
+                  select-label="Click to select"
+                  deselect-label="Click to remove"
+                >
+                  <template slot="selection" slot-scope="{ values, search, isOpen }">
+                    <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                  </template>
+                </multiselect>
+              </b-col>
+              <!-- OPERON SIZE SINGLE SELECT -->
+              <b-col>
+                <h4>Select Operon Size</h4>
+                <multiselect
+                  v-model="selectedOperonSize"
+                  :options="operonSizes"
+                  :multiple="false"
+                  :close-on-select="false"
+                  :clear-on-select="false"
+                  :preserve-search="true"
+                  :show-labels="true"
+                  :preselect-first="false"
+                  placeholder="Choose operon size"
+                  selected-label="Selected"
+                  select-label="Click to select"
+                  deselect-label="Click to remove"
+                >
+                  <template slot="selection" slot-scope="{ values, search, isOpen }">
+                    <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                  </template>
+                </multiselect>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <!-- P-VALUE and LOG2FOLD THRESHOLD INPUTS -->
+        <div v-if="selectedRegulationType && selectedOperonSize" style="margin-top: 20px; margin-bottom: 20px; width: 100%">
+          <hr>
+          <b-container style="max-width: 100%;">
+            <b-row>
+              <label style="margin-top: 0.4rem;">p-value threshold:</label>
+              <b-col style="width: 33%">
+                <b-form-input
+                  v-model="inputPThreshold"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.001"
+                  style="width: 10rem; margin-right: 0px"
+                />
+              </b-col>
+              <label style="margin-top: 0.4rem;">log2Fold Change threshold:</label>
+              <b-col style="width: 33%">
+                <b-form-input
+                  v-model="inputLog2FoldThreshold"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  style="width: 10rem; margin-right: 0px"
+                />
+              </b-col>
+              <b-col style="width: 33%; margin-top: 0.4rem;">Total Operons found: {{ operonCount }}</b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" style="margin-top: 90px; width: 100%">
+          <!-- index is the for-loop index used to generate unique keys. It must be passed as variable to a function(index) in order to use the index for the highcharts renderTo -->
+          <div v-for="(item, index) in filteredOperonList" :key="index" style="width:100%">
+            <tr :id="index" style="height: 600px; max-width: 1200px; margin: 0 auto">
+              <!-- <td>Length of List: {{ item.length }} </td> -->
+              <!-- unique ID is the for loop index. since it runs exactly the amount of times = the amount of operons, this should fit :)-->
+            </tr>
+          </div>
         </div>
       </div>
-    </div>
+    </b-card>
   </div>
 </template>
 
@@ -157,6 +178,13 @@
     data () {
       return {
         // condition selections
+        selectedGraphic: '',
+        graphicTypes:['Operon', 'log2Fold-change heatmap', 'Venn Chart', '3D Scatter plot'],
+        showOperon: false,
+        show3DScatter: false,
+        showVennChart: false,
+        showHeatMap: false,
+        // condition selections
         selectedCondition1: '',
         selectedCondition2: '',
         // selected threshold defaults
@@ -172,7 +200,8 @@
         geneDict: null,
         geneGapSize: 1000,
         filteredOperonList: null,
-        rowAmount: 0
+        rowAmount: 0,
+        operonCount: 0,
       }
     },
     computed: {
@@ -212,6 +241,42 @@
       }
     },
     watch: {
+      selectedGraphic(){
+        if (this.selectedGraphic === 'Operon'){
+          this.showHeatMap = false;
+          this.showOperon = true;
+          this.showVennChart = false;
+          this.show3DScatter = false
+        }
+        else if(this.selectedGraphic === 'log2Fold-change heatmap'){
+          this.showHeatMap = true;
+          this.showOperon = false;
+          this.showVennChart = false;
+          this.show3DScatter = false
+        }
+        else if(this.selectedGraphic === 'Venn Chart'){
+          this.showHeatMap = false;
+          this.showOperon = false;
+          this.showVennChart = true;
+          this.show3DScatter = false
+        }
+        else if(this.selectedGraphic === '3D Scatter plot'){
+          this.showHeatMap = false;
+          this.showOperon = false;
+          this.showVennChart = false;
+          this.show3DScatter = true
+        }
+      },
+      selectedCondition1(){
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
+        this.operonCount= this.filteredOperonList.length;
+      },
+      selectedCondition2(){
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
+        this.operonCount= this.filteredOperonList.length;
+      },
       selectedRegulationType () {
         if(this.selectedRegulationType === "upregulated"){
           this.inputLog2FoldThreshold = 1.5;
@@ -224,6 +289,7 @@
         }
         this.getBARCHARTStoreData();
         this.formatBARCHARTdata();
+        this.operonCount= this.filteredOperonList.length;
       },
       selectedOperonSize (){
         // if the user does not provide a size distinct size
@@ -233,13 +299,18 @@
         }
         this.getBARCHARTStoreData();
         this.formatBARCHARTdata();
+        this.operonCount= this.filteredOperonList.length;
       },
       inputPThreshold (){
-        this.updatePThreshold();
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
+        this.operonCount= this.filteredOperonList.length;
       },
       inputLog2FoldThreshold (){
-        this.updateLog2foldThreshold();
-      },
+        this.getBARCHARTStoreData();
+        this.formatBARCHARTdata();
+        this.operonCount= this.filteredOperonList.length;
+      }
     },
     updated(){
       this.$nextTick(()=>{
@@ -391,19 +462,21 @@
         let dataList = this.filteredOperonList;
         for (var index in dataList){
           let plotTitle= "";
-          let header = dataList[index];
-          for(var item in header){
-            plotTitle= plotTitle + header[item]['name']+", ";
-          }
-          plotTitle = plotTitle.slice(0,-2);
-          //console.log(dataList[index]);
           // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:...},{},{},{}]
-          // index in this loop is the same as in the v-for loop -> maybe move dataFormat in this method or one big method for graphic rendering with everything (getting data, formatting ,drawing)
-
+          for(let item in dataList[index]){
+            if(parseInt(item) === 0){
+              plotTitle=plotTitle+dataList[index][item]['name']+" - ";
+            }
+            else if(parseInt(item) === (dataList[index].length-1)){
+              plotTitle=plotTitle+dataList[index][item]['name']
+            }
+          }
+          // chart Options
           let options = {
             chart: {
               type: 'column',
-              zoomType: 'xy'
+              zoomType: 'xy',
+              height: '500px'
             },
             title: {
               text: plotTitle
@@ -461,23 +534,13 @@
               color: 'rgba(223, 83, 83, .5)'
             }]
           };
-          // generating data series and setting them in the chart options (still in for loop, this is done for each series in the dataList one after the other
-          let data = dataList[index];
-          console.log(data);
-          options.series[0].data = data;
+          //setting data in the chart options (still in for loop, this is done for each series in the dataList one after the other)
+          options.series[0].data = dataList[index];
 
           // making highcharts render to html with id = index with given options
           Highcharts.chart(index, options);
         }
       },
-      updatePThreshold () {
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-      },
-      updateLog2foldThreshold () {
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-      }
     }
   }
 
