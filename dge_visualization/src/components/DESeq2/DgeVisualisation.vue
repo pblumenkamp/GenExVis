@@ -25,6 +25,7 @@
           </template>
         </multiselect>
       </b-col>
+      <!-- OPERON BARCHART CODE -->
       <div v-if="showOperon">
         <!-- Dropdown to selecte the first condition -->
         <b-form-select v-model="selectedCondition1" style="width: auto; margin-top: 15px" @change="selectedCondition2 = ''">
@@ -149,13 +150,26 @@
           </b-container>
         </div>
         <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" style="margin-top: 90px; width: 100%">
-          <!-- index is the for-loop index used to generate unique keys. It must be passed as variable to a function(index) in order to use the index for the highcharts renderTo -->
-          <div v-for="(item, index) in filteredOperonList" :key="index" style="width:100%">
-            <tr :id="index" style="height: 600px; max-width: 1200px; margin: 0 auto">
-              <!-- <td>Length of List: {{ item.length }} </td> -->
-              <!-- unique ID is the for loop index. since it runs exactly the amount of times = the amount of operons, this should fit :)-->
-            </tr>
-          </div>
+          <b-container style="width: 100%; max-width: 100%; border: 0px solid black">
+            <b-row style="width: 100%; border: 0px solid black">
+              <b-col style="width: 50%; max-width: 50%;border: 0px solid black">
+                <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
+                <div v-for="(item, index) in filteredOperonList" :key="index" style="width:100%">
+                  <!-- Element for Highchart graphic -->
+                  <div :id="index" style="height: 600px; width: 100%; max-width: 100%; margin: 0 auto"></div>
+                </div>
+              </b-col>
+              <b-col style="width: 50%; max-width: 50%">
+                <div v-for="(operon, index) in tableList" :key="index" style="height: 600px;">
+                  <table style="border: 1px solid black; overflow: auto; width: 100%; display: block">
+                    <tr v-for="(row, index_j) in operon" :key="index_j" style="border: 1px solid black">
+                      <td v-for="(value, index_k) in row" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ value }}</td>
+                    </tr>
+                  </table>
+                </div>
+              </b-col>
+            </b-row>
+          </b-container>
         </div>
       </div>
     </b-card>
@@ -185,8 +199,8 @@
         showVennChart: false,
         showHeatMap: false,
         // condition selections
-        selectedCondition1: '',
-        selectedCondition2: '',
+        selectedCondition1: null,
+        selectedCondition2: null,
         // selected threshold defaults
         inputPThreshold: 0.001,
         inputLog2FoldThreshold: 0.0,
@@ -200,7 +214,7 @@
         geneDict: null,
         geneGapSize: 1000,
         filteredOperonList: null,
-        rowAmount: 0,
+        tableList: null,
         operonCount: 0,
       }
     },
@@ -268,14 +282,20 @@
         }
       },
       selectedCondition1(){
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-        this.operonCount= this.filteredOperonList.length;
+        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.createOperonTableData();
+          this.operonCount= this.filteredOperonList.length;
+        }
       },
       selectedCondition2(){
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-        this.operonCount= this.filteredOperonList.length;
+        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.createOperonTableData();
+          this.operonCount= this.filteredOperonList.length;
+        }
       },
       selectedRegulationType () {
         if(this.selectedRegulationType === "upregulated"){
@@ -287,9 +307,11 @@
         else if(this.selectedRegulationType === "both"){
           this.inputLog2FoldThreshold = 1.5;
         }
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-        this.operonCount= this.filteredOperonList.length;
+        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.operonCount= this.filteredOperonList.length;
+        }
       },
       selectedOperonSize (){
         // if the user does not provide a size distinct size
@@ -297,25 +319,32 @@
         if (this.selectedOperonSize === "open end"){
           this.selectedOperonSize = 2;
         }
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-        this.operonCount= this.filteredOperonList.length;
+        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.createOperonTableData();
+          this.operonCount= this.filteredOperonList.length;
+        }
       },
       inputPThreshold (){
         this.getBARCHARTStoreData();
         this.formatBARCHARTdata();
+        this.createOperonTableData();
         this.operonCount= this.filteredOperonList.length;
       },
       inputLog2FoldThreshold (){
         this.getBARCHARTStoreData();
         this.formatBARCHARTdata();
+        this.createOperonTableData();
         this.operonCount= this.filteredOperonList.length;
       }
     },
     updated(){
-      this.$nextTick(()=>{
-        this.drawBARCHART();
-      })
+      if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+        this.$nextTick(()=>{
+          this.drawBARCHART();
+        })
+      }
     },
     methods: {
       getBARCHARTStoreData() {
@@ -338,7 +367,13 @@
                 this.geneDict[geneName] = {
                   name: geneName,
                   y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pValue: (deseq2Analysis.pValue).toPrecision(2)
+                  pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
+                  log2fold: (deseq2Analysis.log2FoldChange),
+                  pValue: (deseq2Analysis.pValue),
+                  pAdj: (deseq2Analysis.pAdj),
+                  baseMean:(deseq2Analysis.baseMean),
+                  lfcSE: (deseq2Analysis.lfcSE),
+                  stat: (deseq2Analysis.stat)
                 }
               }
             } else if (this.selectedRegulationType === "downregulated") {
@@ -346,7 +381,13 @@
                 this.geneDict[geneName] = {
                   name: geneName,
                   y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pValue: (deseq2Analysis.pValue).toPrecision(2)
+                  pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
+                  log2fold: (deseq2Analysis.log2FoldChange),
+                  pValue: (deseq2Analysis.pValue),
+                  pAdj: (deseq2Analysis.pAdj),
+                  baseMean:(deseq2Analysis.baseMean),
+                  lfcSE: (deseq2Analysis.lfcSE),
+                  stat: (deseq2Analysis.stat)
                 }
               }
             } else if (this.selectedRegulationType === "both") {
@@ -354,7 +395,13 @@
                 this.geneDict[geneName] = {
                   name: geneName,
                   y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pValue: (deseq2Analysis.pValue).toPrecision(2)
+                  pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
+                  log2fold: (deseq2Analysis.log2FoldChange),
+                  pValue: (deseq2Analysis.pValue),
+                  pAdj: (deseq2Analysis.pAdj),
+                  baseMean:(deseq2Analysis.baseMean),
+                  lfcSE: (deseq2Analysis.lfcSE),
+                  stat: (deseq2Analysis.stat)
                 }
               }
             }
@@ -456,13 +503,30 @@
           }
           counter=0;
         }
-        console.log(this.filteredOperonList);
+        //console.log(this.filteredOperonList);
       },
       drawBARCHART(){
+        //this.tableList = [];
         let dataList = this.filteredOperonList;
         for (var index in dataList){
+          /////////////////////////////////
+          // ---CREATING TABLE DATA--- //
+          ////////////////////////////////
+          //let oneTable= [];
+          //let tableHeaders=['name', 'start', 'end', 'strand', 'log2FoldChange', 'pValue', 'pAdjusted', 'lfcSE', 'base mean', 'stat'];
+          //oneTable.push(tableHeaders);
+          //let oneTableData = this.filteredOperonList[index];
+          //for(let k=0; k<oneTableData.length; k++){
+            //let oneTableRow;
+            //oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
+            //oneTable.push(oneTableRow);
+          //}
+          //this.tableList.push(oneTable);
+          /////////////////////////////////
+          ////////////////////////////////
+
           let plotTitle= "";
-          // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:...},{},{},{}]
+          // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:..., etc},{},{},{}]
           for(let item in dataList[index]){
             if(parseInt(item) === 0){
               plotTitle=plotTitle+dataList[index][item]['name']+" - ";
@@ -516,9 +580,10 @@
               headerFormat: "",
               pointFormat:'{point.name}<br/>' +
                 'log2Fold: {point.y}<br/>' +
-                'pValue: {point.pValue}<br/>' +
+                'pValue: {point.pValueRounded}<br/>' +
                 'location: {point.start} - {point.end}<br/>' +
-                'strand: {point.strand}',
+                'strand: {point.strand}<br/>' +
+                'description: {point.description}',
               followPointer: false
             },
             exporting: {
@@ -540,7 +605,24 @@
           // making highcharts render to html with id = index with given options
           Highcharts.chart(index, options);
         }
+        //console.log(this.tableList);
+        console.log("end of drawBARCHART()");
       },
+      createOperonTableData(){
+        this.tableList=[];
+        for(let i =0; i<this.filteredOperonList.length; i++){
+          let oneTable= [];
+          let tableHeaders=['name', 'start', 'end', 'strand', 'description', 'log2FoldChange', 'pValue', 'pAdjusted', 'lfcSE', 'base mean', 'stat'];
+          oneTable.push(tableHeaders);
+          let oneTableData = this.filteredOperonList[i];
+          for(let k=0; k<oneTableData.length; k++){
+            let oneTableRow;
+            oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['description'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
+            oneTable.push(oneTableRow);
+          }
+          this.tableList.push(oneTable);
+        }
+      }
     }
   }
 
