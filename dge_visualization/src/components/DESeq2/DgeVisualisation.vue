@@ -1,6 +1,6 @@
 /*eslint-env node*/
 <template>
-  <div style="width: 90%; height: 600px; margin-left: 48px; text-align: center">
+  <div style="width: 95%; height: 600px; margin-left: 48px; text-align: center">
     <h1>Differential Gene Expression - Visualisations</h1>
     <b-card style="height: 60%; border: 1px solid lightslategray; width: 100%">
       <!-- REGULATION TYPE SINGLE SELECT-->
@@ -160,12 +160,64 @@
                 </div>
               </b-col>
               <b-col style="width: 50%; max-width: 50%">
-                <!-- OLD HTML TABLE -->
+                <!-- OLD HTML TABLE
                 <div v-for="(operon, index) in tableList" :key="index" style="height: 600px; margin-top: 10px">
                   <table style="border: 1px solid black; overflow: auto; width: 100%; display: block">
-                    <tr v-for="(row, index_j) in operon" :key="index_j" style="border: 1px solid black">
-                      <td v-for="(value, index_k) in row" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ value }}</td>
+                    <tr v-for="(gene, index_j) in operon" :key="index_j" style="border: 1px solid black">
+                      <td v-for="(value, index_k) in gene" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ value }}</td>
                     </tr>
+                  </table>
+                </div> -->
+                <div
+                  class="wrapper"
+                  v-for="(operon, index) in tableList"
+                  :key="index"
+                  style="height: 600px; margin-top: 10px; margin-left: 5em">
+                  <table style="border-collapse: separate; width: 100%; display: block; overflow-x: scroll; overflow-y: visible;">
+                    <tr v-for="(gene, index_j) in operon" :key="index_j">
+                      <th class="fixedFirstColumn" style="border: 1px solid black; width: 95px">{{ gene.name }}</th>
+                      <td>{{ gene.start }}</td>
+                      <td>{{ gene.end }}</td>
+                      <td>{{ gene.strand }}</td>
+                      <td>{{ gene.description }}</td>
+                      <td>{{ gene.log2fold }}</td>
+                      <td>{{ gene.pValue }}</td>
+                      <td>{{ gene.pAdj }}</td>
+                      <td>{{ gene.lfcSE }}</td>
+                      <td>{{ gene.baseMean}}</td>
+                      <td>{{ gene.stat }}</td>
+                    </tr>
+                    <!-- ['name', 'start', 'end', 'strand', 'description', 'log2FoldChange', 'pValue', 'pAdjusted', 'lfcSE', 'base mean', 'stat']
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Strand</th>
+                        <th>Description</th>
+                        <th>log2Fold-Change</th>
+                        <th>pValue</th>
+                        <th>pValue (adjusted)</th>
+                        <th>lfcSE</th>
+                        <th>Base mean</th>
+                        <th>Stat</th>
+                      </tr>
+                    </thead>
+                    <tbody style="height: 600px">
+                      <tr v-for="(gene, index_j) in operon" :key="index_j" style="border: 1px solid black">
+                        <td style="border: 1px solid black;">{{ gene.name }}</td>
+                        <td style="border: 1px solid black">{{ gene.start }}</td>
+                        <td style="border: 1px solid black">{{ gene.end }}</td>
+                        <td style="border: 1px solid black">{{ gene.strand }}</td>
+                        <td style="border: 1px solid black">{{ gene.description }}</td>
+                        <td style="border: 1px solid black">{{ gene.log2fold }}</td>
+                        <td style="border: 1px solid black">{{ gene.pValue }}</td>
+                        <td style="border: 1px solid black">{{ gene.pAdj }}</td>
+                        <td style="border: 1px solid black">{{ gene.lfcSE }}</td>
+                        <td style="border: 1px solid black">{{ gene.baseMean}}</td>
+                        <td style="border: 1px solid black">{{ gene.stat }}</td>
+                      </tr>
+                    </tbody>-->
                   </table>
                 </div>
               </b-col>
@@ -614,33 +666,22 @@
         console.log("end of drawBARCHART()");
       },
       createOperonTableData(){
-        // -----OLD HTML TABLE----- //
+        // -----OLD HTML TABLE COMMENTED OUT----- //
         this.tableList=[];
         for(let i =0; i<this.filteredOperonList.length; i++){
           let oneTable= [];
-          let tableHeaders=['name', 'start', 'end', 'strand', 'description', 'log2FoldChange', 'pValue', 'pAdjusted', 'lfcSE', 'base mean', 'stat'];
+          let tableHeaders={name: 'Name', start: 'Start', end: 'End', strand: 'Strand', description: 'description', log2fold: 'log2Fold-Change', pValue: 'pValue', pAdj: 'pValue (adjusted)', lfcSE: 'lfcSE', baseMean: 'Base mean', stat: 'Stat'};
           oneTable.push(tableHeaders);
           let oneTableData = this.filteredOperonList[i];
           for(let k=0; k<oneTableData.length; k++){
             let oneTableRow;
-            oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['description'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
+            //oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['description'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
+            oneTableRow={value: false, name: oneTableData[k]['name'], start: oneTableData[k]['start'], end: oneTableData[k]['end'], strand: oneTableData[k]['strand'], description: oneTableData[k]['description'], log2fold: oneTableData[k]['log2fold'], pValue: oneTableData[k]['pValue'], pAdj: oneTableData[k]['pAdj'], lfcSE: oneTableData[k]['lfcSE'], baseMean: oneTableData[k]['baseMean'], stat: oneTableData[k]['stat']};
             oneTable.push(oneTableRow);
           }
           this.tableList.push(oneTable);
         }
-        // -----END OLD TABLE----- //
-        // v-data-table test (failed)
-        //this.operonTableHeaders = [{text:"name", value:"name", fixed: true}, {text:"start", value:"start"}, {text:"end", value:"end"}, {text:"strand", value:"strand"}, {text: "description", value: "description"},
-          //{text: "log2Fold-change", value: "log2fold"}, {text: "pValue", value: "pValue"},{text: "pValue (adjusted)", value: "pAdj"}, {text: "lfcSE", value: "lfcSE"}, {text: "base mean", value: "baseMean"}, {text: "stat", value: "stat"}];
-        //this.operonTableData = [];
-        //for(let i =0; i<this.filteredOperonList.length; i++) {
-          //let oneTableData = this.filteredOperonList[i];
-          //for(let k=0; k<oneTableData.length; k++){
-            //let oneTableRow;
-            //oneTableRow={value: false, name: oneTableData[k]['name'], start: oneTableData[k]['start'], end: oneTableData[k]['end'], strand: oneTableData[k]['strand'], description: oneTableData[k]['description'], log2fold: oneTableData[k]['log2fold'], pValue: oneTableData[k]['pValue'], pAdj: oneTableData[k]['pAdj'], lfcSE: oneTableData[k]['lfcSE'], baseMean: oneTableData[k]['baseMean'], stat: oneTableData[k]['stat']};
-            //this.operonTableData.push(oneTableRow);
-          //}
-        //}
+        //console.log(this.tableList);
       }
     }
   }
@@ -651,5 +692,53 @@
 </script>
 
 <style scoped>
+  .fixedFirstColumn{
+    position:absolute;
+    width:5em;
+    left:0;
+    top:auto;
+    border-right: 0px none black;
+    border-top-width:1px; /*only relevant for first row*/
+    margin-top:-1.5px; /*compensate for top border*/
+  }
+  th, td {
+    margin:0;
+    border:0px solid black; /* useful to seperate columns if wanted*/
+    border-top-width:0px;
+    white-space:nowrap;
+    background-color: white;
+  }
+  /* collapse all borders */
+  .wrapper table{
+    width:100%;
+    border-collapse:collapse;
+    border-top: none;
+    background-color: black;
+    border-spacing: 1px;
+    border-left: none;
+  }
 
+  /* activate all borders */
+  .wrapper table td {
+    border-bottom: none;
+    border-left: none;
+    border-top: none;
+  }
+
+  /* turn off unnecessary borders: */
+  .wrapper table tr:first-child td{
+    border-top:none;
+  }
+
+  .wrapper table tr:last-child td{
+    border-bottom:none;
+  }
+
+  .wrapper table tr td:last-child{
+    border-right:none;
+  }
+
+  .wrapper table tr td:first-child{
+    border-left:none;
+  }
 </style>
