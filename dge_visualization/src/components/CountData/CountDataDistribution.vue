@@ -231,7 +231,7 @@
           },
           xAxis: {
             title: {
-              text: this.selectedDistributionType,
+              text: "Gene count",
               style: {
                 color: AXIS_COLOR
               }
