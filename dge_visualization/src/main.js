@@ -21,7 +21,7 @@ Vue.use(BootstrapVue)
 Vue.use(Vuex)
 Vue.use(VTooltip)
 
-Vue.prototype.$name = 'DGE visualizer'
+Vue.prototype.$name = 'GenExVis'
 Vue.prototype.$version = '0.2.0'
 
 /* eslint-disable no-new */
