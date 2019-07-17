@@ -342,15 +342,16 @@
             }
           },
           series: [{
-            name: '|log2 fold change|cd ..' +
-            ' >= 2 AND p-value <= ' + vue.pThreshold.toExponential(2),
+            //name: '|log2 fold change >= 2 AND p-value <= ' + vue.pThreshold.toExponential(2),
+            name: 'Statistically significant AND high expression',
             color: '#cc1926',
             zIndex: 2,
             id: 0,
             data: []
           },
           {
-            name: '|log2 fold change| >= 2 OR p-value <= ' + vue.pThreshold.toExponential(2),
+            //name: '|log2 fold change| >= 2 OR p-value <= ' + vue.pThreshold.toExponential(2),
+            name: 'Statistically significant OR high expression',
             color: '#ccc223',
             zIndex: 1,
             id: 1,
