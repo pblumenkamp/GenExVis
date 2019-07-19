@@ -1,6 +1,6 @@
 /*eslint-env node*/
 <template>
-  <div style="width: 95%; height: 600px; margin-left: 48px; text-align: center">
+  <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center">
     <h1>Differential Gene Expression - Visualisations</h1>
     <b-card style="height: 60%; border: 1px solid lightslategray; width: 100%">
       <!-- REGULATION TYPE SINGLE SELECT-->
@@ -10,12 +10,12 @@
           v-model="selectedGraphic"
           :options="graphicTypes"
           :multiple="false"
-          :close-on-select="false"
+          :close-on-select="true"
           :clear-on-select="false"
           :preserve-search="true"
           :show-labels="true"
           :preselect-first="false"
-          placeholder="Choose regulation"
+          placeholder="Choose graphic"
           selected-label="Selected"
           select-label="Click to select"
           deselect-label="Click to remove"
@@ -124,7 +124,7 @@
           <b-container style="max-width: 100%;">
             <b-row>
               <label style="margin-top: 0.4rem;">p-value threshold:</label>
-              <b-col style="width: 33%">
+              <b-col style="width: 25%">
                 <b-form-input
                   v-model="inputPThreshold"
                   type="number"
@@ -135,17 +135,18 @@
                 />
               </b-col>
               <label style="margin-top: 0.4rem;">log2Fold Change threshold:</label>
-              <b-col style="width: 33%">
+              <b-col style="width: 25%">
                 <b-form-input
                   v-model="inputLog2FoldThreshold"
                   type="number"
-                  min="0"
-                  max="1"
+                  min="-4"
+                  max="4"
                   step="0.1"
                   style="width: 10rem; margin-right: 0px"
                 />
               </b-col>
-              <b-col style="width: 33%; margin-top: 0.4rem;">Total Operons found: {{ operonCount }}</b-col>
+              <b-col style="width: 25%;">Biggest putative operon: {{biggestOperon}}</b-col>
+              <b-col style="width: 25%;">Putative operons (total): {{ operonCount }}</b-col>
             </b-row>
           </b-container>
         </div>
@@ -187,6 +188,7 @@
                       <td>{{ gene.baseMean}}</td>
                       <td>{{ gene.stat }}</td>
                     </tr>
+                    <!-- OLD other HTML TABLE -->
                     <!-- ['name', 'start', 'end', 'strand', 'description', 'log2FoldChange', 'pValue', 'pAdjusted', 'lfcSE', 'base mean', 'stat']
                     <thead>
                       <tr>
@@ -225,9 +227,36 @@
           </b-container>
         </div>
       </div>
-      <!-- HEATMAP CODE-->
-      <div v-if="showHeatMap">
-        hello
+      <!-- VENN CHART CODE-->
+      <div v-if="showUniqueGenes">
+        <b-container style="max-width: 100%;">
+          <b-row style="margin-top: 10px;">The following tables show the uniquely regulated genes for a condition compared to all other conditions.</b-row>
+          <hr>
+          <b-row>
+            <label style="margin-top: 10px;">p-value threshold:</label>
+            <b-col style="width: 25%">
+              <b-form-input
+                v-model="inputPThresholdVENN"
+                type="number"
+                min="0"
+                max="1"
+                step="0.001"
+                style="width: 10rem; margin-right: 0px;"
+              />
+            </b-col>
+            <label style="margin-top: 10px;">log2Fold Change threshold:</label>
+            <b-col style="width: 25%">
+              <b-form-input
+                v-model="inputLog2FoldThresholdVENN"
+                type="number"
+                min="-4"
+                max="4"
+                step="0.1"
+                style="width: 10rem; margin-right: 0px;"
+              />
+            </b-col>
+          </b-row>
+        </b-container>
       </div>
     </b-card>
   </div>
@@ -250,10 +279,10 @@
       return {
         // condition selections
         selectedGraphic: '',
-        graphicTypes:['Operon', 'log2Fold-change heatmap', 'Venn Chart', '3D Scatter plot'],
+        graphicTypes:['Operon', 'log2Fold-change heatmap', 'Uniquely regulated genes', '3D Scatter plot'],
         showOperon: false,
         show3DScatter: false,
-        showVennChart: false,
+        showUniqueGenes: false,
         showHeatMap: false,
         // condition selections
         selectedCondition1: null,
@@ -273,6 +302,10 @@
         filteredOperonList: null,
         tableList: null,
         operonCount: 0,
+        biggestOperon: 0,
+        inputLog2FoldThresholdVENN: 1.0,
+        inputPThresholdVENN: 0.001,
+        uniqueGenesRawData: null
       }
     },
     computed: {
@@ -316,25 +349,25 @@
         if (this.selectedGraphic === 'Operon'){
           this.showHeatMap = false;
           this.showOperon = true;
-          this.showVennChart = false;
+          this.showUniqueGenes = false;
           this.show3DScatter = false
         }
         else if(this.selectedGraphic === 'log2Fold-change heatmap'){
           this.showHeatMap = true;
           this.showOperon = false;
-          this.showVennChart = false;
+          this.showUniqueGenes = false;
           this.show3DScatter = false
         }
-        else if(this.selectedGraphic === 'Venn Chart'){
+        else if(this.selectedGraphic === 'Uniquely regulated genes'){
           this.showHeatMap = false;
           this.showOperon = false;
-          this.showVennChart = true;
+          this.showUniqueGenes = true;
           this.show3DScatter = false
         }
         else if(this.selectedGraphic === '3D Scatter plot'){
           this.showHeatMap = false;
           this.showOperon = false;
-          this.showVennChart = false;
+          this.showUniqueGenes = false;
           this.show3DScatter = true
         }
       },
@@ -394,6 +427,12 @@
         this.formatBARCHARTdata();
         this.createOperonTableData();
         this.operonCount= this.filteredOperonList.length;
+      },
+      inputPThresholdVENN (){
+        this.getVENNtableData();
+      },
+      inputLog2FoldThresholdVENN (){
+        this.getVENNtableData();
       }
     },
     updated(){
@@ -520,11 +559,13 @@
         //console.log(sortedValues);
         let operonDummy=[];
         let operonList=[];
-
+        let biggestOperonDummy= 0;
         for (let i=0; i<values.length;i++){
           // very first element (first element of first operon)
           if(operonDummy.length === 0 && operonList.length === 0){
             operonDummy.push(values[i]);
+            // add one to operon size counter
+            biggestOperonDummy = biggestOperonDummy+1;
           // if we have started
           }else{
               // if next gene starts too far away
@@ -532,12 +573,20 @@
                 // push operon to operonList
                 operonList.push(operonDummy);
                 // and start new operon
+              // store biggest operon
+              if(biggestOperonDummy > this.biggestOperon){
+                this.biggestOperon = biggestOperonDummy;
+              }
+              // reset operon size counter to 1
+              biggestOperonDummy =1;
                 operonDummy=[];
                 operonDummy.push(values[i]);
               } else{
                 // value is not too far away
                 // add value to existing operon
                 operonDummy.push(values[i]);
+                // add to operon size counter
+                biggestOperonDummy = biggestOperonDummy+1;
               }
           }
         }
@@ -581,9 +630,10 @@
           //this.tableList.push(oneTable);
           /////////////////////////////////
           ////////////////////////////////
-
+          let pointWidth = 30-(dataList[index].length);
           let plotTitle= "";
           // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:..., etc},{},{},{}]
+          // building plot title as "<name1stoperongene> - <namelastoperongene>
           for(let item in dataList[index]){
             if(parseInt(item) === 0){
               plotTitle=plotTitle+dataList[index][item]['name']+" - ";
@@ -652,7 +702,7 @@
             },
             series: [{
               name: 'GENES',
-              pointWidth: 40,
+              pointWidth: pointWidth,
               color: 'rgba(223, 83, 83, .5)'
             }]
           };
@@ -682,6 +732,30 @@
           this.tableList.push(oneTable);
         }
         //console.log(this.tableList);
+      },
+      getVENNtableData(){
+        this.uniqueGenesRawData= {};
+        let oneGeneLog2Dict= {};
+        //console.log(this.$store.state.currentDGE.conditionPairs);
+        let conditionPairs = this.$store.state.currentDGE.conditionPairs;
+        let dge = this.$store.state.currentDGE;
+        // iterating one gene
+        for(let condPair of conditionPairs){
+          for (let originalGeneName of dge.geneNames) {
+          // originalGeneName would be Saci_0001.gene for example. The .gene must be discarded for later display
+          let geneName = originalGeneName.slice(0, -5);
+          // one gene's deseq2Analysis
+            let deseq2Analysis = dge.getGene(originalGeneName).getDESEQ2Analysis(condPair);
+            // if pValue matches user criteria
+            if (deseq2Analysis.pValue <= this.inputPThresholdVENN) {
+              oneGeneLog2Dict[geneName] = deseq2Analysis.log2FoldChange;
+            }
+          }
+          this.uniqueGenesRawData[condPair['_condition1']+ ' vs. ' + condPair['_condition2']] = oneGeneLog2Dict;
+        }
+        console.log(this.uniqueGenesRawData);
+        // this.uniqueGenesRawData = {t0 vs. t3: {gene1: log2_1, gene2 : log2_2}, t0 vs. t2; {gene1: log2_1, gene2: log2_2, ...}, ...}
+
       }
     }
   }
