@@ -21,6 +21,7 @@ export default new Router({
   routes: [
     {
       path: '/',
+      redirect: 'import',
       name: 'Main',
       component: MainBody
     },
