@@ -263,7 +263,7 @@
           })
       },
       removeCondition (event) {
-        this.$store.commit(REMOVE_CONDITION, event.target.textContent)
+        this.$store.commit(REMOVE_CONDITION, event.target.textContent.trim())
       }
     }
   }
