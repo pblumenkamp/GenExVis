@@ -6,9 +6,9 @@
           <h4>Select DESeq2 Type</h4>
           <multiselect
             v-model="DESeq2Type"
-            :options="sofa"
+            :options="sofa2"
             :multiple="false"
-            :close-on-select="false"
+            :close-on-select="true"
             :clear-on-select="false"
             :preserve-search="true"
             :show-labels="true"
@@ -43,8 +43,51 @@
         </b-col>
       </b-row>
     </div>
-    <!-- GFF3 parameter select. Only shows, If gff3 file was uploaded-->
+    <!-- GFF3 upload -->
     <div style="width: 100%; margin: 2rem auto 0">
+      <div style="text-align: center">
+        <file-chooser @change="loadFiles" />
+      </div>
+      <b-container style="max-width: 100%">
+        <b-row>
+          <div style="width: 10rem; margin: 1rem auto 0;">
+            <b-button
+              :disabled="disabledScanButton"
+              style="margin-bottom: 0.7rem; margin-right: 0.5rem"
+              @click="scanGFF3"
+            >
+              Scan file
+            </b-button>
+          </div>
+          <div style="width: 10rem; margin: 1rem auto 0;">
+            <b-button
+              :disabled="disabledImportButton"
+              style="margin-bottom: 0.7rem; margin-right: 0.5rem"
+              @click="integrateGFF3"
+            >
+              Import file
+            </b-button>
+          </div>
+        </b-row>
+        <font-awesome-icon
+          v-if="importingFiles"
+          :icon="faSpinner"
+          pulse
+          size="2x"
+          class="text-secondary"
+          style="margin-top: 0.1rem"
+        />
+        <font-awesome-icon
+          v-if="importingDone"
+          :icon="faCheckCircle"
+          size="2x"
+          class="text-secondary"
+          style="margin-top: 0.1rem"
+        />
+      </b-container>
+    </div>
+    <!-- GFF3 parameter select. Only shows, If gff3 file was uploaded-->
+    <div v-if="fileScanned" style="width: 100%; margin: 2rem auto 0">
       <b-row>
         <b-col>
           <h4>Select additional Features</h4>
@@ -87,58 +130,19 @@
         </b-col>
       </b-row>
     </div>
-    <!-- GFF3 upload -->
-    <div style="width: 100%; margin: 2rem auto 0">
-      <div style="text-align: center">
-        <file-chooser @change="loadFiles" />
+    <b-row>
+      <div v-if="showRemovedFeatures && fileScanned" style="width: 100%; margin: 2rem auto 0">
+        <h4 style="margin-top: 20px">
+          GFF3 counts for the chosen features:
+        </h4>
+        <b-table
+          :items="featuresCounted"
+          :fields="tableHeaders"
+          :striped="striped"
+          :bordered="bordered"
+        />
       </div>
-      <b-container style="max-width: 100%">
-        <b-row>
-          <div style="width: 10rem; margin: 1rem auto 0;">
-            <b-button
-              :disabled="disabledImportButton"
-              style="margin-bottom: 0.7rem; margin-right: 0.5rem"
-              @click="integrateGFF3"
-            >
-              Import files
-            </b-button>
-          </div>
-        </b-row>
-        <font-awesome-icon
-          v-if="importingFiles"
-          :icon="faSpinner"
-          pulse
-          size="2x"
-          class="text-secondary"
-          style="margin-top: 0.1rem"
-        />
-        <font-awesome-icon
-          v-if="importingDone"
-          :icon="faCheckCircle"
-          size="2x"
-          class="text-secondary"
-          style="margin-top: 0.1rem"
-        />
-        <b-row>
-          <div v-if="showRemovedFeatures">
-            <h4 style="margin-top: 20px">
-              GFF3 counts for the chosen features:
-            </h4>
-            <b-table
-              :items="featuresCounted"
-              :fields="tableHeaders"
-              :striped="striped"
-              :bordered="bordered"
-            />
-            <p v-if="featureZero" style="margin-top: 20px; color:red">
-              Some features were not found in the GFF3 file. They will not be available for
-              visualisation. You might want to check the selected features and/or the chosen GFF3-file
-              before importing.
-            </p>
-          </div>
-        </b-row>
-      </b-container>
-    </div>
+    </b-row>
   </div>
 </template>
 
@@ -171,6 +175,7 @@
         importingDone: false,
         // import possible after feature selection
         disabledImportButton: true,
+        disabledScanButton: true,
         // questionmark validators for help
         showMetadataFeatureHelp: false,
         showDeseq2TypeHelp: false,
@@ -179,14 +184,15 @@
         featuresCounted: [],
         showRemovedFeatures: false,
         // validator for notation display to check features because some were not found in gff3
-        featureZero: false,
+        fileScanned: false,
         // multiselects
         // deseq2Features is array for additional features to investigate
         // Deseq2Type is type of Deseq2Analysis
         deseq2Features: [],
         DESeq2Type: " ",
         // options to select from
-        sofa: ['antisense primary transcript','antisense RNA','ARS','assembly component','attenuator','autocatalytically spliced intron','binding site','branch site','C D box snoRNA','cap','cDNA match','CDS','centromere','chromosomal structural element','chromosome','chromosome band','clip','clone','clone insert end','clone insert start','coding conserved region','coding exon','codon','conserved region','contig','CpG island','cross genome match','decayed exon','deletion','deletion junction','direct repeat','dispersed repeat','ds oligo','enhancer','enzymatic RNA','EST','EST match','exon','exon junction','experimental result region','expressed sequence match','five prime cis splice site','five prime coding exon','five prime coding exon coding region','five prime coding exon noncoding region','five prime exon coding region','five prime splice site','five prime UTR','flanking region','gene','gene part','golden path','golden path fragment','group I intron','group II intron','guide RNA','hammerhead ribozyme','insertion','insertion site','insulator','intergenic region','interior coding exon','intron','inverted repeat','junction','large subunit rRNA','match','match part','match set','mature protein region','mature transcript','methylated A','methylated base feature','methylated C','microsatellite','minisatellite','miRNA','modified base','modified base site','mRNA','nc conserved region','nc primary transcript','ncRNA','non transcribed region','noncoding exon','nuclease binding site','nuclease sensitive site','nucleotide match','nucleotide motif','oligo','operator','operon','ORF','origin of replication','PCR product','polyA sequence','polyA signal sequence','polyA site','polypeptide','polypyrimidine tract','possible assembly error','possible base call error','primary transcript','primer','promoter','protein binding site','protein coding primary transcript','protein match','proviral region','pseudogene','pseudogenic region','rasiRNA','read','read pair','reading frame','reagent','region','remark','repeat family','repeat region','restriction fragment','RFLP fragment','ribosome entry site','ribozyme','RNA motif','RNAi reagent','RNase MRP RNA','RNase P RNA','rRNA','rRNA 18S','rRNA 28S','rRNA 5','rRNA 5 8S','rRNA 5S','rRNA large subunit primary transcript','rRNA primary transcript','SAGE tag','satellite DNA','scRNA','sequence assembly','sequence difference','sequence feature','Sequence Ontology','sequence variant obs','signal peptide','silencer','siRNA','small regulatory ncRNA','small subunit rRNA','snoRNA','SNP','snRNA','splice enhancer','splice site','spliceosomal intron','SRP RNA','ss oligo','start codon','stop codon','stRNA','STS','supercontig','tag','tandem repeat','telomerase RNA','telomere','terminator','TF binding site','three prime cis splice site','three prime coding exon coding region','three prime coding exon noncoding region','three prime exon coding region','three prime splice site','three prime UTR','tiling path','tiling path fragment','trans splice acceptor site','transcribed region','transcript','transcription end site','translated nucleotide match','transposable element','transposable element insertion site','tRNA','TSS','U1 snRNA','U11 snRNA','U12 snRNA','U14 snoRNA','U2 snRNA','U4 snRNA','U4atac snRNA','U5 snRNA','U6 snRNA','U6atac snRNA','ultracontig','UTR','vault RNA','virtual sequence','Y RNA']
+        sofa: [],
+        sofa2: ['antisense primary transcript','antisense RNA','ARS','assembly component','attenuator','autocatalytically spliced intron','binding site','branch site','C D box snoRNA','cap','cDNA match','CDS','centromere','chromosomal structural element','chromosome','chromosome band','clip','clone','clone insert end','clone insert start','coding conserved region','coding exon','codon','conserved region','contig','CpG island','cross genome match','decayed exon','deletion','deletion junction','direct repeat','dispersed repeat','ds oligo','enhancer','enzymatic RNA','EST','EST match','exon','exon junction','experimental result region','expressed sequence match','five prime cis splice site','five prime coding exon','five prime coding exon coding region','five prime coding exon noncoding region','five prime exon coding region','five prime splice site','five prime UTR','flanking region','gene','gene part','golden path','golden path fragment','group I intron','group II intron','guide RNA','hammerhead ribozyme','insertion','insertion site','insulator','intergenic region','interior coding exon','intron','inverted repeat','junction','large subunit rRNA','match','match part','match set','mature protein region','mature transcript','methylated A','methylated base feature','methylated C','microsatellite','minisatellite','miRNA','modified base','modified base site','mRNA','nc conserved region','nc primary transcript','ncRNA','non transcribed region','noncoding exon','nuclease binding site','nuclease sensitive site','nucleotide match','nucleotide motif','oligo','operator','operon','ORF','origin of replication','PCR product','polyA sequence','polyA signal sequence','polyA site','polypeptide','polypyrimidine tract','possible assembly error','possible base call error','primary transcript','primer','promoter','protein binding site','protein coding primary transcript','protein match','proviral region','pseudogene','pseudogenic region','rasiRNA','read','read pair','reading frame','reagent','region','remark','repeat family','repeat region','restriction fragment','RFLP fragment','ribosome entry site','ribozyme','RNA motif','RNAi reagent','RNase MRP RNA','RNase P RNA','rRNA','rRNA 18S','rRNA 28S','rRNA 5','rRNA 5 8S','rRNA 5S','rRNA large subunit primary transcript','rRNA primary transcript','SAGE tag','satellite DNA','scRNA','sequence assembly','sequence difference','sequence feature','Sequence Ontology','sequence variant obs','signal peptide','silencer','siRNA','small regulatory ncRNA','small subunit rRNA','snoRNA','SNP','snRNA','splice enhancer','splice site','spliceosomal intron','SRP RNA','ss oligo','start codon','stop codon','stRNA','STS','supercontig','tag','tandem repeat','telomerase RNA','telomere','terminator','TF binding site','three prime cis splice site','three prime coding exon coding region','three prime coding exon noncoding region','three prime exon coding region','three prime splice site','three prime UTR','tiling path','tiling path fragment','trans splice acceptor site','transcribed region','transcript','transcription end site','translated nucleotide match','transposable element','transposable element insertion site','tRNA','TSS','U1 snRNA','U11 snRNA','U12 snRNA','U14 snoRNA','U2 snRNA','U4 snRNA','U4atac snRNA','U5 snRNA','U6 snRNA','U6atac snRNA','ultracontig','UTR','vault RNA','virtual sequence','Y RNA']
       }
     },
     computed: {
@@ -198,24 +204,26 @@
       },
       faQuestionCircle () {
         return faQuestionCircle
-      },
+      }
     },
     watch: {
       // data to watch
       DESeq2Type (){
         // things to do if DESeq2Type changes
-        this.showRemovedFeatures = false;
         // if a file is already uploaded,
         // everything is reset and read-in newly
         // cannot be done without file, since then
         // there is no data to display
         if (this.file){
-          this.featureZero = false;
           this.content= {};
           this.featuresCounted = [];
-          // new read-in to update data and table
+          this.fileScanned= true;
           this.importGFF3();
         }
+        // write DESeq2Type to store
+        this.$store.dispatch(STORE_DESEQ2TYPE, {
+          deseq2Type: this.DESeq2Type
+        });
       },
       deseq2Features (){
         // things to do if deseq2Features changes
@@ -225,10 +233,9 @@
         // cannot be done without file, since then
         // there is no data to display
         if (this.file){
-          this.featureZero = false;
           this.content= {};
           this.featuresCounted= [];
-          // new read-in to update data and table
+          this.fileScanned= true;
           this.importGFF3();
         }
       }
@@ -236,9 +243,41 @@
     methods: {
       loadFiles(event) {
         this.file = event.target.files[0];
-        this.disabledImportButton = false;
+        this.disabledScanButton = false;
         this.importingDone = false;
-        this.importGFF3()
+        this.importGFF3();
+      },
+      readGFF3FeatureTypes (file){
+        // source gff3
+        // ftp://ftp.ensemblgenomes.org/pub/bacteria/release-43/gff3/bacteria_8_collection/sulfolobus_acidocaldarius_dsm_639
+        const reader = new FileReader();
+
+        return new Promise ((resolve, reject) => {
+          reader.onError = () => {
+            reader.abort();
+            reject(new DOMException('Problem parsing input file'))
+          };
+
+          reader.onload = () => {
+
+            // begin of actual read in
+            let text = reader.result;
+            // list of Arrays. one array is one gff3-entry
+            let lineContent = text.split('\n');
+            // iterating over original list of gff3-entries
+            for (let i=0; i<lineContent.length; i++){
+              // splitting entry in the gff3 fields
+              let splitEntry = lineContent[i].split('\t');
+              //console.log(splitEntry[2]);
+              if(!this.sofa.includes(splitEntry[2]) && splitEntry[2] != null && splitEntry[2] !== this.DESeq2Type){
+                this.sofa.push(splitEntry[2])
+              }
+            }
+            resolve(this.sofa);
+            this.fileScanned= true;
+          };
+          reader.readAsText(file);
+        })
       },
       readGFF3 (file) {
         // source gff3
@@ -252,78 +291,151 @@
           };
 
           reader.onload = () => {
-            // dictionary for filtered content
-            // initialized and keys set in order to append splitEntries to value later
+
+            // final dict
             let filteredContent ={};
+            // all selected feature types
             let selectedTypes= [];
-            // generation of selectedTypes for gff3 read-in
+            // array of wanted parent IDs
+            let wantedParents = [];
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // generation of selectedTypes for gff3 read-in; selectedTypes = all selected types
             if(this.deseq2Features.length >0){
               for (let i=0; i<this.deseq2Features.length; i++){
                 selectedTypes.push(this.deseq2Features[i])
               }
               selectedTypes.push(this.DESeq2Type)
             }
+            // if no additional features were chosen, selectedTypes = [this.deseq2Type] (list with 1 item)
             else if (this.deseq2Features.length === 0){
               selectedTypes.push(this.DESeq2Type)
             }
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
             for (let i=0; i<selectedTypes.length; i++){
-              filteredContent[selectedTypes[i]]=[];
-              // array of dicts structure needed for b-table
-              // key initialization needed later for display of feature upload statistics
-              //this.featuresCounted.push({[selectedTypes[i]]:0})
+              filteredContent[selectedTypes[i]]={};
+              //filteredContent = {gene:{}, CDS: {}, mRNA: {}}
             }
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // begin of actual read in
+            // big string of file read as whole!!!!
             let text = reader.result;
-            // list of Arrays. one array is one gff3-entry
+            // array of gff3-lines
             let lineContent = text.split('\n');
-            // iterating over original list of gff3-entries
-            for (let i=0; i<lineContent.length; i++){
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // iterating over original list of gff3 entries BACKWARDS !!!!!
+            for (let i=lineContent.length-1; i>=0; i--){
               // splitting entry in the gff3 fields
               let splitEntry = lineContent[i].split('\t');
-                // iterating the selected feature types
-                for (let i=0; i<selectedTypes.length; i++){
-                  // selecting only the lines, with type matching the multiselect selections
-                  if(splitEntry[2] === selectedTypes[i]){
-                    // discarding  source and score
-                    // splitEntry is indexed newly after sPlicing!
-                    splitEntry.splice(1,1);
-                    splitEntry.splice(4,1);
-                    // dictionary value is pushed to correct key based on selectedTypes
-                    filteredContent[selectedTypes[i]].push(splitEntry);
+              // if type of line matches any type of selectedTypes
+              if (selectedTypes.includes(splitEntry[2])){
+                // discarding  source and score
+                // splitEntry is indexed newly after sPlicing!
+                splitEntry.splice(1,1);
+                splitEntry.splice(4,1);
+                // getting metadata for feature from splitEntry
+                var seqID = splitEntry[0];
+                var type = splitEntry[1];
+                var start = splitEntry[2];
+                var end = splitEntry[3];
+                var strand = splitEntry[4];
+                var phase = splitEntry[5];
+                // all attributes of feature as one string of structure: "identifier=info;identifier2=info2"; etc
+                var attributes = splitEntry[6];
+                //console.log(attributes);
+                // if we have wanted parents
+                if (wantedParents.length !== 0){
+                  // iterating the wanted parents
+                  for (let n=0; n<wantedParents.length; n++){
+                    // checking, if a wantedParent does not already exist in the filteredContentDict
+                    if(!(wantedParents[n] in filteredContent[splitEntry[1]])){
+                      // checking attributes for parent ID information (case insensitive)
+                      if (attributes.includes('ID=') || attributes.includes('id=')){
+                        // array split  at semicolon in order to find parent
+                        let attributeArray= attributes.split(';');
+                        // iterating attribute array
+                        for(let k=0; k < attributeArray.length; k++){
+                          if(attributeArray[k].includes('ID=') || attributeArray.includes('id=')){
+                            // array of structure: ['ID', 'ID_of_parent']
+                            let idArray=attributeArray[k].split('=');
+                            var ID=idArray[1];
+                            // remove parent dealt with from wanted parents list
+                            wantedParents.pop(wantedParents[k]);
+                          }
+                        }
+                        if (attributes.includes('Parent=') || attributes.includes('parent=')){
+                          // array split  at semicolon in order to find parent
+                          let attributeArray= attributes.split(';');
+                          // iterating attribute array
+                          for(let m =0; m < attributeArray.length; m++){
+                            if(attributeArray[m].includes('Parent=') || attributeArray[m].includes('parent=')){
+                              // array of structure: ['Parent', 'ID_of_parent']
+                              let parentArray=attributeArray[m].split('=');
+                              var parent=parentArray[1];
+                              wantedParents.push(parent);
+                            }
+                          }
+                        }
+                      }
+                      // adding parent info to filteredContent
+                      filteredContent[splitEntry[1]][ID]={'name': ID,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'parent': parent};
+                    }
+                  }
+                }else{
+                // checking attributes for parent information (case insensitive)
+                if (attributes.includes('Parent=') || attributes.includes('parent=')){
+                  // array split  at semicolon in order to find parent
+                  let attributeArray= attributes.split(';');
+                  // iterating attribute array
+                  for(let i =0; i < attributeArray.length; i++){
+                    if(attributeArray[i].includes('ID=') || attributeArray[i].includes['id=']){
+                      let idArray=attributeArray[i].split('=');
+                      var ID3=idArray[1];
+                    }
+                    if(attributeArray[i].includes('Parent=') || attributes.includes('parent=')){
+                      // array of structure: ['Parent', 'ID_of_parent']
+                      let parentArray=attributeArray[i].split('=');
+                      var parent2=parentArray[1];
+                      wantedParents.push(parent2);
+                    }
                   }
                 }
-              }
-            // removing empty entries (if feature was not in metadata
-            // there would be nothing to display anyways
-
-            // final cleaned up dict
-            let cleanFilteredDict= {};
-            for (const [key, value] of Object.entries(filteredContent)){
-              // for display of feature statistic in slider 4 of import
-              // structure for b-table. feature and count are specified as "fields"
-              // = table headers, which are recognized in the array of dicts
-              // to correctly assign values of rows
-              this.featuresCounted.push({"feature": key, "count" : value.length});
-              if (value.length === 0){
-                // as soon as a feature was not found in the GFF3
-                // the red paragraph notification will be show in slider 4
-                this.featureZero = true;
-                //removeArray.push(key);
-              } else {
-                cleanFilteredDict[key] = value
+                // since the splitEntry[2] = gff3 entry type is in selectedTypes
+                // it must be a key in filteredContent
+                // cleaned up splitEntry is pushed to the value of that key
+                // filteredContent structure: = {CDS:{CDS1:{seqID:, type:, start:, end:, etc}}, CDS2:{}, CDS3:{}}
+                filteredContent[splitEntry[1]][ID3]={'name': ID3,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'parent': parent2};
+                }
               }
             }
-            this.content = cleanFilteredDict;
+            if(this.fileScanned){
+              for (const [key, value] of Object.entries(filteredContent)){
+                let innerValues= Object.keys(value);
+                // for display of feature statistic in slider 4 of import
+                // structure for b-table. feature and count are specified as "fields"
+                // = table headers, which are recognized in the array of dicts
+                // to correctly assign values of rows
+                this.featuresCounted.push({"feature": key, "count" : innerValues.length});
+              }
+            }
+            this.content = filteredContent;
             //console.log(this.content);
             this.showRemovedFeatures = true;
             resolve(this.content)
           };
-          this.$store.dispatch(STORE_DESEQ2TYPE, {
-            deseq2Type: this.DESeq2Type
-          });
           //console.log(this.$store.state.deseq2Type);
           reader.readAsText(file);
         })
+      },
+      scanGFF3 (){
+        // import available after scan only
+        this.disabledImportButton = false;
+        let vueData =this;
+        this.readGFF3FeatureTypes(vueData.file);
+
       },
       importGFF3 () {
         let vueData = this;
@@ -331,6 +443,7 @@
       },
       integrateGFF3 () {
         this.disabledImportButton = true;
+        this.disabledScanButton = true;
         this.importingFiles = true;
         this.$store.dispatch(STORE_GFF3_DATA, {
           gffContentDict: this.content
@@ -338,7 +451,7 @@
           this.importingFiles = false;
           this.importingDone = true
         });
-        // console.log(this.$store.state.gff3Data);
+        console.log(this.$store.state.gff3Data);
       },
     },
   }
