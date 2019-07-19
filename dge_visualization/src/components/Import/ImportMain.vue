@@ -3,6 +3,39 @@
     <b-container fluid class="mb-1">
       <b-row>
         <b-col cols="10">
+          <div>
+            <h1 style="text-align: center">Import Expression Data</h1>
+            <b-card style="width: 90%; margin: auto;">
+              <div v-if="longHelp">
+                <small style="text-align: justify">
+                  On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions, import your count table, and import all DESeq2 results. This procedure happens wholly offline only in your web browser. No data will be saved for future uses or sent to any kind of server.
+                  <br><br>
+                  First, you should register all the conditions you are using in your experiment ("{{ labels["registerConditionsTab"] }}"). GenExVis tries to assign the correct condition automatically to each sample if the condition name can be found inside of the sample name. After registering all conditions, you can start to import your count tables (e.g., created with featureCounts) and DESeq2 results.
+                  <br><br>
+                  For correctly importing your count table, it must only fulfill two criteria. It must be tab-separated and must contain one column with the feature names (e.g., gene names) and at least one sample column. If all condition names are unambiguous, GenExVis will assign the condition automatically to a sample column. The only information which must be selected manually is the type of normalization used ("Normalization method") and the column containing the feature names (select "-- Gene name --") for this column.
+                  <br><br>
+                  For a more in-depth and statistically correct differential expression analysis, GenExVis also needs DESeq2 result files. These files can be created by using this R command:
+                </small>
+
+                <div style="text-align: center; padding: 0.5rem; background-color: #eee; margin-top: 1rem; margin-bottom: 1rem">
+                  <span style="font-family: 'Courier New', 'Roboto Mono', monospace">
+                    <small>write.table(res, file = 'filepath.tsv', sep = "\t", row.names = TRUE, col.names = NA)</small>
+                  </span>
+                </div>
+
+                <small>
+                  In the current version of GenExVis, the DESeq2 result file must be tab-separated and must contain exactly 7 columns (feature name, base mean, log2 fold change, log2 fold change standard error [lfcSE], Wald statistic [stat], Wald test p-value [pvalue], and Benjamini-Hochberg adjusted p-value [padj]).
+                  <a href="#" @click="longHelp = !longHelp">Read less...</a>
+                </small>
+              </div>
+              <div v-else>
+                <small style="text-align: justify">
+                  On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions, import your count table, and import all DESeq2 results. This procedure happens wholly offline only in your web browser. No data will be saved for future uses or sent to any kind of server.
+                  <a href="#" @click="longHelp = !longHelp">Read more...</a>
+                </small>
+              </div>
+            </b-card>
+          </div>
           <b-row style="margin-top: 1rem">
             <div style="width:90%; margin: auto;" role="tablist">
               <b-card no-body class="mb-1">
@@ -13,7 +46,7 @@
                     href="#"
                     variant="secondary"
                   >
-                    1. Register Conditions
+                    1. {{ labels["registerConditionsTab"] }}
                   </b-btn>
                 </b-card-header>
                 <b-collapse
@@ -193,7 +226,11 @@
         conditionName: '',
         validCondition: null,
         showCollapsedConditions: false,
-        showConditionsHelp: false
+        showConditionsHelp: false,
+        longHelp: false,
+        labels: {
+          registerConditionsTab: "Register Conditions"
+        }
       }
     },
     computed: {
@@ -257,7 +294,7 @@
   }
 
   .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
+    transition: opacity 0.5s;
   }
 
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
