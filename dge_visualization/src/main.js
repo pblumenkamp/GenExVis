@@ -22,7 +22,7 @@ Vue.use(Vuex)
 Vue.use(VTooltip)
 
 Vue.prototype.$name = 'GenExVis'
-Vue.prototype.$version = '0.2.0'
+Vue.prototype.$version = '0.3.0'
 
 /* eslint-disable no-new */
 new Vue({
