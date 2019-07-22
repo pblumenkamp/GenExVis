@@ -346,6 +346,7 @@
                 var attributes = splitEntry[6];
                 //console.log(attributes);
                 // if we have wanted parents
+                var ID3;
                 if (wantedParents.length !== 0){
                   // iterating the wanted parents
                   for (let n=0; n<wantedParents.length; n++){
@@ -378,6 +379,10 @@
                             }
                           }
                         }
+                        // adding all to filteredContent but current (possible)parent
+                        filteredContent[splitEntry[1]][ID]={'name': ID,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'child': ID3, 'parent': ''};
+                        // setting ID3 for next loop
+                        ID3 = ID;
                         // a parent can have an own parent again
                         if (attributes.includes('Parent=') || attributes.includes('parent=')){
                           // array split  at semicolon in order to find parent
@@ -396,8 +401,8 @@
                           }
                         }
                       }
-                      // adding current entry info to filteredContent
-                      filteredContent[splitEntry[1]][ID]={'name': ID,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'parent': parent};
+                      // adding current parent info to filteredContent
+                      filteredContent[splitEntry[1]][ID]['parent'] = parent;
                       // resetting parent
                       parent = 'none';
                     }
@@ -412,7 +417,7 @@
                     // ID of actual feature!
                     if(attributeArray[i].includes('ID=') || attributeArray[i].includes['id=']){
                       let idArray=attributeArray[i].split('=');
-                      var ID3=idArray[1];
+                      ID3=idArray[1];
                     }
                     if(attributeArray[i].includes('Parent=') || attributes.includes('parent=')){
                       // array of structure: ['Parent', 'ID_of_parent']
@@ -435,6 +440,7 @@
                 }
               }
             }
+            console.log(filteredContent);
             if(this.fileScanned){
               for (const [key, value] of Object.entries(filteredContent)){
                 let innerValues= Object.keys(value);
