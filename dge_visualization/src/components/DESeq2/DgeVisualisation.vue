@@ -78,7 +78,7 @@
                   v-model="selectedRegulationType"
                   :options="regulationDirections"
                   :multiple="false"
-                  :close-on-select="false"
+                  :close-on-select="true"
                   :clear-on-select="false"
                   :preserve-search="true"
                   :show-labels="true"
@@ -100,7 +100,7 @@
                   v-model="selectedOperonSize"
                   :options="operonSizes"
                   :multiple="false"
-                  :close-on-select="false"
+                  :close-on-select="true"
                   :clear-on-select="false"
                   :preserve-search="true"
                   :show-labels="true"
@@ -161,14 +161,6 @@
                 </div>
               </b-col>
               <b-col style="width: 50%; max-width: 50%">
-                <!-- OLD HTML TABLE
-                <div v-for="(operon, index) in tableList" :key="index" style="height: 600px; margin-top: 10px">
-                  <table style="border: 1px solid black; overflow: auto; width: 100%; display: block">
-                    <tr v-for="(gene, index_j) in operon" :key="index_j" style="border: 1px solid black">
-                      <td v-for="(value, index_k) in gene" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ value }}</td>
-                    </tr>
-                  </table>
-                </div> -->
                 <div
                   class="wrapper"
                   v-for="(operon, index) in tableList"
@@ -188,38 +180,6 @@
                       <td>{{ gene.baseMean}}</td>
                       <td>{{ gene.stat }}</td>
                     </tr>
-                    <!-- OLD other HTML TABLE -->
-                    <!-- ['name', 'start', 'end', 'strand', 'description', 'log2FoldChange', 'pValue', 'pAdjusted', 'lfcSE', 'base mean', 'stat']
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th>Strand</th>
-                        <th>Description</th>
-                        <th>log2Fold-Change</th>
-                        <th>pValue</th>
-                        <th>pValue (adjusted)</th>
-                        <th>lfcSE</th>
-                        <th>Base mean</th>
-                        <th>Stat</th>
-                      </tr>
-                    </thead>
-                    <tbody style="height: 600px">
-                      <tr v-for="(gene, index_j) in operon" :key="index_j" style="border: 1px solid black">
-                        <td style="border: 1px solid black;">{{ gene.name }}</td>
-                        <td style="border: 1px solid black">{{ gene.start }}</td>
-                        <td style="border: 1px solid black">{{ gene.end }}</td>
-                        <td style="border: 1px solid black">{{ gene.strand }}</td>
-                        <td style="border: 1px solid black">{{ gene.description }}</td>
-                        <td style="border: 1px solid black">{{ gene.log2fold }}</td>
-                        <td style="border: 1px solid black">{{ gene.pValue }}</td>
-                        <td style="border: 1px solid black">{{ gene.pAdj }}</td>
-                        <td style="border: 1px solid black">{{ gene.lfcSE }}</td>
-                        <td style="border: 1px solid black">{{ gene.baseMean}}</td>
-                        <td style="border: 1px solid black">{{ gene.stat }}</td>
-                      </tr>
-                    </tbody>-->
                   </table>
                 </div>
               </b-col>
@@ -341,7 +301,10 @@
         return conditions2
       },
       dge () {
-        return this.$store.state.currentDGE
+        return this.$store.state.currentDGE;
+      },
+      gff3 () {
+        return this.$store.state.gff3Data;
       }
     },
     watch: {
@@ -417,16 +380,20 @@
         }
       },
       inputPThreshold (){
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-        this.createOperonTableData();
-        this.operonCount= this.filteredOperonList.length;
+        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.createOperonTableData();
+          this.operonCount = this.filteredOperonList.length;
+        }
       },
       inputLog2FoldThreshold (){
-        this.getBARCHARTStoreData();
-        this.formatBARCHARTdata();
-        this.createOperonTableData();
-        this.operonCount= this.filteredOperonList.length;
+        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.createOperonTableData();
+          this.operonCount = this.filteredOperonList.length;
+        }
       },
       inputPThresholdVENN (){
         this.getVENNtableData();
@@ -443,112 +410,262 @@
       }
     },
     methods: {
-      getBARCHARTStoreData() {
+      // OLD getBARCHARTDATA
+      //getBARCHARTStoreData() {
         // initializing geneDict
-        this.geneDict = {};
+        //this.geneDict = {};
         // whole dge data
-        let dge = this.$store.state.currentDGE;
+        //let theDGE= this.dge;
         // iterating one gene
-        for (let originalGeneName of dge.geneNames) {
+        //for (let originalGeneName of theDGE.geneNames) {
           // originalGeneName would be Saci_0001.gene for example. The .gene must be discarded, since the
-          // gff3-IDs dont have it
-          let geneName = originalGeneName.slice(0, -5);
+          // gff3-IDs dont have it. gff3 gene id example: gene:Saci_0001
+          //let geneName = originalGeneName.slice(0, -5);
           // one gene's deseq2Analysis
-          let deseq2Analysis = dge.getGene(originalGeneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
+          //let deseq2Analysis = theDGE.getGene(originalGeneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
           // if pValue matches user criteria
-          if (deseq2Analysis.pValue <= this.inputPThreshold) {
+          //if (deseq2Analysis.pAdj <= this.inputPThreshold) {
             // getting data based on regulation type and inputLog2FoldThreshold
-            if (this.selectedRegulationType === "upregulated") {
-              if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
-                this.geneDict[geneName] = {
-                  name: geneName,
-                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
-                  log2fold: (deseq2Analysis.log2FoldChange),
-                  pValue: (deseq2Analysis.pValue),
-                  pAdj: (deseq2Analysis.pAdj),
-                  baseMean:(deseq2Analysis.baseMean),
-                  lfcSE: (deseq2Analysis.lfcSE),
-                  stat: (deseq2Analysis.stat)
-                }
-              }
-            } else if (this.selectedRegulationType === "downregulated") {
-              if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
-                this.geneDict[geneName] = {
-                  name: geneName,
-                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
-                  log2fold: (deseq2Analysis.log2FoldChange),
-                  pValue: (deseq2Analysis.pValue),
-                  pAdj: (deseq2Analysis.pAdj),
-                  baseMean:(deseq2Analysis.baseMean),
-                  lfcSE: (deseq2Analysis.lfcSE),
-                  stat: (deseq2Analysis.stat)
-                }
-              }
-            } else if (this.selectedRegulationType === "both") {
-              if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
-                this.geneDict[geneName] = {
-                  name: geneName,
-                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
-                  log2fold: (deseq2Analysis.log2FoldChange),
-                  pValue: (deseq2Analysis.pValue),
-                  pAdj: (deseq2Analysis.pAdj),
-                  baseMean:(deseq2Analysis.baseMean),
-                  lfcSE: (deseq2Analysis.lfcSE),
-                  stat: (deseq2Analysis.stat)
-                }
-              }
-            }
-          }
-        }
+            //if (this.selectedRegulationType === "upregulated") {
+              //if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
+                //this.geneDict[geneName] = {
+                  //name: geneName,
+                  //y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                  //pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
+                  //log2fold: (deseq2Analysis.log2FoldChange),
+                  //pValue: (deseq2Analysis.pValue),
+                  //pAdj: (deseq2Analysis.pAdj),
+                  //baseMean:(deseq2Analysis.baseMean),
+                  //lfcSE: (deseq2Analysis.lfcSE),
+                  //stat: (deseq2Analysis.stat)
+                //}
+              //}
+            //} else if (this.selectedRegulationType === "downregulated") {
+              //if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
+                //this.geneDict[geneName] = {
+                  //name: geneName,
+                  //y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                  //pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
+                  //log2fold: (deseq2Analysis.log2FoldChange),
+                  //pValue: (deseq2Analysis.pValue),
+                  //pAdj: (deseq2Analysis.pAdj),
+                  //baseMean:(deseq2Analysis.baseMean),
+                  //lfcSE: (deseq2Analysis.lfcSE),
+                 // stat: (deseq2Analysis.stat)
+               // }
+             // }
+            //} else if (this.selectedRegulationType === "both") {
+              //if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
+                //this.geneDict[geneName] = {
+                  //name: geneName,
+                  //y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                  //pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
+                  //log2fold: (deseq2Analysis.log2FoldChange),
+                  //pValue: (deseq2Analysis.pValue),
+                  //pAdj: (deseq2Analysis.pAdj),
+                  //baseMean:(deseq2Analysis.baseMean),
+                  //lfcSE: (deseq2Analysis.lfcSE),
+                  //stat: (deseq2Analysis.stat)
+                //}
+              //}
+            //}
+          //}
+        //}
         // screening gff3 data for matching entries
-        let gff3 = this.$store.state.gff3Data;
-        let deseq2Dummy = this.$store.state.deseq2Type;
+        // whole gff3Data
+        //let theGFF3 = this.gff3;
+        //let deseq2Dummy = this.$store.state.deseq2Type;
         // deseq2Type is object with string value. Getting string only for
         // search in geneDict
-        let deseq2Type = Object.values(deseq2Dummy);
+        //let deseq2Type = Object.values(deseq2Dummy);
         //all gff3-entries for dese2Type
         //console.log(gff3[deseq2Type]);
         // one whole gff3-Entry
         //console.log(gff3[deseq2Type][(gff3[deseq2Type]).length -1]);
         // attributes of one gff3-entry
         //console.log(gff3[deseq2Type][(gff3[deseq2Type]).length -1][(gff3[deseq2Type][(gff3[deseq2Type]).length -1]).length -1]);
-
         // iterating geneDict via keys
-        for (var key in this.geneDict) {
+        //for (var key in this.geneDict) {
           // iterating gff3 based on deseq2Type
-          for (let entry of gff3[deseq2Type]) {
+          //for (let entry of theGFF3[deseq2Type]) {
             // checking, if the geneDict's key can be found in the attributes (one long string)
-            let attributes = entry[entry.length - 1];
-            if (attributes.includes(key)) {
+            //let attributes = entry[entry.length - 1];
+            //if (attributes.includes(key)) {
               // if found, getting start, end and strand of the gene's gff3 entry as array
-              let start = entry[entry.length - 5];
-              let end = entry[entry.length - 4];
-              let strand = entry[entry.length - 3];
-              this.geneDict[key]['start'] = start;
-              this.geneDict[key]['end'] = end;
-              this.geneDict[key]['strand'] = strand;
+              //let start = entry[entry.length - 5];
+              //let end = entry[entry.length - 4];
+              //let strand = entry[entry.length - 3];
+              //this.geneDict[key]['start'] = start;
+              //this.geneDict[key]['end'] = end;
+              //this.geneDict[key]['strand'] = strand;
               // checking, if a description can be found
-              if (attributes.includes("description")) {
+              //if (attributes.includes("description")) {
                 // splitting attributes of the gene's gff3 entry only at the semicolon
-                let attributeArray = attributes.split(";");
+                //let attributeArray = attributes.split(";");
                 // iterating the attributeArray
-                for (let i = 0; i < attributeArray.length; i++) {
+                //for (let i = 0; i < attributeArray.length; i++) {
                   // at the point of the description, spliting the description=whatIwant at the '='
-                  if (attributeArray[i].includes("description")) {
-                    let itemArray = attributeArray[i].split("=");
-                    let description = itemArray[itemArray.length - 1];
-                    this.geneDict[key]['description'] = description;
+                  //if (attributeArray[i].includes("description")) {
+                    //let itemArray = attributeArray[i].split("=");
+                    //let description = itemArray[itemArray.length - 1];
+                    //this.geneDict[key]['description'] = description;
+                 // }
+               // }
+              //}
+            //}
+          //}
+        //}
+        // geneDict: {gene1: {name: gene1, log2fold: log2fold1, pValue: pValue1, start: start1 etc}}
+        // console.log(this.geneDict);
+      //},
+      getBARCHARTStoreData() {
+        // initializing geneDict
+        this.geneDict = {};
+        // whole dge data
+        let theDGE= this.$store.state.currentDGE;
+        // whole gff3 data
+        let theGFF3 = this.$store.state.gff3Data;
+        // DESeq2 type
+        let deseq2Dummy = this.$store.state.deseq2Type;
+        // deseq2Type is object with string value. Getting string only
+        // this type must appear in DESeq2 data in geneName!
+
+        // IDEA: in gff3 they keys are: type:uniqueID
+        // split at colon and make substring search in originalGeneNames
+        // if match, take uniqueID as name and get the deseq2Analysis-Data from originalGeneName
+
+        let deseq2Type = Object.values(deseq2Dummy);
+        // value-Dict for e.g. gene (if DESeq2Type was gene)
+        let deseq2_gff3Match = (theGFF3[deseq2Type]);
+        var keys = Object.keys(deseq2_gff3Match);
+        //////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////
+        // iterating one gene
+        for (let originalGeneName of theDGE.geneNames) {
+          // iterating gff3-Dict at Deseq2Type = another dict again with structure: {ID1:{}, ID2:{}....}
+          for(let longKey of keys){
+            // inner gff3-keys have structure: featureType:uniqueID
+            let keyArray=longKey.split(':');
+            let key= keyArray[1];
+            let value =deseq2_gff3Match[longKey];
+            // if we have DESeq2-Data and gff3-data for the feature, we get the feature information
+            if (originalGeneName.includes(key)){
+              var geneName = key;
+              var start = value['start'];
+              var end = value['end'];
+              var strand=value['strand'];
+              var phase = value['phase'];
+              var parent;
+              var child;
+              var attributes;
+              var description;
+              if('parent' in value){
+                parent = value['parent'];
+              }else{
+                parent = 'none';
+              }
+              if('attributes' in value){
+                attributes = value['attributes'];
+                if (attributes.includes("description")) {
+                  // splitting attributes of the gene's gff3 entry only at the semicolon
+                  let attributeArray = attributes.split(";");
+                  // iterating the attributeArray
+                  for (let i = 0; i < attributeArray.length; i++) {
+                    // at the point of the description, spliting the description=whatIwant at the '='
+                    if (attributeArray[i].includes("description")) {
+                      let itemArray = attributeArray[i].split("=");
+                      description = itemArray[itemArray.length - 1];
+                    }
+                  }
+                }else{
+                  description = 'none';
+                }
+              }else{
+                attributes = 'none';
+              }
+              if('child' in value){
+                child=value['child'];
+              }else{
+                child='none';
+              }
+              // originalGeneName would be Saci_0001.gene for example. The .gene must be discarded
+              // gff3 gene id example: gene:Saci_0001
+              // only Saci_0001 is written to geneDict for later match/search in gff3-data
+              // Saci_0001 is written to the geneDict as key and in the value as name
+              // one gene's deseq2Analysis
+              let deseq2Analysis = theDGE.getGene(originalGeneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
+              // if pValue matches user criteria
+              if (deseq2Analysis.pAdj <= this.inputPThreshold) {
+                // getting data based on regulation type and inputLog2FoldThreshold
+                if (this.selectedRegulationType === "upregulated") {
+                  if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
+                    this.geneDict[geneName] = {
+                      name: geneName,
+                      y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                      pAdjrounded: (deseq2Analysis.pAdj).toPrecision(2),
+                      log2fold: (deseq2Analysis.log2FoldChange),
+                      pValue: (deseq2Analysis.pValue),
+                      pAdj: (deseq2Analysis.pAdj),
+                      baseMean:(deseq2Analysis.baseMean),
+                      lfcSE: (deseq2Analysis.lfcSE),
+                      stat: (deseq2Analysis.stat),
+                      start: start,
+                      end: end,
+                      strand: strand,
+                      phase: phase,
+                      parent: parent,
+                      child: child,
+                      description: description
+                    }
+                  }
+                } else if (this.selectedRegulationType === "downregulated") {
+                  if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
+                    this.geneDict[geneName] = {
+                      name: geneName,
+                      y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                      pAdjrounded: (deseq2Analysis.pAdj).toPrecision(2),
+                      log2fold: (deseq2Analysis.log2FoldChange),
+                      pValue: (deseq2Analysis.pValue),
+                      pAdj: (deseq2Analysis.pAdj),
+                      baseMean:(deseq2Analysis.baseMean),
+                      lfcSE: (deseq2Analysis.lfcSE),
+                      stat: (deseq2Analysis.stat),
+                      start: start,
+                      end: end,
+                      strand: strand,
+                      phase: phase,
+                      parent: parent,
+                      child: child,
+                      description: description
+                    }
+                  }
+                } else if (this.selectedRegulationType === "both") {
+                  if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
+                    this.geneDict[geneName] = {
+                      name: geneName,
+                      y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
+                      pAdjrounded: (deseq2Analysis.pAdj).toPrecision(2),
+                      log2fold: (deseq2Analysis.log2FoldChange),
+                      pValue: (deseq2Analysis.pValue),
+                      pAdj: (deseq2Analysis.pAdj),
+                      baseMean:(deseq2Analysis.baseMean),
+                      lfcSE: (deseq2Analysis.lfcSE),
+                      stat: (deseq2Analysis.stat),
+                      start: start,
+                      end: end,
+                      strand: strand,
+                      phase: phase,
+                      parent: parent,
+                      child: child,
+                      description: description
+                    }
                   }
                 }
               }
             }
           }
         }
-        // geneDict: {gene1: {name: gene1, log2fold: log2fold1, pValue: pValue1, start: start1 etc}}
-        // console.log(this.geneDict);
+        //console.log(this.geneDict);
       },
       formatBARCHARTdata(){
         // sort by start
@@ -568,17 +685,19 @@
             biggestOperonDummy = biggestOperonDummy+1;
           // if we have started
           }else{
+            // if next gene is on the same strand
+            if(values[i]['strand'] === values[i-1]['strand']){
               // if next gene starts too far away
-            if((parseInt(values[i]['start']) > parseInt(values[i-1]['end'])+this.geneGapSize)){
+              if((parseInt(values[i]['start']) > parseInt(values[i-1]['end'])+this.geneGapSize)){
                 // push operon to operonList
                 operonList.push(operonDummy);
                 // and start new operon
-              // store biggest operon
-              if(biggestOperonDummy > this.biggestOperon){
-                this.biggestOperon = biggestOperonDummy;
-              }
-              // reset operon size counter to 1
-              biggestOperonDummy =1;
+                // store biggest operon
+                if(biggestOperonDummy > this.biggestOperon){
+                  this.biggestOperon = biggestOperonDummy;
+                }
+                // reset operon size counter to 1
+                biggestOperonDummy =1;
                 operonDummy=[];
                 operonDummy.push(values[i]);
               } else{
@@ -588,6 +707,14 @@
                 // add to operon size counter
                 biggestOperonDummy = biggestOperonDummy+1;
               }
+              // if next gene is not on the same strand
+            }else{
+              // push operon to operonList
+              operonList.push(operonDummy);
+              // and start new operon
+              operonDummy=[];
+              operonDummy.push(values[i]);
+            }
           }
         }
         //console.log(operonList);
@@ -609,7 +736,6 @@
           }
           counter=0;
         }
-        //console.log(this.filteredOperonList);
       },
       drawBARCHART(){
         //this.tableList = [];
@@ -636,10 +762,10 @@
           // building plot title as "<name1stoperongene> - <namelastoperongene>
           for(let item in dataList[index]){
             if(parseInt(item) === 0){
-              plotTitle=plotTitle+dataList[index][item]['name']+" - ";
+              plotTitle=plotTitle+'Pos. '+dataList[index][item]['start']+" - ";
             }
             else if(parseInt(item) === (dataList[index].length-1)){
-              plotTitle=plotTitle+dataList[index][item]['name']
+              plotTitle=plotTitle+'Pos. '+dataList[index][item]['end']
             }
           }
           // chart Options
@@ -656,10 +782,11 @@
               text: this.selectedCondition1+ " vs. "+this.selectedCondition2
             },
             xAxis: {
-              startOnTick: true,
-              endOnTick: true,
-              showLastLabel: true,
+              tickInterval: 1,
+              type: "category",
               labels: {
+                rotation: 45,
+                format: "{value}",
                 style: {
                   fontSize: '14px'
                 }
@@ -685,18 +812,24 @@
             tooltip: {
               useHTML: true,
               headerFormat: "",
-              pointFormat:'{point.name}<br/>' +
-                'log2Fold: {point.y}<br/>' +
-                'pValue: {point.pValueRounded}<br/>' +
+              pointFormat:
+                'log2Fold: {point.y}  ||  ' +
+                ' pAdj: {point.pAdjrounded}<br/>' +
                 'location: {point.start} - {point.end}<br/>' +
                 'strand: {point.strand}<br/>' +
-                'description: {point.description}',
+                'description: {point.description}<br/>' +
+                'parent: {point.parent}  || ' +
+                ' child: {point.child}',
               followPointer: false
             },
             exporting: {
-              buttons: {
-                contextButton: {
-                  menuItems: ['downloadPNG', 'downloadSVG', 'separator']
+              chartOptions: { // specific options for the exported image
+                plotOptions: {
+                  series: {
+                    dataLabels: {
+                      enabled: true
+                    }
+                  }
                 }
               }
             },
@@ -753,7 +886,7 @@
           }
           this.uniqueGenesRawData[condPair['_condition1']+ ' vs. ' + condPair['_condition2']] = oneGeneLog2Dict;
         }
-        console.log(this.uniqueGenesRawData);
+        //console.log(this.uniqueGenesRawData);
         // this.uniqueGenesRawData = {t0 vs. t3: {gene1: log2_1, gene2 : log2_2}, t0 vs. t2; {gene1: log2_1, gene2: log2_2, ...}, ...}
 
       }
