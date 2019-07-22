@@ -317,7 +317,6 @@
               filteredContent[selectedTypes[i]]={};
               //filteredContent = {gene:{}, CDS: {}, mRNA: {}}
             }
-
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // begin of actual read in
@@ -350,8 +349,17 @@
                 if (wantedParents.length !== 0){
                   // iterating the wanted parents
                   for (let n=0; n<wantedParents.length; n++){
+                    // actual wanted parent of structure: type:uniqueID; parentID = longParent
+                    let longParent = wantedParents[n];
+                    // splitting expression at colon
+                    let parentArray=longParent.split(':');
+                    let parentType = parentArray[0];
+                    if (parentType === 'transcript'){
+                      parentType = 'mRNA';
+                    }
                     // checking, if a wantedParent does not already exist in the filteredContentDict
-                    if(!(wantedParents[n] in filteredContent[splitEntry[1]])){
+                    if(!filteredContent[parentType][longParent]){
+                      //if(!(wantedParents[n] in filteredContent[splitEntry[1]])){
                       // checking attributes for parent ID information (case insensitive)
                       if (attributes.includes('ID=') || attributes.includes('id=')){
                         // array split  at semicolon in order to find parent
@@ -359,13 +367,18 @@
                         // iterating attribute array
                         for(let k=0; k < attributeArray.length; k++){
                           if(attributeArray[k].includes('ID=') || attributeArray.includes('id=')){
-                            // array of structure: ['ID', 'ID_of_parent']
+                            // array of structure: ['ID', 'ID_of_actualFeature']
                             let idArray=attributeArray[k].split('=');
                             var ID=idArray[1];
-                            // remove parent dealt with from wanted parents list
-                            wantedParents.pop(wantedParents[k]);
+                            // if the current entry's ID equals the current wantedParent ID
+                            // the current wantedParent is dealt with
+                            if (ID === longParent){
+                              // remove parent dealt with from wanted parents list
+                              wantedParents.pop(wantedParents[n]);
+                            }
                           }
                         }
+                        // a parent can have an own parent again
                         if (attributes.includes('Parent=') || attributes.includes('parent=')){
                           // array split  at semicolon in order to find parent
                           let attributeArray= attributes.split(';');
@@ -375,22 +388,28 @@
                               // array of structure: ['Parent', 'ID_of_parent']
                               let parentArray=attributeArray[m].split('=');
                               var parent=parentArray[1];
-                              wantedParents.push(parent);
+                              // add new parent to wanted parents (e.g. if parent was a transcript, it has a parent again)
+                              if(!(wantedParents.includes(parent))){
+                                wantedParents.push(parent);
+                              }
                             }
                           }
                         }
                       }
-                      // adding parent info to filteredContent
+                      // adding current entry info to filteredContent
                       filteredContent[splitEntry[1]][ID]={'name': ID,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'parent': parent};
+                      // resetting parent
+                      parent = 'none';
                     }
                   }
-                }else{
+                }else if(wantedParents.length === 0){
                 // checking attributes for parent information (case insensitive)
-                if (attributes.includes('Parent=') || attributes.includes('parent=')){
+                if (attributes.includes('Parent=') || attributes.includes('parent=') || attributes.includes('ID=') || attributes.includes('id=')){
                   // array split  at semicolon in order to find parent
                   let attributeArray= attributes.split(';');
                   // iterating attribute array
                   for(let i =0; i < attributeArray.length; i++){
+                    // ID of actual feature!
                     if(attributeArray[i].includes('ID=') || attributeArray[i].includes['id=']){
                       let idArray=attributeArray[i].split('=');
                       var ID3=idArray[1];
@@ -398,16 +417,21 @@
                     if(attributeArray[i].includes('Parent=') || attributes.includes('parent=')){
                       // array of structure: ['Parent', 'ID_of_parent']
                       let parentArray=attributeArray[i].split('=');
+                      // id of parent!!!
                       var parent2=parentArray[1];
-                      wantedParents.push(parent2);
+                      if(!(wantedParents.includes(parent2))){
+                        wantedParents.push(parent2);
+                      }
                     }
                   }
                 }
                 // since the splitEntry[2] = gff3 entry type is in selectedTypes
                 // it must be a key in filteredContent
                 // cleaned up splitEntry is pushed to the value of that key
-                // filteredContent structure: = {CDS:{CDS1:{seqID:, type:, start:, end:, etc}}, CDS2:{}, CDS3:{}}
+                // filteredContent structure: = {CDS:{CDS1:{seqID:, type:, start:, end:, etc}}, CDS2:{}, CDS3:{}, mRNA:{}, gene:{}}
                 filteredContent[splitEntry[1]][ID3]={'name': ID3,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'parent': parent2};
+                // resetting parent2
+                parent2 = 'none';
                 }
               }
             }
