@@ -168,23 +168,37 @@
                   v-for="(operon, index) in tableList"
                   :key="index"
                   class="wrapper"
-                  style="height: 600px; margin-top: 10px; margin-left: 5em"
+                  style="height: 600px; margin-top: 10px; margin-left: 5em; max-width: 100%"
                 >
-                  <table style="border-collapse: separate; width: 100%; display: block; overflow-x: scroll; overflow-y: visible;">
-                    <tr v-for="(gene, index_j) in operon" :key="index_j">
-                      <th class="fixedFirstColumn" style="border: 1px solid black; width: 95px">{{ gene.name }}</th>
-                      <td>{{ gene.start }}</td>
-                      <td>{{ gene.end }}</td>
-                      <td>{{ gene.strand }}</td>
-                      <td>{{ gene.description }}</td>
-                      <td>{{ gene.log2fold }}</td>
-                      <td>{{ gene.pValue }}</td>
-                      <td>{{ gene.pAdj }}</td>
-                      <td>{{ gene.lfcSE }}</td>
-                      <td>{{ gene.baseMean }}</td>
-                      <td>{{ gene.stat }}</td>
-                    </tr>
-                  </table>
+                  <b-row>
+                    <table style="border-collapse: separate; width: 100%; display: block; overflow-x: scroll; overflow-y: visible;">
+                      <tr v-for="(gene, index_j) in operon" :key="index_j">
+                        <th class="fixedFirstColumn" style="border: 1px solid black; width: 95px">{{ gene.name }}</th>
+                        <td>{{ gene.start }}</td>
+                        <td>{{ gene.end }}</td>
+                        <td>{{ gene.strand }}</td>
+                        <td>{{ gene.description }}</td>
+                        <td>{{ gene.log2fold }}</td>
+                        <td>{{ gene.pValue }}</td>
+                        <td>{{ gene.pAdj }}</td>
+                        <td>{{ gene.lfcSE }}</td>
+                        <td>{{ gene.baseMean }}</td>
+                        <td>{{ gene.stat }}</td>
+                      </tr>
+                    </table>
+                  </b-row>
+                  <b-row>
+                    <b-col>
+                      <b-form-checkbox v-model="roundedValues" style="margin-top: 10px">
+                        Rounded Values
+                      </b-form-checkbox>
+                    </b-col>
+                    <b-col>
+                      <div :id="index" @click="downloadOperonTable($event)" style="margin-top: 10px">
+                        <font-awesome-icon :icon="faDownload" /> Download table
+                      </div>
+                    </b-col>
+                  </b-row>
                 </div>
               </b-col>
             </b-row>
@@ -198,6 +212,8 @@
 <script>
   import Multiselect from 'vue-multiselect'
   import {ConditionPair} from '../../utilities/dge'
+  import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+  import {faDownload} from '@fortawesome/free-solid-svg-icons'
 
   let Highcharts = require('highcharts');
   require('highcharts/modules/exporting')(Highcharts);
@@ -206,7 +222,8 @@
   export default {
     name: 'DgeVisualisation',
     components: {
-      Multiselect
+      Multiselect,
+      FontAwesomeIcon
     },
     data () {
       return {
@@ -238,7 +255,11 @@
         biggestOperon: 0,
         inputLog2FoldThresholdVENN: 1.0,
         inputPThresholdVENN: 0.001,
-        uniqueGenesRawData: null
+        uniqueGenesRawData: null,
+        // concerning table download
+        roundedValues: false,
+        tableHeaders: null,
+        downloadDict: null
       }
     },
     computed: {
@@ -269,6 +290,9 @@
       },
       dge () {
         return this.$store.state.currentDGE;
+      },
+      faDownload () {
+        return faDownload
       }
     },
     watch: {
@@ -358,6 +382,9 @@
           this.createOperonTableData();
           this.operonCount = this.filteredOperonList.length;
         }
+      },
+      roundedValues (){
+        this.createOperonTableData();
       }
     },
     updated(){
@@ -679,19 +706,75 @@
       },
       createOperonTableData(){
         this.tableList=[];
+        this.downloadDict={};
         for(let i =0; i<this.filteredOperonList.length; i++){
           let oneTable= [];
-          let tableHeaders={name: 'Name', start: 'Start', end: 'End', strand: 'Strand', description: 'description', log2fold: 'log2Fold-Change', pValue: 'pValue', pAdj: 'pValue (adjusted)', lfcSE: 'lfcSE', baseMean: 'Base mean', stat: 'Stat'};
-          oneTable.push(tableHeaders);
+          let oneDownloadTable=[];
+          console.log(this.filteredOperonList);
+          this.tableHeaders={name: 'Name', start: 'Start', end: 'End', strand: 'Strand', description: 'description', log2fold: 'log2Fold-Change', pValue: 'pValue', pAdj: 'pValue (adjusted)', lfcSE: 'lfcSE', baseMean: 'Base mean', stat: 'Stat'};
+          oneTable.push(this.tableHeaders);
+          let downloadHeaders=['Name', 'Start','End','Strand', 'description','log2Fold-Change','pValue','pValue (adjusted)','lfcSE','Base mean','Stat'];
+          oneDownloadTable.push(downloadHeaders);
           let oneTableData = this.filteredOperonList[i];
           for(let k=0; k<oneTableData.length; k++){
             let oneTableRow;
+            let pAdj;
+            let log2Fold;
+            let pValue;
+            let stat;
+            let baseMean;
+            let lfcSE;
+            if(this.roundedValues){
+              log2Fold= Math.round(oneTableData[k]['log2fold']*100)/100;
+              pAdj = oneTableData[k]['pAdj'].toPrecision(4);
+              pValue = oneTableData[k]['pValue'].toPrecision(4);
+              stat = Math.round(oneTableData[k]['stat']*100)/100;
+              baseMean = Math.round(oneTableData[k]['baseMean']*100)/100;
+              lfcSE = Math.round(oneTableData[k]['lfcSE']*100)/100;
+            }else{
+              log2Fold= oneTableData[k]['log2fold'];
+              pAdj = oneTableData[k]['pAdj'];
+              pValue = oneTableData[k]['pValue'];
+              stat = oneTableData[k]['stat'];
+              baseMean = oneTableData[k]['baseMean'];
+              lfcSE = oneTableData[k]['lfcSE'];
+            }
             //oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['description'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
-            oneTableRow={value: false, name: oneTableData[k]['name'], start: oneTableData[k]['start'], end: oneTableData[k]['end'], strand: oneTableData[k]['strand'], description: oneTableData[k]['description'], log2fold: oneTableData[k]['log2fold'], pValue: oneTableData[k]['pValue'], pAdj: oneTableData[k]['pAdj'], lfcSE: oneTableData[k]['lfcSE'], baseMean: oneTableData[k]['baseMean'], stat: oneTableData[k]['stat']};
+            oneTableRow={value: false, name: oneTableData[k]['name'], start: oneTableData[k]['start'], end: oneTableData[k]['end'], strand: oneTableData[k]['strand'], description: oneTableData[k]['description'], log2fold: log2Fold, pValue: pValue, pAdj: pAdj, lfcSE: lfcSE, baseMean: baseMean, stat: stat};
             oneTable.push(oneTableRow);
+            let oneDownloadRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['description'], log2Fold, pValue, pAdj, lfcSE, baseMean, stat];
+            oneDownloadTable.push(oneDownloadRow);
           }
           this.tableList.push(oneTable);
+          this.downloadDict[i]=oneDownloadTable;
         }
+      },
+      downloadOperonTable: function(event) {
+        // getting elements ID in order to download one table only
+        let targetID= event.currentTarget.id;
+        // expression to add row information taken from:
+        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
+        let csvData = this.downloadDict[targetID];
+        console.log(csvData);
+        let csvContent = csvData.map(e => e.join(',')).join('\n');
+        // function to download csv taken from:
+        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
+        function downloadFile (data, fileName) {
+          let blob = new Blob([data], {type: 'application/csv;charset=utf-8;'});
+          if (window.navigator.msSaveBlob) {
+            navigator.msSaveBlob(blob, fileName)
+          } else {
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.style = 'invisibility: hidden';
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link)
+          }
+        }
+        downloadFile(csvContent, 'operonTable.csv')
       }
     }
   }
