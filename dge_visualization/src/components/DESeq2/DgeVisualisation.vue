@@ -25,48 +25,51 @@
           </template>
         </multiselect>
       </b-col>
-      <!-- OPERON BARCHART CODE -->
       <div v-if="showOperon">
-        <!-- Dropdown to selecte the first condition -->
-        <b-form-select v-model="selectedCondition1" style="width: auto; margin-top: 15px" @change="selectedCondition2 = ''">
-          <!-- Display before dropdown is openend -->
-          <template slot="first">
-            <option :value="''" disabled>
-              -- Please select the first condition --
-            </option>
-          </template>
-          <!-- Actual options displayed. dgeConditions[0] is a Set with one member -->
-          <option
-            v-for="cond in Array.from(dgeConditions[0])"
-            :key="cond"
-            :value="cond"
-          >
-            {{ cond }}
-          </option>
-        </b-form-select>
-        <!-- Dropdown for second condition. Disabled, if no first condition was chosen -->
-        <b-form-select
-          v-model="selectedCondition2"
-          style="width: auto; margin-top: 15px"
-          :disabled="selectedCondition1 === ''"
-        >
-          <!-- Display before dropdown is openend -->
-          <template slot="first">
-            <option :value="''" disabled>
-              -- Please select the second condition --
-            </option>
-          </template>
-          <!-- Actual options displayed. dgeConditions[1] is a Set with members without the member of dgeConditions[0] -->
-          <!-- Disabled: if condition without dgeConditions[0] does not match remaining ones (double check?) -->
-          <option
-            v-for="cond in Array.from(dgeConditions[1])"
-            :key="cond"
-            :value="cond"
-            :disabled="!conditions2.has(cond)"
-          >
-            {{ cond }}
-          </option>
-        </b-form-select>
+        <b-row style="margin-top: 10px;">
+          <!-- Select first condition -->
+          <b-col>
+            <multiselect
+              v-model="selectedCondition1"
+              :options="dgeConditions[0]"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              placeholder="Choose first condition"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-col>
+          <!-- Select second condition -->
+          <b-col>
+            <multiselect
+              v-model="selectedCondition2"
+              :options="dgeConditions[1]"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              placeholder="Choose first condition"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-col>
+        </b-row>
         <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
           <h4>Chose chart specifications</h4>
           <b-container>
@@ -145,7 +148,7 @@
                   style="width: 10rem; margin-right: 0px"
                 />
               </b-col>
-              <b-col style="width: 25%;">Biggest putative operon: {{biggestOperon}}</b-col>
+              <b-col style="width: 25%;">Biggest putative operon: {{ biggestOperon }}</b-col>
               <b-col style="width: 25%;">Putative operons (total): {{ operonCount }}</b-col>
             </b-row>
           </b-container>
@@ -162,10 +165,11 @@
               </b-col>
               <b-col style="width: 50%; max-width: 50%">
                 <div
-                  class="wrapper"
                   v-for="(operon, index) in tableList"
                   :key="index"
-                  style="height: 600px; margin-top: 10px; margin-left: 5em">
+                  class="wrapper"
+                  style="height: 600px; margin-top: 10px; margin-left: 5em"
+                >
                   <table style="border-collapse: separate; width: 100%; display: block; overflow-x: scroll; overflow-y: visible;">
                     <tr v-for="(gene, index_j) in operon" :key="index_j">
                       <th class="fixedFirstColumn" style="border: 1px solid black; width: 95px">{{ gene.name }}</th>
@@ -177,7 +181,7 @@
                       <td>{{ gene.pValue }}</td>
                       <td>{{ gene.pAdj }}</td>
                       <td>{{ gene.lfcSE }}</td>
-                      <td>{{ gene.baseMean}}</td>
+                      <td>{{ gene.baseMean }}</td>
                       <td>{{ gene.stat }}</td>
                     </tr>
                   </table>
@@ -186,37 +190,6 @@
             </b-row>
           </b-container>
         </div>
-      </div>
-      <!-- VENN CHART CODE-->
-      <div v-if="showUniqueGenes">
-        <b-container style="max-width: 100%;">
-          <b-row style="margin-top: 10px;">The following tables show the uniquely regulated genes for a condition compared to all other conditions.</b-row>
-          <hr>
-          <b-row>
-            <label style="margin-top: 10px;">p-value threshold:</label>
-            <b-col style="width: 25%">
-              <b-form-input
-                v-model="inputPThresholdVENN"
-                type="number"
-                min="0"
-                max="1"
-                step="0.001"
-                style="width: 10rem; margin-right: 0px;"
-              />
-            </b-col>
-            <label style="margin-top: 10px;">log2Fold Change threshold:</label>
-            <b-col style="width: 25%">
-              <b-form-input
-                v-model="inputLog2FoldThresholdVENN"
-                type="number"
-                min="-4"
-                max="4"
-                step="0.1"
-                style="width: 10rem; margin-right: 0px;"
-              />
-            </b-col>
-          </b-row>
-        </b-container>
       </div>
     </b-card>
   </div>
@@ -273,10 +246,11 @@
       // on conditions available after the user
       // registered their conditions
       dgeConditions () {
+        // sets needed for no duplicates
         // conditions for first dropdown
-        let conditions1 = new Set();
+        let conditions1=new Set();
         // conditions for second dropdown
-        let conditions2 = new Set();
+        let conditions2 =new Set();
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
             this.$store.state.registeredConditions.indexOf(condition2) === -1) {
@@ -287,24 +261,14 @@
           // in conditions 2, there are all the compare-conditions
           conditions2.add(condition2);
         }
+        // arrays needed for vue-multiselect
+        conditions1 = Array.from(conditions1);
+        conditions2 = Array.from(conditions2);
         // returns a list of sets
         return [conditions1, conditions2]
       },
-      conditions2 () {
-        let conditions2 = new Set();
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (condition1 === this.selectedCondition1) {
-            conditions2.add(condition2)
-          }
-        }
-        // returning all conditions but the selected on in first dropdown
-        return conditions2
-      },
       dge () {
         return this.$store.state.currentDGE;
-      },
-      gff3 () {
-        return this.$store.state.gff3Data;
       }
     },
     watch: {
@@ -394,12 +358,6 @@
           this.createOperonTableData();
           this.operonCount = this.filteredOperonList.length;
         }
-      },
-      inputPThresholdVENN (){
-        this.getVENNtableData();
-      },
-      inputLog2FoldThresholdVENN (){
-        this.getVENNtableData();
       }
     },
     updated(){
@@ -410,114 +368,6 @@
       }
     },
     methods: {
-      // OLD getBARCHARTDATA
-      //getBARCHARTStoreData() {
-        // initializing geneDict
-        //this.geneDict = {};
-        // whole dge data
-        //let theDGE= this.dge;
-        // iterating one gene
-        //for (let originalGeneName of theDGE.geneNames) {
-          // originalGeneName would be Saci_0001.gene for example. The .gene must be discarded, since the
-          // gff3-IDs dont have it. gff3 gene id example: gene:Saci_0001
-          //let geneName = originalGeneName.slice(0, -5);
-          // one gene's deseq2Analysis
-          //let deseq2Analysis = theDGE.getGene(originalGeneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
-          // if pValue matches user criteria
-          //if (deseq2Analysis.pAdj <= this.inputPThreshold) {
-            // getting data based on regulation type and inputLog2FoldThreshold
-            //if (this.selectedRegulationType === "upregulated") {
-              //if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
-                //this.geneDict[geneName] = {
-                  //name: geneName,
-                  //y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  //pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
-                  //log2fold: (deseq2Analysis.log2FoldChange),
-                  //pValue: (deseq2Analysis.pValue),
-                  //pAdj: (deseq2Analysis.pAdj),
-                  //baseMean:(deseq2Analysis.baseMean),
-                  //lfcSE: (deseq2Analysis.lfcSE),
-                  //stat: (deseq2Analysis.stat)
-                //}
-              //}
-            //} else if (this.selectedRegulationType === "downregulated") {
-              //if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
-                //this.geneDict[geneName] = {
-                  //name: geneName,
-                  //y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  //pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
-                  //log2fold: (deseq2Analysis.log2FoldChange),
-                  //pValue: (deseq2Analysis.pValue),
-                  //pAdj: (deseq2Analysis.pAdj),
-                  //baseMean:(deseq2Analysis.baseMean),
-                  //lfcSE: (deseq2Analysis.lfcSE),
-                 // stat: (deseq2Analysis.stat)
-               // }
-             // }
-            //} else if (this.selectedRegulationType === "both") {
-              //if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
-                //this.geneDict[geneName] = {
-                  //name: geneName,
-                  //y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  //pValueRounded: (deseq2Analysis.pValue).toPrecision(2),
-                  //log2fold: (deseq2Analysis.log2FoldChange),
-                  //pValue: (deseq2Analysis.pValue),
-                  //pAdj: (deseq2Analysis.pAdj),
-                  //baseMean:(deseq2Analysis.baseMean),
-                  //lfcSE: (deseq2Analysis.lfcSE),
-                  //stat: (deseq2Analysis.stat)
-                //}
-              //}
-            //}
-          //}
-        //}
-        // screening gff3 data for matching entries
-        // whole gff3Data
-        //let theGFF3 = this.gff3;
-        //let deseq2Dummy = this.$store.state.deseq2Type;
-        // deseq2Type is object with string value. Getting string only for
-        // search in geneDict
-        //let deseq2Type = Object.values(deseq2Dummy);
-        //all gff3-entries for dese2Type
-        //console.log(gff3[deseq2Type]);
-        // one whole gff3-Entry
-        //console.log(gff3[deseq2Type][(gff3[deseq2Type]).length -1]);
-        // attributes of one gff3-entry
-        //console.log(gff3[deseq2Type][(gff3[deseq2Type]).length -1][(gff3[deseq2Type][(gff3[deseq2Type]).length -1]).length -1]);
-        // iterating geneDict via keys
-        //for (var key in this.geneDict) {
-          // iterating gff3 based on deseq2Type
-          //for (let entry of theGFF3[deseq2Type]) {
-            // checking, if the geneDict's key can be found in the attributes (one long string)
-            //let attributes = entry[entry.length - 1];
-            //if (attributes.includes(key)) {
-              // if found, getting start, end and strand of the gene's gff3 entry as array
-              //let start = entry[entry.length - 5];
-              //let end = entry[entry.length - 4];
-              //let strand = entry[entry.length - 3];
-              //this.geneDict[key]['start'] = start;
-              //this.geneDict[key]['end'] = end;
-              //this.geneDict[key]['strand'] = strand;
-              // checking, if a description can be found
-              //if (attributes.includes("description")) {
-                // splitting attributes of the gene's gff3 entry only at the semicolon
-                //let attributeArray = attributes.split(";");
-                // iterating the attributeArray
-                //for (let i = 0; i < attributeArray.length; i++) {
-                  // at the point of the description, spliting the description=whatIwant at the '='
-                  //if (attributeArray[i].includes("description")) {
-                    //let itemArray = attributeArray[i].split("=");
-                    //let description = itemArray[itemArray.length - 1];
-                    //this.geneDict[key]['description'] = description;
-                 // }
-               // }
-              //}
-            //}
-          //}
-        //}
-        // geneDict: {gene1: {name: gene1, log2fold: log2fold1, pValue: pValue1, start: start1 etc}}
-        // console.log(this.geneDict);
-      //},
       getBARCHARTStoreData() {
         // initializing geneDict
         this.geneDict = {};
@@ -525,10 +375,8 @@
         let theDGE= this.$store.state.currentDGE;
         // whole gff3 data
         let theGFF3 = this.$store.state.gff3Data;
-        // DESeq2 type
-        let deseq2Dummy = this.$store.state.deseq2Type;
         // deseq2Type is object with string value. Getting string only
-        // this type must appear in DESeq2 data in geneName!
+        let deseq2Dummy = this.$store.state.deseq2Type;
 
         // IDEA: in gff3 they keys are: type:uniqueID
         // split at colon and make substring search in originalGeneNames
@@ -539,7 +387,7 @@
         let deseq2_gff3Match = (theGFF3[deseq2Type]);
         var keys = Object.keys(deseq2_gff3Match);
         //////////////////////////////////////////////////////////////////////////////
-        //////////////////////////////////////////////////////////////////////////////
+
         // iterating one gene
         for (let originalGeneName of theDGE.geneNames) {
           // iterating gff3-Dict at Deseq2Type = another dict again with structure: {ID1:{}, ID2:{}....}
@@ -588,6 +436,8 @@
               }else{
                 child='none';
               }
+              //////////////////////////////////////////////////////////////////////////////
+
               // originalGeneName would be Saci_0001.gene for example. The .gene must be discarded
               // gff3 gene id example: gene:Saci_0001
               // only Saci_0001 is written to geneDict for later match/search in gff3-data
@@ -665,15 +515,12 @@
             }
           }
         }
-        //console.log(this.geneDict);
       },
       formatBARCHARTdata(){
         // sort by start
         // abandon need to check if element is before a previous one, only
         // gap now relevant
         let values = Object.values(this.geneDict).sort(function(a,b){return a.start - b.start});
-        //console.log(values);
-        //console.log(sortedValues);
         let operonDummy=[];
         let operonList=[];
         let biggestOperonDummy= 0;
@@ -717,7 +564,6 @@
             }
           }
         }
-        //console.log(operonList);
         // discard "operons" of length 1 (not an operon)
         // and discard operons smaller than selected size
         this.filteredOperonList=[];
@@ -741,21 +587,6 @@
         //this.tableList = [];
         let dataList = this.filteredOperonList;
         for (var index in dataList){
-          /////////////////////////////////
-          // ---CREATING TABLE DATA--- //
-          ////////////////////////////////
-          //let oneTable= [];
-          //let tableHeaders=['name', 'start', 'end', 'strand', 'log2FoldChange', 'pValue', 'pAdjusted', 'lfcSE', 'base mean', 'stat'];
-          //oneTable.push(tableHeaders);
-          //let oneTableData = this.filteredOperonList[index];
-          //for(let k=0; k<oneTableData.length; k++){
-            //let oneTableRow;
-            //oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
-            //oneTable.push(oneTableRow);
-          //}
-          //this.tableList.push(oneTable);
-          /////////////////////////////////
-          ////////////////////////////////
           let pointWidth = 30-(dataList[index].length);
           let plotTitle= "";
           // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:..., etc},{},{},{}]
@@ -794,6 +625,7 @@
             },
             yAxis: {
               max: this.commonMaxValue,
+              tickInterval:0.5,
               title: {
                 text: 'log2Fold Change',
                 style: {
@@ -841,15 +673,11 @@
           };
           //setting data in the chart options (still in for loop, this is done for each series in the dataList one after the other)
           options.series[0].data = dataList[index];
-
           // making highcharts render to html with id = index with given options
           Highcharts.chart(index, options);
         }
-        //console.log(this.tableList);
-        console.log("end of drawBARCHART()");
       },
       createOperonTableData(){
-        // -----OLD HTML TABLE COMMENTED OUT----- //
         this.tableList=[];
         for(let i =0; i<this.filteredOperonList.length; i++){
           let oneTable= [];
@@ -864,31 +692,6 @@
           }
           this.tableList.push(oneTable);
         }
-        //console.log(this.tableList);
-      },
-      getVENNtableData(){
-        this.uniqueGenesRawData= {};
-        let oneGeneLog2Dict= {};
-        //console.log(this.$store.state.currentDGE.conditionPairs);
-        let conditionPairs = this.$store.state.currentDGE.conditionPairs;
-        let dge = this.$store.state.currentDGE;
-        // iterating one gene
-        for(let condPair of conditionPairs){
-          for (let originalGeneName of dge.geneNames) {
-          // originalGeneName would be Saci_0001.gene for example. The .gene must be discarded for later display
-          let geneName = originalGeneName.slice(0, -5);
-          // one gene's deseq2Analysis
-            let deseq2Analysis = dge.getGene(originalGeneName).getDESEQ2Analysis(condPair);
-            // if pValue matches user criteria
-            if (deseq2Analysis.pValue <= this.inputPThresholdVENN) {
-              oneGeneLog2Dict[geneName] = deseq2Analysis.log2FoldChange;
-            }
-          }
-          this.uniqueGenesRawData[condPair['_condition1']+ ' vs. ' + condPair['_condition2']] = oneGeneLog2Dict;
-        }
-        //console.log(this.uniqueGenesRawData);
-        // this.uniqueGenesRawData = {t0 vs. t3: {gene1: log2_1, gene2 : log2_2}, t0 vs. t2; {gene1: log2_1, gene2: log2_2, ...}, ...}
-
       }
     }
   }
