@@ -194,7 +194,7 @@
                       </b-form-checkbox>
                     </b-col>
                     <b-col>
-                      <div :id="index" @click="downloadOperonTable($event)" style="margin-top: 10px">
+                      <div :id="index" style="margin-top: 10px" @click="downloadOperonTable($event)">
                         <font-awesome-icon :icon="faDownload" /> Download table
                       </div>
                     </b-col>
@@ -710,7 +710,6 @@
         for(let i =0; i<this.filteredOperonList.length; i++){
           let oneTable= [];
           let oneDownloadTable=[];
-          console.log(this.filteredOperonList);
           this.tableHeaders={name: 'Name', start: 'Start', end: 'End', strand: 'Strand', description: 'description', log2fold: 'log2Fold-Change', pValue: 'pValue', pAdj: 'pValue (adjusted)', lfcSE: 'lfcSE', baseMean: 'Base mean', stat: 'Stat'};
           oneTable.push(this.tableHeaders);
           let downloadHeaders=['Name', 'Start','End','Strand', 'description','log2Fold-Change','pValue','pValue (adjusted)','lfcSE','Base mean','Stat'];
@@ -756,7 +755,6 @@
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
         // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
         let csvData = this.downloadDict[targetID];
-        console.log(csvData);
         let csvContent = csvData.map(e => e.join(',')).join('\n');
         // function to download csv taken from:
         // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
