@@ -440,7 +440,6 @@
                 }
               }
             }
-            console.log(filteredContent);
             if(this.fileScanned){
               for (const [key, value] of Object.entries(filteredContent)){
                 let innerValues= Object.keys(value);
@@ -481,7 +480,7 @@
           this.importingFiles = false;
           this.importingDone = true
         });
-        console.log(this.$store.state.gff3Data);
+        //console.log(this.$store.state.gff3Data);
       },
     },
   }
