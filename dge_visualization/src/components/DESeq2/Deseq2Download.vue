@@ -146,11 +146,6 @@
           }
         ))
       },
-      // isTableToLarge () {
-      //   let numberOfGenes = this.$store.state.dgeData.length
-      //   let selectedConditionPairs = this.selectedConditionPairs
-      //   return numberOfGenes*(selectedConditionPairs*5)+1 > 2000000
-      // },
       tableColumnHeaders () {
         // creating columnHeaders
         let columnHeaders = ['name'];
