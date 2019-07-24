@@ -154,7 +154,7 @@
                   condition: '$$GENE_NAME$$'
                 })
               } else {
-                let regexcondition = vueData.suggestregex(colName)
+                let regexcondition = vueData.suggestregex(colName);
                 this.headerConditionMapping.push({
                   header: colName,
                   condition: regexcondition
@@ -201,35 +201,35 @@
         })
       },
       integrateCountTable () {
-        let filename = this.file.name
-        let usedColumns = {}
-        let geneColumn = ''
+        let filename = this.file.name;
+        let usedColumns = {};
+        let geneColumn = '';
         for (let {header, condition} of this.headerConditionMapping) {
           if (condition !== '') {
             if (condition === '$$GENE_NAME$$') {
-              geneColumn = header
+              geneColumn = header;
             } else if (this.registeredConditions.indexOf(condition) === -1) {
               continue
             } else {
-              usedColumns[header] = condition
+              usedColumns[header] = condition;
             }
           }
         }
         if (geneColumn === '') {
-          this.missingGeneColumn = true
+          this.missingGeneColumn = true;
           return
         }
-        this.disabledImportButton = true
-        this.importingFiles = true
-        this.$store.commit(ADD_COUNT, filename)
+        this.disabledImportButton = true;
+        this.importingFiles = true;
+        this.$store.commit(ADD_COUNT, filename);
         this.$store.dispatch(STORE_COUNT_TABLE, {
           table: this.items,
           headerConditionMapping: usedColumns,
           geneColumn: geneColumn,
           normalization: this.selectedNormalization
         }).then(() => {
-          this.importingFiles = false
-          this.importingDone = true
+          this.importingFiles = false;
+          this.importingDone = true;
         })
       },
       suggestregex (column) {
