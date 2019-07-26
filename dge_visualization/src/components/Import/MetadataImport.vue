@@ -299,8 +299,8 @@
             // array of wanted parent IDs
             let wantedParents = [];
 
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
             // generation of selectedTypes for gff3 read-in; selectedTypes = all selected types
             if(this.deseq2Features.length >0){
               for (let i=0; i<this.deseq2Features.length; i++){
@@ -312,13 +312,12 @@
             else if (this.deseq2Features.length === 0){
               selectedTypes.push(this.DESeq2Type)
             }
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             for (let i=0; i<selectedTypes.length; i++){
               filteredContent[selectedTypes[i]]={};
               //filteredContent = {gene:{}, CDS: {}, mRNA: {}}
             }
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             // begin of actual read in
             // big string of file read as whole!!!!
             let text = reader.result;
@@ -370,7 +369,8 @@
                           if(attributeArray[k].includes('ID=') || attributeArray.includes('id=')){
                             // array of structure: ['ID', 'ID_of_actualFeature']
                             let idArray=attributeArray[k].split('=');
-                            var ID=idArray[1];
+                            let arrayDummy = idArray[1].split(':');
+                            var ID=arrayDummy[1];
                             // if the current entry's ID equals the current wantedParent ID
                             // the current wantedParent is dealt with
                             if (ID === longParent){
@@ -417,7 +417,8 @@
                     // ID of actual feature!
                     if(attributeArray[i].includes('ID=') || attributeArray[i].includes['id=']){
                       let idArray=attributeArray[i].split('=');
-                      ID3=idArray[1];
+                      let arrayDummy = idArray[1].split(':');
+                      ID3=arrayDummy[1];
                     }
                     if(attributeArray[i].includes('Parent=') || attributes.includes('parent=')){
                       // array of structure: ['Parent', 'ID_of_parent']
@@ -450,6 +451,34 @@
                 this.featuresCounted.push({"feature": key, "count" : innerValues.length});
               }
             }
+
+            // adding DESeq2 Info to the gff3-infos
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // initializing geneDict
+            //this.geneDict = {};
+            // whole dge data
+            //let theDGE= this.$store.state.currentDGE;
+            // whole gff3 data
+
+            // deseq2Type is object with string value. Getting string only
+            let deseq2Dummy = this.$store.state.deseq2Type;
+
+            let deseq2Type = Object.values(deseq2Dummy);
+            // value-Dict for e.g. gene (if DESeq2Type was gene)
+            let gff3Genes = (filteredContent[deseq2Type]);
+            console.log('gff3Genes');
+            console.log(gff3Genes);
+            //for(let originalGeneName of theDGE.geneNames){
+              //for(let [key,value] of Object.entries(gff3Genes)){
+                //if(originalGeneName.includes(key)){
+                  //this.geneDict[key]=value;
+                //}
+              //}
+            //}
+
+            // NOTE: geneDict innerIDs now Saci_0001 and not gene:Saci_0001 for example!
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             this.content = filteredContent;
             //console.log(this.content);
             this.showRemovedFeatures = true;
