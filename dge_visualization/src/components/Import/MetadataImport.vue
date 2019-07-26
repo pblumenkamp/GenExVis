@@ -133,7 +133,7 @@
     <b-row>
       <div v-if="showRemovedFeatures && fileScanned" style="width: 100%; margin: 2rem auto 0">
         <h4 style="margin-top: 20px">
-          GFF3 counts for the chosen features:
+          GFF3 counts for chosen features & all parent features:
         </h4>
         <b-table
           :items="featuresCounted"
@@ -498,16 +498,14 @@
             }
               //console.log(filteredContent);
             }
-            //if(this.fileScanned){
-              //for (const [key, value] of Object.entries(filteredContent)){
-                //let innerValues= Object.keys(value);
+              for (const [key, value] of Object.entries(filteredContent)){
+                let innerValues= Object.keys(value);
                 // for display of feature statistic in slider 4 of import
                 // structure for b-table. feature and count are specified as "fields"
                 // = table headers, which are recognized in the array of dicts
                 // to correctly assign values of rows
-                //this.featuresCounted.push({"feature": key, "count" : innerValues.length});
-             // }
-            //}
+                this.featuresCounted.push({"feature": key, "count" : innerValues.length});
+            }
 
             // adding DESeq2 Info to the gff3-infos
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
