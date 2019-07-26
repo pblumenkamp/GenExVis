@@ -133,7 +133,7 @@
                   type="number"
                   min="0"
                   max="1"
-                  step="0.01"
+                  step="0.001"
                   style="width: 10rem; margin-right: 0px"
                 />
               </b-col>
@@ -588,12 +588,6 @@
               // and start new operon
               operonDummy=[];
               operonDummy.push(values[i]);
-              // store biggestOperonCounter and start new
-              if(biggestOperonDummy > this.biggestOperon){
-                this.biggestOperon = biggestOperonDummy;
-
-              }
-              biggestOperonDummy = 1;
             }
           }
         }
