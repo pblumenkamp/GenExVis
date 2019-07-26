@@ -293,31 +293,29 @@
           reader.onload = () => {
 
             // final dict
-            let filteredContent ={};
+            let filteredContent = {};
             // all selected feature types
-            let selectedTypes= [];
+            let selectedTypes = [];
             // array of wanted parent IDs
             let wantedParents = [];
 
 
-
             // generation of selectedTypes for gff3 read-in; selectedTypes = all selected types
-            if(this.deseq2Features.length >0){
-              for (let i=0; i<this.deseq2Features.length; i++){
+            if (this.deseq2Features.length > 0) {
+              for (let i = 0; i < this.deseq2Features.length; i++) {
                 selectedTypes.push(this.deseq2Features[i])
               }
               selectedTypes.push(this.DESeq2Type)
             }
             // if no additional features were chosen, selectedTypes = [this.deseq2Type] (list with 1 item)
-            else if (this.deseq2Features.length === 0){
+            else if (this.deseq2Features.length === 0) {
               selectedTypes.push(this.DESeq2Type)
             }
 
-            for (let i=0; i<selectedTypes.length; i++){
-              filteredContent[selectedTypes[i]]={};
+            for (let i = 0; i < selectedTypes.length; i++) {
+              filteredContent[selectedTypes[i]] = {};
               //filteredContent = {gene:{}, CDS: {}, mRNA: {}}
             }
-
             // begin of actual read in
             // big string of file read as whole!!!!
             let text = reader.result;
@@ -325,15 +323,34 @@
             let lineContent = text.split('\n');
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // iterating over original list of gff3 entries BACKWARDS !!!!!
-            for (let i=lineContent.length-1; i>=0; i--){
+            for (let i = lineContent.length - 1; i >= 0; i--) {
+              if(!(lineContent[i].startsWith('#'))){
               // splitting entry in the gff3 fields
               let splitEntry = lineContent[i].split('\t');
-              // if type of line matches any type of selectedTypes
-              if (selectedTypes.includes(splitEntry[2])){
+              // checking if line is a parent
+                // line is only a parent, if it has the ID
+                // line could falsily be identified as parent, if it points to an already
+                // added parent (if more than one feature points to the same parent), if
+                // checking for parent only!
+                var entryISparent = false;
+                if (wantedParents.length !== 0) {
+                for (let parent of wantedParents) {
+                  if (splitEntry[8].includes('ID='+parent)) {
+                    var actualParent = parent;
+                    entryISparent = true;
+                  } else {
+                    entryISparent = false;
+                  }
+                }
+              }else if (wantedParents.length === 0) {
+                entryISparent = false;
+              }
+                // if type of line matches any type of selectedTypes or any parent!
+              if (selectedTypes.includes(splitEntry[2]) || entryISparent) {
                 // discarding  source and score
                 // splitEntry is indexed newly after sPlicing!
-                splitEntry.splice(1,1);
-                splitEntry.splice(4,1);
+                splitEntry.splice(1, 1);
+                splitEntry.splice(4, 1);
                 // getting metadata for feature from splitEntry
                 var seqID = splitEntry[0];
                 var type = splitEntry[1];
@@ -343,142 +360,160 @@
                 var phase = splitEntry[5];
                 // all attributes of feature as one string of structure: "identifier=info;identifier2=info2"; etc
                 var attributes = splitEntry[6];
-                //console.log(attributes);
-                // if we have wanted parents
-                var ID3;
-                if (wantedParents.length !== 0){
-                  // iterating the wanted parents
-                  for (let n=0; n<wantedParents.length; n++){
-                    // actual wanted parent of structure: type:uniqueID; parentID = longParent
-                    let longParent = wantedParents[n];
-                    // splitting expression at colon
-                    let parentArray=longParent.split(':');
-                    let parentType = parentArray[0];
-                    if (parentType === 'transcript'){
-                      parentType = 'mRNA';
+                // case of entry is a parent
+                if (entryISparent) {
+                  var letterIndex = 0;
+                  for (let letter of actualParent) {
+                    // first letter, that is not a letter lets loop break
+                    if (!letter.match(/[a-z]/i)) {
+                      break;
                     }
-                    // checking, if a wantedParent does not already exist in the filteredContentDict
-                    if(!filteredContent[parentType][longParent]){
-                      //if(!(wantedParents[n] in filteredContent[splitEntry[1]])){
-                      // checking attributes for parent ID information (case insensitive)
-                      if (attributes.includes('ID=') || attributes.includes('id=')){
-                        // array split  at semicolon in order to find parent
-                        let attributeArray= attributes.split(';');
-                        // iterating attribute array
-                        for(let k=0; k < attributeArray.length; k++){
-                          if(attributeArray[k].includes('ID=') || attributeArray.includes('id=')){
-                            // array of structure: ['ID', 'ID_of_actualFeature']
-                            let idArray=attributeArray[k].split('=');
-                            let arrayDummy = idArray[1].split(':');
-                            var ID=arrayDummy[1];
-                            // if the current entry's ID equals the current wantedParent ID
-                            // the current wantedParent is dealt with
-                            if (ID === longParent){
-                              // remove parent dealt with from wanted parents list
-                              wantedParents.pop(wantedParents[n]);
-                            }
-                          }
-                        }
-                        // adding all to filteredContent but current (possible)parent
-                        filteredContent[splitEntry[1]][ID]={'name': ID,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'child': ID3, 'parent': ''};
-                        // setting ID3 for next loop
-                        ID3 = ID;
-                        // a parent can have an own parent again
-                        if (attributes.includes('Parent=') || attributes.includes('parent=')){
-                          // array split  at semicolon in order to find parent
-                          let attributeArray= attributes.split(';');
-                          // iterating attribute array
-                          for(let m =0; m < attributeArray.length; m++){
-                            if(attributeArray[m].includes('Parent=') || attributeArray[m].includes('parent=')){
-                              // array of structure: ['Parent', 'ID_of_parent']
-                              let parentArray=attributeArray[m].split('=');
-                              var parent=parentArray[1];
-                              // add new parent to wanted parents (e.g. if parent was a transcript, it has a parent again)
-                              if(!(wantedParents.includes(parent))){
-                                wantedParents.push(parent);
-                              }
-                            }
-                          }
+                    letterIndex = letterIndex + 1;
+                  }
+                  var parentType = actualParent.slice(0, letterIndex);
+                  if (!(parentType in filteredContent)) {
+                    filteredContent[parentType] = {};
+                  }
+
+                  // checking, if a wantedParent does not already exist in the filteredContentDict
+                  // if it does not exist, it is added; no else needed
+                  // checking, if ID3 has a value and setting it
+                  //if (!ID3) {
+                    //ID3 = 'none';
+                  //}
+                  if (!(filteredContent[parentType][actualParent])) {
+                    if (attributes.includes('ID=')) {
+                      // array split  at semicolon in order to find parent
+                      let attributeArray = attributes.split(';');
+                      // iterating attribute array
+                      for (let k = 0; k < attributeArray.length; k++) {
+                        if (attributeArray[k].includes('ID=')) {
+                          // array of structure: ['ID', 'ID_of_actualFeature']
+                          let idArray = attributeArray[k].split('=');
+                          var ID = idArray[1];
+                          // if the current entry's ID equals the current wantedParent ID
+                          // the current wantedParent is dealt with
+                          //if (ID === actualParent) {
+                          // remove parent dealt with from wanted parents list
+                          wantedParents.pop(actualParent);
+                          //}
                         }
                       }
-                      // adding current parent info to filteredContent
-                      filteredContent[splitEntry[1]][ID]['parent'] = parent;
+                      // adding all to filteredContent but current (possible)parent
+                      //console.log(ID);
+                      filteredContent[parentType][ID] = {
+                        'name': ID,
+                        'seqID': seqID,
+                        'type': type,
+                        'start': start,
+                        'end': end,
+                        'strand': strand,
+                        'phase': phase,
+                        'attributes': attributes,
+                        'child': ID3,
+                        'parent': ''
+                      };
+                      // a parent can have an own parent again
+                      if (attributes.includes('Parent=')) {
+                        // setting ID3 for next loop ; current feature's ID is a child ID, if the current feature has a parent
+                        ID3 = ID;
+                        // array split  at semicolon in order to find parent
+                        let attributeArray = attributes.split(';');
+                        // iterating attribute array
+                        for (let m = 0; m < attributeArray.length; m++) {
+                          if (attributeArray[m].includes('Parent=')) {
+                            // array of structure: ['Parent', 'ID_of_parent']
+                            let parentArray = attributeArray[m].split('=');
+                            var parent = parentArray[1];
+                            // add new parent to wanted parents (e.g. if parent was a transcript, it has a parent again)
+                            if (!(wantedParents.includes(parent))) {
+                              wantedParents.push(parent);
+                            }
+                          }
+                        }
+                        // adding current parent info to filteredContent
+                        filteredContent[parentType][ID]['parent'] = parent;
+                      } else {
+                        // adding current parent info to filteredContent
+                        parent = 'none';
+                        filteredContent[parentType][ID]['parent'] = parent;
+                      }
                       // resetting parent
                       parent = 'none';
                     }
                   }
-                }else if(wantedParents.length === 0){
-                // checking attributes for parent information (case insensitive)
-                if (attributes.includes('Parent=') || attributes.includes('parent=') || attributes.includes('ID=') || attributes.includes('id=')){
-                  // array split  at semicolon in order to find parent
-                  let attributeArray= attributes.split(';');
-                  // iterating attribute array
-                  for(let i =0; i < attributeArray.length; i++){
-                    // ID of actual feature!
-                    if(attributeArray[i].includes('ID=') || attributeArray[i].includes['id=']){
-                      let idArray=attributeArray[i].split('=');
-                      let arrayDummy = idArray[1].split(':');
-                      ID3=arrayDummy[1];
+                  // entry is not a parent but is of type the user wanted
+                  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                } else {
+                  // checking attributes for parent information (case insensitive)
+                  if (attributes.includes('Parent=') || attributes.includes('ID=') || attributes.includes('product=')) {
+                    var parent2;
+                    var product;
+                    if (!attributes.includes('Parent=')) {
+                      parent2 = 'none';
                     }
-                    if(attributeArray[i].includes('Parent=') || attributes.includes('parent=')){
-                      // array of structure: ['Parent', 'ID_of_parent']
-                      let parentArray=attributeArray[i].split('=');
-                      // id of parent!!!
-                      var parent2=parentArray[1];
-                      if(!(wantedParents.includes(parent2))){
-                        wantedParents.push(parent2);
+                    if (!attributes.includes('product=')) {
+                      product = 'none';
+                    }
+                    // array split  at semicolon in order to find parent
+                    let attributeArray = attributes.split(';');
+                    // iterating attribute array
+                    for (let i = 0; i < attributeArray.length; i++) {
+                      // ID of actual feature!
+                      if (attributeArray[i].includes('ID=')) {
+                        let idArray = attributeArray[i].split('=');
+                        var ID3 = idArray[1];
+                      } else if (attributeArray[i].includes('Parent=')) {
+                        // array of structure: ['Parent', 'ID_of_parent']
+                        let parentArray = attributeArray[i].split('=');
+                        // id of parent!!!
+                        parent2 = parentArray[1];
+                        if (!(wantedParents.includes(parent2))) {
+                          wantedParents.push(parent2);
+                        }
+                      } else if (attributeArray[i].includes('product=')) {
+                        let productArray = attributeArray[i].split('=');
+                        product = productArray[1];
                       }
                     }
                   }
-                }
-                // since the splitEntry[2] = gff3 entry type is in selectedTypes
-                // it must be a key in filteredContent
-                // cleaned up splitEntry is pushed to the value of that key
-                // filteredContent structure: = {CDS:{CDS1:{seqID:, type:, start:, end:, etc}}, CDS2:{}, CDS3:{}, mRNA:{}, gene:{}}
-                filteredContent[splitEntry[1]][ID3]={'name': ID3,'seqID': seqID, 'type':  type, 'start': start, 'end': end, 'strand': strand, 'phase': phase, 'attributes': attributes, 'parent': parent2};
-                // resetting parent2
-                parent2 = 'none';
+                  if(!(filteredContent[splitEntry[1]][ID3])){
+                    filteredContent[splitEntry[1]][ID3] = {
+                      'name': ID3,
+                      'seqID': seqID,
+                      'type': type,
+                      'start': start,
+                      'end': end,
+                      'strand': strand,
+                      'phase': phase,
+                      'attributes': attributes,
+                      'child': 'none',
+                      'parent': parent2,
+                      'product': product
+                    };
+                  }
+
                 }
               }
             }
-            if(this.fileScanned){
-              for (const [key, value] of Object.entries(filteredContent)){
-                let innerValues= Object.keys(value);
+              //console.log(filteredContent);
+            }
+            //if(this.fileScanned){
+              //for (const [key, value] of Object.entries(filteredContent)){
+                //let innerValues= Object.keys(value);
                 // for display of feature statistic in slider 4 of import
                 // structure for b-table. feature and count are specified as "fields"
                 // = table headers, which are recognized in the array of dicts
                 // to correctly assign values of rows
-                this.featuresCounted.push({"feature": key, "count" : innerValues.length});
-              }
-            }
+                //this.featuresCounted.push({"feature": key, "count" : innerValues.length});
+             // }
+            //}
 
             // adding DESeq2 Info to the gff3-infos
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // initializing geneDict
-            //this.geneDict = {};
-            // whole dge data
-            //let theDGE= this.$store.state.currentDGE;
-            // whole gff3 data
 
-            // deseq2Type is object with string value. Getting string only
-            let deseq2Dummy = this.$store.state.deseq2Type;
-
-            let deseq2Type = Object.values(deseq2Dummy);
-            // value-Dict for e.g. gene (if DESeq2Type was gene)
-            let gff3Genes = (filteredContent[deseq2Type]);
-            console.log('gff3Genes');
-            console.log(gff3Genes);
-            //for(let originalGeneName of theDGE.geneNames){
-              //for(let [key,value] of Object.entries(gff3Genes)){
-                //if(originalGeneName.includes(key)){
-                  //this.geneDict[key]=value;
-                //}
-              //}
-            //}
-
-            // NOTE: geneDict innerIDs now Saci_0001 and not gene:Saci_0001 for example!
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+            //console.log(filteredContent);
             this.content = filteredContent;
             //console.log(this.content);
             this.showRemovedFeatures = true;
