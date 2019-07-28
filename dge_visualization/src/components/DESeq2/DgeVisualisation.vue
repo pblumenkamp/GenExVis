@@ -98,7 +98,7 @@
               </b-col>
               <!-- OPERON SIZE SINGLE SELECT -->
               <b-col>
-                <h4>Select Operon Size</h4>
+                <h4>Select feature amount</h4>
                 <multiselect
                   v-model="selectedOperonSize"
                   :options="operonSizes"
@@ -148,8 +148,8 @@
                   style="width: 10rem; margin-right: 0px"
                 />
               </b-col>
-              <b-col style="width: 25%;">Biggest putative operon: {{ biggestOperon }}</b-col>
-              <b-col style="width: 25%;">Putative operons (total): {{ operonCount }}</b-col>
+              <b-col style="width: 25%;">Biggest putative cluster: {{ biggestOperon }}</b-col>
+              <b-col style="width: 25%;">Putative clusters (total): {{ operonCount }}</b-col>
             </b-row>
           </b-container>
         </div>
@@ -229,7 +229,7 @@
       return {
         // condition selections
         selectedGraphic: '',
-        graphicTypes:['Operon', 'log2Fold-change heatmap', 'Uniquely regulated genes', '3D Scatter plot'],
+        graphicTypes:['Jointly regulated features', 'log2Fold-change heatmap', 'Uniquely regulated genes', '3D Scatter plot'],
         showOperon: false,
         show3DScatter: false,
         showUniqueGenes: false,
@@ -297,7 +297,7 @@
     },
     watch: {
       selectedGraphic(){
-        if (this.selectedGraphic === 'Operon'){
+        if (this.selectedGraphic === 'Jointly regulated features'){
           this.showHeatMap = false;
           this.showOperon = true;
           this.showUniqueGenes = false;
