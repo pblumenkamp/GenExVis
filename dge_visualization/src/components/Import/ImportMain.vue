@@ -241,7 +241,7 @@
           let conditions = file.content.split('\n')
           for (let cond of conditions) {
             if (cond.trim()) {
-              vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond}).catch(() => {})
+              vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond.trim()}).catch(() => {})
             }
           }
         })
@@ -255,13 +255,15 @@
 
         let conditions = vueData.conditionName.split(",")
         for (let cond of conditions) {
-          vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond.trim()})
+          if (cond.trim()) {
+            vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond.trim()})
             .then(() => {
               vueData.conditionName = ''
               vueData.validCondition = null
             }).catch(() => {
               vueData.validCondition = false
             })
+          }
         }
       },
       importConditionFile () {
