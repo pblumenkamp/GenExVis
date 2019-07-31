@@ -252,13 +252,17 @@
           vueData.validCondition = false
           return
         }
-        vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: vueData.conditionName})
-          .then(() => {
-            vueData.conditionName = ''
-            vueData.validCondition = null
-          }).catch(() => {
-            vueData.validCondition = false
-          })
+
+        let conditions = vueData.conditionName.split(",")
+        for (let cond of conditions) {
+          vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond.trim()})
+            .then(() => {
+              vueData.conditionName = ''
+              vueData.validCondition = null
+            }).catch(() => {
+              vueData.validCondition = false
+            })
+        }
       },
       importConditionFile () {
 
