@@ -61,7 +61,7 @@
                       <b-col sm="4">
                         <label for="conditionName" style="margin-top: 0.4rem; float: right">Register condition:</label>
                       </b-col>
-                      <b-col sm="6">
+                      <b-col sm="5">
                         <b-input-group>
                           <b-form-input
                             id="conditionName"
@@ -74,9 +74,15 @@
                             @keydown.enter.native="registerCondition"
                           />
                           <b-input-group-append>
-                            <b-btn @click="registerCondition">+</b-btn>
+                            <b-button @click="registerCondition">+</b-button>
                           </b-input-group-append>
                         </b-input-group>
+                      </b-col>
+                      <b-col sm="1">
+                        <label class="btn btn-secondary btn-file">
+                          Browse... <input type="file" style="display: none;" @change="readConditionFile">
+                        </label>
+                        <!--<b-button variant="secondary" @click="importConditionFile">As file...</b-button>-->
                       </b-col>
                       <b-col sm="2" style="padding-left: 0">
                         <span style="cursor: pointer; float: left" @click="showConditionsHelp = !showConditionsHelp">
@@ -224,6 +230,7 @@
     data () {
       return {
         conditionName: '',
+        conditionFile: null,
         validCondition: null,
         showCollapsedConditions: false,
         showConditionsHelp: false,
@@ -248,19 +255,56 @@
       }
     },
     methods: {
+      readConditionFile (event) {
+        let vueData = this
+        let file = event.target.files[0]
+
+        const reader = new FileReader()
+
+        let readFile = new Promise((resolve, reject) => {
+          reader.onerror = () => {
+            reader.abort()
+            reject(new DOMException('Problem parsing input file.'))
+          }
+
+          reader.onload = () => {
+            resolve({content: reader.result})
+          }
+
+          reader.readAsText(file)
+        })
+
+        readFile.then(file => {
+          let conditions = file.content.split('\n')
+          for (let cond of conditions) {
+            if (cond.trim()) {
+              vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond.trim()}).catch(() => {})
+            }
+          }
+        })
+      },
       registerCondition () {
         let vueData = this
         if (vueData.conditionName === '') {
           vueData.validCondition = false
           return
         }
-        vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: vueData.conditionName})
-          .then(() => {
-            vueData.conditionName = ''
-            vueData.validCondition = null
-          }).catch(() => {
-            vueData.validCondition = false
-          })
+
+        let conditions = vueData.conditionName.split(",")
+        for (let cond of conditions) {
+          if (cond.trim()) {
+            vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond.trim()})
+            .then(() => {
+              vueData.conditionName = ''
+              vueData.validCondition = null
+            }).catch(() => {
+              vueData.validCondition = false
+            })
+          }
+        }
+      },
+      importConditionFile () {
+
       },
       removeCondition (event) {
         this.$store.commit(REMOVE_CONDITION, event.target.textContent.trim())
