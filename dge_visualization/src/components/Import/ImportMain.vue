@@ -6,7 +6,7 @@
           <div>
             <h1 style="text-align: center">Import Expression Data</h1>
             <b-card style="width: 90%; margin: auto;">
-              <div v-if="longHelp">
+              <div v-if="longHelp_overview">
                 <small style="text-align: justify">
                   On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions, import your count table, and import all DESeq2 results. This procedure happens wholly offline only in your web browser. No data will be saved for future uses or sent to any kind of server.
                   <br><br>
@@ -25,13 +25,13 @@
 
                 <small>
                   In the current version of GenExVis, the DESeq2 result file must be tab-separated and must contain exactly 7 columns (feature name, base mean, log2 fold change, log2 fold change standard error [lfcSE], Wald statistic [stat], Wald test p-value [pvalue], and Benjamini-Hochberg adjusted p-value [padj]).
-                  <a href="#" @click="longHelp = !longHelp">Read less...</a>
+                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Read less...</a>
                 </small>
               </div>
               <div v-else>
                 <small style="text-align: justify">
                   On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions, import your count table, and import all DESeq2 results. This procedure happens wholly offline only in your web browser. No data will be saved for future uses or sent to any kind of server.
-                  <a href="#" @click="longHelp = !longHelp">Read more...</a>
+                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Read more...</a>
                 </small>
               </div>
             </b-card>
@@ -57,6 +57,23 @@
                   style="padding-bottom: 1rem"
                 >
                   <b-card-body>
+                    <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                      <small>Please register all the conditions you want to use. Try to use unambiguous names, which can also be found inside of the sample names, to benefit from autocomplete in the next steps.
+                        <span v-if="longHelp_condition">
+                          <br>
+                          There are at the moment three ways to register the conditions:
+                          <ul>
+                            <li>One at a time via the input field.</li>
+                            <li>As a comma-separated list via the input field.</li>
+                            <li>As a file via Browse button. The file contains just the conditions, one in each line.</li>
+                          </ul>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Read less...</a>
+                        </span>
+                        <span v-else>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Read more...</a>
+                        </span>
+                      </small>
+                    </b-card>
                     <b-row>
                       <b-col sm="4">
                         <label for="conditionName" style="margin-top: 0.4rem; float: right">Register condition:</label>
@@ -82,23 +99,6 @@
                         <label class="btn btn-secondary btn-file">
                           Browse... <input type="file" style="display: none;" @change="readConditionFile">
                         </label>
-                        <!--<b-button variant="secondary" @click="importConditionFile">As file...</b-button>-->
-                      </b-col>
-                      <b-col sm="2" style="padding-left: 0">
-                        <span style="cursor: pointer; float: left" @click="showConditionsHelp = !showConditionsHelp">
-                          <font-awesome-icon :icon="faQuestionCircle" />
-                        </span>
-                      </b-col>
-                    </b-row>
-                    <b-row>
-                      <b-col>
-                        <b-collapse id="helpConditions" v-model="showConditionsHelp" class="mt-2">
-                          <transition name="fade">
-                            <b-card style="width:80%; margin: auto">
-                              Register all conditions you want to visualize. Try to use unambiguous names to benefit from autocompletion in the next steps.
-                            </b-card>
-                          </transition>
-                        </b-collapse>
                       </b-col>
                     </b-row>
                     <b-row v-if="validCondition != null" style="margin-top: 0.1rem">
@@ -153,6 +153,20 @@
                   style="padding-bottom: 1rem"
                 >
                   <b-card-body>
+                    <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                      <small>Upload your normalized and/or unnormalized count tables. Every tab-separated count table format is supported.
+                        <span v-if="longHelp_counts">
+                          <br>
+                          A count table is a standard file format in differential expression analysis. It contains - on a one feature per line base - the amount of reads mapped to a specific feature per sample.
+                          Typical tools for creating this table are <a href="http://subread.sourceforge.net/">featureCounts</a> and <a href="https://htseq.readthedocs.io">HTSeq-Count</a>.
+                          <br>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Read less...</a>
+                        </span>
+                        <span v-else>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Read more...</a>
+                        </span>
+                      </small>
+                    </b-card>
                     <count-table-import />
                   </b-card-body>
                 </b-collapse>
@@ -175,6 +189,17 @@
                   style="padding-bottom: 1rem"
                 >
                   <b-card-body>
+                    <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                      <small>
+                        <span v-if="longHelp_deseq">
+                          <br>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Read less...</a>
+                        </span>
+                        <span v-else>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Read more...</a>
+                        </span>
+                      </small>
+                    </b-card>
                     <deseq2-import />
                   </b-card-body>
                 </b-collapse>
@@ -234,7 +259,10 @@
         validCondition: null,
         showCollapsedConditions: false,
         showConditionsHelp: false,
-        longHelp: false,
+        longHelp_overview: false,
+        longHelp_condition: false,
+        longHelp_counts: false,
+        longHelp_deseq: false,
         labels: {
           registerConditionsTab: "Register Conditions"
         }
