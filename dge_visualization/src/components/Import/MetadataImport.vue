@@ -87,7 +87,7 @@
       </b-container>
     </div>
     <!-- GFF3 parameter select. Only shows, If gff3 file was uploaded-->
-    <div v-if="fileScanned" style="width: 100%; margin: 2rem auto 0">
+    <div v-if="fileScanned && idMatch" style="width: 100%; margin: 2rem auto 0">
       <b-row>
         <b-col>
           <h4>Select additional Features</h4>
@@ -130,8 +130,11 @@
         </b-col>
       </b-row>
     </div>
+    <div v-if="!idMatch && fileScanned">
+      <p style="color: red">Please note: DESeq2-IDs could NOT be matched with GFF3 IDs. Please import an adequate GFF3. </p>
+    </div>
     <b-row>
-      <div v-if="showRemovedFeatures && fileScanned" style="width: 100%; margin: 2rem auto 0">
+      <div v-if="showRemovedFeatures && fileScanned && idMatch" style="width: 100%; margin: 2rem auto 0">
         <h4 style="margin-top: 20px">
           GFF3 counts for chosen features & all parent features:
         </h4>
@@ -185,6 +188,7 @@
         showRemovedFeatures: false,
         // validator for notation display to check features because some were not found in gff3
         fileScanned: false,
+        idMatch: false,
         // multiselects
         // deseq2Features is array for additional features to investigate
         // Deseq2Type is type of Deseq2Analysis
@@ -210,6 +214,7 @@
       // data to watch
       DESeq2Type (){
         // things to do if DESeq2Type changes
+        this.showRemovedFeatures = false;
         // if a file is already uploaded,
         // everything is reset and read-in newly
         // cannot be done without file, since then
@@ -248,6 +253,7 @@
         this.importGFF3();
       },
       readGFF3FeatureTypes (file){
+        this.showRemovedFeatures = false;
         // source gff3
         // ftp://ftp.ensemblgenomes.org/pub/bacteria/release-43/gff3/bacteria_8_collection/sulfolobus_acidocaldarius_dsm_639
         const reader = new FileReader();
@@ -262,17 +268,29 @@
 
             // begin of actual read in
             let text = reader.result;
+            // ID check: if no ID matches for DESeq2 data can be found
+            // the gff3 is useless and the user is notified
+            for(let name of this.$store.state.currentDGE.geneNames){
+              // as soon as one ID can be matched, the loop breaks
+              // and the verificator is set to true
+              if(text.includes(name)){
+                this.idMatch = true;
+                break;
+              }
+              //console.log(this.idMatch);
+            }
             // list of Arrays. one array is one gff3-entry
             let lineContent = text.split('\n');
             // iterating over original list of gff3-entries
             for (let i=0; i<lineContent.length; i++){
               // splitting entry in the gff3 fields
               let splitEntry = lineContent[i].split('\t');
-              //console.log(splitEntry[2]);
+              // only sofa types found in the gff3 will be taken for the multiselect of additional features
               if(!this.sofa.includes(splitEntry[2]) && splitEntry[2] != null && splitEntry[2] !== this.DESeq2Type){
                 this.sofa.push(splitEntry[2])
               }
-            }
+             }
+            console.log(this.showRemovedFeatures);
             resolve(this.sofa);
             this.fileScanned= true;
           };
@@ -377,10 +395,6 @@
 
                   // checking, if a wantedParent does not already exist in the filteredContentDict
                   // if it does not exist, it is added; no else needed
-                  // checking, if ID3 has a value and setting it
-                  //if (!ID3) {
-                    //ID3 = 'none';
-                  //}
                   if (!(filteredContent[parentType][actualParent])) {
                     if (attributes.includes('ID=')) {
                       // array split  at semicolon in order to find parent
@@ -400,7 +414,6 @@
                         }
                       }
                       // adding all to filteredContent but current (possible)parent
-                      //console.log(ID);
                       filteredContent[parentType][ID] = {
                         'name': ID,
                         'seqID': seqID,
@@ -496,7 +509,6 @@
                 }
               }
             }
-              //console.log(filteredContent);
             }
               for (const [key, value] of Object.entries(filteredContent)){
                 let innerValues= Object.keys(value);
