@@ -406,10 +406,6 @@
         // deseq2Type is object with string value. Getting string only
         let deseq2Dummy = this.$store.state.deseq2Type;
 
-        // IDEA: in gff3 they keys are: type:uniqueID
-        // split at colon and make substring search in originalGeneNames
-        // if match, take uniqueID as name and get the deseq2Analysis-Data from originalGeneName
-
         let deseq2Type = Object.values(deseq2Dummy);
         // value-Dict for e.g. gene (if DESeq2Type was gene)
         let deseq2_gff3Match = (theGFF3[deseq2Type]);
@@ -426,7 +422,6 @@
           return !uniqueKeys.includes( el );
         } );
         //////////////////////////////////////////////////////////////////////////////
-
         for(let key of keys){
           let value = deseq2_gff3Match[key];
           let deseq2Analysis = theDGE.getGene(key).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
