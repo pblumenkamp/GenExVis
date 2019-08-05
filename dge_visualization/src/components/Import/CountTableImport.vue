@@ -26,7 +26,7 @@
           <b-col>
             <b-form-select v-model="mapping.condition" @input="validate">
               <option value="">-- Ignore --</option>
-              <option value="$$GENE_NAME$$">-- Gene name --</option>
+              <option value="$$FEATURE_NAME$$">-- Feature name --</option>
               <option
                 v-for="cond in registeredConditions"
                 :key="cond"
@@ -131,7 +131,7 @@
     },
     methods: {
       validate (value) {
-        if (value === '$$GENE_NAME$$') {
+        if (value === '$$FEATURE_NAME$$') {
           this.missingGeneColumn = false
         }
       },
@@ -151,7 +151,7 @@
               if (colName.toLowerCase() === 'geneid') {
                 vueData.headerConditionMapping.push({
                   header: colName,
-                  condition: '$$GENE_NAME$$'
+                  condition: '$$FEATURE_NAME$$'
                 })
               } else {
                 let regexcondition = vueData.suggestregex(colName)
@@ -206,7 +206,7 @@
         let geneColumn = ''
         for (let {header, condition} of this.headerConditionMapping) {
           if (condition !== '') {
-            if (condition === '$$GENE_NAME$$') {
+            if (condition === '$$FEATURE_NAME$$') {
               geneColumn = header
             } else if (this.registeredConditions.indexOf(condition) === -1) {
               continue
