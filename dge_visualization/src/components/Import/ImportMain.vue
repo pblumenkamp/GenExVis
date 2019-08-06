@@ -6,34 +6,38 @@
           <div>
             <h1 style="text-align: center">Import Expression Data</h1>
             <b-card style="width: 90%; margin: auto;">
-              <div v-if="longHelp_overview">
-                <small style="text-align: justify">
-                  On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions, import your count table, and import all DESeq2 results. This procedure happens wholly offline only in your web browser. No data will be saved for future uses or sent to any kind of server.
+              <small style="text-align: justify">
+                On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions,
+                import your count table, and import all DESeq2 results. This procedure happens wholly offline only in your web browser. No data will be saved for future uses
+                or sent to any kind of server.
+                <!--
+                <span v-if="longHelp_overview">
                   <br><br>
-                  First, you should register all the conditions you are using in your experiment ("{{ labels["registerConditionsTab"] }}"). GenExVis tries to assign the correct condition automatically to each sample if the condition name can be found inside of the sample name. After registering all conditions, you can start to import your count tables (e.g., created with featureCounts) and DESeq2 results.
+                  First, you should register all the conditions you are using in your experiment ("{{ labels["registerConditionsTab"] }}"). GenExVis tries to assign the correct
+                  condition automatically to each sample if the condition name can be found inside of the sample name. After registering all conditions, you can start to import
+                  your count tables (e.g., created with featureCounts) and DESeq2 results.
                   <br><br>
-                  For correctly importing your count table, it must only fulfill two criteria. It must be tab-separated and must contain one column with the feature names (e.g., gene names) and at least one sample column. If all condition names are unambiguous, GenExVis will assign the condition automatically to a sample column. The only information which must be selected manually is the type of normalization used ("Normalization method") and the column containing the feature names (select "-- Gene name --") for this column.
+                  For correctly importing your count table, it must only fulfill two criteria. It must be tab-separated and must contain one column with the feature names
+                  (e.g., gene names) and at least one sample column. If all condition names are unambiguous, GenExVis will assign the condition automatically to a sample column.
+                  The only information which must be selected manually is the type of normalization used ("Normalization method") and the column containing the feature names
+                  (select "-- Gene name --") for this column.
                   <br><br>
                   For a more in-depth and statistically correct differential expression analysis, GenExVis also needs DESeq2 result files. These files can be created by using this R command:
-                </small>
 
-                <div style="text-align: center; padding: 0.5rem; background-color: #eee; margin-top: 1rem; margin-bottom: 1rem">
-                  <span style="font-family: 'Courier New', 'Roboto Mono', monospace">
-                    <small>write.table(res, file = 'filepath.tsv', sep = "\t", row.names = TRUE, col.names = NA)</small>
-                  </span>
-                </div>
+                  <div style="text-align: center; padding: 0.5rem; background-color: #eee; margin-top: 1rem; margin-bottom: 1rem">
+                    <span style="font-family: 'Courier New', 'Roboto Mono', monospace">
+                      write.table(res, file = 'filepath.tsv', sep = "\t", row.names = TRUE, col.names = NA)
+                    </span>
+                  </div>
 
-                <small>
                   In the current version of GenExVis, the DESeq2 result file must be tab-separated and must contain exactly 7 columns (feature name, base mean, log2 fold change, log2 fold change standard error [lfcSE], Wald statistic [stat], Wald test p-value [pvalue], and Benjamini-Hochberg adjusted p-value [padj]).
                   <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Read less...</a>
-                </small>
-              </div>
-              <div v-else>
-                <small style="text-align: justify">
-                  On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions, import your count table, and import all DESeq2 results. This procedure happens wholly offline only in your web browser. No data will be saved for future uses or sent to any kind of server.
+                </span>
+                <div v-else>
                   <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Read more...</a>
-                </small>
-              </div>
+                </div>
+                -->
+              </small>
             </b-card>
           </div>
           <b-row style="margin-top: 1rem">
@@ -154,11 +158,15 @@
                 >
                   <b-card-body>
                     <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
-                      <small>Upload your normalized and/or unnormalized count tables. Every tab-separated count table format is supported.
+                      <small>Import your normalized and/or unnormalized count tables. Every tab-separated count table format is supported.
                         <span v-if="longHelp_counts">
-                          <br>
-                          A count table is a standard file format in differential expression analysis. It contains - on a one feature per line base - the amount of reads mapped to a specific feature per sample.
+                          <br><br>
+                          A count table is a standard file format in differential expression analysis. It contains - on a one feature per line base - the number of reads mapped to a specific feature per sample.
                           Typical tools for creating this table are <a href="http://subread.sourceforge.net/">featureCounts</a> and <a href="https://htseq.readthedocs.io">HTSeq-Count</a>.
+                          <br><br>
+                          After selecting a file, you will get a summary of the count table columns. You can check if all columns got the correct condition assigned,
+                          select a normalization type (only for metadata, no functionality at the moment), and you must select the column with the unique feature identifiers.
+                          For selecting the correct feature identifier column, just assign <b>'--Feature name--'</b> to this column.
                           <br>
                           <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Read less...</a>
                         </span>
@@ -189,9 +197,20 @@
                   style="padding-bottom: 1rem"
                 >
                   <b-card-body>
-                    <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                    <b-card style="width:80%; margin: auto auto 1rem;">
                       <small>
+                        Import your DESeq2 result tables. If the file name contains the pattern '&lt;conditionA&gt;_vs_&lt;conditionB&gt;', the condition will be automatically assigned to the correct result table.
                         <span v-if="longHelp_deseq">
+                          <br><br>
+                          A DESeq2 result table has exactly 7 columns and is tab-separated. It must contain the feature name, the base mean, the log2 fold change, the log2 fold change standard error (lfcSE),
+                          the Wald statistic (stat), the Wald test p-value (pvalue), and the Benjamini-Hochberg adjusted p-value (padj) in precisely this order. The fastest way to create this file is with the following command:
+                          <div style="text-align: center; padding: 0.5rem; background-color: #eee; margin-top: 1rem; margin-bottom: 1rem">
+                            <span style="font-family: 'Courier New', 'Roboto Mono', monospace">
+                              res &lt;- results(dds, contrast=c("condition","treated","untreated"))
+                              <br>
+                              write.table(res, file = 'treated_vs_untreated.tsv', sep = "\t", row.names = TRUE, col.names = NA)
+                            </span>
+                          </div>
                           <br>
                           <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Read less...</a>
                         </span>
