@@ -203,8 +203,8 @@
       return {
         selectedCondition1: '',
         selectedCondition2: '',
-        selectedDistributionType: 'p-value',
-        distributionTypes: ['p-value', 'adj. p-value', 'log2 fold change'],
+        selectedDistributionType: 'p-value (adjusted)',
+        distributionTypes: ['p-value', 'p-value (adjusted)', 'log2 fold change'],
         xAxisMinValue: 0,
         xAxisMaxValue: 1,
         xAxisStepsize: 0.01,
@@ -410,7 +410,7 @@
             data = vue.createHistogram(parseFloat(vue.xAxisMinValue) || 0, parseFloat(vue.xAxisMaxValue) || 1,
               parseFloat(vue.xAxisStepsize) || 0.01, vue.pValueData)
             break
-          case 'adj. p-value':
+          case 'p-value (adjusted)':
             data = vue.createHistogram(parseFloat(vue.xAxisMinValue) || 0, parseFloat(vue.xAxisMaxValue) || 1,
               parseFloat(vue.xAxisStepsize) || 0.01, vue.adjustedPValueData)
             break

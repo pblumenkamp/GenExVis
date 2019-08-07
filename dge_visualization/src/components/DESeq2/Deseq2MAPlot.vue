@@ -134,7 +134,7 @@
         selectedCondition1: '',
         selectedCondition2: '',
         inputPThreshold: '0.001',
-        useAdjPValue: false,
+        useAdjPValue: true,
         tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
         rowNames: [],
         tableData: []

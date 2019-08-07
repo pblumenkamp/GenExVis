@@ -178,7 +178,7 @@
         commonMaxValue: null,
         selectedCondition1: '',
         selectedCondition2: '',
-        selectedDistributionType: 'p-value',
+        selectedDistributionType: 'p-value (adjusted)',
         selectedNormalization: '',
         selectedAmount: 10,
         maxcount: 50,
