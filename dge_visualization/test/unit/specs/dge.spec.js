@@ -317,6 +317,9 @@ describe('Tests for DGE access', () => {
       expect(analysis.conditions.condition1).toBe('wt')
       expect(analysis.conditions.condition2).toBe('mut1')
     }
+
+    let smallDGE_opposite = dge.getAllGenesFromDESeq2('mut1', 'wt')
+    expect(smallDGE).toEqual(smallDGE_opposite)
   })
 })
 

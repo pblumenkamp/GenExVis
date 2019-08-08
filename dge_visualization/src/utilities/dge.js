@@ -363,11 +363,12 @@ export class DGE {
 
     for (let geneName of this.geneNames) {
       for (let analysis of this.getGene(geneName).deseq2Analyses) {
-        if (analysis.hasEqualConditions(conditions)) {
+        if (analysis.hasEqualConditions(conditions) || analysis.hasEqualConditions(conditions.getOpposite())) {
           dge._addGene(this.getGene(geneName))
           for (let conditionPair of this.getGene(geneName).deseq2ConditionPairs) {
             dge._registerConditionPair(conditionPair)
           }
+          break
         }
       }
     }
