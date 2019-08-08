@@ -511,8 +511,22 @@ describe('Tests with Gene objects', () => {
     expect(gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut1')).pAdj).toBe(0.002)
     expect(gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut2')).pAdj).toBe(0.1)
     expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'mut2')).pAdj).toBe(0.2)
+  })
 
-    expect(gene.getDESEQ2Analysis(new ConditionPair('mut2', 'mut1'))).toBeNull()
+  test('get Analysis to specific conditions (condition pair in reverse order)', () => {
+    let gene = new Gene('gene_1')
+    gene.addDESEQ2Analysis(new ConditionPair('wt', 'mut1'), 100, 2, 0.1, 0.2, 0.001, 0.002)
+    gene.addDESEQ2Analysis(new ConditionPair('mut1', 'mut2'), 100, 2, 0.1, 0.2, 0.1, 0.2)
+
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).baseMean).toBe(100)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).log2FoldChange).toBe(-2)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).lfcSE).toBe(0.1)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).stat).toBe(-0.2)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).pValue).toBe(0.001)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).pAdj).toBe(0.002)
+
+    expect(gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut2'))).toBeNull()
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut2', 'wt'))).toBeNull()
   })
 
   test('add count data to gene', () => {
@@ -543,6 +557,7 @@ describe('Tests with Gene objects', () => {
       'WT': [50, 1, 30],
       'Mut': [5, 1, 30]
     })
+    expect(gene.getAllCountData('unknown_normalization')).toEqual({})
   })
 
 })
@@ -574,5 +589,18 @@ describe('Test ConditionPairs', () => {
     expect(cp.isEqual(cp)).toBe(true)
     expect(cp.isEqual(cp3)).toBe(true)
     expect(cp.isEqual(cp2)).toBe(false)
+  })
+
+  test('work with opposite ConditionPairs', () => {
+    let cp1 = new ConditionPair('wt', 'wt')
+    let cp2 = new ConditionPair('wt', 'mut2')
+    let cp3 = new ConditionPair('mut2', 'wt')
+    expect(cp1.isOpposite(cp1)).toBe(true)
+    expect(cp2.isOpposite(cp2)).toBe(false)
+    expect(cp1.isOpposite(cp2)).toBe(false)
+    expect(cp2.isOpposite(cp3)).toBe(true)
+
+    expect(cp2.getOpposite()).toBeInstanceOf(ConditionPair)
+    expect(cp2.getOpposite().isEqual(cp3)).toBe(true)
   })
 })

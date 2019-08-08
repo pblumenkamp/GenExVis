@@ -551,6 +551,8 @@ export class Gene {
     for (let thisAnalysis of this._deseq2_analyses) {
       if (thisAnalysis.hasEqualConditions(conditionPair)) {
         return thisAnalysis
+      } else if (thisAnalysis.hasEqualConditions(conditionPair.getOpposite())) {
+        return new DESeq2Analysis(conditionPair.getOpposite(), thisAnalysis.baseMean, -thisAnalysis.log2FoldChange, thisAnalysis.lfcSE, -thisAnalysis.stat, thisAnalysis.pValue, thisAnalysis.pAdj)
       }
     }
 
@@ -680,6 +682,22 @@ export class ConditionPair {
    */
   isEqual (other) {
     return (this.condition1 === other.condition1) && (this.condition2 === other.condition2)
+  }
+
+  /**
+   *
+   * @param {ConditionPair} other
+   */
+  isOpposite (other) {
+    return (this.condition1 === other.condition2) && (this.condition2 === other.condition1)
+  }
+
+  /**
+   *
+   * @return {ConditionPair}
+   */
+  getOpposite () {
+    return new ConditionPair(this.condition2, this.condition1)
   }
 }
 
