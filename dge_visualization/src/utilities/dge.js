@@ -305,23 +305,12 @@ export class DGE {
     let genes = new Set()
     let conditions = new ConditionPair(condition1, condition2)
 
-    if (adjustedValues) {
-      for (let geneName of this.geneNames) {
-        for (let analysis of this.getGene(geneName).deseq2Analyses) {
-          if (analysis.hasEqualConditions(conditions)) {
-            if (analysis.pAdj <= maxP) {
-              genes.add(geneName)
-            }
-          }
-        }
-      }
-    } else {
-      for (let geneName of this.geneNames) {
-        for (let analysis of this.getGene(geneName).deseq2Analyses) {
-          if (analysis.hasEqualConditions(conditions)) {
-            if (analysis.pValue <= maxP) {
-              genes.add(geneName)
-            }
+    for (let geneName of this.geneNames) {
+      for (let analysis of this.getGene(geneName).deseq2Analyses) {
+        let thisPValue = (adjustedValues) ? analysis.pAdj : analysis.pValue
+        if (analysis.hasEqualConditions(conditions) || analysis.hasEqualConditions(conditions.getOpposite())) {
+          if (thisPValue <= maxP) {
+            genes.add(geneName)
           }
         }
       }

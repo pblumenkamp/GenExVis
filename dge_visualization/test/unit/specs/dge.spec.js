@@ -368,6 +368,11 @@ describe('Tests for DGE subset', () => {
     expect(dge.getNamesOfSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1', true).size).toBe(0)
     expect(dge.getNamesOfSignificantGenesFromDESeq2(0.02, 'wt', 'mut1', true).size).toBe(2)
     expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut2').size).toBe(1)
+
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.05, 'mut1', 'wt')).toEqual(dge.getNamesOfSignificantGenesFromDESeq2(0.05, 'wt', 'mut1'))
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'mut1', 'wt')).toEqual(dge.getNamesOfSignificantGenesFromDESeq2(0.5, 'wt', 'mut1'))
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.0005, 'mut1', 'wt')).toEqual(dge.getNamesOfSignificantGenesFromDESeq2(0.0005, 'wt', 'mut1'))
+    expect(dge.getNamesOfSignificantGenesFromDESeq2(0.01, 'mut1', 'wt')).toEqual(dge.getNamesOfSignificantGenesFromDESeq2(0.01, 'wt', 'mut1'))
   })
 
   test('get all DESeq2 gene names', () => {
