@@ -377,9 +377,13 @@ describe('Tests for DGE subset', () => {
     expect(geneNames.has('gene_2')).toBe(true)
     expect(geneNames.has('gene_3')).toBe(true)
     expect(geneNames.has('gene_4')).toBe(true)
+    expect(dge.getNamesOfAllGenesFromDESeq2('mut1', 'wt')).toEqual(geneNames)
+
     geneNames = dge.getNamesOfAllGenesFromDESeq2('wt', 'mut2')
     expect(geneNames.size).toBe(1)
     expect(geneNames.has('gene_4')).toBe(true)
+    expect(dge.getNamesOfAllGenesFromDESeq2('mut2', 'wt')).toEqual(geneNames)
+
   })
 
   test('get all DESeq2 genes', () => {

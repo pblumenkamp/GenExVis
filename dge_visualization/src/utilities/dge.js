@@ -342,8 +342,9 @@ export class DGE {
 
     for (let geneName of this.geneNames) {
       for (let analysis of this.getGene(geneName).deseq2Analyses) {
-        if (analysis.hasEqualConditions(conditions)) {
+        if (analysis.hasEqualConditions(conditions) || analysis.hasEqualConditions(conditions.getOpposite())) {
           genes.add(geneName)
+          break
         }
       }
     }
