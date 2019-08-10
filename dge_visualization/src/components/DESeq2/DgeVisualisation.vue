@@ -1,6 +1,6 @@
 /*eslint-env node*/
 <template>
-  <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center">
+  <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center; border: 0px solid black">
     <h1>Differential Gene Expression - Visualisations</h1>
     <b-card style="height: 60%; border: 1px solid lightslategray; width: 100%">
       <!-- REGULATION TYPE SINGLE SELECT-->
@@ -153,26 +153,148 @@
             </b-row>
           </b-container>
         </div>
-        <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" style="margin-top: 90px; width: 100%">
-          <b-container style="width: 100%; max-width: 100%; border: 0px solid black">
-            <b-row style="width: 100%; border: 0px solid black">
-              <b-col style="width: 50%; max-width: 50%;border: 0px solid black">
-                <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
-                <div v-for="(item, index) in filteredOperonList" :key="index" style="width:100%">
-                  <!-- Element for Highchart graphic -->
-                  <div :id="index" style="height: 600px; width: 100%; max-width: 100%; margin-top: 10px; border: 1px solid black"></div>
-                </div>
-              </b-col>
-              <b-col style="width: 50%; max-width: 50%">
-                <div
-                  v-for="(operon, index) in tableList"
-                  :key="index"
-                  class="wrapper"
-                  style="height: 600px; margin-top: 10px; margin-left: 5em; max-width: 100%"
-                >
+        <!-- overflow: hidden in blue div works but table not scrollable-->
+        <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" style="margin-top: 90px; width: 1300px; border: 0px solid blue;">
+          <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
+          <!-- index is also used to get table data-->
+          <table style="width: auto; max-width: 100%; display: inline-block; border: 0px solid darkviolet">
+            <tr v-for="(item, index) in filteredOperonList" :key="index" style="width: 100%; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px">
+              <td>
+                <!-- Element for Highchart graphic -->
+                <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid green"></div>
+              </td>
+              <td>
+                <!--Table in the column for selection, table and buttons -->
+                <!--<div style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 2px solid red"> -->
+                <table style="width: auto; max-width: 100%; border: 0px solid red">
+                  <tr>
+                    <!-- first column table properties selection menu-->
+                    <td style="vertical-align: top">
+                      <h4 style="white-space: nowrap">Select table data</h4>
+                      <multiselect
+                        v-model="selectedTableOptions"
+                        :options="tableOptions"
+                        :multiple="false"
+                        :close-on-select="true"
+                        :clear-on-select="false"
+                        :preserve-search="true"
+                        :show-labels="true"
+                        :preselect-first="false"
+                        placeholder="Select table data"
+                        selected-label="Selected"
+                        select-label="Click to select"
+                        deselect-label="Click to remove"
+                      >
+                        <template slot="selection" slot-scope="{ values, search, isOpen }">
+                          <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                        </template>
+                      </multiselect>
+                    </td>
+                    <!-- scrollable table body -->
+                    <td>
+                      <table style="width: 100%; margin-left: 20px">
+                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
+                          <th style="border: 1px solid black; white-space: nowrap">{{ gene.name }}</th>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.start }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.end }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.strand }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.description }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.log2fold }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.pValue }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.pAdj }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.lfcSE }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.baseMean }}</td>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.stat }}</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
+                              Rounded Values
+                            </b-form-checkbox>
+                          </td>
+                          <td>
+                            <div :id="index" style="margin-top: 10px; text-align: left; margin-left: 10px; white-space: nowrap" @click="downloadOperonTable($event)">
+                              <font-awesome-icon :icon="faDownload" /> Download table
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <!--
+          <b-row v-for="(item, index) in filteredOperonList" :key="index" style="width: 100%; border: 0px solid black">
+            <b-col style="width: auto; max-width: 50%;border: 0px solid black">
+               Element for Highchart graphic
+              <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid red"></div>
+            </b-col>
+            <b-col style="width: auto; max-width: 50%; border: 2px solid green;">
+              Table in the column for table and buttons
+
+              <table style="border: 2px solid red">
+                <tr>
+                   fixed first column
+                  <td>
+                    <table>
+                      <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
+                        <th style="border: 1px solid black">{{ gene.name }}</th>
+                      </tr>
+                    </table>
+                  </td>
+                   scrollable table body
+                  <td>
+                    <div class="table-responsive">
+                      <table style="overflow-x: scroll; display: block">
+                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
+                          <td>{{ gene.start }}</td>
+                          <td>{{ gene.end }}</td>
+                          <td>{{ gene.strand }}</td>
+                          <td>{{ gene.description }}</td>
+                          <td>{{ gene.log2fold }}</td>
+                          <td>{{ gene.pValue }}</td>
+                          <td>{{ gene.pAdj }}</td>
+                          <td>{{ gene.lfcSE }}</td>
+                          <td>{{ gene.baseMean }}</td>
+                          <td>{{ gene.stat }}</td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+              </table> -->
+        <!--
                   <b-row>
+                    <b-col style="border: 2px solid green; min-width: auto">
+                      <table style=" width: auto;">
+                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
+                          <th style="border: 1px solid black; width: 150px">{{ gene.name }}</th>
+                        </tr>
+                      </table>
+                    </b-col>
+                    <b-col style="border: 2px solid red; overflow-x: scroll; max-width: 90%">
+                      <table>
+                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
+                          <td>{{ gene.start }}</td>
+                          <td>{{ gene.end }}</td>
+                          <td>{{ gene.strand }}</td>
+                          <td>{{ gene.description }}</td>
+                          <td>{{ gene.log2fold }}</td>
+                          <td>{{ gene.pValue }}</td>
+                          <td>{{ gene.pAdj }}</td>
+                          <td>{{ gene.lfcSE }}</td>
+                          <td>{{ gene.baseMean }}</td>
+                          <td>{{ gene.stat }}</td>
+                        </tr>
+                      </table>
+                    </b-col>
+                    -->
+        <!--
                     <table style="border-collapse: separate; width: 100%; display: block; overflow-x: scroll; overflow-y: visible;">
-                      <tr v-for="(gene, index_j) in operon" :key="index_j">
+                      <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
                         <th class="fixedFirstColumn" style="border: 1px solid black; width: 150px">{{ gene.name }}</th>
                         <td>{{ gene.start }}</td>
                         <td>{{ gene.end }}</td>
@@ -186,24 +308,21 @@
                         <td>{{ gene.stat }}</td>
                       </tr>
                     </table>
-                  </b-row>
-                  <b-row>
-                    <b-col>
-                      <b-form-checkbox v-model="roundedValues" style="margin-top: 10px">
-                        Rounded Values
-                      </b-form-checkbox>
-                    </b-col>
-                    <b-col>
-                      <div :id="index" style="margin-top: 10px" @click="downloadOperonTable($event)">
-                        <font-awesome-icon :icon="faDownload" /> Download table
-                      </div>
-                    </b-col>
-                  </b-row>
-                </div>
-              </b-col>
-            </b-row>
-          </b-container>
-        </div>
+                    -->
+        <!--
+          <b-row>
+            <b-col>
+              <b-form-checkbox v-model="roundedValues" style="margin-top: 10px">
+                Rounded Values
+              </b-form-checkbox>
+            </b-col>
+            <b-col>
+              <div :id="index" style="margin-top: 10px" @click="downloadOperonTable($event)">
+                <font-awesome-icon :icon="faDownload" /> Download table
+              </div>
+            </b-col>
+          </b-row>
+          -->
       </div>
     </b-card>
   </div>
@@ -257,9 +376,12 @@
         inputPThresholdVENN: 0.001,
         uniqueGenesRawData: null,
         // concerning table download
-        roundedValues: false,
+        roundedValues: true,
         tableHeaders: null,
-        downloadDict: null
+        downloadDict: null,
+        tableFileName: "",
+        tableOptions:[],
+        selectedTableOptions:[],
       }
     },
     computed: {
@@ -277,9 +399,9 @@
             this.$store.state.registeredConditions.indexOf(condition2) === -1) {
             continue
           }
-          // in conditions1, there is the condition all DGE data have "in common" (dataType Set)
+          // in conditions1, there are the 1st conditions
           conditions1.add(condition1);
-          // in conditions 2, there are all the compare-conditions
+          // in conditions 2, there are the 2nd conditions
           conditions2.add(condition2);
         }
         // arrays needed for vue-multiselect
@@ -288,6 +410,14 @@
         // returns a list of sets
         return [conditions1, conditions2]
       },
+      // options for the cluster tables
+      // user should be able to select all DESeq2 value types and all gff3 info types
+      //tableOptions (){
+        //let tableOptions=['log2Fold' , 'p value (adjusted)', 'base mean' , 'lfcse' , 'p value' , 'stat'];
+        //for(let i =0; i<this.filteredOperonList.length; i++){
+        //let oneTableData = this.filteredOperonList[i];
+        //return tableOptions
+      //},
       dge () {
         return this.$store.state.currentDGE;
       },
@@ -424,6 +554,15 @@
         //////////////////////////////////////////////////////////////////////////////
         for(let key of keys){
           let value = deseq2_gff3Match[key];
+          //
+          // initializing variables for attribute assignment to features
+          var attributes = value['attributes'];
+          var splitAttributes = attributes.split(';');
+          var dummyDict={};
+          var identifier;
+          var info;
+          //
+          // initializing/defining variables for deseq2Analysis of feature
           let deseq2Analysis = theDGE.getGene(key).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
           var geneName = key;
           var start = value['start'];
@@ -448,7 +587,6 @@
           }else{
             product = 'unknown';
           }
-
           // if pValue matches user criteria
           if (deseq2Analysis.pAdj <= this.inputPThreshold) {
             // getting data based on regulation type and inputLog2FoldThreshold
@@ -471,7 +609,19 @@
                   parent: parent,
                   child: child,
                   product: product
+                };
+                // adding ALL gff3 attributes for the feature to its dict
+                for (let attribute of splitAttributes){
+                  let splitAttribute=attribute.split('=');
+                  identifier = splitAttribute[0];
+                  // adding identifier to table options
+                  if(!this.tableOptions.includes(identifier)){
+                    this.tableOptions.push(identifier);
+                  }
+                  info = splitAttribute[1];
+                  dummyDict[identifier] = info;
                 }
+                this.geneDict[geneName]=Object.assign({}, this.geneDict[geneName], dummyDict);
               }
             } else if (this.selectedRegulationType === "downregulated") {
               if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
@@ -492,7 +642,19 @@
                   parent: parent,
                   child: child,
                   product: product
+                };
+                // adding ALL gff3 attributes for the feature to its dict
+                for (let attribute of splitAttributes){
+                  let splitAttribute=attribute.split('=');
+                  identifier = splitAttribute[0];
+                  // adding identifier to table options
+                  if(!this.tableOptions.includes(identifier)){
+                    this.tableOptions.push(identifier);
+                  }
+                  info = splitAttribute[1];
+                  dummyDict[identifier] = info;
                 }
+                this.geneDict[geneName]=Object.assign({}, this.geneDict[geneName], dummyDict);
               }
             } else if (this.selectedRegulationType === "both") {
               if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
@@ -513,11 +675,26 @@
                   parent: parent,
                   child: child,
                   product: product
+                };
+                // adding ALL gff3 attributes for the feature to its dict
+                for (let attribute of splitAttributes){
+                  let splitAttribute=attribute.split('=');
+                  identifier = splitAttribute[0];
+                  // adding identifier to table options
+                  if(!this.tableOptions.includes(identifier)){
+                    console.log('in if');
+                    this.tableOptions.push(identifier);
+                  }
+                  info = splitAttribute[1];
+                  dummyDict[identifier] = info;
                 }
+                this.geneDict[geneName]=Object.assign({}, this.geneDict[geneName], dummyDict);
               }
             }
           }
         }
+        this.tableOptions.unshift('log2Fold' , 'p value (adjusted)', 'base mean' , 'lfcse' , 'p value' , 'stat');
+        console.log(this.tableOptions);
       },
       formatBARCHARTdata(){
         // sort by start
@@ -593,17 +770,20 @@
           for(let item in dataList[index]){
             if(parseInt(item) === 0){
               plotTitle=plotTitle+'Pos. '+dataList[index][item]['start']+" - ";
+              this.tableFileName =dataList[index][item]['start'] + '_';
             }
             else if(parseInt(item) === (dataList[index].length-1)){
-              plotTitle=plotTitle+'Pos. '+dataList[index][item]['end']
+              plotTitle=plotTitle+'Pos. '+dataList[index][item]['end'];
+              this.tableFileName = this.tableFileName + dataList[index][item]['end']+ '_';
             }
           }
+          this.tableFileName = this.tableFileName + this.selectedCondition1 + '_vs_' + this.selectedCondition2;
           // chart Options
           let options = {
             chart: {
               type: 'column',
               zoomType: 'xy',
-              height: '500px'
+              height: 'auto'
             },
             title: {
               text: plotTitle
@@ -615,7 +795,7 @@
               tickInterval: 1,
               type: "category",
               labels: {
-                rotation:90,
+                rotation:270,
                 format: "{value}",
                 style: {
                   fontSize: '14px'
@@ -666,8 +846,19 @@
             },
             series: [{
               name: 'GENES',
+              zones: [
+                {
+                  // downregulated
+                  value: 0, // values up to zero (not including)
+                  color: 'rgba(223, 83, 83, .5)'
+                }, {
+                // upregulated
+                  color: 'rgba(16, 16, 238, 0.4)' // values from zero (including)
+                }
+
+              ],
               pointWidth: pointWidth,
-              color: 'rgba(223, 83, 83, .5)'
+              //color: 'rgba(223, 83, 83, .5)'  //OLD one color for all
             }]
           };
           //setting data in the chart options (still in for loop, this is done for each series in the dataList one after the other)
@@ -744,65 +935,13 @@
             document.body.removeChild(link)
           }
         }
-        downloadFile(csvContent, 'operonTable.csv')
+        downloadFile(csvContent, this.tableFileName)
       }
     }
   }
 
-
-
-
 </script>
 
 <style scoped>
-  .fixedFirstColumn{
-    position:absolute;
-    width:5em;
-    left:0;
-    top:auto;
-    border-right: 0px none black;
-    border-top-width:1px; /*only relevant for first row*/
-    margin-top:-1.5px; /*compensate for top border*/
-  }
-  th, td {
-    margin:0;
-    border:0px solid black; /* useful to seperate columns if wanted*/
-    border-top-width:0px;
-    white-space:nowrap;
-    background-color: white;
-  }
-  /* collapse all borders */
-  .wrapper table{
-    width:100%;
-    margin-left: 65px;
-    border-collapse:collapse;
-    border-top: none;
-    background-color: black;
-    border-spacing: 1px;
-    border-left: none;
-  }
 
-  /* activate all borders */
-  .wrapper table td {
-    border-bottom: none;
-    border-left: none;
-    border-top: none;
-  }
-
-  /* turn off unnecessary borders: */
-  .wrapper table tr:first-child td{
-    border-top:none;
-  }
-
-  .wrapper table tr:last-child td{
-    border-bottom:none;
-  }
-
-  .wrapper table tr td:last-child{
-    border-right:none;
-  }
-
-  .wrapper table tr td:first-child{
-    border-left:none;
-  }
 </style>
