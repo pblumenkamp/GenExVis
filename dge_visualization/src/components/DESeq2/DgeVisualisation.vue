@@ -200,7 +200,7 @@
                             <td v-if="index_j === 0 && index_k===0">'Feature'</td>
                             <td v-else>{{ info }}</td>
                           </div>-->
-                            <td v-for="info in gene" :key="info" style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
+                            <td v-for="(info, index_k) in gene" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
                           <!-- <th style="border: 1px solid black; white-space: nowrap">{{ gene.name }}</th>
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.start }}</td>
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.end }}</td>
@@ -390,7 +390,7 @@
         tableFileName: "",
         tableOptions:[],
         selectedTableOptions:[],
-        tableList2:null
+        tableList2:[]
       }
     },
     computed: {
@@ -529,6 +529,11 @@
         this.createOperonTableData2();
       },
       selectedTableOptions (){
+        // console.log('before');
+        // console.log(this.tableList2);
+        // this.tableList2 = [];
+        // console.log('after');
+        // console.log(this.tableList2);
         this.createOperonTableData2();
       }
     },
@@ -925,12 +930,16 @@
         }
       },*/
       createOperonTableData2(){
-        if(this.selectedTableOptions) {
-          //console.log('in createOperonTableData 2');
-          this.tableList2 = [];
+        console.log('in create');
+        let oneTable=[];
+        this.tableList2 = [];
+        if(this.selectedTableOptions.length>0) {
+          // console.log('in function');
+          // console.log(this.tableList2);
+          //this.tableList2 = [];
           this.downloadDict={};
           for (let i = 0; i < this.filteredOperonList.length; i++) {
-            let oneTable = [];
+            oneTable = [];
             // adding selected headers as deepcopy due to call by reference of JS
             // and infinite update hook with selectedOptionsWatcher if unshifting 'Feature'
             let tableHeaders = JSON.parse(JSON.stringify(this.selectedTableOptions));
@@ -939,7 +948,8 @@
             //let downloadHeaders = this.selectedTableOptions;
             //oneDownloadTable.push(downloadHeaders);
             // adding row info to tables
-            let oneTableData = this.filteredOperonList[i];
+            // let oneTableData = this.filteredOperonList[i];
+            let oneTableData = JSON.parse(JSON.stringify(this.filteredOperonList[i]));
             for (let k = 0; k < oneTableData.length; k++) {
               let oneTableRow = [];
               var featureID = oneTableData[k]['ID'];
@@ -947,8 +957,10 @@
               for (let identifier of this.selectedTableOptions) {
                 if (oneTableData[k][identifier]) {
                   // rounded values
-                  if (this.roundedValues && (identifier === 'log2fold' || identifier === 'stat' || identifier === 'base mean' || identifier === 'lfcSE')) {
-                    oneTableRow.push(Math.round(oneTableData[k][identifier] * 100) / 100);
+                  if (this.roundedValues && (identifier === 'log2fold' || identifier === 'stat' || identifier === 'baseMean' || identifier === 'lfcSE')) {
+                    let value = oneTableData[k][identifier];
+                    value = Math.round(value*100)/100;
+                    oneTableRow.push(value);
                     // rounded p Values
                   } else if (this.roundedValues && (identifier === 'pAdj' || identifier === 'pValue')) {
                     let value = oneTableData[k][identifier];
@@ -966,14 +978,11 @@
               }
             }
             this.tableList2.push(oneTable);
-            for(let table of this.tableList2){
-              console.log(table);
-            }
             this.downloadDict[i] = oneTable;
           }
           // Array of arrays. One inner array represents data for one table. Inner array is an array of arrays, too. One inner array of
           // the inner array is one table row; NAME IS MISSING IN THE FIRST ROW!
-          //console.log(this.tableList2);
+          console.log(this.tableList2);
         }
         },
       downloadOperonTable: function(event) {
