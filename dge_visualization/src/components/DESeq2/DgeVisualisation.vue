@@ -174,8 +174,8 @@
                       <multiselect
                         v-model="selectedTableOptions"
                         :options="tableOptions"
-                        :multiple="false"
-                        :close-on-select="true"
+                        :multiple="true"
+                        :close-on-select="false"
                         :clear-on-select="false"
                         :preserve-search="true"
                         :show-labels="true"
@@ -190,11 +190,18 @@
                         </template>
                       </multiselect>
                     </td>
-                    <!-- scrollable table body -->
+                    <!-- feature table  -->
                     <td>
-                      <table style="width: 100%; margin-left: 20px">
-                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
-                          <th style="border: 1px solid black; white-space: nowrap">{{ gene.name }}</th>
+                      <div v-if="selectedTableOptions.length !== 0">
+                        <table style="width: 100%; margin-left: 20px">
+                          <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
+                          <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
+                            <!--  <div v-for="(info, index_k) in gene" :key="info">
+                            <td v-if="index_j === 0 && index_k===0">'Feature'</td>
+                            <td v-else>{{ info }}</td>
+                          </div>-->
+                            <td v-for="info in gene" :key="info" style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
+                          <!-- <th style="border: 1px solid black; white-space: nowrap">{{ gene.name }}</th>
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.start }}</td>
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.end }}</td>
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.strand }}</td>
@@ -204,21 +211,22 @@
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.pAdj }}</td>
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.lfcSE }}</td>
                           <td style="white-space: nowrap; border: 1px solid black">{{ gene.baseMean }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.stat }}</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
-                              Rounded Values
-                            </b-form-checkbox>
-                          </td>
-                          <td>
-                            <div :id="index" style="margin-top: 10px; text-align: left; margin-left: 10px; white-space: nowrap" @click="downloadOperonTable($event)">
-                              <font-awesome-icon :icon="faDownload" /> Download table
-                            </div>
-                          </td>
-                        </tr>
-                      </table>
+                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.stat }}</td>-->
+                          </tr>
+                          <tr>
+                            <td>
+                              <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
+                                Rounded Values
+                              </b-form-checkbox>
+                            </td>
+                            <td>
+                              <div :id="index" style="margin-top: 10px; text-align: left; margin-left: 10px; white-space: nowrap" @click="downloadOperonTable($event)">
+                                <font-awesome-icon :icon="faDownload" /> Download table
+                              </div>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
                     </td>
                   </tr>
                 </table>
@@ -382,6 +390,7 @@
         tableFileName: "",
         tableOptions:[],
         selectedTableOptions:[],
+        tableList2:null
       }
     },
     computed: {
@@ -410,14 +419,6 @@
         // returns a list of sets
         return [conditions1, conditions2]
       },
-      // options for the cluster tables
-      // user should be able to select all DESeq2 value types and all gff3 info types
-      //tableOptions (){
-        //let tableOptions=['log2Fold' , 'p value (adjusted)', 'base mean' , 'lfcse' , 'p value' , 'stat'];
-        //for(let i =0; i<this.filteredOperonList.length; i++){
-        //let oneTableData = this.filteredOperonList[i];
-        //return tableOptions
-      //},
       dge () {
         return this.$store.state.currentDGE;
       },
@@ -456,7 +457,8 @@
         if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          this.createOperonTableData();
+          // this.createOperonTableData();
+          this.createOperonTableData2();
           this.operonCount= this.filteredOperonList.length;
         }
       },
@@ -464,7 +466,8 @@
         if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          this.createOperonTableData();
+          // this.createOperonTableData();
+          this.createOperonTableData2();
           this.operonCount= this.filteredOperonList.length;
         }
       },
@@ -481,7 +484,8 @@
         if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          this.createOperonTableData();
+          // this.createOperonTableData();
+          this.createOperonTableData2();
           this.operonCount= this.filteredOperonList.length;
         }
       },
@@ -494,7 +498,9 @@
         if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          this.createOperonTableData();
+          // this.createOperonTableData();
+          this.createOperonTableData2();
+
           this.operonCount= this.filteredOperonList.length;
         }
       },
@@ -502,7 +508,9 @@
         if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          this.createOperonTableData();
+          // this.createOperonTableData();
+          this.createOperonTableData2();
+
           this.operonCount = this.filteredOperonList.length;
         }
       },
@@ -510,12 +518,18 @@
         if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          this.createOperonTableData();
+          // this.createOperonTableData();
+          this.createOperonTableData2();
+
           this.operonCount = this.filteredOperonList.length;
         }
       },
       roundedValues (){
-        this.createOperonTableData();
+        // this.createOperonTableData();
+        this.createOperonTableData2();
+      },
+      selectedTableOptions (){
+        this.createOperonTableData2();
       }
     },
     updated(){
@@ -682,7 +696,6 @@
                   identifier = splitAttribute[0];
                   // adding identifier to table options
                   if(!this.tableOptions.includes(identifier)){
-                    console.log('in if');
                     this.tableOptions.push(identifier);
                   }
                   info = splitAttribute[1];
@@ -693,8 +706,8 @@
             }
           }
         }
-        this.tableOptions.unshift('log2Fold' , 'p value (adjusted)', 'base mean' , 'lfcse' , 'p value' , 'stat');
-        console.log(this.tableOptions);
+        this.tableOptions.unshift('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat');
+        //console.log(this.tableOptions);
       },
       formatBARCHARTdata(){
         // sort by start
@@ -867,7 +880,7 @@
           Highcharts.chart(index, options);
         }
       },
-      createOperonTableData(){
+/*      createOperonTableData(){
         this.tableList=[];
         this.downloadDict={};
         for(let i =0; i<this.filteredOperonList.length; i++){
@@ -910,7 +923,59 @@
           this.tableList.push(oneTable);
           this.downloadDict[i]=oneDownloadTable;
         }
-      },
+      },*/
+      createOperonTableData2(){
+        if(this.selectedTableOptions) {
+          //console.log('in createOperonTableData 2');
+          this.tableList2 = [];
+          this.downloadDict={};
+          for (let i = 0; i < this.filteredOperonList.length; i++) {
+            let oneTable = [];
+            // adding selected headers as deepcopy due to call by reference of JS
+            // and infinite update hook with selectedOptionsWatcher if unshifting 'Feature'
+            let tableHeaders = JSON.parse(JSON.stringify(this.selectedTableOptions));
+            tableHeaders.unshift('Feature');
+            oneTable.push(tableHeaders);
+            //let downloadHeaders = this.selectedTableOptions;
+            //oneDownloadTable.push(downloadHeaders);
+            // adding row info to tables
+            let oneTableData = this.filteredOperonList[i];
+            for (let k = 0; k < oneTableData.length; k++) {
+              let oneTableRow = [];
+              var featureID = oneTableData[k]['ID'];
+              // adding info chosen by user only
+              for (let identifier of this.selectedTableOptions) {
+                if (oneTableData[k][identifier]) {
+                  // rounded values
+                  if (this.roundedValues && (identifier === 'log2fold' || identifier === 'stat' || identifier === 'base mean' || identifier === 'lfcSE')) {
+                    oneTableRow.push(Math.round(oneTableData[k][identifier] * 100) / 100);
+                    // rounded p Values
+                  } else if (this.roundedValues && (identifier === 'pAdj' || identifier === 'pValue')) {
+                    let value = oneTableData[k][identifier];
+                    value = value.toPrecision(4);
+                    oneTableRow.push(value);
+                    // other values
+                  } else {
+                    oneTableRow.push(oneTableData[k][identifier]);
+                  }
+                }
+                if(! oneTableRow.includes(featureID)){
+                  oneTableRow.unshift(featureID);
+                }
+                oneTable.push(oneTableRow);
+              }
+            }
+            this.tableList2.push(oneTable);
+            for(let table of this.tableList2){
+              console.log(table);
+            }
+            this.downloadDict[i] = oneTable;
+          }
+          // Array of arrays. One inner array represents data for one table. Inner array is an array of arrays, too. One inner array of
+          // the inner array is one table row; NAME IS MISSING IN THE FIRST ROW!
+          //console.log(this.tableList2);
+        }
+        },
       downloadOperonTable: function(event) {
         // getting elements ID in order to download one table only
         let targetID= event.currentTarget.id;
