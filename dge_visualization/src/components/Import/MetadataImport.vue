@@ -36,7 +36,7 @@
             <transition name="fade">
               <b-card style="width:80%; margin: auto">
                 Chose the type of feature, the Deseq2 Analysis was performed for. This value is relevant for the subsequent analysis of the metadata. If the type is
-                unknown, chose "gene".
+                unknown, chose "CDS".
               </b-card>
             </transition>
           </b-collapse>
@@ -290,7 +290,7 @@
                 this.sofa.push(splitEntry[2])
               }
              }
-            console.log(this.showRemovedFeatures);
+            //console.log(this.showRemovedFeatures);
             resolve(this.sofa);
             this.fileScanned= true;
           };
