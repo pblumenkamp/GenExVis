@@ -158,7 +158,7 @@
           <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
           <!-- index is also used to get table data-->
           <table style="width: auto; max-width: 100%; display: inline-block; border: 0px solid darkviolet">
-            <tr v-for="(item, index) in filteredOperonList" :key="index" style="width: 100%; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px">
+            <tr v-for="(item, index) in filteredOperonList" :key="index" style="width: 100%; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
               <td>
                 <!-- Element for Highchart graphic -->
                 <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid green"></div>
@@ -192,8 +192,8 @@
                     </td>
                     <!-- feature table  -->
                     <td>
-                      <div v-if="selectedTableOptions.length !== 0">
-                        <table style="width: 100%; margin-left: 20px">
+                      <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
+                        <table style="width: 100%; margin-left: 20px;">
                           <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
                           <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
                             <!--  <div v-for="(info, index_k) in gene" :key="info">
@@ -701,8 +701,9 @@
                 for (let attribute of splitAttributes){
                   let splitAttribute=attribute.split('=');
                   identifier = splitAttribute[0];
-                  // adding identifier to table options
-                  if(!this.tableOptions.includes(identifier)){
+                  // adding identifier to table options, but not ID, since ID is written to the table always
+                  // as first column with tag "feature"
+                  if(!this.tableOptions.includes(identifier) && identifier !== 'ID'){
                     this.tableOptions.push(identifier);
                   }
                   info = splitAttribute[1];
@@ -713,7 +714,10 @@
             }
           }
         }
-        this.tableOptions.unshift('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat');
+        // adding DESeq2 options to selection menu
+        if(!this.tableOptions.includes('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat')){
+          this.tableOptions.unshift('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat');
+        }
         //console.log(this.tableOptions);
       },
       formatBARCHARTdata(){
