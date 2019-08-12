@@ -371,8 +371,7 @@
               `<tr><td>${this.selectedCondition2}:</td><td style="padding-left: 0.25rem; text-align: right">{point.y:,.1f}</td></tr>` +
               '<tr style="height: 0.5rem"><td colspan="2"></td></tr>' +
               '<tr><td><b>{point.analysisDescription}</b></td></tr>' +
-              '<tr><td>log2 fold change:</td><td style="padding-left: 0.25rem; text-align: right">{point.log2FC:,.3f}</td></tr>' +
-              '<tr><td>p-value:</td><td style="padding-left: 0.25rem; text-align: right">{point.pValue}</td></tr>' +
+              '<tr><td>log2 fold change:</td><td style="padding-left: 0.25rem; text-align: right">{point.log2FC}</td></tr>' +
               '<tr><td>adjusted p-value:</td><td style="padding-left: 0.25rem; text-align: right">{point.pAdj}</td></tr>',
             footerFormat: '</table>',
             followPointer: true
@@ -458,24 +457,20 @@
           let countsA = Object.values(gene.getCountData(this.selectedNormalization, this.selectedCondition1))
           let countsB = Object.values(gene.getCountData(this.selectedNormalization, this.selectedCondition2))
           let analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition1, vue.selectedCondition2))
-          if (analysis === null) {
-            analysis = gene.getDESEQ2Analysis(new ConditionPair(vue.selectedCondition2, vue.selectedCondition1))
-          }
           let meanA = countsA.reduce((a, b) => a + b, 0) / countsA.length
           let meanB = countsB.reduce((a, b) => a + b, 0) / countsB.length
           let dataPoint = {
             gene: geneName,
             x: (vue.useLogarithmicScale) ? meanA + 0.01 : meanA,
             y: (vue.useLogarithmicScale) ? meanB + 0.01 : meanB,
-            pValue: analysis.pValue.toExponential(2),
-            pAdj: analysis.pAdj.toExponential(2),
-            log2FC: analysis.log2FoldChange,
-            analysisDescription: `${analysis.conditions.condition1} vs. ${analysis.conditions.condition2}`
+            pAdj: (analysis != null) ? analysis.pAdj.toExponential(2) : 'Unknown',
+            log2FC: (analysis != null) ? analysis.log2FoldChange.toFixed(2) : 'Unknown',
+            analysisDescription: `${vue.selectedCondition1} vs. ${vue.selectedCondition2}`
           }
 
           maxValue = Math.max(dataPoint.x, dataPoint.y, maxValue)
 
-          if (dataPoint.pAdj <= parseFloat(vue.adjPValueThreshold) && (dataPoint.log2FC >= parseFloat(vue.log2FoldChange) || dataPoint.log2FC <= -parseFloat(vue.log2FoldChange))) {
+          if (analysis != null && (dataPoint.pAdj <= parseFloat(vue.adjPValueThreshold) && (dataPoint.log2FC >= parseFloat(vue.log2FoldChange) || dataPoint.log2FC <= -parseFloat(vue.log2FoldChange)))) {
             options.series[1].data.push(dataPoint)
           } else {
             options.series[0].data.push(dataPoint)
