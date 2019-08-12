@@ -397,6 +397,38 @@ export class DGE {
     }
     return newDGE
   }
+
+  /**
+   *
+   * @param {string} condition
+   * @return {Array<ConditionPair>} List of condition pairs
+   */
+  getConditionPairsContaining (condition) {
+    let pairs = []
+    for (let pair of this._conditionPairs) {
+      if (pair.condition1 === condition || pair.condition2 === condition) {
+        pairs.push(pair)
+      }
+    }
+    return pairs
+  }
+
+  /**
+   *
+   * @param {string} condition
+   * @return {Set<string>} Set of conditions
+   */
+  getConditionMatesOf (condition) {
+    let mates = new Set()
+    for (let pair of this._conditionPairs) {
+      if (pair.condition1 === condition) {
+        mates.add(pair.condition2)
+      } else if (pair.condition2 === condition) {
+        mates.add(pair.condition1)
+      }
+    }
+    return mates
+  }
 }
 
 /**
@@ -543,7 +575,7 @@ export class Gene {
       if (thisAnalysis.hasEqualConditions(conditionPair)) {
         return thisAnalysis
       } else if (thisAnalysis.hasEqualConditions(conditionPair.getOpposite())) {
-        return new DESeq2Analysis(conditionPair.getOpposite(), thisAnalysis.baseMean, -thisAnalysis.log2FoldChange, thisAnalysis.lfcSE, -thisAnalysis.stat, thisAnalysis.pValue, thisAnalysis.pAdj)
+        return new DESeq2Analysis(conditionPair, thisAnalysis.baseMean, -thisAnalysis.log2FoldChange, thisAnalysis.lfcSE, -thisAnalysis.stat, thisAnalysis.pValue, thisAnalysis.pAdj)
       }
     }
 

@@ -12,7 +12,7 @@
         </option>
       </template>
       <option
-        v-for="cond in Array.from(dgeConditions[0])"
+        v-for="cond in conditions"
         :key="cond"
         :value="cond"
       >
@@ -32,10 +32,9 @@
         </option>
       </template>
       <option
-        v-for="cond in Array.from(dgeConditions[1])"
+        v-for="cond in conditionMate"
         :key="cond"
         :value="cond"
-        :disabled="!conditions2.has(cond)"
       >
         {{ cond }}
       </option>
@@ -141,27 +140,11 @@
       }
     },
     computed: {
-      dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
-            this.$store.state.registeredConditions.indexOf(condition2) === -1) {
-            continue
-          }
-          conditions1.add(condition1)
-          conditions2.add(condition2)
-        }
-        return [conditions1, conditions2]
+      conditions () {
+        return Array.from(this.$store.state.registeredConditions).sort()
       },
-      conditions2 () {
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (condition1 === this.selectedCondition1) {
-            conditions2.add(condition2)
-          }
-        }
-        return conditions2
+      conditionMate () {
+        return Array.from(this.dge.getConditionMatesOf(this.selectedCondition1)).sort()
       },
       pThreshold () {
         return parseFloat(this.inputPThreshold)

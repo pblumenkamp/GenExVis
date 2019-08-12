@@ -15,7 +15,7 @@
           -- Please select the first condition --
         </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[0])" :value="cond">{{ cond }}</option>
+      <option v-for="cond in conditions" :value="cond">{{ cond }}</option>
     </b-form-select>
 
     <b-form-select
@@ -29,7 +29,7 @@
           -- Please select the second condition --
         </option>
       </template>
-      <option v-for="cond in Array.from(dgeConditions[1])" :value="cond" :disabled="!conditions2.has(cond)">
+      <option v-for="cond in conditionMate" :value="cond">
         {{ cond }}
       </option>
     </b-form-select>
@@ -505,23 +505,11 @@
       registeredConditions () {
         return this.$store.state.registeredConditions
       },
-      dgeConditions () {
-        let conditions1 = new Set()
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          conditions1.add(condition1)
-          conditions2.add(condition2)
-        }
-        return [conditions1, conditions2]
+      conditions () {
+        return Array.from(this.$store.state.registeredConditions).sort()
       },
-      conditions2 () {
-        let conditions2 = new Set()
-        for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
-          if (condition1 === this.selectedCondition1) {
-            conditions2.add(condition2)
-          }
-        }
-        return conditions2
+      conditionMate () {
+        return Array.from(this.$store.state.currentDGE.getConditionMatesOf(this.selectedCondition1)).sort()
       },
       pThreshold () {
         return parseFloat(this.inputPThreshold)

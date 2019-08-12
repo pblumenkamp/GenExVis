@@ -321,6 +321,30 @@ describe('Tests for DGE access', () => {
     let smallDGE_opposite = dge.getAllGenesFromDESeq2('mut1', 'wt')
     expect(smallDGE).toEqual(smallDGE_opposite)
   })
+
+  test('access condition pairs', () => {
+    let dge = new DGE()
+    dge.addDESeq2Data('gene_1', 'wt', 'mut1', 100, 2, 0.1, 0.2, 0.01, 0.002)
+    dge.addDESeq2Data('gene_1', 'wt', 'mut2', 100, 2, 0.1, 0.2, 0.01, 0.002)
+    dge.addDESeq2Data('gene_1', 'mut1', 'mut2', 100, 2, 0.1, 0.2, 0.01, 0.002)
+    dge.addDESeq2Data('gene_1', 'wt', 'mut3', 100, 2, 0.1, 0.2, 0.01, 0.002)
+    dge.addDESeq2Data('gene_1', 'mut1', 'mut3', 100, 2, 0.1, 0.2, 0.01, 0.002)
+    dge.addDESeq2Data('gene_1', 'mut2', 'mut3', 100, 2, 0.1, 0.2, 0.01, 0.002)
+
+    expect(dge.getConditionPairsContaining('wt')).toEqual([
+      new ConditionPair('wt', 'mut1'),
+      new ConditionPair('wt', 'mut2'),
+      new ConditionPair('wt', 'mut3'),
+    ])
+    expect(dge.getConditionPairsContaining('mut3')).toEqual([
+      new ConditionPair('wt', 'mut3'),
+      new ConditionPair('mut1', 'mut3'),
+      new ConditionPair('mut2', 'mut3'),
+    ])
+
+    expect(dge.getConditionMatesOf('wt')).toEqual(new Set(['mut1', 'mut2', 'mut3']))
+    expect(dge.getConditionMatesOf('mut2')).toEqual(new Set(['wt', 'mut1', 'mut3']))
+  })
 })
 
 describe('Tests for DGE subset', () => {
@@ -536,6 +560,7 @@ describe('Tests with Gene objects', () => {
     expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).stat).toBe(-0.2)
     expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).pValue).toBe(0.001)
     expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).pAdj).toBe(0.002)
+    expect(gene.getDESEQ2Analysis(new ConditionPair('mut1', 'wt')).conditions).toEqual(new ConditionPair('mut1', 'wt'))
 
     expect(gene.getDESEQ2Analysis(new ConditionPair('wt', 'mut2'))).toBeNull()
     expect(gene.getDESEQ2Analysis(new ConditionPair('mut2', 'wt'))).toBeNull()
