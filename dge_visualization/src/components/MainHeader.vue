@@ -42,6 +42,9 @@
           <b-dropdown-item to="/changelogs">
             Changelogs
           </b-dropdown-item>
+          <b-dropdown-item to="/licenses">
+            Licenses
+          </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
     </b-collapse>
