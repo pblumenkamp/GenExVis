@@ -293,6 +293,7 @@
             //console.log(this.showRemovedFeatures);
             resolve(this.sofa);
             this.fileScanned= true;
+            this.showRemovedFeatures=true;
           };
           reader.readAsText(file);
         })
