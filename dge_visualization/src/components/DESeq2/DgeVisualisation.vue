@@ -537,6 +537,8 @@
         this.createOperonTableData2();
       }
     },
+    // barcharts can be drawn only, if the html div already exists with a unique ID to render to
+    // nextTick waits for DOM model changes (html div creating) and executes draw barchart afterwards
     updated(){
       if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
         this.$nextTick(()=>{
@@ -950,6 +952,7 @@
             // adding row info to tables
             // let oneTableData = this.filteredOperonList[i];
             let oneTableData = JSON.parse(JSON.stringify(this.filteredOperonList[i]));
+            // console.log(this.filteredOperonList[i].length);
             for (let k = 0; k < oneTableData.length; k++) {
               let oneTableRow = [];
               var featureID = oneTableData[k]['ID'];
@@ -966,7 +969,7 @@
                     let value = oneTableData[k][identifier];
                     value = value.toPrecision(4);
                     oneTableRow.push(value);
-                    // other values
+                    // other values & not rounded values
                   } else {
                     oneTableRow.push(oneTableData[k][identifier]);
                   }
@@ -974,15 +977,16 @@
                 if(! oneTableRow.includes(featureID)){
                   oneTableRow.unshift(featureID);
                 }
-                oneTable.push(oneTableRow);
               }
+              // adding row to table
+              oneTable.push(oneTableRow);
+              // console.log(oneTableRow);
             }
             this.tableList2.push(oneTable);
             this.downloadDict[i] = oneTable;
           }
-          // Array of arrays. One inner array represents data for one table. Inner array is an array of arrays, too. One inner array of
-          // the inner array is one table row; NAME IS MISSING IN THE FIRST ROW!
-          console.log(this.tableList2);
+          // Array of arrays. 1st level inner array = one Table; 2nd level inner array = 1 table row
+          //console.log(this.tableList2);
         }
         },
       downloadOperonTable: function(event) {
