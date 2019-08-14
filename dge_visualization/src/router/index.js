@@ -32,6 +32,11 @@ export default new Router({
       component: ImportMain
     },
     {
+      path: '/export_deseq2',
+      name: 'Deseq2_Export',
+      component: Deseq2Download
+    },
+    {
       path: '/countdata',
       redirect: {name: 'CountData_GeneCountHM'},
       name: 'CountData',

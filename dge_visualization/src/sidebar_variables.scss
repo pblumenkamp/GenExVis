@@ -1,0 +1,47 @@
+//Selection color
+$primary-color: #4285f4;
+//Sidebar color
+$base-bg: #343438;
+
+//Font color
+$item-color: #fff;
+//Font color active item
+$item-active-color: #fff;
+
+//Font color open (dropdown) item
+$item-open-color: #fff;
+//Background color open item
+$item-open-bg: $primary-color;
+
+//Font color during hover event
+$item-hover-color: #fff;
+//Background color during hover event
+$item-hover-bg: rgba(darken( $base-bg, 5% ), 0.5);
+
+$icon-color: #fff;
+$icon-bg: transparent;
+
+$icon-active-color: #fff;
+$icon-active-bg: $icon-bg;
+
+$icon-open-color: #fff;
+$icon-open-bg: transparent;
+
+$mobile-item-color: #fff;
+$mobile-icon-color: #fff;
+$mobile-item-bg: $primary-color;
+$mobile-icon-bg: $icon-open-bg;
+
+$dropdown-bg: lighten( $base-bg, 5% );
+$dropdown-color: #fff;
+
+$dropdown-dropdown-bg: lighten( $dropdown-bg, 5% );
+$dropdown-color: #fff;
+
+$item-font-size: 1rem;
+$item-line-height: 30px;
+$item-padding: 10px;
+$icon-height: 30px;
+$icon-width: 30px;
+
+$collapsed_padding_top: 30px;
