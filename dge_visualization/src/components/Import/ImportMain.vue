@@ -31,10 +31,10 @@
                   </div>
 
                   In the current version of GenExVis, the DESeq2 result file must be tab-separated and must contain exactly 7 columns (feature name, base mean, log2 fold change, log2 fold change standard error [lfcSE], Wald statistic [stat], Wald test p-value [pvalue], and Benjamini-Hochberg adjusted p-value [padj]).
-                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Read less...</a>
+                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Show less...</a>
                 </span>
                 <div v-else>
-                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Read more...</a>
+                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Show more...</a>
                 </div>
                 -->
               </small>
@@ -71,10 +71,10 @@
                             <li>As a comma-separated list via the input field.</li>
                             <li>As a file via Browse button. The file contains just the conditions, one in each line.</li>
                           </ul>
-                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Read less...</a>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Show less...</a>
                         </span>
                         <span v-else>
-                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Read more...</a>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Show more...</a>
                         </span>
                       </small>
                     </b-card>
@@ -168,10 +168,10 @@
                           select a normalization type (only for metadata, no functionality at the moment), and you must select the column with the unique feature identifiers.
                           For selecting the correct feature identifier column, just assign <b>'--Feature name--'</b> to this column.
                           <br>
-                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Read less...</a>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Show less...</a>
                         </span>
                         <span v-else>
-                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Read more...</a>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Show more...</a>
                         </span>
                       </small>
                     </b-card>
@@ -212,10 +212,10 @@
                             </span>
                           </div>
                           <br>
-                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Read less...</a>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Show less...</a>
                         </span>
                         <span v-else>
-                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Read more...</a>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Show more...</a>
                         </span>
                       </small>
                     </b-card>
