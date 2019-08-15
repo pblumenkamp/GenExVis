@@ -3,17 +3,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <b-container fluid>
       <b-row rows="12">
-        <b-col class="col" cols="1">
-          <b-nav vertical class="deseq2Navbar">
-            <b-nav-item to="/deseq2/overview">Overview</b-nav-item>
-            <b-nav-item to="/deseq2/volcano_plot">Volcano Plot</b-nav-item>
-            <b-nav-item to="/deseq2/ma_plot">MA Plot</b-nav-item>
-            <b-nav-item to="/deseq2/distributions">Distributions</b-nav-item>
-            <b-nav-item to="/deseq2/top_10">Top 10</b-nav-item>
-            <b-nav-item to="/deseq2/deseq2download">Download</b-nav-item>
-          </b-nav>
-        </b-col>
-        <b-col class="col" cols="9">
+        <b-col class="col" cols="10">
           <router-view />
         </b-col>
         <b-col class="col" cols="2">
