@@ -45,3 +45,12 @@ $icon-height: 30px;
 $icon-width: 30px;
 
 $collapsed_padding_top: 30px;
+
+
+//Data sidebar (right)
+
+$dsb_cards-background: lighten($base-bg, 5%);
+
+$dsb_scrollbar-bar: lighten($dsb_cards-background, 10%);
+$dsb_scrollbar-bg: darken($dsb_cards-background, 5%)
+

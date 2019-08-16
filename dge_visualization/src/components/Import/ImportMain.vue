@@ -2,7 +2,7 @@
   <div>
     <b-container fluid class="mb-1">
       <b-row>
-        <b-col cols="10">
+        <b-col cols="12">
           <div>
             <h1 style="text-align: center">Import Expression Data</h1>
             <b-card style="width: 90%; margin: auto;">
@@ -61,7 +61,7 @@
                   style="padding-bottom: 1rem"
                 >
                   <b-card-body>
-                    <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                    <b-card style="width:80%; margin: auto auto 1rem;">
                       <small>Please register all the conditions you want to use. Try to use unambiguous names, which can also be found inside of the sample names, to benefit from autocomplete in the next steps.
                         <span v-if="longHelp_condition">
                           <br>
@@ -225,29 +225,6 @@
               </b-card>
             </div>
           </b-row>
-        </b-col>
-
-        <b-col cols="2">
-          <b-card v-if="this.$store.state.deseqlist.length > 0" class="filesBox">
-            DESeq2 Files:
-            <li
-              v-for="fileName in this.$store.state.deseqlist"
-              :key="fileName"
-              style="margin-left: 0.5rem"
-            >
-              <small>{{ fileName }}</small>
-            </li>
-          </b-card>
-          <b-card v-if="this.$store.state.countlist.length > 0" class="filesBox">
-            Count files:
-            <li
-              v-for="fileName in this.$store.state.countlist"
-              :key="fileName"
-              style="margin-left: 0.5rem"
-            >
-              <small>{{ fileName }}</small>
-            </li>
-          </b-card>
         </b-col>
       </b-row>
     </b-container>

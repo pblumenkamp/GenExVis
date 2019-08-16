@@ -4,28 +4,6 @@
       <b-col cols="10">
         <router-view />
       </b-col>
-      <b-col cols="2">
-        <b-card v-if="this.$store.state.deseqlist.length > 0" class="filesBox">
-          DESeq2 Files:
-          <li
-            v-for="fileName in this.$store.state.deseqlist"
-            :key="fileName"
-            style="margin-left: 0.5rem"
-          >
-            <small>{{ fileName }}</small>
-          </li>
-        </b-card>
-        <b-card v-if="this.$store.state.countlist.length > 0" class="filesBox">
-          Count files:
-          <li
-            v-for="fileName in this.$store.state.countlist"
-            :key="fileName"
-            style="margin-left: 0.5rem"
-          >
-            <small>{{ fileName }}</small>
-          </li>
-        </b-card>
-      </b-col>
     </b-row>
   </b-container>
 </template>
@@ -45,5 +23,24 @@
     max-height: 25rem;
     white-space: nowrap;
     padding: 0.5rem
+  }
+  #style-1::-webkit-scrollbar-track
+  {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+  }
+
+  #style-1::-webkit-scrollbar
+  {
+    width: 12px;
+    background-color: #F5F5F5;
+  }
+
+  #style-1::-webkit-scrollbar-thumb
+  {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #555;
   }
 </style>
