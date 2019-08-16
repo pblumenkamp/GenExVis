@@ -2,7 +2,7 @@
 <template>
   <div>
     <h1 style="text-align: center">
-      Gene Counts Heat Map
+      <b>Gene Counts Heat Map</b>
     </h1>
 
     <div style="margin: 0 auto; width: 60%">

@@ -1,7 +1,7 @@
 /*eslint-env node*/
 <template>
   <div style="text-align: center">
-    <h1>Gene Count Comparison</h1>
+    <h1><b>Gene Count Comparison</b></h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">

@@ -1,7 +1,7 @@
 <template>
   <div style="text-align: center">
     <h1>
-      Top {{ selectedAmount }} Genes
+      <b>Top {{ selectedAmount }} Genes</b>
     </h1>
 
     <b-form-select
