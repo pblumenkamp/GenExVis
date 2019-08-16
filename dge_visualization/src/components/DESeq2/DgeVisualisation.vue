@@ -59,7 +59,7 @@
               :preserve-search="true"
               :show-labels="true"
               :preselect-first="false"
-              placeholder="Choose first condition"
+              placeholder="Choose second condition"
               selected-label="Selected"
               select-label="Click to select"
               deselect-label="Click to remove"
@@ -71,7 +71,7 @@
           </b-col>
         </b-row>
         <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
-          <h4>Chose chart specifications</h4>
+          <h4>Specify barchart properties</h4>
           <b-container>
             <b-row>
               <!-- REGULATION TYPE SINGLE SELECT-->
@@ -98,7 +98,7 @@
               </b-col>
               <!-- OPERON SIZE SINGLE SELECT -->
               <b-col>
-                <h4>Select feature amount</h4>
+                <h4>Select minimum group size</h4>
                 <multiselect
                   v-model="selectedOperonSize"
                   :options="operonSizes"
@@ -108,7 +108,7 @@
                   :preserve-search="true"
                   :show-labels="true"
                   :preselect-first="false"
-                  placeholder="Choose operon size"
+                  placeholder="Choose minimum group size"
                   selected-label="Selected"
                   select-label="Click to select"
                   deselect-label="Click to remove"
@@ -148,8 +148,8 @@
                   style="width: 10rem; margin-right: 0px"
                 />
               </b-col>
-              <b-col style="width: 25%;">Biggest putative cluster: {{ biggestOperon }}</b-col>
-              <b-col style="width: 25%;">Putative clusters (total): {{ operonCount }}</b-col>
+              <b-col style="width: 25%;">Biggest putative group: {{ biggestOperon }}</b-col>
+              <b-col style="width: 25%;">Putative groups (total): {{ operonCount }}</b-col>
             </b-row>
           </b-container>
         </div>
@@ -380,9 +380,6 @@
         tableList: null,
         operonCount: 0,
         biggestOperon: 0,
-        inputLog2FoldThresholdVENN: 1.0,
-        inputPThresholdVENN: 0.001,
-        uniqueGenesRawData: null,
         // concerning table download
         roundedValues: true,
         tableHeaders: null,
@@ -785,6 +782,7 @@
         }
       },
       drawBARCHART(){
+        console.log('in draw barchart');
         //this.tableList = [];
         let dataList = this.filteredOperonList;
         for (var index in dataList){
@@ -793,11 +791,13 @@
           // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:..., etc},{},{},{}]
           for(let item in dataList[index]){
             if(parseInt(item) === 0){
-              plotTitle=plotTitle+'Pos. '+dataList[index][item]['start']+" - ";
+              let myStart = this.thousandSeperator(dataList[index][item]['start']);
+              var myEnd= this.thousandSeperator(dataList[index][item]['end']);
+              plotTitle=plotTitle+'Pos. '+myStart+" - ";
               this.tableFileName =dataList[index][item]['start'] + '_';
             }
             else if(parseInt(item) === (dataList[index].length-1)){
-              plotTitle=plotTitle+'Pos. '+dataList[index][item]['end'];
+              plotTitle=plotTitle+'Pos. '+ myEnd;
               this.tableFileName = this.tableFileName + dataList[index][item]['end']+ '_';
             }
           }
@@ -1018,6 +1018,23 @@
           }
         }
         downloadFile(csvContent, this.tableFileName)
+      },
+      thousandSeperator(number) {
+        // Info: Die '' sind zwei Hochkommas
+        number = '' + number;
+        if (number.length > 3) {
+          let mod = number.length % 3;
+          let output = (mod > 0 ? (number.substring(0,mod)) : '');
+          for (let i=0 ; i < Math.floor(number.length / 3); i++) {
+            if ((mod === 0) && (i === 0)) {
+              output += number.substring(mod + 3 * i, mod + 3 * i + 3);
+            }else{
+        // setting thousand separator as '
+          output+= "'" + number.substring(mod + 3 * i, mod + 3 * i + 3);
+            }
+          }
+          return output;
+        } else{ return number }
       }
     }
   }
