@@ -91,30 +91,6 @@
                 <font-awesome-icon icon="trash-alt" style="margin-right: 0.2rem" /> Clear
               </button>
             </div>
-            <!--
-            <table style="width: 100%; border: 1px solid lightslategray">
-              <tr>
-                <td>
-                  <div
-                    id="genesTable"
-                    :class="{ 'genesTable-closed':!showGenes, 'genesTable-opened':showGenes }"
-                  >
-                    <button
-                      v-for="gene in Array.from(this.$store.state.subDGE.geneNames)"
-                      :key="gene"
-                      type="button"
-                      class="btn btn-outline-dark btn-xs gene-button"
-                      @click="removeGene(gene)"
-                    >
-                      {{ gene }}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </table>
-            <button class="btn btn-dark btn-sm" style="float: right; margin: 0.1rem;" @click="clearSubset()">
-              <font-awesome-icon :icon="faTrashAlt" /> Clear
-            </button>-->
           </b-card>
 
           <button class="dsb_toggle_btn" @click="collapsed_data = !collapsed_data">
@@ -279,16 +255,20 @@
       },
       onToggleCollapse (collapsed) {
         this.collapsed_sidebar = collapsed
-      },
-      onItemClick () {
-        // console.log(event)
-        // console.log(item)
       }
     }
   }
 </script>
 
 <style lang="scss">
+  /*Customize Bootstrap*/
+  @import "../node_modules/bootstrap/scss/functions";
+  @import "../node_modules/bootstrap/scss/variables";
+  $theme-colors: (
+    primary: #4285F4
+  );
+  @import "../node_modules/bootstrap/scss/bootstrap";
+
   @import "sidebar_variables.scss";
   @import "../node_modules/vue-sidebar-menu/src/scss/vue-sidebar-menu.scss";
   @import "sidebar_variables.scss";
@@ -299,7 +279,7 @@
     -moz-osx-font-smoothing: grayscale;
     padding-left: 15vw;
     padding-right: 15vw;
-    transition: padding-left 1s, padding-right 1s;
+    transition: padding-left 0.5s, padding-right 0.5s;
   }
 
   #app.collapsed_sidebar_left {
@@ -331,7 +311,7 @@
   }
 
   .v-sidebar-menu {
-    transition: width 1s;
+    transition: width 0.5s;
   }
 
   .vsm_collapsed > .vsm--list {
@@ -359,7 +339,7 @@
     top: 0;
     right: 0;
     overflow-x: hidden;
-    transition: width 1s;
+    transition: width 0.5s;
   }
 
   .dsb_collapsed {
@@ -375,7 +355,7 @@
     top: 0;
     right: 0;
     overflow-x: hidden;
-    transition: width 1s;
+    transition: width 0.5s;
   }
 
   .dsb_toggle_btn {
@@ -474,6 +454,4 @@
     padding: 0.2rem;
     margin: 0.1rem;
   }
-
-
 </style>
