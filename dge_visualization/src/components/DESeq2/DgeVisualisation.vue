@@ -25,7 +25,7 @@
           </template>
         </multiselect>
       </b-col>
-      <div v-if="showOperon">
+      <div v-if="showGroup">
         <b-row style="margin-top: 10px;">
           <!-- Select first condition -->
           <b-col>
@@ -149,7 +149,7 @@
                 />
               </b-col>
               <b-col style="width: 25%;">Biggest putative group: {{ biggestOperon }}</b-col>
-              <b-col style="width: 25%;">Putative groups (total): {{ operonCount }}</b-col>
+              <b-col style="width: 25%;">Putative groups (total): {{ groupCount }}</b-col>
             </b-row>
           </b-container>
         </div>
@@ -158,7 +158,7 @@
           <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
           <!-- index is also used to get table data-->
           <table style="width: auto; max-width: 100%; display: inline-block; border: 0px solid darkviolet">
-            <tr v-for="(item, index) in filteredOperonList" :key="index" style="width: 100%; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
+            <tr v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
               <td>
                 <!-- Element for Highchart graphic -->
                 <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid green"></div>
@@ -196,22 +196,7 @@
                         <table style="width: 100%; margin-left: 20px;">
                           <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
                           <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
-                            <!--  <div v-for="(info, index_k) in gene" :key="info">
-                            <td v-if="index_j === 0 && index_k===0">'Feature'</td>
-                            <td v-else>{{ info }}</td>
-                          </div>-->
                             <td v-for="(info, index_k) in gene" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
-                          <!-- <th style="border: 1px solid black; white-space: nowrap">{{ gene.name }}</th>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.start }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.end }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.strand }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.description }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.log2fold }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.pValue }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.pAdj }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.lfcSE }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.baseMean }}</td>
-                          <td style="white-space: nowrap; border: 1px solid black">{{ gene.stat }}</td>-->
                           </tr>
                           <tr>
                             <td>
@@ -220,7 +205,7 @@
                               </b-form-checkbox>
                             </td>
                             <td>
-                              <div :id="index" style="margin-top: 10px; text-align: left; margin-left: 10px; white-space: nowrap" @click="downloadOperonTable($event)">
+                              <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadOperonTable($event)">
                                 <font-awesome-icon :icon="faDownload" /> Download table
                               </div>
                             </td>
@@ -235,7 +220,7 @@
           </table>
         </div>
         <!--
-          <b-row v-for="(item, index) in filteredOperonList" :key="index" style="width: 100%; border: 0px solid black">
+          <b-row v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; border: 0px solid black">
             <b-col style="width: auto; max-width: 50%;border: 0px solid black">
                Element for Highchart graphic
               <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid red"></div>
@@ -332,6 +317,77 @@
           </b-row>
           -->
       </div>
+      <div v-if="showUniqueGenes">
+        <b-row style="margin-top: 10px;">
+          <!-- Select first condition -->
+          <b-col>
+            <multiselect
+              v-model="selectedCondition1"
+              :options="dgeConditions[0]"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              placeholder="Choose common condition"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-col>
+          <!-- Select second condition -->
+          <b-col>
+            <multiselect
+              v-model="selectedCondition2"
+              :options="dgeConditions[1]"
+              :multiple="true"
+              :close-on-select="false"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              placeholder="Choose compare conditions"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-col>
+        </b-row>
+        <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
+          <b-row style="margin-top: 10px">
+            <b-col>
+              <h4>Select log2Fold Change type</h4>
+              <multiselect
+                v-model="selectedRegulationType"
+                :options="regulationDirections"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :show-labels="true"
+                :preselect-first="false"
+                placeholder="Choose regulation"
+                selected-label="Selected"
+                select-label="Click to select"
+                deselect-label="Click to remove"
+              >
+                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                </template>
+              </multiselect>
+            </b-col>
+          </b-row>
+        </div>
+      </div>
     </b-card>
   </div>
 </template>
@@ -354,40 +410,47 @@
     },
     data () {
       return {
-        // condition selections
+        // graphic/visualisation type selection
         selectedGraphic: '',
-        graphicTypes:['Jointly regulated features', 'log2Fold-change heatmap', 'Uniquely regulated genes', '3D Scatter plot'],
-        showOperon: false,
+        graphicTypes:['Jointly regulated features', 'Uniquely regulated genes', 'log2Fold-change heatmap', '3D Scatter plot'],
+        showGroup: false,
         show3DScatter: false,
         showUniqueGenes: false,
         showHeatMap: false,
         // condition selections
         selectedCondition1: null,
         selectedCondition2: null,
-        // selected threshold defaults
+        //log2Fold change type SingleSelect
+        selectedRegulationType: null,
+        regulationDirections: ["upregulated", "downregulated", "both"],
+        // BARCHART START //
+        // selected threshold defaults for barcharts
         inputPThreshold: 0.001,
         inputLog2FoldThreshold: 0.0,
-        //log2Fold Change Quality SingleSelect
-        selectedRegulationType: "",
-        regulationDirections: ["upregulated", "downregulated", "both"],
-        //operon Size SingleSelect
+        //operon Size SingleSelect for barcharts
         selectedOperonSize: "",
         operonSizes:["2","3","4","5","6","7","8","open end"],
         // big dictionary of data for the operon BARCHART
         geneDict: null,
         geneGapSize: 1000,
-        filteredOperonList: null,
+        filteredGroupList: null,
         tableList: null,
-        operonCount: 0,
+        groupCount: 0,
         biggestOperon: 0,
-        // concerning table download
+        // concerning BARCHART table download
         roundedValues: true,
         tableHeaders: null,
         downloadDict: null,
         tableFileName: "",
-        tableOptions:[],
+        tableOptions:["start", "end", "strand", "phase"],
         selectedTableOptions:[],
-        tableList2:[]
+        tableList2:[],
+        // BARCHART END //
+        // UNIQUELY START //
+        conditionPairList:[],
+        significantP: 0.05,
+        uniqueGenesTableOptions:[],
+        uniqueGenesDataDict:null
       }
     },
     computed: {
@@ -427,45 +490,78 @@
       selectedGraphic(){
         if (this.selectedGraphic === 'Jointly regulated features'){
           this.showHeatMap = false;
-          this.showOperon = true;
+          this.showGroup = true;
           this.showUniqueGenes = false;
           this.show3DScatter = false
         }
         else if(this.selectedGraphic === 'log2Fold-change heatmap'){
           this.showHeatMap = true;
-          this.showOperon = false;
+          this.showGroup = false;
           this.showUniqueGenes = false;
           this.show3DScatter = false
         }
         else if(this.selectedGraphic === 'Uniquely regulated genes'){
           this.showHeatMap = false;
-          this.showOperon = false;
+          this.showGroup = false;
           this.showUniqueGenes = true;
           this.show3DScatter = false
         }
         else if(this.selectedGraphic === '3D Scatter plot'){
           this.showHeatMap = false;
-          this.showOperon = false;
+          this.showGroup = false;
           this.showUniqueGenes = false;
           this.show3DScatter = true
         }
+        // resetting parameter selections
+        this.selectedCondition1 = null;
+        this.selectedCondition2 = null;
+        this.selectedRegulationType=null;
+        this.selectedOperonSize="";
+        this.inputPThreshold= 0.001;
+        this.inputLog2FoldThreshold= 0.0;
+        this.conditionPairList=[];
+        this.significantP=0.001;
       },
       selectedCondition1(){
-        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          // this.createOperonTableData();
-          this.createOperonTableData2();
-          this.operonCount= this.filteredOperonList.length;
+          this.createGroupTableData();
+          this.groupCount= this.filteredGroupList.length;
+        }
+        else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+          this.conditionPairList=[];
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let condition of this.selectedCondition2){
+            // adding each condition pair to conditionPairList
+            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+          }
+          if(this.conditionPairList.length>1){
+            this.getUNIQUEGENESStoreData();
+            this.formatUNIQUEGENESdata();
+          }
         }
       },
       selectedCondition2(){
-        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          // this.createOperonTableData();
-          this.createOperonTableData2();
-          this.operonCount= this.filteredOperonList.length;
+          this.createGroupTableData();
+          this.groupCount= this.filteredGroupList.length;
+        }
+        else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+          this.conditionPairList=[];
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let condition of this.selectedCondition2){
+            // adding each condition pair to conditionPairList
+            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+          }
+          if(this.conditionPairList.length>1){
+            this.getUNIQUEGENESStoreData();
+            this.formatUNIQUEGENESdata();
+          }
         }
       },
       selectedRegulationType () {
@@ -478,12 +574,24 @@
         else if(this.selectedRegulationType === "both"){
           this.inputLog2FoldThreshold = 1.5;
         }
-        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          // this.createOperonTableData();
-          this.createOperonTableData2();
-          this.operonCount= this.filteredOperonList.length;
+          this.createGroupTableData();
+          this.groupCount= this.filteredGroupList.length;
+        }
+        else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+          this.conditionPairList=[];
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let condition of this.selectedCondition2){
+            // adding each condition pair to conditionPairList
+            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+          }
+          if(this.conditionPairList.length>1){
+            this.getUNIQUEGENESStoreData();
+            this.formatUNIQUEGENESdata();
+          }
         }
       },
       selectedOperonSize (){
@@ -492,38 +600,35 @@
         if (this.selectedOperonSize === "open end"){
           this.selectedOperonSize = 2;
         }
-        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          // this.createOperonTableData();
-          this.createOperonTableData2();
+          this.createGroupTableData();
 
-          this.operonCount= this.filteredOperonList.length;
+          this.groupCount= this.filteredGroupList.length;
         }
       },
       inputPThreshold (){
-        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          // this.createOperonTableData();
-          this.createOperonTableData2();
+          this.createGroupTableData();
 
-          this.operonCount = this.filteredOperonList.length;
+          this.groupCount = this.filteredGroupList.length;
         }
       },
       inputLog2FoldThreshold (){
-        if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
-          // this.createOperonTableData();
-          this.createOperonTableData2();
+          this.createGroupTableData();
 
-          this.operonCount = this.filteredOperonList.length;
+          this.groupCount = this.filteredGroupList.length;
         }
       },
       roundedValues (){
         // this.createOperonTableData();
-        this.createOperonTableData2();
+        this.createGroupTableData();
       },
       selectedTableOptions (){
         // console.log('before');
@@ -531,7 +636,7 @@
         // this.tableList2 = [];
         // console.log('after');
         // console.log(this.tableList2);
-        this.createOperonTableData2();
+        this.createGroupTableData();
       }
     },
     // barcharts can be drawn only, if the html div already exists with a unique ID to render to
@@ -544,6 +649,7 @@
       }
     },
     methods: {
+      // START BARCHART//
       getBARCHARTStoreData() {
         // initializing geneDict
         this.geneDict = {};
@@ -774,25 +880,25 @@
         }
         // discard "operons" of length 1 (not an operon)
         // and discard operons smaller than selected size
-        this.filteredOperonList=[];
+        this.filteredGroupList=[];
         for (let i=0; i< operonList.length; i++){
         if (operonList[i].length >= parseInt(this.selectedOperonSize)) {
-            this.filteredOperonList.push(operonList[i]);
+            this.filteredGroupList.push(operonList[i]);
           }
         }
       },
       drawBARCHART(){
-        console.log('in draw barchart');
+        //console.log('in draw barchart');
         //this.tableList = [];
-        let dataList = this.filteredOperonList;
+        let dataList = this.filteredGroupList;
         for (var index in dataList){
           let pointWidth = 30-(dataList[index].length);
           let plotTitle= "";
           // dataList[index] = one operon with data structure: [{name:..., log2fold:..., pValue:..., start:...end:...,strand:..., description:..., etc},{},{},{}]
           for(let item in dataList[index]){
             if(parseInt(item) === 0){
-              let myStart = this.thousandSeperator(dataList[index][item]['start']);
-              var myEnd= this.thousandSeperator(dataList[index][item]['end']);
+              let myStart = this.thousandSeparator(dataList[index][item]['start']);
+              var myEnd= this.thousandSeparator(dataList[index][item]['end']);
               plotTitle=plotTitle+'Pos. '+myStart+" - ";
               this.tableFileName =dataList[index][item]['start'] + '_';
             }
@@ -894,14 +1000,14 @@
 /*      createOperonTableData(){
         this.tableList=[];
         this.downloadDict={};
-        for(let i =0; i<this.filteredOperonList.length; i++){
+        for(let i =0; i<this.filteredGroupList.length; i++){
           let oneTable= [];
           let oneDownloadTable=[];
           this.tableHeaders={name: 'Name', start: 'Start', end: 'End', strand: 'Strand', description: 'product', log2fold: 'log2Fold-Change', pValue: 'pValue', pAdj: 'pValue (adjusted)', lfcSE: 'lfcSE', baseMean: 'Base mean', stat: 'Stat'};
           oneTable.push(this.tableHeaders);
           let downloadHeaders=['Name', 'Start','End','Strand', 'product','log2Fold-Change','pValue','pValue (adjusted)','lfcSE','Base mean','Stat'];
           oneDownloadTable.push(downloadHeaders);
-          let oneTableData = this.filteredOperonList[i];
+          let oneTableData = this.filteredGroupList[i];
           for(let k=0; k<oneTableData.length; k++){
             let oneTableRow;
             let pAdj;
@@ -935,8 +1041,8 @@
           this.downloadDict[i]=oneDownloadTable;
         }
       },*/
-      createOperonTableData2(){
-        console.log('in create');
+      createGroupTableData(){
+        //console.log('in create');
         let oneTable=[];
         this.tableList2 = [];
         if(this.selectedTableOptions.length>0) {
@@ -944,7 +1050,7 @@
           // console.log(this.tableList2);
           //this.tableList2 = [];
           this.downloadDict={};
-          for (let i = 0; i < this.filteredOperonList.length; i++) {
+          for (let i = 0; i < this.filteredGroupList.length; i++) {
             oneTable = [];
             // adding selected headers as deepcopy due to call by reference of JS
             // and infinite update hook with selectedOptionsWatcher if unshifting 'Feature'
@@ -954,9 +1060,9 @@
             //let downloadHeaders = this.selectedTableOptions;
             //oneDownloadTable.push(downloadHeaders);
             // adding row info to tables
-            // let oneTableData = this.filteredOperonList[i];
-            let oneTableData = JSON.parse(JSON.stringify(this.filteredOperonList[i]));
-            // console.log(this.filteredOperonList[i].length);
+            // let oneTableData = this.filteredGroupList[i];
+            let oneTableData = JSON.parse(JSON.stringify(this.filteredGroupList[i]));
+            // console.log(this.filteredGroupList[i].length);
             for (let k = 0; k < oneTableData.length; k++) {
               let oneTableRow = [];
               var featureID = oneTableData[k]['ID'];
@@ -974,7 +1080,10 @@
                     value = value.toPrecision(4);
                     oneTableRow.push(value);
                     // other values & not rounded values
-                  } else {
+                  } else if(identifier === 'start' || identifier === 'end'){
+                    let value = this.thousandSeparator(oneTableData[k][identifier]);
+                    oneTableRow.push(value);
+                  }else {
                     oneTableRow.push(oneTableData[k][identifier]);
                   }
                 }
@@ -1019,7 +1128,270 @@
         }
         downloadFile(csvContent, this.tableFileName)
       },
-      thousandSeperator(number) {
+      // END BARCHART //
+      // START UNIQUE GENES //
+      getUNIQUEGENESStoreData(){
+        // whole dge data
+        let theDGE= this.$store.state.currentDGE;
+
+        // list of sets. one set = id list of significant genes for one condition pair
+        let significantGenes = {};
+        let pooledSignificantGenes=[];
+        for(let conditionPair of this.conditionPairList){
+          // converting original data type set to array for use of array.filter etc to get unique genes
+          let onePairGenes = Array.from(theDGE.getNamesOfSignificantGenesFromDESeq2(this.significantP,conditionPair.condition1, conditionPair.condition2,true));
+          pooledSignificantGenes.push(onePairGenes);
+          significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2]=onePairGenes;
+        }
+        // long list of all significant genes of all condition pairs
+        pooledSignificantGenes= pooledSignificantGenes.flat();
+        // dict for key = cond Pair & value = list of feature IDs
+        let uniquelySignificantGenes={};
+
+        /////////////////////////////////////////////////////////////////
+        // PROOF, that only first occurence is spliced //
+        /*let myTestlist = [1,2,3,4,5,4,3,2,1];
+        let myTestArray = [1,2,4];
+        for (let el of myTestArray){
+          let index = myTestlist.indexOf(el);
+          myTestlist.splice(index,1);
+        }
+        console.log(myTestlist);*/
+        /////////////////////////////////////////////////////////////////
+
+        //key = condition pair, value = list of IDs of significant genes for condition pair
+         for (const [key,value] of Object.entries(significantGenes)){
+           // deepcopy
+           let pooledDummy = JSON.parse(JSON.stringify(pooledSignificantGenes));
+           // iterating single IDs to splice them once from the list
+           for(let id of value){
+             let index = pooledDummy.indexOf(id);
+             pooledDummy.splice(index,1);
+           }
+           // pooledDummy now contains all elements but the value elements
+           // now filtering for unique IDs in the value
+           let uniqueValues = [];
+           for (let id of value){
+             // if the pooledDummy does not include the id, it is unique
+             if(!pooledDummy.includes(id)){
+               uniqueValues.push(id);
+             }
+           }
+           uniquelySignificantGenes[key]=uniqueValues;
+         }
+
+        /////////////////////////////////////////////////////////////////
+         // vice versa check, if value removed from untreated vs clindamycin appears in the other cond pair's value
+         /*if(significantGenes['Untreated_Erythromycin'].includes('cds-NP_414549.1')){
+           console.log('yap');
+         }*/
+        /////////////////////////////////////////////////////////////////
+
+        // whole gff3 data
+        let theGFF3 = this.$store.state.gff3Data;
+        // deseq2Type is object with string value. Getting string only
+        let deseq2Dummy = this.$store.state.deseq2Type;
+        let deseq2Type = Object.values(deseq2Dummy);
+        // value-Dict for e.g. gene (if DESeq2Type was gene)
+        let deseq2_gff3Match = (theGFF3[deseq2Type]);
+        // dict of dicts. 1st level: keys = cond pairs; 2nd level: key= feature id, value = data dict for that feature
+        // structure: uniqueGenesDataDict={condPair1:{id1:{log2fold:2, pValue: 1, pAdj ...., start: 100, end: 642, strand:....}, id2:{...},....}, condPair2:{},...}
+        this.uniqueGenesDataDict={};
+        let name;
+        let log2fold;
+        let pValue;
+        let pAdj;
+        let baseMean;
+        let lfcSE;
+        let stat;
+        let gff3Data;
+        let start;
+        let end;
+        let strand;
+        let phase;
+        let parent;
+        let child;
+        let product;
+        for(const [key,value] of Object.entries(uniquelySignificantGenes)){
+          let keyArray=key.split('_');
+          let cond1 = keyArray[0];
+          let cond2 = keyArray[1];
+          this.uniqueGenesDataDict[key]={};
+          for(let id of value){
+            // getting deseq2 analysis for feature and current loop conditions
+            let deseq2Analysis = theDGE.getGene(id).getDESEQ2Analysis(new ConditionPair(cond1, cond2));
+            //////////////////////////////////////////////////////
+            if (this.selectedRegulationType === "upregulated") {
+              if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
+                name = id;
+                log2fold= (deseq2Analysis.log2FoldChange);
+                pValue= (deseq2Analysis.pValue);
+                pAdj= (deseq2Analysis.pAdj);
+                baseMean=(deseq2Analysis.baseMean);
+                lfcSE=(deseq2Analysis.lfcSE);
+                stat = (deseq2Analysis.stat);
+
+                if(deseq2_gff3Match[id]){
+                  gff3Data=deseq2_gff3Match[id];
+                  let attributes = gff3Data['attributes'];
+                  let splitAttributes = attributes.split(';');
+                  var dummyDict={};
+                  for (let attribute of splitAttributes){
+                    let splitAttribute = attribute.split('=');
+                    let identifier = splitAttribute[0];
+                    let info = splitAttribute[1];
+                    if(!dummyDict[identifier]){
+                      dummyDict[identifier] = info;
+                    }
+                  }
+
+                  // initializing gff3 data variables
+                  start = gff3Data['start'];
+                  end = gff3Data['end'];
+                  strand=gff3Data['strand'];
+                  phase = gff3Data['phase'];
+
+                  if('parent' in gff3Data){
+                    parent = gff3Data['parent'];
+                  }else{
+                    parent = 'none';
+                  }
+                  if('child' in gff3Data){
+                    child=gff3Data['child'];
+                  }else{
+                    child='none';
+                  }
+                  if('product' in gff3Data){
+                    product = gff3Data['product'];
+                  }else{
+                    product = 'unknown';
+                  }
+                }
+              }
+              // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
+              if(!this.uniqueGenesDataDict[key][id]){
+                this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, Parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
+              }
+              this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
+            }
+            else if (this.selectedRegulationType === "downregulated") {
+              if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
+                name = id;
+                log2fold= (deseq2Analysis.log2FoldChange);
+                pValue= (deseq2Analysis.pValue);
+                pAdj= (deseq2Analysis.pAdj);
+                baseMean=(deseq2Analysis.baseMean);
+                lfcSE=(deseq2Analysis.lfcSE);
+                stat = (deseq2Analysis.stat);
+
+                if(deseq2_gff3Match[id]){
+                  gff3Data=deseq2_gff3Match[id];
+                  let attributes = gff3Data['attributes'];
+                  let splitAttributes = attributes.split(';');
+                  // eslint-disable-next-line no-redeclare
+                  var dummyDict={};
+                  for (let attribute of splitAttributes){
+                    let splitAttribute = attribute.split('=');
+                    let identifier = splitAttribute[0];
+                    let info = splitAttribute[1];
+                    if(!dummyDict[identifier]){
+                      dummyDict[identifier] = info;
+                    }
+                  }
+                  // initializing gff3 data variables
+                   start = gff3Data['start'];
+                   end = gff3Data['end'];
+                   strand=gff3Data['strand'];
+                   phase = gff3Data['phase'];
+
+                  if('parent' in gff3Data){
+                    parent = gff3Data['parent'];
+                  }else{
+                    parent = 'none';
+                  }
+                  if('child' in gff3Data){
+                    child=gff3Data['child'];
+                  }else{
+                    child='none';
+                  }
+                  if('product' in gff3Data){
+                    product = gff3Data['product'];
+                  }else{
+                    product = 'unknown';
+                  }
+                }
+              }
+              // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
+              if(!this.uniqueGenesDataDict[key][id]){
+                this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
+              }
+              this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
+            }
+            else if (this.selectedRegulationType === "both") {
+              if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
+                name = id;
+                log2fold= (deseq2Analysis.log2FoldChange);
+                pValue= (deseq2Analysis.pValue);
+                pAdj= (deseq2Analysis.pAdj);
+                baseMean=(deseq2Analysis.baseMean);
+                lfcSE=(deseq2Analysis.lfcSE);
+                stat = (deseq2Analysis.stat);
+
+                if(deseq2_gff3Match[id]){
+                  gff3Data=deseq2_gff3Match[id];
+                  let attributes = gff3Data['attributes'];
+                  let splitAttributes = attributes.split(';');
+                  // eslint-disable-next-line no-redeclare
+                  var dummyDict={};
+                  for (let attribute of splitAttributes){
+                    let splitAttribute = attribute.split('=');
+                    let identifier = splitAttribute[0];
+                    let info = splitAttribute[1];
+                    if(!dummyDict[identifier]){
+                      dummyDict[identifier] = info;
+                    }
+                  }
+
+                  // initializing gff3 data variables
+                   start = gff3Data['start'];
+                   end = gff3Data['end'];
+                   strand=gff3Data['strand'];
+                   phase = gff3Data['phase'];
+
+                  if('parent' in gff3Data){
+                    parent = gff3Data['parent'];
+                  }else{
+                    parent = 'none';
+                  }
+                  if('child' in gff3Data){
+                    child=gff3Data['child'];
+                  }else{
+                    child='none';
+                  }
+                  if('product' in gff3Data){
+                    product = gff3Data['product'];
+                  }else{
+                    product = 'unknown';
+                  }
+                }
+              }
+              // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
+              if(!this.uniqueGenesDataDict[key][id]){
+                this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
+              }
+              this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
+            }
+          }
+        }
+        // console.log(this.uniqueGenesDataDict);
+      },
+      formatUNIQUEGENESdata(){
+        for(let value of Object.values(this.uniqueGenesDataDict)){
+          console.log(value);
+        }
+      },
+      // END UNIQUE GENES //
+      thousandSeparator(number) {
         // Info: Die '' sind zwei Hochkommas
         number = '' + number;
         if (number.length > 3) {
