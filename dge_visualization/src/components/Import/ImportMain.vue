@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 style="text-align: center"><b>Import Expression Data</b></h1>
+    <h1 class="header">Import Expression Data</h1>
     <b-card style="width: 90%; margin: auto;">
       <small style="text-align: justify">
         On this page, you can upload your differential expression data. In the current version, this is a three-step process. You need to register all conditions,

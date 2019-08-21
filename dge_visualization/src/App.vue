@@ -310,6 +310,12 @@
     padding: 0 0 0 0;
   }
 
+  .header {
+    text-align: center;
+    font-weight: bold;
+    padding-bottom: 1rem;
+  }
+
   .v-sidebar-menu {
     transition: width 0.5s;
   }

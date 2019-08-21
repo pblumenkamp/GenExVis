@@ -1,7 +1,7 @@
 /*eslint-env node*/
 <template>
   <div style="text-align: center">
-    <h1><b>Gene Count Distribution</b></h1>
+    <h1 class="header">Gene Count Distribution</h1>
 
     <b-form-select
       v-model="selectedNormalization"

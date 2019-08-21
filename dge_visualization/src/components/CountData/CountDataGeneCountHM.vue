@@ -1,9 +1,7 @@
 /*eslint-env node*/
 <template>
   <div>
-    <h1 style="text-align: center">
-      <b>Gene Counts Heat Map</b>
-    </h1>
+    <h1 class="header">Gene Counts Heat Map</h1>
 
     <div style="margin: 0 auto; width: 60%">
       <div>
