@@ -365,7 +365,7 @@
         <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
           <b-row style="margin-top: 10px">
             <b-col>
-              <h4>Select log2Fold Change type</h4>
+              <p>Select log2Fold Change type</p>
               <multiselect
                 v-model="selectedRegulationType"
                 :options="regulationDirections"
@@ -388,27 +388,43 @@
           </b-row>
           <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType" style="margin-top: 10px">
             <b-row style="margin-top: 10px">
-              <b-col>
-                <h4>Select condition pairs to display uniquely regulated genes for</h4>
-                <multiselect
-                  v-model="selectedConditionPairs"
-                  :options="conditionPairs"
-                  :multiple="true"
-                  :close-on-select="true"
-                  :clear-on-select="false"
-                  :preserve-search="true"
-                  :show-labels="true"
-                  :preselect-first="false"
-                  placeholder="Choose regulation"
-                  selected-label="Selected"
-                  select-label="Click to select"
-                  deselect-label="Click to remove"
-                >
-                  <template slot="selection" slot-scope="{ values, search, isOpen }">
-                    <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                  </template>
-                </multiselect>
-              </b-col>
+              <table>
+                <tr>
+                  <td>
+                    <p>Select condition pairs to display uniquely regulated genes for</p>
+                    <multiselect
+                      v-model="selectedConditionPairs"
+                      :options="conditionPairs"
+                      :multiple="true"
+                      :close-on-select="true"
+                      :clear-on-select="false"
+                      :preserve-search="true"
+                      :show-labels="true"
+                      :preselect-first="false"
+                      placeholder="Choose regulation"
+                      selected-label="Selected"
+                      select-label="Click to select"
+                      deselect-label="Click to remove"
+                    >
+                      <template slot="selection" slot-scope="{ values, search, isOpen }">
+                        <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                      </template>
+                    </multiselect>
+                  </td>
+                  <td v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs">
+                    <label style="margin-top: 0.4rem;">p-value threshold:</label>
+
+                    <b-form-input
+                      v-model="significantP"
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      style="width: 10rem; margin-right: 0px"
+                    />
+                  </td>
+                </tr>
+              </table>
             </b-row>
           </div>
         </div>
@@ -738,9 +754,26 @@
             }
           }
         }
+      },
+      significantP (){
+        if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+          this.conditionPairList=[];
+          this.conditionPairs=[];
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let condition of this.selectedCondition2){
+            // adding each condition pair to conditionPairList
+            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
+          }
+          if(this.conditionPairList.length>1){
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
+        }
       }
-
-
     },
     // barcharts can be drawn only, if the html div already exists with a unique ID to render to
     // nextTick waits for DOM model changes (html div creating) and executes draw barchart afterwards
