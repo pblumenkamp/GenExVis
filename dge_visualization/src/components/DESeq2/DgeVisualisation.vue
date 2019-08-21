@@ -548,6 +548,7 @@
       }
     },
     watch: {
+      // concerning all plots
       selectedGraphic(){
         if (this.selectedGraphic === 'Jointly regulated features'){
           this.showHeatMap = false;
@@ -598,12 +599,12 @@
           for(let condition of this.selectedCondition2){
             // adding each condition pair to conditionPairList
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
-            this.conditionPairs.push(this.selectedCondition1+" vs. "+ condition);
+            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESdata();
+              this.createUNIQUEGENESTableData();
             }
           }
         }
@@ -623,12 +624,12 @@
           for(let condition of this.selectedCondition2){
             // adding each condition pair to conditionPairList
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
-            this.conditionPairs.push(this.selectedCondition1+" vs. "+ condition);
+            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESdata();
+              this.createUNIQUEGENESTableData();
             }
           }
         }
@@ -657,16 +658,35 @@
           for(let condition of this.selectedCondition2){
             // adding each condition pair to conditionPairList
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
-            this.conditionPairs.push(this.selectedCondition1+" vs. "+ condition);
+            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESdata();
+              this.createUNIQUEGENESTableData();
             }
           }
         }
       },
+      selectedTableOptions (){
+        // console.log('before');
+        // console.log(this.tableList2);
+        // this.tableList2 = [];
+        // console.log('after');
+        // console.log(this.tableList2);
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          this.createGroupTableData();
+        }
+        else if (this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+          this.createUNIQUEGENESTableData();
+        }
+      },
+      roundedValues (){
+        // this.createOperonTableData();
+        this.createGroupTableData();
+        this.createUNIQUEGENESTableData();
+      },
+      // BARCHART ONLY
       selectedOperonSize (){
         // if the user does not provide a size distinct size
         // the size is set so small, that all putative operons pass
@@ -699,23 +719,28 @@
           this.groupCount = this.filteredGroupList.length;
         }
       },
-      roundedValues (){
-        // this.createOperonTableData();
-        this.createGroupTableData();
-      },
-      selectedTableOptions (){
-        // console.log('before');
-        // console.log(this.tableList2);
-        // this.tableList2 = [];
-        // console.log('after');
-        // console.log(this.tableList2);
-        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
-          this.createGroupTableData();
-        }
-        else if (this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-          this.createUNIQUEGENESdata();
+      // UNIQUE GENES ONLY
+      selectedConditionPairs (){
+      if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+          this.conditionPairList=[];
+          this.conditionPairs=[];
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let condition of this.selectedCondition2){
+            // adding each condition pair to conditionPairList
+            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
+          }
+          if(this.conditionPairList.length>1){
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
         }
       }
+
+
     },
     // barcharts can be drawn only, if the html div already exists with a unique ID to render to
     // nextTick waits for DOM model changes (html div creating) and executes draw barchart afterwards
@@ -1489,31 +1514,31 @@
         }
         // console.log(this.uniqueGenesDataDict);
       },
-      createUNIQUEGENESdata(){
+      createUNIQUEGENESTableData(){
         this.uniqueGenesTableArray=[];
          for(const [key,value] of Object.entries(this.uniqueGenesDataDict)){
-           console.log('key');
-           console.log(key);
-           // list of rows for one table
-           let oneTableArray=[];
-           // adding table headers
-           let tableHeaders = JSON.parse(JSON.stringify(this.selectedTableOptions));
-           tableHeaders.unshift('Feature');
-           oneTableArray.push(tableHeaders);
-           for(const [innerKey,innerValue] of Object.entries(value)){
-             let oneTableRow=[];
-             /*console.log(innerKey);
-             console.log(innerValue);*/
-             for(let option of this.selectedTableOptions){
-               // creating row based on chosen options
-               oneTableRow.push(innerValue[option]);
+           if(this.selectedConditionPairs.includes(key)){
+             // list of rows for one table
+             let oneTableArray=[];
+             // adding table headers
+             let tableHeaders = JSON.parse(JSON.stringify(this.selectedTableOptions));
+             tableHeaders.unshift('Feature');
+             oneTableArray.push(tableHeaders);
+             for(const [innerKey,innerValue] of Object.entries(value)){
+               let oneTableRow=[];
+               /*console.log(innerKey);
+               console.log(innerValue);*/
+               for(let option of this.selectedTableOptions){
+                 // creating row based on chosen options
+                 oneTableRow.push(innerValue[option]);
+               }
+               oneTableRow.unshift(innerValue['Name']);
+               // adding row to table
+               oneTableArray.push(oneTableRow);
              }
-             oneTableRow.unshift(innerValue['Name']);
-             // adding row to table
-             oneTableArray.push(oneTableRow);
+             // adding table to list of all tables
+             this.uniqueGenesTableArray.push(oneTableArray);
            }
-           // adding table to list of all tables
-           this.uniqueGenesTableArray.push(oneTableArray);
          }
          console.log(this.uniqueGenesTableArray);
       },
