@@ -340,7 +340,7 @@
               </template>
             </multiselect>
           </b-col>
-          <!-- Select second condition -->
+          <!-- Select compare conditions -->
           <b-col>
             <multiselect
               v-model="selectedCondition2"
@@ -386,7 +386,64 @@
               </multiselect>
             </b-col>
           </b-row>
+          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType" style="margin-top: 10px">
+            <b-row style="margin-top: 10px">
+              <b-col>
+                <h4>Select condition pairs to display uniquely regulated genes for</h4>
+                <multiselect
+                  v-model="selectedConditionPairs"
+                  :options="conditionPairs"
+                  :multiple="true"
+                  :close-on-select="true"
+                  :clear-on-select="false"
+                  :preserve-search="true"
+                  :show-labels="true"
+                  :preselect-first="false"
+                  placeholder="Choose regulation"
+                  selected-label="Selected"
+                  select-label="Click to select"
+                  deselect-label="Click to remove"
+                >
+                  <template slot="selection" slot-scope="{ values, search, isOpen }">
+                    <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                  </template>
+                </multiselect>
+              </b-col>
+            </b-row>
+          </div>
         </div>
+        <b-row>
+          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs">
+            <table>
+              <!-- one row for each table -->
+              <tr>
+                <!-- one td for each table selection menu and table-->
+                <td>
+                  <h4 style="white-space: nowrap">Select table data</h4>
+                  <multiselect
+                    v-model="selectedTableOptions"
+                    :options="tableOptions"
+                    :multiple="true"
+                    :close-on-select="false"
+                    :clear-on-select="false"
+                    :preserve-search="true"
+                    :show-labels="true"
+                    :preselect-first="false"
+                    placeholder="Select table data"
+                    selected-label="Selected"
+                    select-label="Click to select"
+                    deselect-label="Click to remove"
+                  >
+                    <template slot="selection" slot-scope="{ values, search, isOpen }">
+                      <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                    </template>
+                  </multiselect>
+                </td>
+                <td></td>
+              </tr>
+            </table>
+          </div>
+        </b-row>
       </div>
     </b-card>
   </div>
@@ -448,9 +505,12 @@
         // BARCHART END //
         // UNIQUELY START //
         conditionPairList:[],
+        conditionPairs:[],
+        selectedConditionPairs: null,
         significantP: 0.05,
-        uniqueGenesTableOptions:[],
-        uniqueGenesDataDict:null
+        uniqueGenesDataDict:null,
+        uniqueGenesTableArray:[],
+
       }
     },
     computed: {
@@ -531,11 +591,13 @@
         }
         else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
           this.conditionPairList=[];
+          this.conditionPairs=[];
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
           for(let condition of this.selectedCondition2){
             // adding each condition pair to conditionPairList
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+            this.conditionPairs.push(this.selectedCondition1+" vs. "+ condition);
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
@@ -552,11 +614,13 @@
         }
         else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
           this.conditionPairList=[];
+          this.conditionPairs=[];
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
           for(let condition of this.selectedCondition2){
             // adding each condition pair to conditionPairList
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+            this.conditionPairs.push(this.selectedCondition1+" vs. "+ condition);
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
@@ -582,11 +646,13 @@
         }
         else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
           this.conditionPairList=[];
+          this.conditionPairs=[];
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
           for(let condition of this.selectedCondition2){
             // adding each condition pair to conditionPairList
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
+            this.conditionPairs.push(this.selectedCondition1+" vs. "+ condition);
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
@@ -1194,6 +1260,13 @@
         let deseq2Type = Object.values(deseq2Dummy);
         // value-Dict for e.g. gene (if DESeq2Type was gene)
         let deseq2_gff3Match = (theGFF3[deseq2Type]);
+        /*console.log(deseq2_gff3Match);
+        for(const[key,value] of Object.entries(deseq2_gff3Match)){
+          if(value['start'] === '2668006'){
+            console.log(key);
+            console.log(value);
+          }
+        }*/
         // dict of dicts. 1st level: keys = cond pairs; 2nd level: key= feature id, value = data dict for that feature
         // structure: uniqueGenesDataDict={condPair1:{id1:{log2fold:2, pValue: 1, pAdj ...., start: 100, end: 642, strand:....}, id2:{...},....}, condPair2:{},...}
         this.uniqueGenesDataDict={};
@@ -1218,8 +1291,12 @@
           let cond2 = keyArray[1];
           this.uniqueGenesDataDict[key]={};
           for(let id of value){
+            // no id duplicates
+            // console.log(id);
             // getting deseq2 analysis for feature and current loop conditions
-            let deseq2Analysis = theDGE.getGene(id).getDESEQ2Analysis(new ConditionPair(cond1, cond2));
+            if(theDGE.getGene(id).getDESEQ2Analysis((new ConditionPair(cond1,cond2)))){
+              var deseq2Analysis = theDGE.getGene(id).getDESEQ2Analysis(new ConditionPair(cond1, cond2));
+            }
             //////////////////////////////////////////////////////
             if (this.selectedRegulationType === "upregulated") {
               if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
@@ -1239,12 +1316,15 @@
                   for (let attribute of splitAttributes){
                     let splitAttribute = attribute.split('=');
                     let identifier = splitAttribute[0];
+                    // adding attribute identifiers to the choosable table options without the option to choose the ID, since the feature ID will always be written in the 1st column of the tables
+                    if(!this.tableOptions.includes(identifier) && identifier !== 'ID'){
+                      this.tableOptions.push(identifier);
+                    }
                     let info = splitAttribute[1];
                     if(!dummyDict[identifier]){
                       dummyDict[identifier] = info;
                     }
                   }
-
                   // initializing gff3 data variables
                   start = gff3Data['start'];
                   end = gff3Data['end'];
@@ -1267,12 +1347,12 @@
                     product = 'unknown';
                   }
                 }
+                // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
+                if(!this.uniqueGenesDataDict[key][id]){
+                  this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, Parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
+                }
+                this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
               }
-              // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
-              if(!this.uniqueGenesDataDict[key][id]){
-                this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, Parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
-              }
-              this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
             }
             else if (this.selectedRegulationType === "downregulated") {
               if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
@@ -1293,6 +1373,10 @@
                   for (let attribute of splitAttributes){
                     let splitAttribute = attribute.split('=');
                     let identifier = splitAttribute[0];
+                    // adding attribute identifiers to the choosable table options
+                    if(!this.tableOptions.includes(identifier) && identifier !== 'ID'){
+                      this.tableOptions.push(identifier);
+                    }
                     let info = splitAttribute[1];
                     if(!dummyDict[identifier]){
                       dummyDict[identifier] = info;
@@ -1320,12 +1404,12 @@
                     product = 'unknown';
                   }
                 }
+                // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
+                if(!this.uniqueGenesDataDict[key][id]){
+                  this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
+                }
+                this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
               }
-              // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
-              if(!this.uniqueGenesDataDict[key][id]){
-                this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
-              }
-              this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
             }
             else if (this.selectedRegulationType === "both") {
               if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
@@ -1346,6 +1430,10 @@
                   for (let attribute of splitAttributes){
                     let splitAttribute = attribute.split('=');
                     let identifier = splitAttribute[0];
+                    // adding attribute identifiers to the choosable table options
+                    if(!this.tableOptions.includes(identifier) && identifier !== 'ID'){
+                      this.tableOptions.push(identifier);
+                    }
                     let info = splitAttribute[1];
                     if(!dummyDict[identifier]){
                       dummyDict[identifier] = info;
@@ -1374,21 +1462,43 @@
                     product = 'unknown';
                   }
                 }
+                // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
+                if(!this.uniqueGenesDataDict[key][id]){
+                  this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
+                }
+                this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
               }
-              // adding DESeq2 and gff3 info to uniqueGenesDataDict as own inner dict
-              if(!this.uniqueGenesDataDict[key][id]){
-                this.uniqueGenesDataDict[key][id]={start:start, end:end, strand:strand, phase:phase, parent:parent, child:child, product: product, name: name, log2fold: log2fold, pValue: pValue, pAdj: pAdj, baseMean: baseMean, lfcSE: lfcSE, stat:stat};
-              }
-              this.uniqueGenesDataDict[key][id]=Object.assign({}, this.uniqueGenesDataDict[key][id], dummyDict);
             }
           }
+        }
+        // adding statistical data options to choosable table options
+        if(!this.tableOptions.includes('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat')){
+          this.tableOptions.unshift('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat');
         }
         // console.log(this.uniqueGenesDataDict);
       },
       formatUNIQUEGENESdata(){
-        for(let value of Object.values(this.uniqueGenesDataDict)){
-          console.log(value);
-        }
+         for(const [key,value] of Object.entries(this.uniqueGenesDataDict)){
+           console.log('key');
+           console.log(key);
+           // list of rows for one table
+           let oneTableArray=[];
+           // adding table headers
+           oneTableArray.push(this.selectedTableOptions);
+           for(const [innerKey,innerValue] of Object.entries(value)){
+             let oneTableRow=[];
+             console.log(innerKey);
+             console.log(innerValue);
+             for(let option of this.selectedTableOptions){
+               // creating row based on chosen options
+               oneTableRow.push(innerValue[option]);
+             }
+             // adding row to table
+             oneTableArray.push(oneTableRow);
+           }
+           // adding table to list of all tables
+           this.uniqueGenesTableArray.push(oneTableArray);
+         }
       },
       // END UNIQUE GENES //
       thousandSeparator(number) {
