@@ -433,7 +433,7 @@
           <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; border: 0px solid blue;">
             <table>
               <!-- one row for each table -->
-              <tr>
+              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index">
                 <!-- one td for each table selection menu and table-->
                 <td>
                   <h4 style="white-space: nowrap">Select table data</h4>
@@ -456,7 +456,13 @@
                     </template>
                   </multiselect>
                 </td>
-                <td></td>
+                <td>
+                  <table>
+                    <tr v-for="(oneRow, index_j) in oneTable" :key="index_j">
+                      <td v-for="(info, index_k) in oneRow" :key="index_k">{{ info }}</td>
+                    </tr>
+                  </table>
+                </td>
               </tr>
             </table>
           </div>
