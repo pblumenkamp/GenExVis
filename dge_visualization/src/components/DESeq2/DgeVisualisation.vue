@@ -413,7 +413,8 @@
           </div>
         </div>
         <b-row>
-          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs">
+          <!-- START OF TABLE DISPLAY-->
+          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; border: 0px solid blue;">
             <table>
               <!-- one row for each table -->
               <tr>
@@ -601,7 +602,9 @@
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
-            this.formatUNIQUEGENESdata();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESdata();
+            }
           }
         }
       },
@@ -624,7 +627,9 @@
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
-            this.formatUNIQUEGENESdata();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESdata();
+            }
           }
         }
       },
@@ -656,7 +661,9 @@
           }
           if(this.conditionPairList.length>1){
             this.getUNIQUEGENESStoreData();
-            this.formatUNIQUEGENESdata();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESdata();
+            }
           }
         }
       },
@@ -702,7 +709,12 @@
         // this.tableList2 = [];
         // console.log('after');
         // console.log(this.tableList2);
-        this.createGroupTableData();
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          this.createGroupTableData();
+        }
+        else if (this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+          this.createUNIQUEGENESdata();
+        }
       }
     },
     // barcharts can be drawn only, if the html div already exists with a unique ID to render to
@@ -1477,28 +1489,33 @@
         }
         // console.log(this.uniqueGenesDataDict);
       },
-      formatUNIQUEGENESdata(){
+      createUNIQUEGENESdata(){
+        this.uniqueGenesTableArray=[];
          for(const [key,value] of Object.entries(this.uniqueGenesDataDict)){
            console.log('key');
            console.log(key);
            // list of rows for one table
            let oneTableArray=[];
            // adding table headers
-           oneTableArray.push(this.selectedTableOptions);
+           let tableHeaders = JSON.parse(JSON.stringify(this.selectedTableOptions));
+           tableHeaders.unshift('Feature');
+           oneTableArray.push(tableHeaders);
            for(const [innerKey,innerValue] of Object.entries(value)){
              let oneTableRow=[];
-             console.log(innerKey);
-             console.log(innerValue);
+             /*console.log(innerKey);
+             console.log(innerValue);*/
              for(let option of this.selectedTableOptions){
                // creating row based on chosen options
                oneTableRow.push(innerValue[option]);
              }
+             oneTableRow.unshift(innerValue['Name']);
              // adding row to table
              oneTableArray.push(oneTableRow);
            }
            // adding table to list of all tables
            this.uniqueGenesTableArray.push(oneTableArray);
          }
+         console.log(this.uniqueGenesTableArray);
       },
       // END UNIQUE GENES //
       thousandSeparator(number) {
