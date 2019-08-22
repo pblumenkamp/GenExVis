@@ -435,6 +435,7 @@
               <!-- one row for each table -->
               <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
                 <!-- one td for each table selection menu and table-->
+                <h4 v-if="selectedTableOptions">{{ uniqueGenesTitles[index] }}</h4>
                 <td style="vertical-align: top">
                   <!-- TABLE OPTIONS SELECTION-->
                   <h4 style="white-space: nowrap">Select table data</h4>
@@ -527,6 +528,8 @@
         //log2Fold change type SingleSelect
         selectedRegulationType: null,
         regulationDirections: ["upregulated", "downregulated", "both"],
+        // rounded values for tables
+        roundedValues: true,
         // BARCHART START //
         // selected threshold defaults for barcharts
         inputPThreshold: 0.001,
@@ -542,7 +545,6 @@
         groupCount: 0,
         biggestOperon: 0,
         // concerning BARCHART table download
-        roundedValues: true,
         tableHeaders: null,
         downloadDict: null,
         tableFileName: "",
@@ -557,6 +559,7 @@
         significantP: 0.05,
         uniqueGenesDataDict:null,
         uniqueGenesTableArray:[],
+        uniqueGenesTitles: []
 
       }
     },
@@ -631,6 +634,7 @@
         this.significantP=0.001;
         this.downloadDict=null;
         this.tableFileName ="";
+        this.selectedConditionPairs=null
       },
       selectedCondition1(){
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
@@ -1313,10 +1317,9 @@
           // converting original data type set to array for use of array.filter etc to get unique genes
           let onePairGenes = Array.from(theDGE.getNamesOfSignificantGenesFromDESeq2(this.significantP,conditionPair.condition1, conditionPair.condition2,true));
           pooledSignificantGenes.push(onePairGenes);
-          // doesnt work dynamically, takes only last selected name
-          // KEPT ATM TO HAVE A NAME WHEN TESTING DOWNLOAD
-          this.tableFileName = this.tableFileName + conditionPair.condition1 + '_' + conditionPair.condition2;
           significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2]=onePairGenes;
+          let titleString = conditionPair.condition1 + '_'+ conditionPair.condition2;
+          this.uniqueGenesTitles.push(titleString);
         }
         // long list of all significant genes of all condition pairs
         pooledSignificantGenes= pooledSignificantGenes.flat();
@@ -1599,6 +1602,7 @@
              tableHeaders.unshift('Feature');
              oneTableArray.push(tableHeaders);
              for(const [innerKey,innerValue] of Object.entries(value)){
+               console.log(innerKey);
                let oneTableRow=[];
                /*console.log(innerKey);
                console.log(innerValue);*/
@@ -1624,7 +1628,7 @@
                  // oneTableRow.push(innerValue[option]);
                  //////////////////////////////////////
                }
-               oneTableRow.unshift(innerValue['Name']);
+               oneTableRow.unshift(innerValue['ID']);
                // adding row to table
                oneTableArray.push(oneTableRow);
              }
@@ -1640,6 +1644,7 @@
       downloadUniqueGenesTable: function(event) {
         // getting elements ID in order to download one table only
         let targetID= event.currentTarget.id;
+        this.tableFileName = 'uniquelyRegulated_'+ this.uniqueGenesTitles[targetID];
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
         // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
