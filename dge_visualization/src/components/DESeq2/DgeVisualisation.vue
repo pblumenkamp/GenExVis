@@ -430,12 +430,13 @@
         </div>
         <b-row>
           <!-- START OF TABLE DISPLAY-->
-          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; border: 0px solid blue;">
-            <table>
+          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue;">
+            <table style="width: 100%; margin-left: 20px; display: inline-block;">
               <!-- one row for each table -->
-              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index">
+              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
                 <!-- one td for each table selection menu and table-->
-                <td>
+                <td style="vertical-align: top">
+                  <!-- TABLE OPTIONS SELECTION-->
                   <h4 style="white-space: nowrap">Select table data</h4>
                   <multiselect
                     v-model="selectedTableOptions"
@@ -457,11 +458,34 @@
                   </multiselect>
                 </td>
                 <td>
-                  <table>
-                    <tr v-for="(oneRow, index_j) in oneTable" :key="index_j">
-                      <td v-for="(info, index_k) in oneRow" :key="index_k">{{ info }}</td>
-                    </tr>
-                  </table>
+                  <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
+                    <table style="width: 100%; margin-left: 20px; overflow-y: scroll; overflow-x: scroll">
+                      <td>
+                        <table>
+                          <tr v-for="(oneRow, index_j) in oneTable" :key="index_j" style="border: 1px solid black; white-space: nowrap">
+                            <td v-for="(info, index_k) in oneRow" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
+                          </tr>
+                        </table>
+                      </td>
+                      <td>
+                        <table>
+                          <tr>
+                            <!-- ROUNDED VALUES AND DOWNLOAD BUTTON-->
+                            <td>
+                              <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
+                                Rounded Values
+                              </b-form-checkbox>
+                            </td>
+                            <td>
+                              <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadUniqueGenesTable($event)">
+                                <font-awesome-icon :icon="faDownload" /> Download table
+                              </div>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </table>
+                  </div>
                 </td>
               </tr>
             </table>
@@ -605,6 +629,8 @@
         this.inputLog2FoldThreshold= 0.0;
         this.conditionPairList=[];
         this.significantP=0.001;
+        this.downloadDict=null;
+        this.tableFileName ="";
       },
       selectedCondition1(){
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
@@ -705,8 +731,12 @@
       },
       roundedValues (){
         // this.createOperonTableData();
-        this.createGroupTableData();
-        this.createUNIQUEGENESTableData();
+        if(this.showGroup){
+          this.createGroupTableData();
+        }
+        else if (this.showUniqueGenes){
+          this.createUNIQUEGENESTableData();
+        }
       },
       // BARCHART ONLY
       selectedOperonSize (){
@@ -1283,6 +1313,9 @@
           // converting original data type set to array for use of array.filter etc to get unique genes
           let onePairGenes = Array.from(theDGE.getNamesOfSignificantGenesFromDESeq2(this.significantP,conditionPair.condition1, conditionPair.condition2,true));
           pooledSignificantGenes.push(onePairGenes);
+          // doesnt work dynamically, takes only last selected name
+          // KEPT ATM TO HAVE A NAME WHEN TESTING DOWNLOAD
+          this.tableFileName = this.tableFileName + conditionPair.condition1 + '_' + conditionPair.condition2;
           significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2]=onePairGenes;
         }
         // long list of all significant genes of all condition pairs
@@ -1555,6 +1588,8 @@
       },
       createUNIQUEGENESTableData(){
         this.uniqueGenesTableArray=[];
+        let tableCounter = 0;
+        this.downloadDict={};
          for(const [key,value] of Object.entries(this.uniqueGenesDataDict)){
            if(this.selectedConditionPairs.includes(key)){
              // list of rows for one table
@@ -1568,8 +1603,26 @@
                /*console.log(innerKey);
                console.log(innerValue);*/
                for(let option of this.selectedTableOptions){
+                 if (this.roundedValues && (option === 'log2fold' || option === 'stat' || option === 'baseMean' || option === 'lfcSE')){
+                   let value = innerValue[option];
+                   value = Math.round(value*100)/100;
+                   oneTableRow.push(value);
+                   // rounded p Values
+                 } else if (this.roundedValues && (option === 'pAdj' || option === 'pValue')) {
+                   let value = innerValue[option];
+                   value = value.toPrecision(4);
+                   oneTableRow.push(value);
+                   // other values & not rounded values
+                 } else if(option === 'start' || option === 'end'){
+                   let value = this.thousandSeparator(innerValue[option]);
+                   oneTableRow.push(value);
+                 }else {
+                   oneTableRow.push(innerValue[option]);
+                 }
+                   ////////////////////////////////////////////////////////
                  // creating row based on chosen options
-                 oneTableRow.push(innerValue[option]);
+                 // oneTableRow.push(innerValue[option]);
+                 //////////////////////////////////////
                }
                oneTableRow.unshift(innerValue['Name']);
                // adding row to table
@@ -1577,9 +1630,38 @@
              }
              // adding table to list of all tables
              this.uniqueGenesTableArray.push(oneTableArray);
+             this.downloadDict[tableCounter]=oneTableArray;
+             tableCounter = tableCounter +1;
            }
          }
-         console.log(this.uniqueGenesTableArray);
+         // console.log(this.uniqueGenesTableArray);
+        // console.log(this.downloadDict);
+      },
+      downloadUniqueGenesTable: function(event) {
+        // getting elements ID in order to download one table only
+        let targetID= event.currentTarget.id;
+        // expression to add row information taken from:
+        // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
+        // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)
+        let csvData = this.downloadDict[targetID];
+        let csvContent = csvData.map(e => e.join(',')).join('\n');
+        // function to download csv taken from:
+        // https://stackoverflow.com/questions/23301467/javascript-exporting-large-text-csv-file-crashes-google-chrome
+        function downloadFile (data, fileName) {
+          let blob = new Blob([data], {type: 'application/csv;charset=utf-8;'});
+          if (window.navigator.msSaveBlob) {
+            navigator.msSaveBlob(blob, fileName)
+          } else {
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.style = 'invisibility: hidden';
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link)
+          }
+        }
+        downloadFile(csvContent, this.tableFileName)
       },
       // END UNIQUE GENES //
       thousandSeparator(number) {
