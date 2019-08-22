@@ -423,6 +423,9 @@
                       style="width: 10rem; margin-right: 0px"
                     />
                   </td>
+                  <td v-if="onlyOne && selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs">
+                    Please note: Only one condition pair was chosen. All significant genes are shown, not the uniquely regulated genes, since there was nothing chosen to compare to.
+                  </td>
                 </tr>
               </table>
             </b-row>
@@ -435,28 +438,50 @@
               <!-- one row for each table -->
               <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
                 <!-- one td for each table selection menu and table-->
-                <h4 v-if="selectedTableOptions">{{ uniqueGenesTitles[index] }}</h4>
                 <td style="vertical-align: top">
-                  <!-- TABLE OPTIONS SELECTION-->
-                  <h4 style="white-space: nowrap">Select table data</h4>
-                  <multiselect
-                    v-model="selectedTableOptions"
-                    :options="tableOptions"
-                    :multiple="true"
-                    :close-on-select="false"
-                    :clear-on-select="false"
-                    :preserve-search="true"
-                    :show-labels="true"
-                    :preselect-first="false"
-                    placeholder="Select table data"
-                    selected-label="Selected"
-                    select-label="Click to select"
-                    deselect-label="Click to remove"
-                  >
-                    <template slot="selection" slot-scope="{ values, search, isOpen }">
-                      <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                    </template>
-                  </multiselect>
+                  <h4>{{ uniqueGenesTitles[index] }}</h4>
+                  <table>
+                    <tr>
+                      <td>
+                        <h4 style="white-space: nowrap">Select table data</h4>
+                        <multiselect
+                          v-model="selectedTableOptions"
+                          :options="tableOptions"
+                          :multiple="true"
+                          :close-on-select="false"
+                          :clear-on-select="false"
+                          :preserve-search="true"
+                          :show-labels="true"
+                          :preselect-first="false"
+                          placeholder="Select table data"
+                          selected-label="Selected"
+                          select-label="Click to select"
+                          deselect-label="Click to remove"
+                        >
+                          <template slot="selection" slot-scope="{ values, search, isOpen }">
+                            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                          </template>
+                        </multiselect>
+                      </td>
+                    </tr>
+                    <tr>
+                      <table>
+                        <tr>
+                          <!-- ROUNDED VALUES AND DOWNLOAD BUTTON-->
+                          <td>
+                            <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
+                              Rounded Values
+                            </b-form-checkbox>
+                          </td>
+                          <td>
+                            <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadUniqueGenesTable($event)">
+                              <font-awesome-icon :icon="faDownload" /> Download table
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </tr>
+                  </table>
                 </td>
                 <td>
                   <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
@@ -469,21 +494,7 @@
                         </table>
                       </td>
                       <td>
-                        <table>
-                          <tr>
-                            <!-- ROUNDED VALUES AND DOWNLOAD BUTTON-->
-                            <td>
-                              <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
-                                Rounded Values
-                              </b-form-checkbox>
-                            </td>
-                            <td>
-                              <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadUniqueGenesTable($event)">
-                                <font-awesome-icon :icon="faDownload" /> Download table
-                              </div>
-                            </td>
-                          </tr>
-                        </table>
+                        total found
                       </td>
                     </table>
                   </div>
@@ -559,7 +570,8 @@
         significantP: 0.05,
         uniqueGenesDataDict:null,
         uniqueGenesTableArray:[],
-        uniqueGenesTitles: []
+        uniqueGenesTitles: [],
+        onlyOne: false
 
       }
     },
@@ -653,7 +665,14 @@
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
-          if(this.conditionPairList.length>1){
+          if(this.conditionPairList.length>=1){
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
+          else if(this.conditionPairList.length === 1){
+            this.onlyOne=true;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -678,7 +697,14 @@
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
-          if(this.conditionPairList.length>1){
+          if(this.conditionPairList.length>=1){
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
+          else if(this.conditionPairList.length === 1){
+            this.onlyOne=true;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -713,6 +739,13 @@
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
           if(this.conditionPairList.length>1){
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
+          else if(this.conditionPairList.length === 1){
+            this.onlyOne=true;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -787,7 +820,7 @@
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
-          if(this.conditionPairList.length>1){
+          if(this.conditionPairList.length>=1){
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -806,7 +839,7 @@
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
-          if(this.conditionPairList.length>1){
+          if(this.conditionPairList.length>=1){
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
