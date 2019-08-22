@@ -494,7 +494,7 @@
                         </table>
                       </td>
                       <td>
-                        total found
+                        total features found: {{ oneTable.length }}
                       </td>
                     </table>
                   </div>
