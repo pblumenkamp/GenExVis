@@ -1354,6 +1354,7 @@
           let titleString = conditionPair.condition1 + '_'+ conditionPair.condition2;
           this.uniqueGenesTitles.push(titleString);
         }
+        console.log(significantGenes);
         // long list of all significant genes of all condition pairs
         pooledSignificantGenes= pooledSignificantGenes.flat();
         // dict for key = cond Pair & value = list of feature IDs
