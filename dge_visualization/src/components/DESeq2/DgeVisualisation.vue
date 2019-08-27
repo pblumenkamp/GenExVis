@@ -391,7 +391,7 @@
               <table>
                 <tr>
                   <td>
-                    <p>Select condition pairs to display uniquely regulated genes for</p>
+                    <p>Select condition pairs to display uniquely regulated features for</p>
                     <multiselect
                       v-model="selectedConditionPairs"
                       :options="conditionPairs"
@@ -424,7 +424,7 @@
                     />
                   </td>
                   <td v-if="onlyOne && selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs">
-                    Please note: Only one condition pair was chosen. All significant genes are shown, not the uniquely regulated genes, since there was nothing chosen to compare to.
+                    Please note: Only one condition pair was chosen. All significant features are shown, not the uniquely regulated features, since there was nothing chosen to compare to.
                   </td>
                 </tr>
               </table>
@@ -528,7 +528,7 @@
       return {
         // graphic/visualisation type selection
         selectedGraphic: '',
-        graphicTypes:['Jointly regulated features', 'Uniquely regulated genes', 'log2Fold-change heatmap', '3D Scatter plot'],
+        graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'log2Fold-change heatmap', '3D Scatter plot'],
         showGroup: false,
         show3DScatter: false,
         showUniqueGenes: false,
@@ -623,7 +623,7 @@
           this.showUniqueGenes = false;
           this.show3DScatter = false
         }
-        else if(this.selectedGraphic === 'Uniquely regulated genes'){
+        else if(this.selectedGraphic === 'Uniquely regulated features'){
           this.showHeatMap = false;
           this.showGroup = false;
           this.showUniqueGenes = true;
@@ -646,7 +646,11 @@
         this.significantP=0.001;
         this.downloadDict=null;
         this.tableFileName ="";
-        this.selectedConditionPairs=null
+        this.selectedConditionPairs=null;
+        this.uniqueGenesDataDict=null;
+        this.uniqueGenesTableArray=[];
+        this.uniqueGenesTitles=[];
+        this.onlyOne=false;
       },
       selectedCondition1(){
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
@@ -1354,7 +1358,7 @@
           let titleString = conditionPair.condition1 + '_'+ conditionPair.condition2;
           this.uniqueGenesTitles.push(titleString);
         }
-        console.log(significantGenes);
+        // console.log(significantGenes);
         // long list of all significant genes of all condition pairs
         pooledSignificantGenes= pooledSignificantGenes.flat();
         // dict for key = cond Pair & value = list of feature IDs
