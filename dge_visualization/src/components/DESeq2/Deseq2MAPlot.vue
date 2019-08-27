@@ -73,49 +73,16 @@
           </b-col>
         </b-row>
       </b-container>
-
       <hr>
-
-      <b-container fluid border="1" style="margin-bottom: 2rem">
-        <b-row align="left">
-          <b-col sm="12">
-            <span>
-              <button type="button" class="btn btn-default table-button" @click="sortGenes">Sort Genes</button>
-              <button type="button" class="btn btn-default table-button" @click="clearTable">Clear Table</button>
-              <button class="btn btn-primary table-button" @click="createSubset()">Create Subset</button>
-            </span>
-          </b-col>
-        </b-row>
-        <b-row align="left">
-          <b-col sm="12">
-            <b-card>
-              <table width="100%">
-                <thead>
-                  <tr>
-                    <th v-for="key in tableHeader" :key="key" width="14%">
-                      {{ key }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="entry of tableData" :key="entry.name">
-                    <td v-for="key of tableHeader" :key="key" width="14%">
-                      {{ entry[key] }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </b-card>
-          </b-col>
-        </b-row>
-      </b-container>
+      <gene-table :features="rowNames" :condition-a="selectedCondition1" :condition-b="selectedCondition2" />
     </div>
   </div>
 </template>
 
 <script>
   import {ConditionPair} from '../../utilities/dge'
-  import {SET_SUBDGE} from '../../store/action_constants'
+  import GeneTable from '../Utils/GeneTable'
+
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
@@ -126,15 +93,16 @@
 
   export default {
     name: 'Deseq2MAPlot',
+    components: {
+      GeneTable
+    },
     data () {
       return {
         selectedCondition1: '',
         selectedCondition2: '',
         inputPThreshold: '0.001',
         useAdjPValue: true,
-        tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
         rowNames: [],
-        tableData: []
       }
     },
     computed: {
@@ -157,35 +125,6 @@
       }
     },
     methods: {
-      clearTable () {
-        this.rowNames = []
-        this.tableData = []
-      },
-      sortGenes () {
-        this.rowNames.sort()
-        this.collectData()
-      },
-      collectData () {
-        this.tableData = []
-        let storage = this.$store.state.currentDGE
-        for (let geneName of this.rowNames) {
-          let tableRow = {}
-          let deseq2Analysis = storage.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          for (let colName of this.tableHeader) {
-            tableRow[colName] = deseq2Analysis[colName]
-          }
-          tableRow.name = geneName
-          this.tableData.push(tableRow)
-        }
-      },
-      createSubset () {
-        let geneNames = []
-        for (let geneName of this.rowNames) {
-          geneNames.push(geneName)
-        }
-        geneNames.sort()
-        this.$store.dispatch(SET_SUBDGE, {geneList: geneNames})
-      },
       drawData () {
         if (!(this.selectedCondition1 && this.selectedCondition2)) {
           return
@@ -265,18 +204,12 @@
               point: {
                 events: {
                   click: function (event) {
-                    if (vue.rowNames.length !== 0) {
-                      if (event.ctrlKey === true || event.shiftKey === true) {
-                        vue.rowNames.push(this.gene)
-                      } else {
-                        vue.rowNames = []
-                        vue.rowNames.push(this.gene)
-                      }
+                    if (event.ctrlKey === true || event.shiftKey === true) {
+                      vue.rowNames.push(this.gene)
                     } else {
-                      vue.tableData = []
+                      vue.rowNames = []
                       vue.rowNames.push(this.gene)
                     }
-                    vue.collectData()
                   }
                 }
               }
@@ -369,16 +302,7 @@
     }
   }
 </script>
+
 <style scoped>
-  tr, th, td {
-    border: 1px solid lightgrey;
-    border-collapse: collapse;
-    padding-left: 0.4rem;
-  }
-  th {
-    background-color: #F6F8F7;
-  }
-  .table-button {
-    margin: 0.2rem 0.2rem 0.4rem;
-  }
+
 </style>
