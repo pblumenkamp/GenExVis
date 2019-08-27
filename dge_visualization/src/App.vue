@@ -104,7 +104,6 @@
         :show-one-child="true"
         width="15vw"
         @toggle-collapse="onToggleCollapse"
-        @item-click="onItemClick"
       >
         <div v-if="!collapsed_sidebar" slot="header" style="text-align: center; color: white; margin-top: 0.5rem; margin-bottom: 2rem"><h3><b>GenExVis {{ $version }}</b></h3></div>
         <font-awesome-icon slot="dropdown-icon" icon="chevron-right" size="lg" />

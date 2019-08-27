@@ -20,7 +20,7 @@
     "ag-grid-community": "^20.2.0",
     "ag-grid-vue": "^20.2.0",
     "bootstrap": "^4.3.1",
-    "bootstrap-vue": "^2.0.0-rc.6",
+    "bootstrap-vue": "^2.0.0-rc.28",
     "highcharts": "^7.1.1",
     "jquery": "^3.4.0",
     "lodash.debounce": "^4.0.8",
