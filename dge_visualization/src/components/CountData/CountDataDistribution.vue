@@ -113,11 +113,15 @@
           </b-col>
         </b-row>
       </b-container>
+      <hr>
+      <count-table :features="selectedFeatures" :normalization="selectedNormalization" />
     </div>
   </div>
 </template>
 
 <script>
+  import CountTable from '../Utils/CountTable'
+
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
   require('highcharts/modules/offline-exporting')(Highcharts)
@@ -131,6 +135,9 @@
 
   export default {
     name: 'CountDataDistribution',
+    components: {
+      CountTable
+    },
     data () {
       return {
         selectedNormalization: '',
@@ -138,7 +145,9 @@
         xAxisMinValue: 0,
         xAxisMaxValue: 1000,
         xAxisStepsize: 100,
-        useLogYAxis: false
+        useLogYAxis: false,
+        featureNames: {},
+        selectedCategories: []
       }
     },
     computed: {
@@ -178,9 +187,17 @@
         for (let geneName of Object.getOwnPropertyNames(countData)) {
           let gene = countData[geneName]
           let sum = Object.keys(gene).map(key => gene[key]).reduce(function (a, b) { return a + b })
-          data.push(sum / Object.keys(gene).length)
+          data.push({name: geneName, value: sum / Object.keys(gene).length})
         }
         return data
+      },
+      selectedFeatures () {
+        let vue = this
+        let genes = []
+        for (let category of vue.selectedCategories) {
+          genes.push(...vue.featureNames[category])
+        }
+        return genes
       }
     },
     watch: {
@@ -274,6 +291,21 @@
             }
           },
           plotOptions: {
+            series: {
+              allowPointSelect: true,
+              point: {
+                events: {
+                  click: function (event) {
+                    if (event.ctrlKey === true || event.shiftKey === true) {
+                      vue.selectedCategories.push(event.point.category)
+                    } else {
+                      vue.selectedCategories = []
+                      vue.selectedCategories.push(event.point.category)
+                    }
+                  }
+                }
+              }
+            },
             column: {
               grouping: false,
               pointPlacement: 0.5,
@@ -305,6 +337,12 @@
         options.xAxis.categories = data.categories
         options.subtitle.text = `${data.usedCounts} of ${data.maxCounts} genes`
 
+        for (let i = 0; i < data.categories.length; i++) {
+          if (data.featureNames[i] !== null) {
+            vue.featureNames[data.categories[i].toString()] = data.featureNames[i]
+          }
+        }
+
         chart = Highcharts.chart(CHART_ID, options)
       },
       createHistogram (minValue, maxValue, stepsize, data) {
@@ -315,11 +353,19 @@
         let powerOfTen = Math.pow(10, decimals)
         let bins = Math.floor((maxValue * powerOfTen - minValue * powerOfTen) * (1 / (stepsize * powerOfTen)) + 1)
 
+        let binnedFeatureNames = new Array(bins)
+        binnedFeatureNames.fill(null)
         let binnedData = new Array(bins)
         binnedData.fill(0)
         for (let datapoint of data) {
-          if (datapoint >= minValue && datapoint <= (bins - 1) * stepsize + minValue) {
-            binnedData[Math.floor((datapoint * powerOfTen - minValue * powerOfTen) * (1 / (stepsize * powerOfTen)))]++
+          if (datapoint.value >= minValue && datapoint.value <= (bins - 1) * stepsize + minValue) {
+            let bin = Math.floor((datapoint.value * powerOfTen - minValue * powerOfTen) * (1 / (stepsize * powerOfTen)))
+            binnedData[bin]++
+            if (binnedFeatureNames[bin] === null) {
+              binnedFeatureNames[bin] = [datapoint.name]
+            } else {
+              binnedFeatureNames[bin].push(datapoint.name)
+            }
           }
         }
         let usedCounts = binnedData.reduce((a, b) => a + b, 0)
@@ -330,13 +376,13 @@
         categories = categories.map((x, i) => (minValue + (i * stepsize)).toFixed(decimals))
         categories.push('')
 
-        return {data: binnedData, categories: categories, usedCounts: usedCounts, maxCounts: data.length}
+        return {data: binnedData, categories: categories, usedCounts: usedCounts, maxCounts: data.length, featureNames: binnedFeatureNames}
       },
       resetSettings () {
         let data = this.countDataForCondition
 
         this.xAxisMinValue = 0
-        let max = Math.max(...data)
+        let max = Math.max(...data.map(x => x.value))
         this.xAxisMaxValue = (Math.floor(max / Math.pow(10, Math.floor(Math.log10(max)))) + 1) * Math.pow(10, Math.floor(Math.log10(max)))
         this.xAxisStepsize = 1000
 

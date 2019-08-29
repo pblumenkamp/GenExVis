@@ -10,6 +10,7 @@
         striped
         hover
         bordered
+        responsive
         sticky-header="400px"
         primary-key="name"
         :items="tableData"
@@ -20,107 +21,92 @@
 </template>
 
 <script>
-  import {ConditionPair} from '../../utilities/dge'
   import {SET_SUBDGE} from '../../store/action_constants'
 
   export default {
-    name: 'GeneTable',
+    name: 'CountTable',
     props: {
       features: {
         type: Array,
         required: true
       },
-      conditionA: {
-        type: String,
-        required: true
-      },
-      conditionB: {
+      normalization: {
         type: String,
         required: true
       }
     },
     data () {
       return {
-        header: [
+
+      }
+    },
+    computed: {
+      header () {
+        const vue = this
+        const head = [
           {
             key: 'name',
             label: 'Feature Name',
             headerTitle: 'Feature Name',
             headerAbbr: 'Feature',
             sortable: true
-          },
-          {
-            key: 'baseMean',
-            label: 'Base Mean',
-            headerTitle: 'Base Mean',
-            headerAbbr: 'Mean',
+          }]
+        for (let column of vue.headerOrder) {
+          head.push({
+            key: column,
+            label: column,
+            headerTitle: column,
+            headerAbbr: column,
             sortable: true,
             tdClass: 'number_column'
-          },
-          {
-            key: 'log2FoldChange',
-            label: 'Log2 Fold Change',
-            headerTitle: 'Log2 Fold Change',
-            headerAbbr: 'LFC',
-            sortable: true,
-            tdClass: 'number_column'
-          },
-          {
-            key: 'lfcSE',
-            label: 'LFC Standard Error',
-            headerTitle: 'LFC Standard Error',
-            headerAbbr: 'LFC SE',
-            sortable: true,
-            tdClass: ['number_column', 'shrinkFaster']
-          },
-          {
-            key: 'stat',
-            label: 'Stat',
-            headerTitle: 'Stat',
-            headerAbbr: 'Stat',
-            sortable: true,
-            tdClass: 'number_column'
-          },
-          {
-            key: 'pValue',
-            label: 'P-Value',
-            headerTitle: 'P-Value',
-            headerAbbr: 'pVal',
-            sortable: true,
-            tdClass: 'number_column'
-          },
-          {
-            key: 'pAdj',
-            label: 'adjusted P-Value',
-            headerTitle: 'adjusted P-Value',
-            headerAbbr: 'adj pVal',
-            sortable: true,
-            tdClass: 'number_column'
+          })
+        }
+        console.log(head)
+        return head
+      },
+      conditions () {
+        const vue = this
+        let storage = vue.$store.state.currentDGE
+        let conditions = []
+        for (let condition of Object.values(storage.seqRuns[vue.normalization])) {
+          if (!(condition in conditions)) {
+            conditions.push(condition)
           }
-        ]
-      }
-    },
-    computed: {
+        }
+        return conditions.sort()
+      },
+      headerOrder () {
+        const vue = this
+        const storage = vue.$store.state.currentDGE
+        const samples = Object.keys(storage.seqRuns[vue.normalization]).sort()
+        let order = []
+        for (const condition of vue.conditions) {
+          console.log(condition)
+          for (let sample of samples) {
+            if (condition === storage.seqRuns[vue.normalization][sample]) {
+              order.push(sample)
+            }
+          }
+        }
+        return order
+      },
       sortedFeatures () {
         return this.features.slice().sort()
-      },
-      conditionPair () {
-        return new ConditionPair(this.conditionA, this.conditionB)
       },
       tableData () {
         let data = []
         let storage = this.$store.state.currentDGE
-        for (let geneName of this.sortedFeatures) {
-          let tableRow = {}
-          let deseq2Analysis = storage.getGene(geneName).getDESEQ2Analysis(this.conditionPair)
-          for (let colName of ['baseMean', 'log2FoldChange', 'lfcSE', 'stat']) {
-            tableRow[colName] = deseq2Analysis[colName].toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})
+        let countData = storage.getCountData(this.normalization)
+        for (let feature of this.features) {
+          let dataRow = {}
+          for (let condition of Object.values(countData)) {
+            for (let sample of Object.keys(condition[feature])) {
+              dataRow[sample] = condition[feature][sample]
+            }
           }
-          for (let colName of ['pValue', 'pAdj']) {
-            tableRow[colName] = deseq2Analysis[colName].toExponential(2)
-          }
-          tableRow.name = geneName
-          data.push(tableRow)
+
+          dataRow['name'] = feature
+          data.push(dataRow)
         }
         return data
       },
