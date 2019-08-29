@@ -1,115 +1,82 @@
 <template>
-  <div id="app" :class="[{'collapsed_sidebar_left' : collapsed_sidebar, 'collapsed_sidebar_right' : collapsed_data}]">
-    <div class="app">
-      <!--<b-container fluid>
-        <b-row>
-          <b-col cols="10">
-            <router-view />
-          </b-col>
-          <b-col cols="2">
-            <b-card v-if="this.$store.state.deseqlist.length > 0" class="filesBox">
-              DESeq2 Files:
-              <li
-                v-for="fileName in this.$store.state.deseqlist"
-                :key="fileName"
-                style="margin-left: 0.5rem"
-              >
-                <small>{{ fileName }}</small>
-              </li>
-            </b-card>
-            <b-card v-if="this.$store.state.countlist.length > 0" class="filesBox">
-              Count files:
-              <li
-                v-for="fileName in this.$store.state.countlist"
-                :key="fileName"
-                style="margin-left: 0.5rem"
-              >
-                <small>{{ fileName }}</small>
-              </li>
-            </b-card>
-          </b-col>
-        </b-row>
-      </b-container>-->
-      <div style="display: flex">
-        <router-view class="main_view" />
-        <div :class="[{'data_sidebar': !collapsed_data, 'dsb_collapsed': collapsed_data}]">
-          <b-card v-if="!collapsed_data" class="dsb_card dsb" body-class="no-padding">
-            <h4>
-              <u>DESeq2 Files:</u>
-            </h4>
-            <div class="dsb_filelist">
-              <li
-                v-for="fileName in this.$store.state.deseqlist"
-                :key="fileName"
-                style="margin-left: 0.5rem;"
-              >
-                <small>{{ fileName }}</small>
-              </li>
-            </div>
-          </b-card>
-
-          <b-card v-if="!collapsed_data" class="dsb_card" body-class="no-padding">
-            <h4>
-              <u>Count files:</u>
-            </h4>
-            <div class="dsb_filelist">
-              <li
-                v-for="fileName in this.$store.state.countlist"
-                :key="fileName"
-                style="margin-left: 0.5rem;"
-              >
-                <small>{{ fileName }}</small>
-              </li>
-            </div>
-          </b-card>
-
-          <b-card
-            v-if="!collapsed_data && this.$store.state.subDGE.geneNames.size > 0"
-            id="subsetBox"
-            class="dsb_card dsb_subsetBox"
-            no-body
+  <div>
+    <router-view id="main_view" :class="[{'collapsed_sidebar_left' : collapsed_sidebar, 'collapsed_sidebar_right' : collapsed_data}]" />
+    <div :class="[{'data_sidebar': !collapsed_data, 'dsb_collapsed': collapsed_data}]">
+      <b-card v-if="!collapsed_data" class="dsb_card dsb" body-class="no-padding">
+        <h4>
+          <u>DESeq2 Files:</u>
+        </h4>
+        <div class="dsb_filelist">
+          <li
+            v-for="fileName in this.$store.state.deseqlist"
+            :key="fileName"
+            style="margin-left: 0.5rem;"
           >
-            <h4>
-              <u>Current Subset:</u>
-            </h4>
-            <div style="margin-bottom: 0.5rem">
-              <b>{{ numberWithCommas(this.$store.state.subDGE.length) }}</b> genes
-            </div>
-            <div id="genesTable" class="dsb_geneList">
-              <button
-                v-for="gene in Array.from(this.$store.state.subDGE.geneNames)"
-                :key="gene"
-                type="button"
-                class="btn btn-outline-dark btn-xs dsb_gene-button"
-                @click="removeGene(gene)"
-              >
-                {{ gene }}
-              </button>
-            </div>
-            <div>
-              <button class="btn btn-dark " style="float: right; margin-top: 1rem; margin-right: 1rem; background-color: #343438" @click="clearSubset()">
-                <font-awesome-icon icon="trash-alt" style="margin-right: 0.2rem" /> Clear
-              </button>
-            </div>
-          </b-card>
+            <small>{{ fileName }}</small>
+          </li>
+        </div>
+      </b-card>
 
-          <button class="dsb_toggle_btn" @click="collapsed_data = !collapsed_data">
-            <font-awesome-icon slot="toggle-icon" icon="arrows-alt-h" size="lg" />
+      <b-card v-if="!collapsed_data" class="dsb_card" body-class="no-padding">
+        <h4>
+          <u>Count files:</u>
+        </h4>
+        <div class="dsb_filelist">
+          <li
+            v-for="fileName in this.$store.state.countlist"
+            :key="fileName"
+            style="margin-left: 0.5rem;"
+          >
+            <small>{{ fileName }}</small>
+          </li>
+        </div>
+      </b-card>
+
+      <b-card
+        v-if="!collapsed_data && this.$store.state.subDGE.geneNames.size > 0"
+        id="subsetBox"
+        class="dsb_card dsb_subsetBox"
+        no-body
+      >
+        <h4>
+          <u>Current Subset:</u>
+        </h4>
+        <div style="margin-bottom: 0.5rem">
+          <b>{{ numberWithCommas(this.$store.state.subDGE.length) }}</b> genes
+        </div>
+        <div id="genesTable" class="dsb_geneList">
+          <button
+            v-for="gene in Array.from(this.$store.state.subDGE.geneNames)"
+            :key="gene"
+            type="button"
+            class="btn btn-outline-dark btn-xs dsb_gene-button"
+            @click="removeGene(gene)"
+          >
+            {{ gene }}
           </button>
         </div>
-      </div>
-      <sidebar-menu
-        :menu="menu"
-        :collapsed="collapsed_sidebar"
-        :show-one-child="true"
-        width="15vw"
-        @toggle-collapse="onToggleCollapse"
-      >
-        <div v-if="!collapsed_sidebar" slot="header" style="text-align: center; color: white; margin-top: 0.5rem; margin-bottom: 2rem"><h3><b>GenExVis {{ $version }}</b></h3></div>
-        <font-awesome-icon slot="dropdown-icon" icon="chevron-right" size="lg" />
+        <div>
+          <button class="btn btn-dark " style="float: right; margin-top: 1rem; margin-right: 1rem; background-color: #343438" @click="clearSubset()">
+            <font-awesome-icon icon="trash-alt" style="margin-right: 0.2rem" /> Clear
+          </button>
+        </div>
+      </b-card>
+
+      <button class="dsb_toggle_btn" @click="collapsed_data = !collapsed_data">
         <font-awesome-icon slot="toggle-icon" icon="arrows-alt-h" size="lg" />
-      </sidebar-menu>
+      </button>
     </div>
+    <sidebar-menu
+      :menu="menu"
+      :collapsed="collapsed_sidebar"
+      :show-one-child="true"
+      width="15vw"
+      @toggle-collapse="onToggleCollapse"
+    >
+      <div v-if="!collapsed_sidebar" slot="header" style="text-align: center; color: white; margin-top: 0.5rem; margin-bottom: 2rem"><h3><b>GenExVis {{ $version }}</b></h3></div>
+      <font-awesome-icon slot="dropdown-icon" icon="chevron-right" size="lg" />
+      <font-awesome-icon slot="toggle-icon" icon="arrows-alt-h" size="lg" />
+    </sidebar-menu>
   </div>
 </template>
 
@@ -272,35 +239,26 @@
   @import "../node_modules/vue-sidebar-menu/src/scss/vue-sidebar-menu.scss";
   @import "sidebar_variables.scss";
 
-  #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    padding-left: 15vw;
-    padding-right: 15vw;
-    transition: padding-left 0.5s, padding-right 0.5s;
+  #main_view.collapsed_sidebar_left {
+    margin-left: 50px;
   }
 
-  #app.collapsed_sidebar_left {
-    padding-left: 50px;
+  #main_view.collapsed_sidebar_right {
+    margin-right: 50px;
   }
 
-  #app.collapsed_sidebar_right {
-    padding-right: 50px;
-  }
-
-  .app {
-    padding: 0;
-  }
-
-  .main_view {
+  #main_view {
+    margin-left: 15vw;
+    margin-right: 15vw;
     padding: 50px;
-    order: 1;
-    flex: 1 1 auto
+    transition: margin-left 0.5s, margin-right 0.5s;
+    z-index: 2;
   }
 
   body {
-    font-family: 'Source Sans Pro', sans-serif;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-size: 16px;
     background-color: #e3e2df;
   }
