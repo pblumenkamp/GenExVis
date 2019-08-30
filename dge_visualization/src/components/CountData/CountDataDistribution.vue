@@ -113,8 +113,8 @@
           </b-col>
         </b-row>
       </b-container>
-      <hr>
-      <count-table :features="selectedFeatures" :normalization="selectedNormalization" />
+      <hr v-if="selectedFeatures.length !== 0">
+      <count-table v-if="selectedFeatures.length !== 0" :features="selectedFeatures" :normalization="selectedNormalization" />
     </div>
   </div>
 </template>
@@ -203,6 +203,12 @@
     watch: {
       dge () {
         this.clearChart()
+      },
+      selectedNormalization () {
+        this.selectedCategories = []
+      },
+      selectedCondition () {
+        this.selectedCategories = []
       }
     },
     methods: {
@@ -416,6 +422,7 @@
       },
       clearChart () {
         this.selectedNormalization = ''
+        this.selectedCategories = []
         let node = this.$refs[CHART_ID]
         while (node.firstChild) {
           node.removeChild(node.firstChild)

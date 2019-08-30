@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div style="text-align: left">
+    <div style="text-align: left; display: flex; flex-direction: row; justify-content: space-between">
       <span>
         <button class="btn btn-primary table-button" @click="createSubset()">Create Subset</button>
       </span>
+      <b-pagination
+        v-model="currentPage"
+        :total-rows="features.length"
+        :per-page="featuresPerSite"
+      />
     </div>
     <b-card>
       <b-table
@@ -37,7 +42,8 @@
     },
     data () {
       return {
-
+        currentPage: 1,
+        featuresPerSite: 50,
       }
     },
     computed: {
@@ -49,7 +55,8 @@
             label: 'Feature Name',
             headerTitle: 'Feature Name',
             headerAbbr: 'Feature',
-            sortable: true
+            stickyColumn: true,
+            sortable: false
           }]
         for (let column of vue.headerOrder) {
           head.push({
@@ -57,11 +64,10 @@
             label: column,
             headerTitle: column,
             headerAbbr: column,
-            sortable: true,
+            sortable: false,
             tdClass: 'number_column'
           })
         }
-        console.log(head)
         return head
       },
       conditions () {
@@ -81,7 +87,6 @@
         const samples = Object.keys(storage.seqRuns[vue.normalization]).sort()
         let order = []
         for (const condition of vue.conditions) {
-          console.log(condition)
           for (let sample of samples) {
             if (condition === storage.seqRuns[vue.normalization][sample]) {
               order.push(sample)
@@ -94,14 +99,18 @@
         return this.features.slice().sort()
       },
       tableData () {
+        const vue = this
+        if (vue.sortedFeatures.length === 0) {
+          return []
+        }
         let data = []
-        let storage = this.$store.state.currentDGE
-        let countData = storage.getCountData(this.normalization)
-        for (let feature of this.features) {
+        let storage = vue.$store.state.currentDGE
+        let countData = storage.getCountData(vue.normalization)
+        for (let feature of vue.sortedFeatures.slice((vue.currentPage-1)*vue.featuresPerSite, Math.min((vue.currentPage)*vue.featuresPerSite+1, vue.sortedFeatures.length+1))) {
           let dataRow = {}
           for (let condition of Object.values(countData)) {
             for (let sample of Object.keys(condition[feature])) {
-              dataRow[sample] = condition[feature][sample]
+              dataRow[sample] = condition[feature][sample].toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})
             }
           }
 
@@ -110,6 +119,11 @@
         }
         return data
       },
+    },
+    watch: {
+      features () {
+        this.currentPage = 1
+      }
     },
     methods: {
       createSubset () {
