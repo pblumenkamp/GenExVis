@@ -85,7 +85,7 @@
                   :clear-on-select="false"
                   :preserve-search="true"
                   :show-labels="true"
-                  :preselect-first="false"
+                  :preselect-first="true"
                   placeholder="Choose regulation"
                   selected-label="Selected"
                   select-label="Click to select"
@@ -107,7 +107,7 @@
                   :clear-on-select="false"
                   :preserve-search="true"
                   :show-labels="true"
-                  :preselect-first="false"
+                  :preselect-first="true"
                   placeholder="Choose minimum group size"
                   selected-label="Selected"
                   select-label="Click to select"
@@ -419,7 +419,7 @@
                       type="number"
                       min="0"
                       max="1"
-                      step="0.01"
+                      step="0.001"
                       style="width: 10rem; margin-right: 0px"
                     />
                   </td>
@@ -538,7 +538,7 @@
         selectedCondition2: null,
         //log2Fold change type SingleSelect
         selectedRegulationType: null,
-        regulationDirections: ["upregulated", "downregulated", "both"],
+        regulationDirections: ["both", "downregulated", "upregulated"],
         // rounded values for tables
         roundedValues: true,
         // BARCHART START //
@@ -567,7 +567,7 @@
         conditionPairList:[],
         conditionPairs:[],
         selectedConditionPairs: null,
-        significantP: 0.05,
+        significantP: 0.001,
         uniqueGenesDataDict:null,
         uniqueGenesTableArray:[],
         uniqueGenesTitles: [],
@@ -1639,8 +1639,9 @@
              let tableHeaders = JSON.parse(JSON.stringify(this.selectedTableOptions));
              tableHeaders.unshift('Feature');
              oneTableArray.push(tableHeaders);
+             // eslint-disable-next-line no-unused-vars
              for(const [innerKey,innerValue] of Object.entries(value)){
-               console.log(innerKey);
+               // console.log(innerKey);
                let oneTableRow=[];
                /*console.log(innerKey);
                console.log(innerValue);*/
@@ -1707,9 +1708,10 @@
         downloadFile(csvContent, this.tableFileName)
       },
       // END UNIQUE GENES //
-      thousandSeparator(number) {
+      thousandSeparator(number){
+        return parseFloat(number).toLocaleString('en-us');
         // Info: Die '' sind zwei Hochkommas
-        number = '' + number;
+      /*  number = '' + number;
         if (number.length > 3) {
           let mod = number.length % 3;
           let output = (mod > 0 ? (number.substring(0,mod)) : '');
@@ -1722,7 +1724,8 @@
             }
           }
           return output;
-        } else{ return number }
+        } else{ return number }*/
+        // return number.toLocaleString('en-us');
       }
     }
   }
