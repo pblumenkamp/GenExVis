@@ -374,7 +374,7 @@
                 :clear-on-select="false"
                 :preserve-search="true"
                 :show-labels="true"
-                :preselect-first="false"
+                :preselect-first="true"
                 placeholder="Choose regulation"
                 selected-label="Selected"
                 select-label="Click to select"
@@ -494,7 +494,8 @@
                         </table>
                       </td>
                       <td>
-                        total features found: {{ oneTable.length }}
+                        <!-- -1 for header of table-->
+                        total features found: {{ oneTable.length -1 }}
                       </td>
                     </table>
                   </div>
@@ -849,6 +850,14 @@
               this.createUNIQUEGENESTableData();
             }
           }
+        }
+      },
+      conditionPairList (){
+        if(this.conditionPairList.length === 1){
+          this.onlyOne = true;
+        }
+        else if (this.conditionPairList.length >1){
+          this.onlyOne = false;
         }
       }
     },
