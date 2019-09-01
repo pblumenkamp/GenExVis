@@ -932,7 +932,7 @@
                 this.geneDict[geneName] = {
                   name: geneName,
                   y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pAdjrounded: (deseq2Analysis.pAdj).toPrecision(2),
+                  pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
                   log2fold: (deseq2Analysis.log2FoldChange),
                   pValue: (deseq2Analysis.pValue),
                   pAdj: (deseq2Analysis.pAdj),
@@ -965,7 +965,7 @@
                 this.geneDict[geneName] = {
                   name: geneName,
                   y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pAdjrounded: (deseq2Analysis.pAdj).toPrecision(2),
+                  pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
                   log2fold: (deseq2Analysis.log2FoldChange),
                   pValue: (deseq2Analysis.pValue),
                   pAdj: (deseq2Analysis.pAdj),
@@ -998,7 +998,7 @@
                 this.geneDict[geneName] = {
                   name: geneName,
                   y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pAdjrounded: (deseq2Analysis.pAdj).toPrecision(2),
+                  pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
                   log2fold: (deseq2Analysis.log2FoldChange),
                   pValue: (deseq2Analysis.pValue),
                   pAdj: (deseq2Analysis.pAdj),
@@ -1297,7 +1297,7 @@
                     // rounded p Values
                   } else if (this.roundedValues && (identifier === 'pAdj' || identifier === 'pValue')) {
                     let value = oneTableData[k][identifier];
-                    value = value.toPrecision(4);
+                    value = value.toExponential(4);
                     oneTableRow.push(value);
                     // other values & not rounded values
                   } else if(identifier === 'start' || identifier === 'end'){
@@ -1660,7 +1660,7 @@
                    // rounded p Values
                  } else if (this.roundedValues && (option === 'pAdj' || option === 'pValue')) {
                    let value = innerValue[option];
-                   value = value.toPrecision(4);
+                   value = value.toExponential(4);
                    oneTableRow.push(value);
                    // other values & not rounded values
                  } else if(option === 'start' || option === 'end'){
