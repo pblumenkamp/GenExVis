@@ -1112,11 +1112,12 @@
             if(parseInt(item) === 0){
               let myStart = this.thousandSeparator(dataList[index][item]['start']);
               var myEnd= this.thousandSeparator(dataList[index][item]['end']);
+              var myStrand = dataList[index][item]['strand'];
               plotTitle=plotTitle+'Pos. '+myStart+" - ";
               this.tableFileName =dataList[index][item]['start'] + '_';
             }
             else if(parseInt(item) === (dataList[index].length-1)){
-              plotTitle=plotTitle+'Pos. '+ myEnd;
+              plotTitle=plotTitle+'Pos. '+ myEnd + ' ( ' + myStrand + ' )';
               this.tableFileName = this.tableFileName + dataList[index][item]['end']+ '_';
             }
           }
@@ -1154,6 +1155,12 @@
                   fontSize: '16px'
                 }
               },
+              plotLines: [{
+                color: 'rgb(0,0,0)',
+                value:0,
+                width: 1,
+                zIndex:5
+              }],
               labels: {
                 style: {
                   fontSize: '14px'
@@ -1193,10 +1200,10 @@
                 {
                   // downregulated
                   value: 0, // values up to zero (not including)
-                  color: 'rgba(223, 83, 83, .5)'
+                  color: 'rgba(223, 83, 83, .9)'
                 }, {
                 // upregulated
-                  color: 'rgba(16, 16, 238, 0.4)' // values from zero (including)
+                  color: 'rgba(16, 16, 238, .9)' // values from zero (including)
                 }
 
               ],
