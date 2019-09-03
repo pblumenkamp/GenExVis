@@ -61,7 +61,16 @@
           </button>
         </div>
       </b-card>
-
+      <div v-if="!collapsed_data" class="dsb_use_subset">
+        All Data
+        <b-form-checkbox v-model="useSubset" name="subset-sutton" switch />
+        Subset
+      </div>
+      <div v-else class="dsb_use_subset_collapsed">
+        <span v-if="useSubset" style="padding-right: 0.5rem">Sub</span>
+        <span v-else style="padding-right: 0.5rem">All</span>
+        <b-form-checkbox v-model="useSubset" name="subset-sutton" switch />
+      </div>
       <button class="dsb_toggle_btn" @click="collapsed_data = !collapsed_data">
         <font-awesome-icon slot="toggle-icon" icon="arrows-alt-h" size="lg" />
       </button>
@@ -82,6 +91,7 @@
 
 <script>
   import {SET_SUBDGE} from './store/action_constants'
+  import {SWITCH_DGE} from './store/mutation_constants'
 
   import {library} from '@fortawesome/fontawesome-svg-core'
   import {faCode, faArrowsAltH, faUpload, faDownload, faFileAlt, faBalanceScaleLeft, faChartBar, faChevronRight, faPlusCircle, faMinusCircle, faTrashAlt} from '@fortawesome/free-solid-svg-icons'
@@ -200,7 +210,13 @@
         ],
         collapsed_sidebar: false,
         collapsed_data: false,
-        collapsed_subset_box: true
+        collapsed_subset_box: true,
+        useSubset: false
+      }
+    },
+    watch: {
+      useSubset (useSubset) {
+        this.$store.commit(SWITCH_DGE, {useSubDGE: useSubset})
       }
     },
     methods: {
@@ -311,7 +327,7 @@
     flex-direction: column;
     background-color: $base-bg;
     height: 100vh;
-    width: 50px;
+    width: 70px;
     order: 2;
     flex: 0 0 auto;
     z-index: 1;
@@ -321,12 +337,43 @@
     transition: width 0.5s;
   }
 
+  .dsb_use_subset {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: $icon-color;
+    font-weight: bold;
+    height: 50px;
+    margin-top: auto;
+  }
+
+  .dsb_use_subset {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    color: $icon-color;
+    font-weight: bold;
+    height: 50px;
+    margin-top: auto;
+  }
+
+  .dsb_use_subset_collapsed {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: $icon-color;
+    font-weight: bold;
+    height: 50px;
+    margin-top: auto;
+    padding-bottom: 1rem;
+  }
+
   .dsb_toggle_btn {
     background-color: darken( $base-bg, 5% );
     border-color: darken( $base-bg, 5% );
     color: $icon-color;
     height: 50px;
-    margin-top: auto;
   }
 
   .dsb_toggle_btn:focus {
