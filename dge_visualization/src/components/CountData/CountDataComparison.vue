@@ -222,7 +222,7 @@
           xAxis: {
             type: (this.useLogarithmicScale) ? 'logarithmic' : 'linear',
             title: {
-              text: `${vue.selectedCondition1} (counts)`,
+              text: `${vue.selectedCondition1} [counts]`,
               style: {
                 color: AXIS_COLOR
               }
@@ -242,7 +242,7 @@
           yAxis: {
             type: (this.useLogarithmicScale) ? 'logarithmic' : 'linear',
             title: {
-              text: `${vue.selectedCondition2} (counts)`,
+              text: `${vue.selectedCondition2} [counts]`,
               style: {
                 color: AXIS_COLOR
               }
@@ -313,13 +313,13 @@
           series: [{
             name: 'Genes',
             color: '#000000',
-            id: 0,
+            id: 1,
             zIndex: 1,
             data: []
           }, {
             name: 'Significant genes outside of LFC band ',
             color: vue.colorSignificantGenes + '88',
-            id: 1,
+            id: 0,
             zIndex: 2,
             data: []
           }, {

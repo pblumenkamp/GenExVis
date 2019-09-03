@@ -271,6 +271,17 @@
           }
         }
         return data
+      },
+      selectedDistributionTypeLabel () {
+        if (this.selectedDistributionType === 'p-value') {
+          return 'P-Value'
+        } else if (this.selectedDistributionType === 'p-value (adjusted)') {
+          return 'Adjusted P-Value'
+        } else if (this.selectedDistributionType === 'log2 fold change') {
+          return 'Log2 Fold Change'
+        } else {
+          return this.selectedDistributionType
+        }
       }
     },
     watch: {
@@ -320,7 +331,7 @@
           },
           xAxis: {
             title: {
-              text: this.selectedDistributionType,
+              text: this.selectedDistributionTypeLabel,
               style: {
                 color: AXIS_COLOR
               }
@@ -409,7 +420,7 @@
 
         options.series[0].data = data.data
         options.xAxis.categories = data.categories
-        options.subtitle.text = `${data.usedCounts} of ${data.maxCounts} counts`
+        options.subtitle.text = `${data.usedCounts} of ${data.maxCounts} features`
 
         chart = Highcharts.chart(CHART_ID, options)
       },

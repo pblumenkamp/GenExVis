@@ -157,7 +157,7 @@
             type: 'logarithmic',
             min: 1,
             title: {
-              text: 'base mean count',
+              text: 'Base Mean Count',
               style: {
                 color: AXIS_COLOR
               }
@@ -176,7 +176,7 @@
           },
           yAxis: {
             title: {
-              text: 'log2 (fold change)',
+              text: 'Log2 Fold Change',
               style: {
                 color: AXIS_COLOR
               }
@@ -253,7 +253,7 @@
             data: [{gene: 'abc', x: 1, y: 1, pValue: 1, adjPValue: 1}]
           },
           {
-            name: 'Rest',
+            name: ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ' > ' + this.pThreshold.toExponential(2),
             color: '#000000',
             id: 1,
             zIndex: 0,

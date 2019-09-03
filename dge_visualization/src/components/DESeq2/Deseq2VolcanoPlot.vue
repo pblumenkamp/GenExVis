@@ -169,7 +169,7 @@
           },
           xAxis: {
             title: {
-              text: 'log2 (fold change)',
+              text: 'Log2 Fold Change',
               style: {
                 color: AXIS_COLOR
               }
@@ -187,7 +187,7 @@
           },
           yAxis: {
             title: {
-              text: '-log10 (p-value)',
+              text: (this.useAdjPValue) ? '-Log10 (Adjusted P-Value)' : '-Log10 (P-Value)',
               style: {
                 color: AXIS_COLOR
               }
@@ -260,7 +260,7 @@
           },
           series: [{
             //name: '|log2 fold change >= 2 AND p-value <= ' + vue.pThreshold.toExponential(2),
-            name: 'Statistically significant AND high expression',
+            name: 'Statistically significant AND highly expressed',
             color: '#cc1926',
             zIndex: 2,
             id: 0,
@@ -268,14 +268,14 @@
           },
           {
             //name: '|log2 fold change| >= 2 OR p-value <= ' + vue.pThreshold.toExponential(2),
-            name: 'Statistically significant OR high expression',
+            name: 'Statistically significant OR highly expressed',
             color: '#ccc223',
             zIndex: 1,
             id: 1,
             data: []
           },
           {
-            name: 'Rest',
+            name: 'Neither statistically significant nor highly expressed',
             color: '#000000',
             zIndex: 0,
             id: 2,
