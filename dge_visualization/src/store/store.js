@@ -21,8 +21,7 @@ const store = new Vuex.Store({
     deseqlist: [],
     countlist: [],
     genelist: [],
-    strucStorage: null,
-    currentCharts: []
+    strucStorage: null
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
@@ -83,12 +82,6 @@ const store = new Vuex.Store({
         state.useSubDGE = false
         state.currentDGE = state.dgeData
       }
-    },
-    [ADD_CHART] (state, {chart}) {
-      state.currentCharts.push(chart)
-    },
-    [REMOVE_ALL_CHARTS] (state) {
-      state.currentCharts = []
     }
   },
   actions: {
@@ -163,15 +156,6 @@ const store = new Vuex.Store({
       return new Promise((resolve, reject) => {
         let subsetDGE = state.dgeData.getSubset(geneList)
         commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
-        resolve()
-      })
-    },
-    [SET_CHARTS] ({commit, state}, {charts}) {
-      return new Promise((resolve, reject) => {
-        commit(REMOVE_ALL_CHARTS)
-        for (let chart of charts) {
-          commit(ADD_CHART, {chart: chart})
-        }
         resolve()
       })
     }

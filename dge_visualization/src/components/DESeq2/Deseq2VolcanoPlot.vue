@@ -82,8 +82,6 @@
   import {ConditionPair} from '../../utilities/dge'
   import GeneTable from '../Utils/GeneTable'
 
-  import {SET_CHARTS} from '@/store/action_constants'
-
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
   require('highcharts/modules/offline-exporting')(Highcharts)
