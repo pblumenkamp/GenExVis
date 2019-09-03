@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 100%; height: 600px">
+  <div>
     <h1 class="header">Downloads</h1>
     <div>
       <!-- Table with two cols: Options and select files -->

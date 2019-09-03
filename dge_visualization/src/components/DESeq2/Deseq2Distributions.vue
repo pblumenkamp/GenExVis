@@ -53,12 +53,10 @@
       </option>
     </b-form-select>
 
-    <hr>
-
     <div
       id="deseq2_pvalue_distribution_highcharts"
       ref="deseq2_pvalue_distribution_highcharts"
-      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 1rem auto 0;"
     ></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
@@ -423,6 +421,8 @@
         options.subtitle.text = `${data.usedCounts} of ${data.maxCounts} features`
 
         chart = Highcharts.chart(CHART_ID, options)
+        vue.$charts.length = 0
+        vue.$charts.push(chart)
       },
       createHistogram (minValue, maxValue, stepsize, data) {
         let stepsizeDecimals = (Math.floor(stepsize) === stepsize) ? 0 : stepsize.toString().split('.')[1].length

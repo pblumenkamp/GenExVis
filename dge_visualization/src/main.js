@@ -29,6 +29,7 @@ Vue.use(VueSidebarMenu)
 
 Vue.prototype.$name = 'GenExVis'
 Vue.prototype.$version = '0.3.0'
+Vue.prototype.$charts = []
 
 /* eslint-disable no-new */
 new Vue({

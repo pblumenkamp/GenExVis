@@ -82,7 +82,7 @@
       width="15vw"
       @toggle-collapse="onToggleCollapse"
     >
-      <div v-if="!collapsed_sidebar" slot="header" style="text-align: center; color: white; margin-top: 0.5rem; margin-bottom: 2rem"><h3><b>GenExVis {{ $version }}</b></h3></div>
+      <div v-if="!collapsed_sidebar" slot="header" style="text-align: center; color: white; margin-top: 0.5rem; margin-bottom: 2rem"><h3><b>{{$name}} {{ $version }}</b></h3></div>
       <font-awesome-icon slot="dropdown-icon" icon="chevron-right" size="lg" />
       <font-awesome-icon slot="toggle-icon" icon="arrows-alt-h" size="lg" />
     </sidebar-menu>
@@ -142,6 +142,10 @@
               {
                 href: '/deseq2/overview',
                 title: 'Overview',
+              },
+              {
+                href: '/deseq2/top_10',
+                title: 'Top Genes',
               },
               {
                 title: 'Scatter plots',
@@ -217,9 +221,24 @@
     watch: {
       useSubset (useSubset) {
         this.$store.commit(SWITCH_DGE, {useSubDGE: useSubset})
+      },
+      collapsed_data () {
+        this.reflow_charts()
+      },
+      collapsed_sidebar () {
+        this.reflow_charts()
       }
     },
     methods: {
+      reflow_charts () {
+        const vue = this
+        const delay = ms => new Promise(res => setTimeout(res, ms))
+        delay(600).then(() => {
+          for (const chart of vue.$charts) {
+            chart.reflow()
+          }
+        })
+      },
       numberWithCommas (x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
       },

@@ -82,6 +82,8 @@
   import {ConditionPair} from '../../utilities/dge'
   import GeneTable from '../Utils/GeneTable'
 
+  import {SET_CHARTS} from '@/store/action_constants'
+
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
   require('highcharts/modules/offline-exporting')(Highcharts)
@@ -329,7 +331,9 @@
           }
         }
 
-        Highcharts.chart(CHART_ID, options)
+        const chart = Highcharts.chart(CHART_ID, options)
+        vue.$charts.length = 0
+        vue.$charts.push(chart)
       },
       clearChart () {
         this.selectedCondition1 = ''

@@ -122,7 +122,7 @@
     <div
       id="countdatagenecounthm_highcharts"
       ref="countdatagenecounthm_highcharts"
-      style="min-width: 60%; max-width: 60%; margin: 0 auto"
+      style="min-width: 60%; max-width: 60%; margin: 1rem auto 0"
     ></div>
   </div>
 </template>
@@ -337,6 +337,8 @@
 
         chart = Highcharts.chart(CHART_ID, options)
         chart.hideLoading()
+        this.$charts.length = 0
+        this.$charts.push(chart)
       },
       clearChart () {
         this.selectedNormalization = ''

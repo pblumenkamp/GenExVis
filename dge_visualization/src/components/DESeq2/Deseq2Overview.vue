@@ -1,10 +1,8 @@
 <template>
-  <div style="width: 100%; height: 600px">
+  <div>
     <div style="text-align: center">
       <h1 class="header">Overview</h1>
     </div>
-
-    <div style="clear: both;"></div>
 
     <div>
       <!-- Design selection -->
@@ -92,18 +90,22 @@
     </div><p></p>
 
     <div v-if="this.excessLength === false">
-      <ag-grid-vue id="main-table" class="main-table ag-theme-balham" align="left"
-                   :gridOptions="gridOptions"
-                   :columnDefs="columnDefs"
-                   :rowData="rowData"
+      <ag-grid-vue
+        id="main-table"
+        class="main-table ag-theme-balham"
+        align="left"
 
-                   :groupHeaders="true"
+        :gridOptions="gridOptions"
+        :columnDefs="columnDefs"
+        :rowData="rowData"
 
-                   @modelUpdated="onModelUpdated"
-                   @selectionChanged="onSelectionChanged"
-                   @columnVisible="onVisionChanged"
-                   @columnMoved="onPositionChanged"
-                   @gridReady="onReady"
+        :groupHeaders="true"
+
+        @modelUpdated="onModelUpdated"
+        @selectionChanged="onSelectionChanged"
+        @columnVisible="onVisionChanged"
+        @columnMoved="onPositionChanged"
+        @gridReady="onReady"
       />
     </div>
     <div v-else class="main-table" >
@@ -222,12 +224,9 @@
         }
       },
       checkGeneAmount () {
-        console.log('checkGeneAmount')
         let fileList = this.$store.state.deseqlist.length
         let fileLength = this.$store.state.dgeData.length
         this.rowTotalAmount = fileLength
-
-        console.log(fileList, fileLength)
 
         if (fileList * 6 * fileLength > 2000000) {
           this.excessLength = true
@@ -264,7 +263,6 @@
         this.strucStorage = strucStorage
       },
       createRowData () {
-        console.log('CREATE ROW DATA:')
         const rowData = []
         let store = this.$store.state.dgeData
 
@@ -294,7 +292,6 @@
           rowCounter = rowCounter + 1
         }
 
-        console.log(rowData)
         this.rowData = rowData
       },
       // visualisation of log2FoldChange
@@ -346,7 +343,6 @@
           let showstate = null
           if (colCounter > 1) { showstate = 'closed' }
           let formattedValue = this.roundingFormatter
-          console.log('   !! ' + formattedValue)
           let entryDict = {
             headerName: column[0],
             field: column[1],
@@ -366,7 +362,6 @@
         return (returnArray)
       },
       roundingFormatter (number) {
-        console.log('is called')
         let testValue = number.value + '€'
 
         return testValue
@@ -639,10 +634,8 @@
           }
           fileCounter = fileCounter + 1
         }
-        console.log(fileCounter)
         // removing 1st array element, which was shown as object[object] in csv
         // topColumns.shift()
-        console.log(topColumns)
         // creating columnHeaders
         let columnHeaders = []
         while (fileCounter > 0) {
@@ -651,7 +644,6 @@
         }
         // adding name only in the beginning of the column headers
         columnHeaders.unshift('name')
-        console.log(columnHeaders)
         // creating correct row data
         let rowData = []
         rowData.push(topColumns)
@@ -686,7 +678,6 @@
           rowData.push(oneEntry)
           oneEntry = []
         }
-        console.log(rowData)
         // expression to add row information taken from:
         // https://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
         // to write csv, one 1D big array is needed. In order to give row info, we need newlines between each entry (inner array)

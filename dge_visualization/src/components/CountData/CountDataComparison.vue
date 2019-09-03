@@ -3,7 +3,7 @@
   <div style="text-align: center">
     <h1 class="header">Gene Count Comparison</h1>
 
-    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
+    <b-form-select v-model="selectedCondition1" style="width: auto; margin-right: 0.5rem" @change="selectedCondition2 = ''">
       <template slot="first">
         <option :value="''" disabled>
           -- Please select the first condition --
@@ -20,7 +20,7 @@
 
     <b-form-select
       v-model="selectedCondition2"
-      style="width: auto"
+      style="width: auto; margin-left: 0.5rem"
       :disabled="selectedCondition1 === ''"
       @input="drawData"
     >
@@ -59,7 +59,7 @@
     <div
       id="countdata_countvscount"
       ref="countdata_countvscount"
-      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 1rem auto 0;"
     ></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
@@ -415,7 +415,9 @@
         options.series[3].data = [(vue.useLogarithmicScale) ? [0.01, 0.01] : [0, 0], [maxValue, maxValue / Math.pow(2, vue.log2FoldChange)]]
         options.series[4].data = [(vue.useLogarithmicScale) ? [0.01, 0.01] : [0, 0], [maxValue / Math.pow(2, vue.log2FoldChange), maxValue]]
 
-        Highcharts.chart(CHART_ID, options)
+        const chart = Highcharts.chart(CHART_ID, options)
+        vue.$charts.length = 0
+        vue.$charts.push(chart)
       },
       clearChart () {
         this.selectedCondition1 = ''

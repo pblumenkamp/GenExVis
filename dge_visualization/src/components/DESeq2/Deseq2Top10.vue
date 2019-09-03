@@ -41,8 +41,6 @@
       </option>
     </b-form-select>
 
-    <hr style="margin-top: 2rem; margin-bottom: 2rem">
-
     <div v-if="selectedCondition1 && selectedCondition2 && selectedDistributionType && selectedNormalization" align="center" style="margin-top: 2rem">
       <div v-if="selectedAmount" align="center">
 
@@ -132,7 +130,7 @@
                       <div v-else-if="isExponential"> {{ nameNegotiator() }}: <p>{{ returnAlteredValue(generateValue(index)) }}</p></div>
                     </td>
                     <td class="rankingColumns">
-                      <div :id="generateKey(index)" :ref="returnKey(index)" style="height: 400px; max-width: 80%; margin: 0 auto"> no count data </div>
+                      <div :id="generateKey(index)" :ref="returnKey(index)" style="height: 400px; min-width: 40%; max-width: 80%; margin: 1rem auto;"> no count data </div>
                       <!--<hr style="margin-bottom: 2rem">-->
                     </td>
                   </tr>
@@ -307,6 +305,7 @@
         this.entryData = data
       },
       drawData () {
+        this.$charts.length = 0
         this.updateCheck = false
         let categories = this.registeredConditions
         let plotTitle = ''
@@ -414,7 +413,8 @@
           } else {
             options.series[0].data = data
             counter = counter + 1
-            Highcharts.chart(element, options)
+            const chart = Highcharts.chart(element, options)
+            this.$charts.push(chart)
           }
         }
       },

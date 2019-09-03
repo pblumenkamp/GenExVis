@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE} from './action_constants'
-import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE, SET_CHARTS} from './action_constants'
+import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE, ADD_CHART, REMOVE_ALL_CHARTS} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -21,7 +21,8 @@ const store = new Vuex.Store({
     deseqlist: [],
     countlist: [],
     genelist: [],
-    strucStorage: null
+    strucStorage: null,
+    currentCharts: []
   },
   mutations: {
     [ADD_DATA] (state, dgeData) {
@@ -82,6 +83,12 @@ const store = new Vuex.Store({
         state.useSubDGE = false
         state.currentDGE = state.dgeData
       }
+    },
+    [ADD_CHART] (state, {chart}) {
+      state.currentCharts.push(chart)
+    },
+    [REMOVE_ALL_CHARTS] (state) {
+      state.currentCharts = []
     }
   },
   actions: {
@@ -156,6 +163,15 @@ const store = new Vuex.Store({
       return new Promise((resolve, reject) => {
         let subsetDGE = state.dgeData.getSubset(geneList)
         commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
+        resolve()
+      })
+    },
+    [SET_CHARTS] ({commit, state}, {charts}) {
+      return new Promise((resolve, reject) => {
+        commit(REMOVE_ALL_CHARTS)
+        for (let chart of charts) {
+          commit(ADD_CHART, {chart: chart})
+        }
         resolve()
       })
     }
