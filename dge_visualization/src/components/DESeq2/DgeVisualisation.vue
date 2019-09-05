@@ -1103,11 +1103,15 @@
         // discard "operons" of length 1 (not an operon)
         // and discard operons smaller than selected size
         this.filteredGroupList=[];
+        console.log('operonList length');
+        console.log(operonList.length);
         for (let i=0; i< operonList.length; i++){
         if (operonList[i].length >= parseInt(this.selectedOperonSize)) {
             this.filteredGroupList.push(operonList[i]);
           }
         }
+        console.log('filteredGroupdList');
+        console.log(this.filteredGroupList.length);
       },
       drawBARCHART(){
         //console.log('in draw barchart');
@@ -1309,10 +1313,12 @@
                     value = value.toExponential(4);
                     oneTableRow.push(value);
                     // other values & not rounded values
-                  } else if(identifier === 'start' || identifier === 'end'){
+                  }
+                /*  else if(identifier === 'start' || identifier === 'end'){
                     let value = this.thousandSeparator(oneTableData[k][identifier]);
                     oneTableRow.push(value);
-                  }else {
+                  }*/
+                  else {
                     oneTableRow.push(oneTableData[k][identifier]);
                   }
                 }
@@ -1355,7 +1361,7 @@
             document.body.removeChild(link)
           }
         }
-        downloadFile(csvContent, this.tableFileName)
+        downloadFile(csvContent, this.tableFileName+'.csv')
       },
       // END BARCHART //
       // START UNIQUE GENES //
@@ -1721,7 +1727,7 @@
             document.body.removeChild(link)
           }
         }
-        downloadFile(csvContent, this.tableFileName)
+        downloadFile(csvContent, this.tableFileName+'.csv')
       },
       // END UNIQUE GENES //
       thousandSeparator(number){
