@@ -551,7 +551,7 @@
         operonSizes:["2","3","4","5","6","7","8","open end"],
         // big dictionary of data for the operon BARCHART
         geneDict: null,
-        geneGapSize: 1000,
+        geneGapSize: 300,
         filteredGroupList: null,
         tableList: null,
         groupCount: 0,
@@ -759,11 +759,6 @@
         }
       },
       selectedTableOptions (){
-        // console.log('before');
-        // console.log(this.tableList2);
-        // this.tableList2 = [];
-        // console.log('after');
-        // console.log(this.tableList2);
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.createGroupTableData();
         }
@@ -788,7 +783,7 @@
           this.selectedOperonSize = 2;
         }
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
-          this.getBARCHARTStoreData();
+          //this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
           this.createGroupTableData();
 
@@ -876,7 +871,7 @@
         // initializing geneDict
         this.geneDict = {};
         // whole dge data
-        let theDGE= this.$store.state.currentDGE;
+        let theDGE = this.$store.state.currentDGE;
         // whole gff3 data
         let theGFF3 = this.$store.state.gff3Data;
         // deseq2Type is object with string value. Getting string only
@@ -886,164 +881,167 @@
         // value-Dict for e.g. gene (if DESeq2Type was gene)
         let deseq2_gff3Match = (theGFF3[deseq2Type]);
         var keys = Object.keys(deseq2_gff3Match);
-        var geneNames= theDGE.geneNames; //set !
-        var uniqueKeys=[];
-        for(let key of keys){
-          if(!geneNames.has(key)){
+        var geneNames = theDGE.geneNames; //set !
+        var uniqueKeys = [];
+        for (let key of keys) {
+          if (!geneNames.has(key)) {
             uniqueKeys.push(key);
           }
         }
         // removing keys not present in DESeq2 analyses
-        keys = keys.filter( function( el ) {
-          return !uniqueKeys.includes( el );
-        } );
+        keys = keys.filter(function (el) {
+          return !uniqueKeys.includes(el);
+        });
+
+
         //////////////////////////////////////////////////////////////////////////////
-        for(let key of keys){
+        for (let key of keys) {
           let value = deseq2_gff3Match[key];
           //
           // initializing variables for attribute assignment to features
           var attributes = value['attributes'];
           var splitAttributes = attributes.split(';');
-          var dummyDict={};
+          var dummyDict = {};
           var identifier;
           var info;
-          //
-          // initializing/defining variables for deseq2Analysis of feature
-          let deseq2Analysis = theDGE.getGene(key).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
-          var geneName = key;
-          var start = value['start'];
-          var end = value['end'];
-          var strand=value['strand'];
-          var phase = value['phase'];
-          var parent;
-          var child;
-          var product;
-          if('parent' in value){
-            parent = value['parent'];
-          }else{
-            parent = 'none';
-          }
-          if('child' in value){
-            child=value['child'];
-          }else{
-            child='none';
-          }
-          if('product' in value){
-            product = value['product'];
-          }else{
-            product = 'unknown';
-          }
-          // if pValue matches user criteria
-          if (deseq2Analysis.pAdj <= this.inputPThreshold) {
-            // getting data based on regulation type and inputLog2FoldThreshold
-            if (this.selectedRegulationType === "upregulated") {
-              if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
-                this.geneDict[geneName] = {
-                  name: geneName,
-                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
-                  log2fold: (deseq2Analysis.log2FoldChange),
-                  pValue: (deseq2Analysis.pValue),
-                  pAdj: (deseq2Analysis.pAdj),
-                  baseMean:(deseq2Analysis.baseMean),
-                  lfcSE: (deseq2Analysis.lfcSE),
-                  stat: (deseq2Analysis.stat),
-                  start: start,
-                  end: end,
-                  strand: strand,
-                  phase: phase,
-                  parent: parent,
-                  child: child,
-                  product: product
-                };
-                // adding ALL gff3 attributes for the feature to its dict
-                for (let attribute of splitAttributes){
-                  let splitAttribute=attribute.split('=');
-                  identifier = splitAttribute[0];
-                  // adding identifier to table options
-                  if(!this.tableOptions.includes(identifier)){
-                    this.tableOptions.push(identifier);
+          // only if DESeq2 analysis exists for a conPair
+          if(theDGE.getGene(key).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))) {
+            // initializing/defining variables for deseq2Analysis of feature
+            let deseq2Analysis = theDGE.getGene(key).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2));
+            var geneName = key;
+            var start = value['start'];
+            var end = value['end'];
+            var strand = value['strand'];
+            var phase = value['phase'];
+            var parent;
+            var child;
+            var product;
+            if ('parent' in value) {
+              parent = value['parent'];
+            } else {
+              parent = 'none';
+            }
+            if ('child' in value) {
+              child = value['child'];
+            } else {
+              child = 'none';
+            }
+            if ('product' in value) {
+              product = value['product'];
+            } else {
+              product = 'unknown';
+            }
+            // if pValue matches user criteria
+            if (deseq2Analysis.pAdj <= this.inputPThreshold) {
+              // getting data based on regulation type and inputLog2FoldThreshold
+              if (this.selectedRegulationType === "upregulated") {
+                if (deseq2Analysis.log2FoldChange >= this.inputLog2FoldThreshold) {
+                  this.geneDict[geneName] = {
+                    name: geneName,
+                    y: Math.round(deseq2Analysis.log2FoldChange * 100) / 100,
+                    pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
+                    log2fold: (deseq2Analysis.log2FoldChange),
+                    pValue: (deseq2Analysis.pValue),
+                    pAdj: (deseq2Analysis.pAdj),
+                    baseMean: (deseq2Analysis.baseMean),
+                    lfcSE: (deseq2Analysis.lfcSE),
+                    stat: (deseq2Analysis.stat),
+                    start: start,
+                    end: end,
+                    strand: strand,
+                    phase: phase,
+                    parent: parent,
+                    child: child,
+                    product: product
+                  };
+                  // adding ALL gff3 attributes for the feature to its dict
+                  for (let attribute of splitAttributes) {
+                    let splitAttribute = attribute.split('=');
+                    identifier = splitAttribute[0];
+                    // adding identifier to table options
+                    if (!this.tableOptions.includes(identifier)) {
+                      this.tableOptions.push(identifier);
+                    }
+                    info = splitAttribute[1];
+                    dummyDict[identifier] = info;
                   }
-                  info = splitAttribute[1];
-                  dummyDict[identifier] = info;
+                  this.geneDict[geneName] = Object.assign({}, this.geneDict[geneName], dummyDict);
                 }
-                this.geneDict[geneName]=Object.assign({}, this.geneDict[geneName], dummyDict);
-              }
-            } else if (this.selectedRegulationType === "downregulated") {
-              if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
-                this.geneDict[geneName] = {
-                  name: geneName,
-                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
-                  log2fold: (deseq2Analysis.log2FoldChange),
-                  pValue: (deseq2Analysis.pValue),
-                  pAdj: (deseq2Analysis.pAdj),
-                  baseMean:(deseq2Analysis.baseMean),
-                  lfcSE: (deseq2Analysis.lfcSE),
-                  stat: (deseq2Analysis.stat),
-                  start: start,
-                  end: end,
-                  strand: strand,
-                  phase: phase,
-                  parent: parent,
-                  child: child,
-                  product: product
-                };
-                // adding ALL gff3 attributes for the feature to its dict
-                for (let attribute of splitAttributes){
-                  let splitAttribute=attribute.split('=');
-                  identifier = splitAttribute[0];
-                  // adding identifier to table options
-                  if(!this.tableOptions.includes(identifier)){
-                    this.tableOptions.push(identifier);
+              } else if (this.selectedRegulationType === "downregulated") {
+                if (deseq2Analysis.log2FoldChange <= this.inputLog2FoldThreshold) {
+                  this.geneDict[geneName] = {
+                    name: geneName,
+                    y: Math.round(deseq2Analysis.log2FoldChange * 100) / 100,
+                    pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
+                    log2fold: (deseq2Analysis.log2FoldChange),
+                    pValue: (deseq2Analysis.pValue),
+                    pAdj: (deseq2Analysis.pAdj),
+                    baseMean: (deseq2Analysis.baseMean),
+                    lfcSE: (deseq2Analysis.lfcSE),
+                    stat: (deseq2Analysis.stat),
+                    start: start,
+                    end: end,
+                    strand: strand,
+                    phase: phase,
+                    parent: parent,
+                    child: child,
+                    product: product
+                  };
+                  // adding ALL gff3 attributes for the feature to its dict
+                  for (let attribute of splitAttributes) {
+                    let splitAttribute = attribute.split('=');
+                    identifier = splitAttribute[0];
+                    // adding identifier to table options
+                    if (!this.tableOptions.includes(identifier)) {
+                      this.tableOptions.push(identifier);
+                    }
+                    info = splitAttribute[1];
+                    dummyDict[identifier] = info;
                   }
-                  info = splitAttribute[1];
-                  dummyDict[identifier] = info;
+                  this.geneDict[geneName] = Object.assign({}, this.geneDict[geneName], dummyDict);
                 }
-                this.geneDict[geneName]=Object.assign({}, this.geneDict[geneName], dummyDict);
-              }
-            } else if (this.selectedRegulationType === "both") {
-              if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
-                this.geneDict[geneName] = {
-                  name: geneName,
-                  y: Math.round(deseq2Analysis.log2FoldChange*100)/100,
-                  pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
-                  log2fold: (deseq2Analysis.log2FoldChange),
-                  pValue: (deseq2Analysis.pValue),
-                  pAdj: (deseq2Analysis.pAdj),
-                  baseMean:(deseq2Analysis.baseMean),
-                  lfcSE: (deseq2Analysis.lfcSE),
-                  stat: (deseq2Analysis.stat),
-                  start: start,
-                  end: end,
-                  strand: strand,
-                  phase: phase,
-                  parent: parent,
-                  child: child,
-                  product: product
-                };
-                // adding ALL gff3 attributes for the feature to its dict
-                for (let attribute of splitAttributes){
-                  let splitAttribute=attribute.split('=');
-                  identifier = splitAttribute[0];
-                  // adding identifier to table options, but not ID, since ID is written to the table always
-                  // as first column with tag "feature"
-                  if(!this.tableOptions.includes(identifier) && identifier !== 'ID'){
-                    this.tableOptions.push(identifier);
+              } else if (this.selectedRegulationType === "both") {
+                if (Math.abs(deseq2Analysis.log2FoldChange) >= this.inputLog2FoldThreshold) {
+                  this.geneDict[geneName] = {
+                    name: geneName,
+                    y: Math.round(deseq2Analysis.log2FoldChange * 100) / 100,
+                    pAdjrounded: (deseq2Analysis.pAdj).toExponential(2),
+                    log2fold: (deseq2Analysis.log2FoldChange),
+                    pValue: (deseq2Analysis.pValue),
+                    pAdj: (deseq2Analysis.pAdj),
+                    baseMean: (deseq2Analysis.baseMean),
+                    lfcSE: (deseq2Analysis.lfcSE),
+                    stat: (deseq2Analysis.stat),
+                    start: start,
+                    end: end,
+                    strand: strand,
+                    phase: phase,
+                    parent: parent,
+                    child: child,
+                    product: product
+                  };
+                  // adding ALL gff3 attributes for the feature to its dict
+                  for (let attribute of splitAttributes) {
+                    let splitAttribute = attribute.split('=');
+                    identifier = splitAttribute[0];
+                    // adding identifier to table options, but not ID, since ID is written to the table always
+                    // as first column with tag "feature"
+                    if (!this.tableOptions.includes(identifier) && identifier !== 'ID') {
+                      this.tableOptions.push(identifier);
+                    }
+                    info = splitAttribute[1];
+                    dummyDict[identifier] = info;
                   }
-                  info = splitAttribute[1];
-                  dummyDict[identifier] = info;
+                  this.geneDict[geneName] = Object.assign({}, this.geneDict[geneName], dummyDict);
                 }
-                this.geneDict[geneName]=Object.assign({}, this.geneDict[geneName], dummyDict);
               }
             }
           }
         }
         // adding DESeq2 options to selection menu
-        if(!this.tableOptions.includes('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat')){
-          this.tableOptions.unshift('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat');
+        if (!this.tableOptions.includes('log2fold', 'pAdj', 'baseMean', 'lfcSE', 'pValue', 'stat')) {
+          this.tableOptions.unshift('log2fold', 'pAdj', 'baseMean', 'lfcSE', 'pValue', 'stat');
         }
-        //console.log(this.tableOptions);
       },
       formatBARCHARTdata(){
         // sort by start
@@ -1103,19 +1101,13 @@
         // discard "operons" of length 1 (not an operon)
         // and discard operons smaller than selected size
         this.filteredGroupList=[];
-        console.log('operonList length');
-        console.log(operonList.length);
         for (let i=0; i< operonList.length; i++){
         if (operonList[i].length >= parseInt(this.selectedOperonSize)) {
             this.filteredGroupList.push(operonList[i]);
           }
         }
-        console.log('filteredGroupdList');
-        console.log(this.filteredGroupList.length);
       },
       drawBARCHART(){
-        //console.log('in draw barchart');
-        //this.tableList = [];
         let dataList = this.filteredGroupList;
         for (var index in dataList){
           let pointWidth = 30-(dataList[index].length);
@@ -1275,13 +1267,9 @@
         }
       },*/
       createGroupTableData(){
-        //console.log('in create');
         let oneTable=[];
         this.tableList2 = [];
         if(this.selectedTableOptions.length>0) {
-          // console.log('in function');
-          // console.log(this.tableList2);
-          //this.tableList2 = [];
           this.downloadDict={};
           for (let i = 0; i < this.filteredGroupList.length; i++) {
             oneTable = [];
@@ -1295,7 +1283,6 @@
             // adding row info to tables
             // let oneTableData = this.filteredGroupList[i];
             let oneTableData = JSON.parse(JSON.stringify(this.filteredGroupList[i]));
-            // console.log(this.filteredGroupList[i].length);
             for (let k = 0; k < oneTableData.length; k++) {
               let oneTableRow = [];
               var featureID = oneTableData[k]['ID'];
@@ -1328,13 +1315,12 @@
               }
               // adding row to table
               oneTable.push(oneTableRow);
-              // console.log(oneTableRow);
             }
+            // Array of arrays. 1st level inner array = one Table; 2nd level inner array = 1 table row
+
             this.tableList2.push(oneTable);
             this.downloadDict[i] = oneTable;
           }
-          // Array of arrays. 1st level inner array = one Table; 2nd level inner array = 1 table row
-          //console.log(this.tableList2);
         }
         },
       downloadOperonTable: function(event) {
@@ -1380,7 +1366,6 @@
           let titleString = conditionPair.condition1 + '_'+ conditionPair.condition2;
           this.uniqueGenesTitles.push(titleString);
         }
-        // console.log(significantGenes);
         // long list of all significant genes of all condition pairs
         pooledSignificantGenes= pooledSignificantGenes.flat();
         // dict for key = cond Pair & value = list of feature IDs
@@ -1394,7 +1379,6 @@
           let index = myTestlist.indexOf(el);
           myTestlist.splice(index,1);
         }
-        console.log(myTestlist);*/
         /////////////////////////////////////////////////////////////////
 
         //key = condition pair, value = list of IDs of significant genes for condition pair
@@ -1421,7 +1405,6 @@
         /////////////////////////////////////////////////////////////////
          // vice versa check, if value removed from untreated vs clindamycin appears in the other cond pair's value
          /*if(significantGenes['Untreated_Erythromycin'].includes('cds-NP_414549.1')){
-           console.log('yap');
          }*/
         /////////////////////////////////////////////////////////////////
 
@@ -1432,13 +1415,7 @@
         let deseq2Type = Object.values(deseq2Dummy);
         // value-Dict for e.g. gene (if DESeq2Type was gene)
         let deseq2_gff3Match = (theGFF3[deseq2Type]);
-        /*console.log(deseq2_gff3Match);
-        for(const[key,value] of Object.entries(deseq2_gff3Match)){
-          if(value['start'] === '2668006'){
-            console.log(key);
-            console.log(value);
-          }
-        }*/
+
         // dict of dicts. 1st level: keys = cond pairs; 2nd level: key= feature id, value = data dict for that feature
         // structure: uniqueGenesDataDict={condPair1:{id1:{log2fold:2, pValue: 1, pAdj ...., start: 100, end: 642, strand:....}, id2:{...},....}, condPair2:{},...}
         this.uniqueGenesDataDict={};
@@ -1463,8 +1440,6 @@
           let cond2 = keyArray[1];
           this.uniqueGenesDataDict[key]={};
           for(let id of value){
-            // no id duplicates
-            // console.log(id);
             // getting deseq2 analysis for feature and current loop conditions
             if(theDGE.getGene(id).getDESEQ2Analysis((new ConditionPair(cond1,cond2)))){
               var deseq2Analysis = theDGE.getGene(id).getDESEQ2Analysis(new ConditionPair(cond1, cond2));
@@ -1647,7 +1622,6 @@
         if(!this.tableOptions.includes('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat')){
           this.tableOptions.unshift('log2fold' , 'pAdj', 'baseMean' , 'lfcSE' , 'pValue' , 'stat');
         }
-        // console.log(this.uniqueGenesDataDict);
       },
       createUNIQUEGENESTableData(){
         this.uniqueGenesTableArray=[];
@@ -1663,10 +1637,7 @@
              oneTableArray.push(tableHeaders);
              // eslint-disable-next-line no-unused-vars
              for(const [innerKey,innerValue] of Object.entries(value)){
-               // console.log(innerKey);
                let oneTableRow=[];
-               /*console.log(innerKey);
-               console.log(innerValue);*/
                for(let option of this.selectedTableOptions){
                  if (this.roundedValues && (option === 'log2fold' || option === 'stat' || option === 'baseMean' || option === 'lfcSE')){
                    let value = innerValue[option];
@@ -1699,8 +1670,6 @@
              tableCounter = tableCounter +1;
            }
          }
-         // console.log(this.uniqueGenesTableArray);
-        // console.log(this.downloadDict);
       },
       downloadUniqueGenesTable: function(event) {
         // getting elements ID in order to download one table only
