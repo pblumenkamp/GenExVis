@@ -400,7 +400,7 @@
                       :clear-on-select="false"
                       :preserve-search="true"
                       :show-labels="true"
-                      :preselect-first="false"
+                      :preselect-first="true"
                       placeholder="Choose regulation"
                       selected-label="Selected"
                       select-label="Click to select"
