@@ -400,7 +400,7 @@
                       :clear-on-select="false"
                       :preserve-search="true"
                       :show-labels="true"
-                      :preselect-first="false"
+                      :preselect-first="true"
                       placeholder="Choose regulation"
                       selected-label="Selected"
                       select-label="Click to select"
@@ -1352,6 +1352,7 @@
       // END BARCHART //
       // START UNIQUE GENES //
       getUNIQUEGENESStoreData(){
+        // console.log('in getUNIQUEGENESStoreData');
         // whole dge data
         let theDGE= this.$store.state.currentDGE;
 
@@ -1371,6 +1372,28 @@
         // dict for key = cond Pair & value = list of feature IDs
         let uniquelySignificantGenes={};
 
+        //key = condition pair, value = list of IDs of significant genes for condition pair
+
+        for (const [key,value] of Object.entries(significantGenes)){
+          // deepcopy
+          let pooledDummy = JSON.parse(JSON.stringify(pooledSignificantGenes));
+          // iterating single IDs to splice them once from the list
+          for(let id of value){
+            let index = pooledDummy.indexOf(id);
+            pooledDummy.splice(index,1);
+          }
+          // pooledDummy now contains all elements but the value elements
+          // now filtering for unique IDs in the value
+          let uniqueValues = [];
+          for (let id of value){
+            // if the pooledDummy does not include the id, it is unique
+            if(!pooledDummy.includes(id)){
+              uniqueValues.push(id);
+            }
+          }
+          uniquelySignificantGenes[key]=uniqueValues;
+        }
+
         /////////////////////////////////////////////////////////////////
         // PROOF, that only first occurence is spliced //
         /*let myTestlist = [1,2,3,4,5,4,3,2,1];
@@ -1380,27 +1403,6 @@
           myTestlist.splice(index,1);
         }
         /////////////////////////////////////////////////////////////////
-
-        //key = condition pair, value = list of IDs of significant genes for condition pair
-         for (const [key,value] of Object.entries(significantGenes)){
-           // deepcopy
-           let pooledDummy = JSON.parse(JSON.stringify(pooledSignificantGenes));
-           // iterating single IDs to splice them once from the list
-           for(let id of value){
-             let index = pooledDummy.indexOf(id);
-             pooledDummy.splice(index,1);
-           }
-           // pooledDummy now contains all elements but the value elements
-           // now filtering for unique IDs in the value
-           let uniqueValues = [];
-           for (let id of value){
-             // if the pooledDummy does not include the id, it is unique
-             if(!pooledDummy.includes(id)){
-               uniqueValues.push(id);
-             }
-           }
-           uniquelySignificantGenes[key]=uniqueValues;
-         }
 
         /////////////////////////////////////////////////////////////////
          // vice versa check, if value removed from untreated vs clindamycin appears in the other cond pair's value
@@ -1624,6 +1626,8 @@
         }
       },
       createUNIQUEGENESTableData(){
+        // console.log('in createUNIQUEGENESTableData');
+        // console.log(this.uniqueGenesDataDict);
         this.uniqueGenesTableArray=[];
         let tableCounter = 0;
         this.downloadDict={};
@@ -1649,10 +1653,12 @@
                    value = value.toExponential(4);
                    oneTableRow.push(value);
                    // other values & not rounded values
-                 } else if(option === 'start' || option === 'end'){
+                 }
+                 /*else if(option === 'start' || option === 'end'){
                    let value = this.thousandSeparator(innerValue[option]);
                    oneTableRow.push(value);
-                 }else {
+                 }*/
+                 else {
                    oneTableRow.push(innerValue[option]);
                  }
                    ////////////////////////////////////////////////////////
@@ -1670,6 +1676,7 @@
              tableCounter = tableCounter +1;
            }
          }
+        // console.log(this.uniqueGenesTableArray);
       },
       downloadUniqueGenesTable: function(event) {
         // getting elements ID in order to download one table only
