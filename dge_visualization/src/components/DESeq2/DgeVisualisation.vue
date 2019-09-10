@@ -400,7 +400,7 @@
                       :clear-on-select="false"
                       :preserve-search="true"
                       :show-labels="true"
-                      :preselect-first="true"
+                      :preselect-first="false"
                       placeholder="Choose regulation"
                       selected-label="Selected"
                       select-label="Click to select"
@@ -436,7 +436,7 @@
           <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue;">
             <table style="width: 100%; margin-left: 20px; display: inline-block;">
               <!-- one row for each table -->
-              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
+              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid black; margin-bottom: 20px; padding: 10px">
                 <!-- one td for each table selection menu and table-->
                 <td style="vertical-align: top">
                   <h4>{{ uniqueGenesTitles[index] }}</h4>
@@ -485,13 +485,20 @@
                 </td>
                 <td>
                   <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
-                    <table style="width: 100%; margin-left: 20px; overflow-y: scroll; overflow-x: scroll">
+                    <table style="width: 100%; margin-left: 20px;">
                       <td>
-                        <table>
-                          <tr v-for="(oneRow, index_j) in oneTable" :key="index_j" style="border: 1px solid black; white-space: nowrap">
-                            <td v-for="(info, index_k) in oneRow" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
-                          </tr>
-                        </table>
+                        <!--This is the table I want scrollable! -->
+                        <div class="scrollableTable">
+                          <table class="tableWrapper">
+                            <tr v-for="(oneRow, index_j) in oneTable" :key="index_j" style="border: 1px solid black; white-space: nowrap">
+                              <td
+                                v-for="(info, index_k) in oneRow"
+                                :key="index_k"
+                                class="tableWrapper"
+                                style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
+                            </tr>
+                          </table>
+                        </div>
                       </td>
                       <td>
                         <!-- -1 for header of table-->
@@ -663,6 +670,7 @@
         else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
           this.conditionPairList=[];
           this.conditionPairs=[];
+
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
           for(let condition of this.selectedCondition2){
@@ -670,7 +678,17 @@
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
+          // correctly adjusting preselection of condition pair to display data for
+          if(this.selectedCondition1 && this.selectedCondition2.length >= 1){
+            this.selectedConditionPairs=[];
+            this.selectedConditionPairs.push(this.selectedCondition1+"_"+ this.selectedCondition2[0]);
+          }
+
           if(this.conditionPairList.length>=1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=false;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -678,6 +696,9 @@
           }
           else if(this.conditionPairList.length === 1){
             this.onlyOne=true;
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -687,6 +708,8 @@
       },
       selectedCondition2(){
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+/*          console.log(this.selectedCondition2);
+          console.log(typeof (this.selectedCondition2));*/
           this.getBARCHARTStoreData();
           this.formatBARCHARTdata();
           this.createGroupTableData();
@@ -695,6 +718,7 @@
         else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
           this.conditionPairList=[];
           this.conditionPairs=[];
+
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
           for(let condition of this.selectedCondition2){
@@ -702,13 +726,25 @@
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
+          // correctly adjusting preselection of condition pair to display data for
+          if(this.selectedCondition1 && this.selectedCondition2.length >= 1){
+            this.selectedConditionPairs=[];
+            this.selectedConditionPairs.push(this.selectedCondition1+"_"+ this.selectedCondition2[0]);
+          }
           if(this.conditionPairList.length>=1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=false;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
             }
           }
           else if(this.conditionPairList.length === 1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
             this.onlyOne=true;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
@@ -743,13 +779,26 @@
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
+          // correctly adjusting preselection of condition pair to display data for
+          if(this.selectedCondition1 && this.selectedCondition2.length >= 1){
+            this.selectedConditionPairs=[];
+            this.selectedConditionPairs.push(this.selectedCondition1+"_"+ this.selectedCondition2[0]);
+          }
+
           if(this.conditionPairList.length>1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=false;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
             }
           }
           else if(this.conditionPairList.length === 1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
             this.onlyOne=true;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
@@ -821,6 +870,10 @@
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
           if(this.conditionPairList.length>=1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=false;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -840,6 +893,10 @@
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
           }
           if(this.conditionPairList.length>=1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=false;
             this.getUNIQUEGENESStoreData();
             if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
@@ -1731,5 +1788,16 @@
 </script>
 
 <style scoped>
+
+  .scrollableTable {
+    width: 800px;
+    height: 270px;
+    overflow-x: auto;
+    overflow-y: scroll;
+  }
+
+  .tableWrapper {
+    border-collapse: collapse;
+  }
 
 </style>
