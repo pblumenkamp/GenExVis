@@ -528,8 +528,8 @@
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // eslint-disable-next-line no-console
-            /*console.log(filteredContent);
-            this.content = filteredContent;*/
+            console.log(filteredContent);
+            this.content = filteredContent;
             //console.log(this.content);
             this.showRemovedFeatures = true;
             resolve(this.content)
