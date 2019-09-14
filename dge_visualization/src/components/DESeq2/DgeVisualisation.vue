@@ -38,13 +38,40 @@
           <b-collapse id="helpConditions" v-model="showMetadataFeatureHelp" class="mt-2">
             <transition name="fade">
               <b-card v-if="showGroup" style="width:80%; margin: auto">
-                DGE visualisation type jointly regulated features.
+                <small>DGE visualisation type jointly regulated features.</small>
+                <br><br>
+                Upon provision of the DESeq2 condition pair of interest,
+                consequently regulated features are shown as barplot of the log2fold change against a discrete x-axis
+                of feature names. For the initial display, regulation type (upregulated, downregulated, both)and feature
+                group size as well as log2fold change and adjusted p-value thresholds are preset with the allowance of
+                adjustments afterwards.
+                <br><br>
+                Feature grouping is carried out based on the strand and the start and end positions of features. Thus,
+                GenExVis allows to inspect the feature environments. Since co-localization is not mandatory for co-
+                regulation, feature groups without functional context might be shown. Yet, for bacterial data, it is
+                possible that some of the shown groups can be operons, hence operons are characterized by co-localization.
+                <br><br>
+                For the selected regulation type, it has to be taken into account, that a feature group shown for upregulation
+                or downregulation only might be a group of mixed regulation, which is fully displayed at a selected regulation type
+                of 'both' only.
               </b-card>
               <b-card v-if="showUniqueGenes" style="width:80%; margin: auto">
-                DGE visualisation type uniquely regulated features.
+                <small>DGE visualisation type uniquely regulated features.</small>
+                <br><br>
+                Uniquely regulated features are found based on the adjusted p-value. If a feature has a significant
+                p-value in one dataset and in no other dataset, it is considered to be uniquely regualted for this
+                respective dataset. If only one condition pair is chosen, all significant features are displayed,
+                since there is nothing to compare to.
+                <br><br>
+                All preselected parameters are adjustable afterwards.
               </b-card>
               <b-card v-else style="width:80%; margin: auto">
                 DGE visualisation type selection.
+                At this moment, two visualisations are available in GenExVis:
+                <ul>
+                  <li>Display of jointly regulated features as barplots with supporitve tables.</li>
+                  <li>Display of uniquely regulated features as tables.</li>
+                </ul>
               </b-card>
             </transition>
           </b-collapse>
@@ -581,6 +608,11 @@
           this.showGroup = false;
           this.showUniqueGenes = false;
           this.show3DScatter = true
+        } else {
+          this.showHeatMap = false;
+          this.showGroup = false;
+          this.showUniqueGenes = false;
+          this.show3DScatter = false;
         }
         // resetting parameter selections
         this.selectedCondition1 = null;
