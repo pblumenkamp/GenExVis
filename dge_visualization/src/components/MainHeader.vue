@@ -21,12 +21,13 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-text>All data</b-nav-text>
         <switches
-          v-model="useSubset"
-          theme="bootstrap"
           color="primary"
           style="padding-top: 0.75rem; padding-left: 0.5rem; padding-right: 0.5rem"
+          v-model="useSubset"
+          theme="bootstrap"
           @input="switchDGE"
-        />
+        >
+        </switches>
         <b-nav-text>Subset</b-nav-text>
         <b-nav-text style="margin-right: 2rem" />
         <b-nav-item-dropdown text="Tools" right>
