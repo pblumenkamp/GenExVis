@@ -495,7 +495,10 @@
                                 v-for="(info, index_k) in oneRow"
                                 :key="index_k"
                                 class="tableWrapper"
-                                style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
+                                style="border: 1px solid black; white-space: nowrap"
+                              >
+                                {{ info }}
+                              </td>
                             </tr>
                           </table>
                         </div>
@@ -1166,6 +1169,7 @@
       },
       drawBARCHART(){
         let dataList = this.filteredGroupList;
+        // eslint-disable-next-line
         for (var index in dataList){
           let pointWidth = 30-(dataList[index].length);
           let plotTitle= "";
@@ -1342,6 +1346,7 @@
             let oneTableData = JSON.parse(JSON.stringify(this.filteredGroupList[i]));
             for (let k = 0; k < oneTableData.length; k++) {
               let oneTableRow = [];
+              // eslint-disable-next-line
               var featureID = oneTableData[k]['ID'];
               // adding info chosen by user only
               for (let identifier of this.selectedTableOptions) {
@@ -1501,6 +1506,7 @@
           for(let id of value){
             // getting deseq2 analysis for feature and current loop conditions
             if(theDGE.getGene(id).getDESEQ2Analysis((new ConditionPair(cond1,cond2)))){
+              // eslint-disable-next-line
               var deseq2Analysis = theDGE.getGene(id).getDESEQ2Analysis(new ConditionPair(cond1, cond2));
             }
             //////////////////////////////////////////////////////
@@ -1574,7 +1580,7 @@
                   gff3Data=deseq2_gff3Match[id];
                   let attributes = gff3Data['attributes'];
                   let splitAttributes = attributes.split(';');
-                  // eslint-disable-next-line no-redeclare
+                  // eslint-disable-next-line
                   var dummyDict={};
                   for (let attribute of splitAttributes){
                     let splitAttribute = attribute.split('=');
@@ -1631,7 +1637,7 @@
                   gff3Data=deseq2_gff3Match[id];
                   let attributes = gff3Data['attributes'];
                   let splitAttributes = attributes.split(';');
-                  // eslint-disable-next-line no-redeclare
+                  // eslint-disable-next-line
                   var dummyDict={};
                   for (let attribute of splitAttributes){
                     let splitAttribute = attribute.split('=');
