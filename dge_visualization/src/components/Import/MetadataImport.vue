@@ -275,6 +275,7 @@
               // and the verificator is set to true
               if(text.includes(name)){
                 this.idMatch = true;
+                this.disabledImportButton = false;
                 break;
               }
               //console.log(this.idMatch);
@@ -299,6 +300,8 @@
         })
       },
       readGFF3 (file) {
+        this.content={};
+        this.featuresCounted=[];
         // source gff3
         // ftp://ftp.ensemblgenomes.org/pub/bacteria/release-43/gff3/bacteria_8_collection/sulfolobus_acidocaldarius_dsm_639
         const reader = new FileReader();
@@ -524,8 +527,9 @@
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            //console.log(filteredContent);
-            this.content = filteredContent;
+            // eslint-disable-next-line no-console
+            /*console.log(filteredContent);
+            this.content = filteredContent;*/
             //console.log(this.content);
             this.showRemovedFeatures = true;
             resolve(this.content)
@@ -536,7 +540,6 @@
       },
       scanGFF3 (){
         // import available after scan only
-        this.disabledImportButton = false;
         let vueData =this;
         this.readGFF3FeatureTypes(vueData.file);
 
