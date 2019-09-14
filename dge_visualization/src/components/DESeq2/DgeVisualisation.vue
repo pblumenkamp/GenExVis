@@ -2,7 +2,7 @@
 <template>
   <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center; border: 0px solid black">
     <h1>Differential Gene Expression - Visualisations</h1>
-    <b-card style="height: 60%; border: 0px solid lightslategray; width: 100%; background: darkgrey; border-radius: 15px; -webkit-box-shadow: inset 0 0 60px 40px white; box-shadow: inset 0 0 60px 40px white">
+    <b-card style="height: 60%; border: 1px solid darkgrey; width: 100%; background: white; border-radius: 15px; -webkit-box-shadow: inset 0 0 40px 15px darkgrey; box-shadow: inset 0 0 40px 15px darkgrey">
       <b-row>
         <!-- REGULATION TYPE SINGLE SELECT-->
         <b-col>
@@ -210,7 +210,7 @@
           <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
           <!-- index is also used to get table data-->
           <table style="width: auto; max-width: 100%; display: inline-block; border: 0px solid darkviolet">
-            <tr v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; display: inline-block; border: 1px solid black; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px">
+            <tr v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; display: inline-block; border: 1px solid darkgrey; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px; background: white; border-radius: 10px; -webkit-box-shadow: inset 0 0 40px 20px darkgrey; box-shadow: inset 0 0 40px 20px darkgrey">
               <td>
                 <!-- Element for Highchart graphic -->
                 <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid green"></div>
@@ -248,7 +248,7 @@
                         <table style="width: 100%; margin-left: 20px;">
                           <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
                           <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
-                            <td v-for="(info, index_k) in gene" :key="index_k" style="border: 1px solid black; white-space: nowrap">{{ info }}</td>
+                            <td v-for="(info, index_k) in gene" :key="index_k" style="border: 1px solid black; background: white; white-space: nowrap">{{ info }}</td>
                           </tr>
                           <tr>
                             <td>
@@ -412,7 +412,7 @@
           <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue; ">
             <table style="width: 100%; margin-left: 20px; display: inline-block;">
               <!-- one row for each table -->
-              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 0px solid black; margin-bottom: 20px; padding: 10px; background: lightgray; border-radius: 15px">
+              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid darkgrey; margin-bottom: 20px; padding: 10px; background: white; border-radius: 15px;  -webkit-box-shadow: inset 0 0 30px 10px darkgrey; box-shadow: inset 0 0 30px 10px darkgrey">
                 <!-- one td for each table selection menu and table-->
                 <td style="vertical-align: top">
                   <h4>{{ uniqueGenesTitles[index] }}</h4>
@@ -1185,7 +1185,9 @@
             chart: {
               type: 'column',
               zoomType: 'xy',
-              height: 'auto'
+              height: 'auto',
+              borderColor: '#000',
+              borderWidth: 1
             },
             title: {
               text: plotTitle
