@@ -340,6 +340,27 @@
                 </template>
               </multiselect>
             </b-col>
+            <b-col>
+              <p>Select strand</p>
+              <multiselect
+                v-model="selectedStrand"
+                :options="strandOptions"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :show-labels="true"
+                :preselect-first="true"
+                placeholder="Choose strand"
+                selected-label="Selected"
+                select-label="Click to select"
+                deselect-label="Click to remove"
+              >
+                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                </template>
+              </multiselect>
+            </b-col>
           </b-row>
           <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType" style="margin-top: 10px">
             <b-row style="margin-top: 10px">
@@ -531,6 +552,8 @@
         tableList2:[],
         // BARCHART END //
         // UNIQUELY START //
+        strandOptions:['both', '+', '-'],
+        selectedStrand:'',
         conditionPairList:[],
         conditionPairs:[],
         selectedConditionPairs: null,
@@ -877,6 +900,12 @@
         }
         else if (this.conditionPairList.length >1){
           this.onlyOne = false;
+        }
+      },
+      selectedStrand (){
+        if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+          this.uniqueGenesTableArray = [];
+          this.createUNIQUEGENESTableData();
         }
       }
     },
@@ -1667,25 +1696,48 @@
              // eslint-disable-next-line no-unused-vars
              for(const [innerKey,innerValue] of Object.entries(value)){
                let oneTableRow=[];
-               for(let option of this.selectedTableOptions){
-                 if (this.roundedValues && (option === 'log2fold' || option === 'stat' || option === 'baseMean' || option === 'lfcSE')){
-                   let value = innerValue[option];
-                   value = Math.round(value*100)/100;
-                   oneTableRow.push(value);
-                   // rounded p Values
-                 } else if (this.roundedValues && (option === 'pAdj' || option === 'pValue')) {
-                   let value = innerValue[option];
-                   value = value.toExponential(4);
-                   oneTableRow.push(value);
-                   // other values & not rounded values
-                 }
-                 else {
-                   oneTableRow.push(innerValue[option]);
-                 }
+               if(this.selectedStrand === 'both'){
+                 for(let option of this.selectedTableOptions){
+                   if (this.roundedValues && (option === 'log2fold' || option === 'stat' || option === 'baseMean' || option === 'lfcSE')){
+                     let value = innerValue[option];
+                     value = Math.round(value*100)/100;
+                     oneTableRow.push(value);
+                     // rounded p Values
+                   } else if (this.roundedValues && (option === 'pAdj' || option === 'pValue')) {
+                     let value = innerValue[option];
+                     value = value.toExponential(4);
+                     oneTableRow.push(value);
+                     // other values & not rounded values
+                   }
+                   else {
+                     oneTableRow.push(innerValue[option]);
+                   }
+                 } // end of for
+               } else {
+                 if(innerValue['strand'] === this.selectedStrand){
+                   for(let option of this.selectedTableOptions){
+                     if (this.roundedValues && (option === 'log2fold' || option === 'stat' || option === 'baseMean' || option === 'lfcSE')){
+                       let value = innerValue[option];
+                       value = Math.round(value*100)/100;
+                       oneTableRow.push(value);
+                       // rounded p Values
+                     } else if (this.roundedValues && (option === 'pAdj' || option === 'pValue')) {
+                       let value = innerValue[option];
+                       value = value.toExponential(4);
+                       oneTableRow.push(value);
+                       // other values & not rounded values
+                     }
+                     else {
+                       oneTableRow.push(innerValue[option]);
+                     }
+                   } // end of for
+                 } // end of if
                }
                oneTableRow.unshift(innerValue['ID']);
-               // adding row to table
-               oneTableArray.push(oneTableRow);
+               if(oneTableRow.length>1){
+                 // adding row to table
+                 oneTableArray.push(oneTableRow);
+               }
              }
              // adding table to list of all tables
              this.uniqueGenesTableArray.push(oneTableArray);
@@ -1693,7 +1745,7 @@
              tableCounter = tableCounter +1;
            }
          }
-        console.log(this.uniqueGenesTableArray);
+        // console.log(this.uniqueGenesTableArray);
       },
       downloadUniqueGenesTable: function(event) {
         // getting elements ID in order to download one table only
