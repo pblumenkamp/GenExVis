@@ -37,7 +37,13 @@
         <b-col>
           <b-collapse id="helpConditions" v-model="showMetadataFeatureHelp" class="mt-2">
             <transition name="fade">
-              <b-card style="width:80%; margin: auto">
+              <b-card v-if="showGroup" style="width:80%; margin: auto">
+                DGE visualisation type jointly regulated features.
+              </b-card>
+              <b-card v-if="showUniqueGenes" style="width:80%; margin: auto">
+                DGE visualisation type uniquely regulated features.
+              </b-card>
+              <b-card v-else style="width:80%; margin: auto">
                 DGE visualisation type selection.
               </b-card>
             </transition>
