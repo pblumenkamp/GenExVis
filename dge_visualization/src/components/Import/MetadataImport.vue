@@ -113,7 +113,7 @@
         </b-col>
         <!-- Questionmark with Metadata Feature help -->
         <b-col sm="2" style="padding-left: 0">
-          <span style="cursor: pointer; float: left" @click="showMetadataFeatureHelp = !showMetadataFeatureHelp">
+          <span style="cursor: pointer; float: left" @click="showHelp = !showMetadataFeatureHelp">
             <font-awesome-icon :icon="faQuestionCircle" />
           </span>
         </b-col>
@@ -180,7 +180,7 @@
         disabledImportButton: true,
         disabledScanButton: true,
         // questionmark validators for help
-        showMetadataFeatureHelp: false,
+        showHelp: false,
         showDeseq2TypeHelp: false,
         // array to show features removed due to no entries in gff3
         // and validator for v-if to show it only, if entries have been removed
