@@ -2,7 +2,7 @@
 <template>
   <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center; border: 0px solid black">
     <h1>Differential Gene Expression - Visualisations</h1>
-    <b-card style="height: 60%; border: 1px solid lightslategray; width: 100%">
+    <b-card style="height: 60%; border: 0px solid lightslategray; width: 100%; background: darkgrey; border-radius: 15px; -webkit-box-shadow: inset 0 0 60px 40px white; box-shadow: inset 0 0 60px 40px white">
       <b-row>
         <!-- REGULATION TYPE SINGLE SELECT-->
         <b-col>
@@ -320,7 +320,7 @@
         <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
           <b-row style="margin-top: 10px">
             <b-col>
-              <p>Select log2Fold Change type</p>
+              <p>Filter by log2fold change </p>
               <multiselect
                 v-model="selectedRegulationType"
                 :options="regulationDirections"
@@ -341,7 +341,7 @@
               </multiselect>
             </b-col>
             <b-col>
-              <p>Select strand</p>
+              <p>Filter by strand</p>
               <multiselect
                 v-model="selectedStrand"
                 :options="strandOptions"
@@ -409,10 +409,10 @@
         </div>
         <b-row>
           <!-- START OF TABLE DISPLAY-->
-          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue;">
+          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue; ">
             <table style="width: 100%; margin-left: 20px; display: inline-block;">
               <!-- one row for each table -->
-              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid black; margin-bottom: 20px; padding: 10px">
+              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 0px solid black; margin-bottom: 20px; padding: 10px; background: lightgray; border-radius: 15px">
                 <!-- one td for each table selection menu and table-->
                 <td style="vertical-align: top">
                   <h4>{{ uniqueGenesTitles[index] }}</h4>
@@ -466,7 +466,7 @@
                         <!--This is the table I want scrollable! -->
                         <div class="scrollableTable">
                           <table class="tableWrapper">
-                            <tr v-for="(oneRow, index_j) in oneTable" :key="index_j" style="border: 1px solid black; white-space: nowrap">
+                            <tr v-for="(oneRow, index_j) in oneTable" :key="index_j" style="border: 1px solid black; background: white; white-space: nowrap">
                               <td
                                 v-for="(info, index_k) in oneRow"
                                 :key="index_k"
