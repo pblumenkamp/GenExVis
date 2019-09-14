@@ -3,28 +3,51 @@
   <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center; border: 0px solid black">
     <h1>Differential Gene Expression - Visualisations</h1>
     <b-card style="height: 60%; border: 1px solid lightslategray; width: 100%">
-      <!-- REGULATION TYPE SINGLE SELECT-->
-      <b-col>
-        <h4>Select graphic to display</h4>
-        <multiselect
-          v-model="selectedGraphic"
-          :options="graphicTypes"
-          :multiple="false"
-          :close-on-select="true"
-          :clear-on-select="false"
-          :preserve-search="true"
-          :show-labels="true"
-          :preselect-first="false"
-          placeholder="Choose graphic"
-          selected-label="Selected"
-          select-label="Click to select"
-          deselect-label="Click to remove"
-        >
-          <template slot="selection" slot-scope="{ values, search, isOpen }">
-            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-          </template>
-        </multiselect>
-      </b-col>
+      <b-row>
+        <!-- REGULATION TYPE SINGLE SELECT-->
+        <b-col>
+          <h4>Select graphic to display</h4>
+          <multiselect
+            v-model="selectedGraphic"
+            :options="graphicTypes"
+            :multiple="false"
+            :close-on-select="true"
+            :clear-on-select="false"
+            :preserve-search="true"
+            :show-labels="true"
+            :preselect-first="false"
+            placeholder="Choose graphic"
+            selected-label="Selected"
+            select-label="Click to select"
+            deselect-label="Click to remove"
+          >
+            <template slot="selection" slot-scope="{ values, search, isOpen }">
+              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+            </template>
+          </multiselect>
+        </b-col>
+        <!-- Questionmark with Metadata Feature help -->
+        <b-col sm="2" style="padding-left: 0">
+          <span style="cursor: pointer; float: left" @click="showMetadataFeatureHelp = !showMetadataFeatureHelp">
+            <font-awesome-icon :icon="faQuestionCircle" />
+          </span>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col>
+          <b-collapse id="helpConditions" v-model="showMetadataFeatureHelp" class="mt-2">
+            <transition name="fade">
+              <b-card style="width:80%; margin: auto">
+                DGE visualisation type selection.
+              </b-card>
+            </transition>
+          </b-collapse>
+        </b-col>
+      </b-row>
+
+
+
+
       <div v-if="showGroup">
         <b-row style="margin-top: 10px;">
           <!-- Select first condition -->
@@ -219,103 +242,6 @@
             </tr>
           </table>
         </div>
-        <!--
-          <b-row v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; border: 0px solid black">
-            <b-col style="width: auto; max-width: 50%;border: 0px solid black">
-               Element for Highchart graphic
-              <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid red"></div>
-            </b-col>
-            <b-col style="width: auto; max-width: 50%; border: 2px solid green;">
-              Table in the column for table and buttons
-
-              <table style="border: 2px solid red">
-                <tr>
-                   fixed first column
-                  <td>
-                    <table>
-                      <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
-                        <th style="border: 1px solid black">{{ gene.name }}</th>
-                      </tr>
-                    </table>
-                  </td>
-                   scrollable table body
-                  <td>
-                    <div class="table-responsive">
-                      <table style="overflow-x: scroll; display: block">
-                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
-                          <td>{{ gene.start }}</td>
-                          <td>{{ gene.end }}</td>
-                          <td>{{ gene.strand }}</td>
-                          <td>{{ gene.description }}</td>
-                          <td>{{ gene.log2fold }}</td>
-                          <td>{{ gene.pValue }}</td>
-                          <td>{{ gene.pAdj }}</td>
-                          <td>{{ gene.lfcSE }}</td>
-                          <td>{{ gene.baseMean }}</td>
-                          <td>{{ gene.stat }}</td>
-                        </tr>
-                      </table>
-                    </div>
-                  </td>
-                </tr>
-              </table> -->
-        <!--
-                  <b-row>
-                    <b-col style="border: 2px solid green; min-width: auto">
-                      <table style=" width: auto;">
-                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
-                          <th style="border: 1px solid black; width: 150px">{{ gene.name }}</th>
-                        </tr>
-                      </table>
-                    </b-col>
-                    <b-col style="border: 2px solid red; overflow-x: scroll; max-width: 90%">
-                      <table>
-                        <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
-                          <td>{{ gene.start }}</td>
-                          <td>{{ gene.end }}</td>
-                          <td>{{ gene.strand }}</td>
-                          <td>{{ gene.description }}</td>
-                          <td>{{ gene.log2fold }}</td>
-                          <td>{{ gene.pValue }}</td>
-                          <td>{{ gene.pAdj }}</td>
-                          <td>{{ gene.lfcSE }}</td>
-                          <td>{{ gene.baseMean }}</td>
-                          <td>{{ gene.stat }}</td>
-                        </tr>
-                      </table>
-                    </b-col>
-                    -->
-        <!--
-                    <table style="border-collapse: separate; width: 100%; display: block; overflow-x: scroll; overflow-y: visible;">
-                      <tr v-for="(gene, index_j) in tableList[index]" :key="index_j">
-                        <th class="fixedFirstColumn" style="border: 1px solid black; width: 150px">{{ gene.name }}</th>
-                        <td>{{ gene.start }}</td>
-                        <td>{{ gene.end }}</td>
-                        <td>{{ gene.strand }}</td>
-                        <td>{{ gene.description }}</td>
-                        <td>{{ gene.log2fold }}</td>
-                        <td>{{ gene.pValue }}</td>
-                        <td>{{ gene.pAdj }}</td>
-                        <td>{{ gene.lfcSE }}</td>
-                        <td>{{ gene.baseMean }}</td>
-                        <td>{{ gene.stat }}</td>
-                      </tr>
-                    </table>
-                    -->
-        <!--
-          <b-row>
-            <b-col>
-              <b-form-checkbox v-model="roundedValues" style="margin-top: 10px">
-                Rounded Values
-              </b-form-checkbox>
-            </b-col>
-            <b-col>
-              <div :id="index" style="margin-top: 10px" @click="downloadOperonTable($event)">
-                <font-awesome-icon :icon="faDownload" /> Download table
-              </div>
-            </b-col>
-          </b-row>
-          -->
       </div>
       <div v-if="showUniqueGenes">
         <b-row style="margin-top: 10px;">
@@ -523,7 +449,7 @@
   import Multiselect from 'vue-multiselect'
   import {ConditionPair} from '../../utilities/dge'
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-  import {faDownload} from '@fortawesome/free-solid-svg-icons'
+  import {faDownload, faQuestionCircle} from '@fortawesome/free-solid-svg-icons'
 
   let Highcharts = require('highcharts');
   require('highcharts/modules/exporting')(Highcharts);
@@ -538,6 +464,7 @@
     data () {
       return {
         // graphic/visualisation type selection
+        showMetadataFeatureHelp: false,
         selectedGraphic: '',
         graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'log2Fold-change heatmap', '3D Scatter plot'],
         showGroup: false,
@@ -617,6 +544,9 @@
       },
       faDownload () {
         return faDownload
+      },
+      faQuestionCircle () {
+        return faQuestionCircle
       }
     },
     watch: {
@@ -1169,7 +1099,6 @@
       },
       drawBARCHART(){
         let dataList = this.filteredGroupList;
-        // eslint-disable-next-line
         for (var index in dataList){
           let pointWidth = 30-(dataList[index].length);
           let plotTitle= "";
@@ -1346,7 +1275,6 @@
             let oneTableData = JSON.parse(JSON.stringify(this.filteredGroupList[i]));
             for (let k = 0; k < oneTableData.length; k++) {
               let oneTableRow = [];
-              // eslint-disable-next-line
               var featureID = oneTableData[k]['ID'];
               // adding info chosen by user only
               for (let identifier of this.selectedTableOptions) {
@@ -1580,7 +1508,7 @@
                   gff3Data=deseq2_gff3Match[id];
                   let attributes = gff3Data['attributes'];
                   let splitAttributes = attributes.split(';');
-                  // eslint-disable-next-line
+                  // eslint-disable-next-line no-redeclare
                   var dummyDict={};
                   for (let attribute of splitAttributes){
                     let splitAttribute = attribute.split('=');
@@ -1637,7 +1565,7 @@
                   gff3Data=deseq2_gff3Match[id];
                   let attributes = gff3Data['attributes'];
                   let splitAttributes = attributes.split(';');
-                  // eslint-disable-next-line
+                  // eslint-disable-next-line no-redeclare
                   var dummyDict={};
                   for (let attribute of splitAttributes){
                     let splitAttribute = attribute.split('=');
