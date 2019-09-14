@@ -28,14 +28,14 @@
         </b-col>
         <!-- Questionmark with Metadata Feature help -->
         <b-col sm="2" style="padding-left: 0">
-          <span style="cursor: pointer; float: left" @click="showMetadataFeatureHelp = !showMetadataFeatureHelp">
+          <span style="cursor: pointer; float: left" @click="showHelp = !showHelp">
             <font-awesome-icon :icon="faQuestionCircle" />
           </span>
         </b-col>
       </b-row>
       <b-row>
         <b-col>
-          <b-collapse id="helpConditions" v-model="showMetadataFeatureHelp" class="mt-2">
+          <b-collapse id="helpConditions" v-model="showHelp" class="mt-2">
             <transition name="fade">
               <b-card v-if="showGroup" style="width:80%; margin: auto">
                 <small>DGE visualisation type jointly regulated features.</small>
@@ -77,10 +77,6 @@
           </b-collapse>
         </b-col>
       </b-row>
-
-
-
-
       <div v-if="showGroup">
         <b-row style="margin-top: 10px;">
           <!-- Select first condition -->
@@ -497,7 +493,7 @@
     data () {
       return {
         // graphic/visualisation type selection
-        showMetadataFeatureHelp: false,
+        showHelp: false,
         selectedGraphic: '',
         graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'log2Fold-change heatmap', '3D Scatter plot'],
         showGroup: false,
@@ -1683,17 +1679,9 @@
                    oneTableRow.push(value);
                    // other values & not rounded values
                  }
-                 /*else if(option === 'start' || option === 'end'){
-                   let value = this.thousandSeparator(innerValue[option]);
-                   oneTableRow.push(value);
-                 }*/
                  else {
                    oneTableRow.push(innerValue[option]);
                  }
-                   ////////////////////////////////////////////////////////
-                 // creating row based on chosen options
-                 // oneTableRow.push(innerValue[option]);
-                 //////////////////////////////////////
                }
                oneTableRow.unshift(innerValue['ID']);
                // adding row to table
@@ -1705,7 +1693,7 @@
              tableCounter = tableCounter +1;
            }
          }
-        // console.log(this.uniqueGenesTableArray);
+        console.log(this.uniqueGenesTableArray);
       },
       downloadUniqueGenesTable: function(event) {
         // getting elements ID in order to download one table only
