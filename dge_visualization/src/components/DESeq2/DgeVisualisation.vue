@@ -274,50 +274,69 @@
       </div>
       <div v-if="showUniqueGenes">
         <b-row style="margin-top: 10px;">
-          <!-- Select first condition -->
-          <b-col>
-            <multiselect
-              v-model="selectedCondition1"
-              :options="dgeConditions[0]"
-              :multiple="false"
-              :close-on-select="true"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :show-labels="true"
-              :preselect-first="false"
-              placeholder="Choose common condition"
-              selected-label="Selected"
-              select-label="Click to select"
-              deselect-label="Click to remove"
+          <!-- Select DESeq2 data to display uniquely regulated genes for -->
+          <multiselect
+            v-model="selectedConditionPairData"
+            :options="uniquelyConditions"
+            :multiple="true"
+            :close-on-select="false"
+            :clear-on-select="false"
+            :preserve-search="true"
+            :show-labels="true"
+            :preselect-first="false"
+            placeholder="Choose data"
+            selected-label="Selected"
+            select-label="Click to select"
+            deselect-label="Click to remove"
             >
-              <template slot="selection" slot-scope="{ values, search, isOpen }">
-                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-              </template>
-            </multiselect>
-          </b-col>
-          <!-- Select compare conditions -->
-          <b-col>
-            <multiselect
-              v-model="selectedCondition2"
-              :options="dgeConditions[1]"
-              :multiple="true"
-              :close-on-select="false"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :show-labels="true"
-              :preselect-first="false"
-              placeholder="Choose compare conditions"
-              selected-label="Selected"
-              select-label="Click to select"
-              deselect-label="Click to remove"
-            >
-              <template slot="selection" slot-scope="{ values, search, isOpen }">
-                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-              </template>
-            </multiselect>
-          </b-col>
+            <template slot="selection" slot-scope="{ values, search, isOpen }">
+              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+            </template>
+          </multiselect>
+          <!--          &lt;!&ndash; Select first condition &ndash;&gt;-->
+          <!--          <b-col>-->
+          <!--            <multiselect-->
+          <!--              v-model="selectedCondition1"-->
+          <!--              :options="dgeConditions[0]"-->
+          <!--              :multiple="false"-->
+          <!--              :close-on-select="true"-->
+          <!--              :clear-on-select="false"-->
+          <!--              :preserve-search="true"-->
+          <!--              :show-labels="true"-->
+          <!--              :preselect-first="false"-->
+          <!--              placeholder="Choose common condition"-->
+          <!--              selected-label="Selected"-->
+          <!--              select-label="Click to select"-->
+          <!--              deselect-label="Click to remove"-->
+          <!--            >-->
+          <!--              <template slot="selection" slot-scope="{ values, search, isOpen }">-->
+          <!--                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>-->
+          <!--              </template>-->
+          <!--            </multiselect>-->
+          <!--          </b-col>-->
+          <!--          &lt;!&ndash; Select compare conditions &ndash;&gt;-->
+          <!--          <b-col>-->
+          <!--            <multiselect-->
+          <!--              v-model="selectedCondition2"-->
+          <!--              :options="dgeConditions[1]"-->
+          <!--              :multiple="true"-->
+          <!--              :close-on-select="false"-->
+          <!--              :clear-on-select="false"-->
+          <!--              :preserve-search="true"-->
+          <!--              :show-labels="true"-->
+          <!--              :preselect-first="false"-->
+          <!--              placeholder="Choose compare conditions"-->
+          <!--              selected-label="Selected"-->
+          <!--              select-label="Click to select"-->
+          <!--              deselect-label="Click to remove"-->
+          <!--            >-->
+          <!--              <template slot="selection" slot-scope="{ values, search, isOpen }">-->
+          <!--                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>-->
+          <!--              </template>-->
+          <!--            </multiselect>-->
+          <!--          </b-col>-->
         </b-row>
-        <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
+        <div v-if="selectedConditionPairData" style="margin-top: 10px">
           <b-row style="margin-top: 10px">
             <b-col>
               <p>Filter by log2fold change </p>
@@ -362,7 +381,7 @@
               </multiselect>
             </b-col>
           </b-row>
-          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType" style="margin-top: 10px">
+          <div v-if="selectedConditionPairData && selectedRegulationType" style="margin-top: 10px">
             <b-row style="margin-top: 10px">
               <table>
                 <tr>
@@ -399,7 +418,7 @@
                       style="width: 10rem; margin-right: 0px"
                     />
                   </td>
-                  <td v-if="onlyOne && selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs">
+                  <td v-if="onlyOne && selectedConditionPairData && selectedRegulationType && selectedConditionPairs">
                     Please note: Only one condition pair was chosen. All significant features are shown, not the uniquely regulated features, since there was nothing chosen to compare to.
                   </td>
                 </tr>
@@ -409,7 +428,7 @@
         </div>
         <b-row>
           <!-- START OF TABLE DISPLAY-->
-          <div v-if="selectedCondition1 && selectedCondition2 && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue; ">
+          <div v-if="selectedConditionPairData && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue; ">
             <table style="width: 100%; margin-left: 20px; display: inline-block;">
               <!-- one row for each table -->
               <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid darkgrey; margin-bottom: 20px; padding: 10px; background: white; border-radius: 15px;  -webkit-box-shadow: inset 0 0 30px 10px darkgrey; box-shadow: inset 0 0 30px 10px darkgrey">
@@ -554,6 +573,7 @@
         // UNIQUELY START //
         strandOptions:['both', '+', '-'],
         selectedStrand:'',
+        selectedConditionPairData:null,
         conditionPairList:[],
         conditionPairs:[],
         selectedConditionPairs: null,
@@ -566,15 +586,14 @@
       }
     },
     computed: {
-      // condition computing for dropdown selection based
-      // on conditions available after the user
-      // registered their conditions
-      dgeConditions () {
+      dgeConditions(){
         // sets needed for no duplicates
         // conditions for first dropdown
         let conditions1=new Set();
         // conditions for second dropdown
         let conditions2 =new Set();
+        /*console.log('dge conditions');
+        console.log(this.$store.state.currentDGE.conditionPairs);*/
         for (let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs) {
           if (this.$store.state.registeredConditions.indexOf(condition1) === -1 ||
             this.$store.state.registeredConditions.indexOf(condition2) === -1) {
@@ -588,16 +607,30 @@
         // arrays needed for vue-multiselect
         conditions1 = Array.from(conditions1);
         conditions2 = Array.from(conditions2);
-        // returns a list of sets
+        // returns a list of lists
         return [conditions1, conditions2]
       },
-      dge () {
+      uniquelyConditions(){
+        // empty list to return for nice display in multiselect
+        let niceDGEconditions=[];
+        // iterating conPairs
+        for(let {condition1, condition2} of this.$store.state.currentDGE.conditionPairs){
+          // formatting string
+          let myDisplayString = condition1 +'_vs_'+condition2;
+          // adding formatted string to list
+          niceDGEconditions.push(myDisplayString);
+          // emptying string
+          myDisplayString="";
+        }
+        return niceDGEconditions
+      },
+      dge(){
         return this.$store.state.currentDGE;
       },
-      faDownload () {
+      faDownload(){
         return faDownload
       },
-      faQuestionCircle () {
+      faQuestionCircle(){
         return faQuestionCircle
       }
     },
@@ -636,6 +669,7 @@
         // resetting parameter selections
         this.selectedCondition1 = null;
         this.selectedCondition2 = null;
+        this.selectedConditionPairData=null;
         this.selectedRegulationType=null;
         this.selectedOperonSize="";
         this.inputPThreshold= 0.001;
@@ -649,99 +683,6 @@
         this.uniqueGenesTableArray=[];
         this.uniqueGenesTitles=[];
         this.onlyOne=false;
-      },
-      selectedCondition1(){
-        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
-          this.getBARCHARTStoreData();
-          this.formatBARCHARTdata();
-          this.createGroupTableData();
-          this.groupCount= this.filteredGroupList.length;
-        }
-        else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
-          this.conditionPairList=[];
-          this.conditionPairs=[];
-
-          //list of condition pairs
-          // needed to get DESeq2 analyses data for all chosen conditions
-          for(let condition of this.selectedCondition2){
-            // adding each condition pair to conditionPairList
-            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
-            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
-          }
-          // correctly adjusting preselection of condition pair to display data for
-          if(this.selectedCondition1 && this.selectedCondition2.length >= 1){
-            this.selectedConditionPairs=[];
-            this.selectedConditionPairs.push(this.selectedCondition1+"_"+ this.selectedCondition2[0]);
-          }
-
-          if(this.conditionPairList.length>=1){
-            this.uniqueGenesDataDict=null;
-            this.uniqueGenesTableArray=[];
-            this.uniqueGenesTitles=[];
-            this.onlyOne=false;
-            this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESTableData();
-            }
-          }
-          else if(this.conditionPairList.length === 1){
-            this.onlyOne=true;
-            this.uniqueGenesDataDict=null;
-            this.uniqueGenesTableArray=[];
-            this.uniqueGenesTitles=[];
-            this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESTableData();
-            }
-          }
-        }
-      },
-      selectedCondition2(){
-        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
-/*          console.log(this.selectedCondition2);
-          console.log(typeof (this.selectedCondition2));*/
-          this.getBARCHARTStoreData();
-          this.formatBARCHARTdata();
-          this.createGroupTableData();
-          this.groupCount= this.filteredGroupList.length;
-        }
-        else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
-          this.conditionPairList=[];
-          this.conditionPairs=[];
-
-          //list of condition pairs
-          // needed to get DESeq2 analyses data for all chosen conditions
-          for(let condition of this.selectedCondition2){
-            // adding each condition pair to conditionPairList
-            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
-            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
-          }
-          // correctly adjusting preselection of condition pair to display data for
-          if(this.selectedCondition1 && this.selectedCondition2.length >= 1){
-            this.selectedConditionPairs=[];
-            this.selectedConditionPairs.push(this.selectedCondition1+"_"+ this.selectedCondition2[0]);
-          }
-          if(this.conditionPairList.length>=1){
-            this.uniqueGenesDataDict=null;
-            this.uniqueGenesTableArray=[];
-            this.uniqueGenesTitles=[];
-            this.onlyOne=false;
-            this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESTableData();
-            }
-          }
-          else if(this.conditionPairList.length === 1){
-            this.uniqueGenesDataDict=null;
-            this.uniqueGenesTableArray=[];
-            this.uniqueGenesTitles=[];
-            this.onlyOne=true;
-            this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESTableData();
-            }
-          }
-        }
       },
       selectedRegulationType () {
         if(this.selectedRegulationType === "upregulated"){
@@ -759,21 +700,27 @@
           this.createGroupTableData();
           this.groupCount= this.filteredGroupList.length;
         }
-        else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+        else if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
           this.conditionPairList=[];
           this.conditionPairs=[];
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
-          for(let condition of this.selectedCondition2){
+          for(let niceString of this.selectedConditionPairData){
+            // splitting nice string at underscore. niceString[1] = 'vs'
+            let firstCondition = niceString[0];
+            let secondCondition = niceString[2];
             // adding each condition pair to conditionPairList
-            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
-            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
+            this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+            this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+
+            // correctly adjusting preselection of condition pair to display data for
+            if(this.selectedConditionPairData.length>= 1){
+              this.selectedConditionPairs=[];
+
+              this.selectedConditionPairs.push(firstCondition+"_"+ secondCondition);
+            }
           }
-          // correctly adjusting preselection of condition pair to display data for
-          if(this.selectedCondition1 && this.selectedCondition2.length >= 1){
-            this.selectedConditionPairs=[];
-            this.selectedConditionPairs.push(this.selectedCondition1+"_"+ this.selectedCondition2[0]);
-          }
+
 
           if(this.conditionPairList.length>1){
             this.uniqueGenesDataDict=null;
@@ -781,7 +728,7 @@
             this.uniqueGenesTitles=[];
             this.onlyOne=false;
             this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+            if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
             }
           }
@@ -791,7 +738,7 @@
             this.uniqueGenesTitles=[];
             this.onlyOne=true;
             this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+            if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
             }
           }
@@ -801,7 +748,7 @@
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
           this.createGroupTableData();
         }
-        else if (this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+        else if (this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
           this.createUNIQUEGENESTableData();
         }
       },
@@ -847,17 +794,38 @@
           this.groupCount = this.filteredGroupList.length;
         }
       },
-      // UNIQUE GENES ONLY
-      selectedConditionPairs (){
-      if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+      selectedCondition1(){
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.createGroupTableData();
+          this.groupCount= this.filteredGroupList.length;
+        }
+      },
+      selectedCondition2(){
+        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
+          /*          console.log(this.selectedCondition2);
+                    console.log(typeof (this.selectedCondition2));*/
+          this.getBARCHARTStoreData();
+          this.formatBARCHARTdata();
+          this.createGroupTableData();
+          this.groupCount= this.filteredGroupList.length;
+        }
+        /*else if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
           this.conditionPairList=[];
           this.conditionPairs=[];
+
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
           for(let condition of this.selectedCondition2){
             // adding each condition pair to conditionPairList
             this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
             this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
+          }
+          // correctly adjusting preselection of condition pair to display data for
+          if(this.selectedCondition1 && this.selectedCondition2.length >= 1){
+            this.selectedConditionPairs=[];
+            this.selectedConditionPairs.push(this.selectedCondition1+"_"+ this.selectedCondition2[0]);
           }
           if(this.conditionPairList.length>=1){
             this.uniqueGenesDataDict=null;
@@ -869,18 +837,106 @@
               this.createUNIQUEGENESTableData();
             }
           }
+          else if(this.conditionPairList.length === 1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=true;
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
+        }*/
+      },
+      // UNIQUE GENES ONLY
+      selectedConditionPairData (){
+        if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
+          this.conditionPairList=[];
+          this.conditionPairs=[];
+
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let niceString of this.selectedConditionPairData){
+            // splitting nice string at underscore. niceString[1] = 'vs'
+            let niceStringArray = niceString.split('_');
+            let firstCondition = niceStringArray[0];
+            let secondCondition = niceStringArray[2];
+            // adding each condition pair to conditionPairList
+            this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+            this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+
+            // correctly adjusting preselection of condition pair to display data for
+            if(this.selectedConditionPairData.length>= 1){
+              this.selectedConditionPairs=[];
+
+              this.selectedConditionPairs.push(firstCondition+"_"+ secondCondition);
+            }
+          }
+
+          if(this.conditionPairList.length>=1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=false;
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
+          else if(this.conditionPairList.length === 1){
+            this.onlyOne=true;
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
         }
       },
-      significantP (){
-        if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+      selectedConditionPairs (){
+      if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
           this.conditionPairList=[];
           this.conditionPairs=[];
           //list of condition pairs
           // needed to get DESeq2 analyses data for all chosen conditions
-          for(let condition of this.selectedCondition2){
+        for(let niceString of this.selectedConditionPairData){
+          // splitting nice string at underscore. niceString[1] = 'vs'
+          let niceStringArray = niceString.split('_');
+          let firstCondition = niceStringArray[0];
+          let secondCondition = niceStringArray[2];
+          // adding each condition pair to conditionPairList
+          this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+          this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+        }
+          if(this.conditionPairList.length>=1){
+            this.uniqueGenesDataDict=null;
+            this.uniqueGenesTableArray=[];
+            this.uniqueGenesTitles=[];
+            this.onlyOne=false;
+            this.getUNIQUEGENESStoreData();
+            if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
+              this.createUNIQUEGENESTableData();
+            }
+          }
+        }
+      },
+      significantP (){
+        if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
+          this.conditionPairList=[];
+          this.conditionPairs=[];
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let niceString of this.selectedConditionPairData){
+            // splitting nice string at underscore. niceString[1] = 'vs'
+            let niceStringArray = niceString.split('_');
+            let firstCondition = niceStringArray[0];
+            let secondCondition = niceStringArray[2];
             // adding each condition pair to conditionPairList
-            this.conditionPairList.push(new ConditionPair(this.selectedCondition1, condition));
-            this.conditionPairs.push(this.selectedCondition1+"_"+ condition);
+            this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+            this.conditionPairs.push(firstCondition+"_"+ secondCondition);
           }
           if(this.conditionPairList.length>=1){
             this.uniqueGenesDataDict=null;
@@ -888,7 +944,7 @@
             this.uniqueGenesTitles=[];
             this.onlyOne=false;
             this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedConditionPairs){
+            if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
               this.createUNIQUEGENESTableData();
             }
           }
@@ -903,7 +959,7 @@
         }
       },
       selectedStrand (){
-        if(this.showUniqueGenes && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType){
+        if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
           this.uniqueGenesTableArray = [];
           this.createUNIQUEGENESTableData();
         }
@@ -921,6 +977,9 @@
     methods: {
       // START BARCHART//
       getBARCHARTStoreData() {
+       /* console.log('conStore');
+        console.log(typeof (this.$store.state.currentDGE.conditionPairs));
+        console.log(this.$store.state.currentDGE.conditionPairs);*/
         // initializing geneDict
         this.geneDict = {};
         // whole dge data
