@@ -5,8 +5,9 @@
   "author": "Patrick Blumenkamp <patrick.blumenkamp@computational.uni-giessen.de>",
   "private": true,
   "scripts": {
-    "licenses": "license-checker --json | python3 licenses/createLicensePage.py package.json > licenses/licenses.json",
-    "dev": "npm run licenses && webpack-dev-server --inline --progress --config build/webpack.dev.conf.js --mode development",
+    "licenses": "license-checker --json | python3 about/createLicensePage.py package.json > about/licenses.json",
+    "write_date": "date '+{\"build_date\": \"%B %d, %Y\"}' > about/build_date.json",
+    "dev": "npm run licenses && npm run write_date && webpack-dev-server --inline --progress --config build/webpack.dev.conf.js --mode development",
     "start": "npm run dev",
     "unit": "jest --config test/unit/jest.conf.js",
     "test": "npm run unit",

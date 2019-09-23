@@ -14,7 +14,7 @@ import Deseq2Distributions from '@/components/DESeq2/Deseq2Distributions'
 import Deseq2Top10 from '@/components/DESeq2/Deseq2Top10'
 import Changelogs from '@/components/Changelogs/ChangelogsMain'
 import Deseq2Download from '@/components/DESeq2/Deseq2Download'
-import Licenses from '@/components/Licenses/Licenses'
+import About from '@/components/About/About'
 
 Vue.use(Router)
 
@@ -103,9 +103,9 @@ export default new Router({
       component: Changelogs
     },
     {
-      path: '/licenses',
-      name: 'Licenses',
-      component: Licenses
+      path: '/about',
+      name: 'About',
+      component: About
     }
   ]
 })

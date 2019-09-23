@@ -202,7 +202,7 @@
             },
           },
           {
-            href: '/licenses',
+            href: '/about',
             title: 'About',
             icon: {
               element: 'font-awesome-icon',
@@ -233,7 +233,7 @@
       reflow_charts () {
         const vue = this
         const delay = ms => new Promise(res => setTimeout(res, ms))
-        delay(600).then(() => {
+        delay(1500).then(() => {
           for (const chart of vue.$charts) {
             chart.reflow()
           }
