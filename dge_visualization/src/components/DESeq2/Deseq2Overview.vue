@@ -19,12 +19,6 @@
                 </tr>
                 <tr style="height: 100%">
                   <td style="height: 100%">
-                    <div class="btn-group-vertical basic-button" style="height: 100%">
-                      <button type="button" class="btn btn-sm button-balham" @click="changeDesign('balham')">Balham</button>
-                      <button type="button" class="btn btn-sm button-fresh" @click="changeDesign('fresh')">Fresh</button>
-                      <button type="button" class="btn btn-sm button-balhamdark" @click="changeDesign('balham-dark')">Dark</button>
-                      <button type="button" class="btn btn-sm button-blue" @click="changeDesign('bootstrap')">Blue</button>
-                    </div>
                   </td>
                 </tr>
               </table>
@@ -92,12 +86,13 @@
     <div v-if="this.excessLength === false">
       <ag-grid-vue
         id="main-table"
-        class="main-table ag-theme-balham"
+        class="main-table ag-theme-fresh"
         align="left"
 
         :gridOptions="gridOptions"
         :columnDefs="columnDefs"
         :rowData="rowData"
+        :icons="icons"
 
         :groupHeaders="true"
 
@@ -161,7 +156,7 @@
   import {AgGridVue} from 'ag-grid-vue'
 
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-  import {faUndoAlt, faDownload} from '@fortawesome/free-solid-svg-icons'
+  import {faUndoAlt, faDownload, faArrowCircleRight, faArrowCircleLeft} from '@fortawesome/free-solid-svg-icons'
 
   export default {
     data () {
@@ -170,8 +165,10 @@
         roundedValues: true,
         gridOptions: null,
         columnDefs: null,
-        excessLength: false,
         rowData: null,
+        icons: null,
+
+        excessLength: false,
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
@@ -185,7 +182,7 @@
           '_pValue': 'p value',
           '_stat': 'stat'
         },
-        design: 'main-table ag-theme-balham',
+        design: 'main-table ag-theme-fresh',
         strucStorage: null
       }
     },
@@ -259,7 +256,7 @@
           strucArray.push([headerName, childArray, openByDefault])
         }
         strucStorage['data'] = strucArray
-        strucStorage['design'] = 'main-table ag-theme-balham'
+        strucStorage['design'] = 'main-table ag-theme-fresh'
         this.strucStorage = strucStorage
       },
       createRowData () {
@@ -574,16 +571,19 @@
           rowSelection: 'multiple',
           rowMultiSelectWithClick: true,
           suppressPropertyNamesCheck: true,
-          icons: {
-            columnGroupOpened: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-left"/>',
-            columnGroupClosed: '<i style="font-size:1.2rem;" class="fa fa-arrow-circle-right"/>'
-          },
           rowHeight: 30,
           defaultColDef: {
             sortable: true,
             filter: true,
             resizable: true
           }
+        }
+      },
+      createIcons () {
+        this.icons = {
+          groupExpanded: '<font-awesome-icon    :icon="this.faArrowCircleRight"></font-awesome-icon>',
+          groupContracted: '<font-awesome-icon  :icon="this.faArrowCircleRight"></font-awesome-icon>',
+          // font-awesome-icons not working
         }
       },
       readStructure () {
@@ -709,6 +709,12 @@
       },
       faDownload () {
         return faDownload
+      },
+      faArrowCircleRight () {
+        return faArrowCircleRight
+      },
+      faArrowCircleLeft () {
+        return faArrowCircleLeft
       }
     },
     beforeMount () {
@@ -720,6 +726,7 @@
         this.minmaxdefine()
         this.createColumnDefs()
         this.insertGridOptions()
+        this.createIcons()
       }
     },
     mounted () {
