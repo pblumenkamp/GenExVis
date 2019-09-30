@@ -1,6 +1,3 @@
-# Program:featureCounts v1.6.4; Command:"featureCounts" "-s" "1" "-t" "CDS" "-g" "ID" "-a" "REFERENCE/GCF_000005845.2_ASM584v2_genomic.gff" "-o" "counts_CDS.txt" "mappings/Clindamycin_1.bam" "mappings/Clindamycin_2.bam" "mappings/Clindamycin_3.bam" "mappings/Erythromycin_1.bam" "mappings/Erythromycin_2.bam" "mappings/Erythromycin_3.bam" "mappings/Untreated_1.bam" "mappings/Untreated_2.bam" "mappings/Untreated_3.bam" 
-Geneid
-mappings/Clindamycin_1.bam	mappings/Clindamycin_2.bam	mappings/Clindamycin_3.bam	mappings/Erythromycin_1.bam	mappings/Erythromycin_2.bam	mappings/Erythromycin_3.bam	mappings/Untreated_1.bam	mappings/Untreated_2.bam	mappings/Untreated_3.bam
 "cds-NP_414542.1",204.691735573484,222.38617945728,254.50802192442,123.774969922664,67.6268667175798,128.40203721946,251.07944261851,109.809175451004,68.811052105932
 "cds-NP_414543.1",2549.97331604255,2770.26224625009,1548.47136571524,1443.03501519594,1048.21643412249,1338.73080544464,3633.72558851686,2546.96281948857,993.631592409658
 "cds-NP_414544.1",527.341420460501,710.20102471841,428.464683374445,659.126872352398,626.131507367937,614.096699745246,1272.71303672141,854.071364618923,277.996650507965
