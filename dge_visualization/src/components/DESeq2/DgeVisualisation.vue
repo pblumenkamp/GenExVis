@@ -507,7 +507,7 @@
             </multiselect>
           </b-row>
         </b-col>
-        <div v-if="selectedConditionPairData" style="margin-top: 10px">
+        <div v-if="selectedConditionPairData.length>1" style="margin-top: 10px">
           <b-row style="margin-top: 10px">
             <b-col>
               <p>Filter by log2fold change </p>
@@ -553,7 +553,7 @@
             </b-col>
           </b-row>
         </div>
-        <div v-if="selectedConditionPairData && selectedRegulationType && selectedStrand" style="margin-top: 20px">
+        <div v-if="selectedConditionPairData.length>1 && selectedRegulationType && selectedStrand" style="margin-top: 20px">
           <b-container style="max-width: 100%;">
             <b-row>
               <label style="margin-top: 0.4rem;">p-value threshold:</label>
@@ -645,7 +645,7 @@
         // UNIQUELY START //
         strandOptions:['both', '+', '-'],
         selectedStrand:'',
-        selectedConditionPairData:null,
+        selectedConditionPairData:[],
         conditionPairList:[],
         conditionPairs:[],
         selectedConditionPairs: null,
@@ -654,7 +654,6 @@
         uniqueGenesTableArray:[],
         uniqueGenesTitles: [],
         onlyOne: false
-
       }
     },
     computed: {
@@ -739,7 +738,7 @@
         // resetting parameter selections
         this.selectedCondition1 = null;
         this.selectedCondition2 = null;
-        this.selectedConditionPairData=null;
+        this.selectedConditionPairData=[];
         this.selectedRegulationType=null;
         this.selectedOperonSize="";
         this.inputPThreshold= 0.001;
@@ -753,6 +752,7 @@
         this.uniqueGenesTableArray=[];
         this.uniqueGenesTitles=[];
         this.onlyOne=false;
+        this.heatmapLog2FoldThreshold=0.0;
       },
       selectedRegulationType () {
         if(this.selectedRegulationType === "upregulated"){
@@ -811,7 +811,7 @@
             }
           }
         }
-        else if(this.showHeatMap && this.selectedConditionPairData && this.selectedRegulationType && this.selectedStrand){
+        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand){
             console.log('in reguType if');
         }
       },
@@ -841,7 +841,7 @@
 
                 this.groupCount = this.filteredGroupList.length;
             }
-            else if(this.showHeatMap && this.selectedConditionPairData && this.selectedRegulationType && this.selectedStrand){
+            else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand){
                 console.log('in pThresh if');
             }
         },
@@ -998,7 +998,7 @@
           this.uniqueGenesTableArray = [];
           this.createUNIQUEGENESTableData();
         }
-        else if(this.showHeatMap && this.selectedConditionPairData && this.selectedRegulationType && this.selectedStrand) {
+        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand) {
           console.log('in strand if');
         }
       }
@@ -1010,6 +1010,11 @@
         this.$nextTick(()=>{
           this.drawBARCHART();
         })
+      }
+      else if (this.showHeatMap && this.selectedConditionPairData.length === 2 && this.selectedRegulationType && this.selectedStrand){
+          this.$nextTick(()=>{
+              console.log('heatmap draw function');
+          })
       }
     },
     methods: {
