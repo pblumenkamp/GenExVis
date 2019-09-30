@@ -483,7 +483,104 @@
         </b-row>
       </div>
       <div v-if="showHeatMap">
-        test
+        <b-col>
+          <b-row style="margin-top: 10px;">
+            <!-- Select DESeq2 data to display uniquely regulated genes for -->
+            <multiselect
+              v-model="selectedConditionPairData"
+              :options="uniquelyConditions"
+              :multiple="true"
+              :close-on-select="false"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              :max="2"
+              placeholder="Choose data"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-row>
+        </b-col>
+        <div v-if="selectedConditionPairData" style="margin-top: 10px">
+          <b-row style="margin-top: 10px">
+            <b-col>
+              <p>Filter by log2fold change </p>
+              <multiselect
+                v-model="selectedRegulationType"
+                :options="regulationDirections"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :show-labels="true"
+                :preselect-first="true"
+                placeholder="Choose regulation"
+                selected-label="Selected"
+                select-label="Click to select"
+                deselect-label="Click to remove"
+              >
+                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                </template>
+              </multiselect>
+            </b-col>
+            <b-col>
+              <p>Filter by strand</p>
+              <multiselect
+                v-model="selectedStrand"
+                :options="strandOptions"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :show-labels="true"
+                :preselect-first="true"
+                placeholder="Choose strand"
+                selected-label="Selected"
+                select-label="Click to select"
+                deselect-label="Click to remove"
+              >
+                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                </template>
+              </multiselect>
+            </b-col>
+          </b-row>
+        </div>
+        <div v-if="selectedConditionPairData && selectedRegulationType && selectedStrand" style="margin-top: 20px">
+          <b-container style="max-width: 100%;">
+            <b-row>
+              <label style="margin-top: 0.4rem;">p-value threshold:</label>
+              <b-col style="width: 25%">
+                <b-form-input
+                  v-model="inputPThreshold"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.001"
+                  style="width: 10rem; margin-right: 0px"
+                />
+              </b-col>
+              <!--<label style="margin-top: 0.4rem;">log2Fold Change threshold:</label>
+              <b-col style="width: 25%">
+                <b-form-input
+                  v-model="inputLog2FoldThreshold"
+                  type="number"
+                  min="-4"
+                  max="4"
+                  step="0.1"
+                  style="width: 10rem; margin-right: 0px"
+                />
+              </b-col>-->
+            </b-row>
+          </b-container>
+        </div>
       </div>
     </b-card>
   </div>
@@ -714,6 +811,9 @@
             }
           }
         }
+        else if(this.showHeatMap && this.selectedConditionPairData && this.selectedRegulationType && this.selectedStrand){
+            console.log('in reguType if');
+        }
       },
       selectedTableOptions (){
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
@@ -732,6 +832,19 @@
           this.createUNIQUEGENESTableData();
         }
       },
+        // HEATMAP AND BARCHART
+        inputPThreshold (){
+            if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
+                this.getBARCHARTStoreData();
+                this.formatBARCHARTdata();
+                this.createGroupTableData();
+
+                this.groupCount = this.filteredGroupList.length;
+            }
+            else if(this.showHeatMap && this.selectedConditionPairData && this.selectedRegulationType && this.selectedStrand){
+                console.log('in pThresh if');
+            }
+        },
       // BARCHART ONLY
       selectedOperonSize (){
         // if the user does not provide a size distinct size
@@ -745,15 +858,6 @@
           this.createGroupTableData();
 
           this.groupCount= this.filteredGroupList.length;
-        }
-      },
-      inputPThreshold (){
-        if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
-          this.getBARCHARTStoreData();
-          this.formatBARCHARTdata();
-          this.createGroupTableData();
-
-          this.groupCount = this.filteredGroupList.length;
         }
       },
       inputLog2FoldThreshold (){
@@ -888,10 +992,14 @@
           this.onlyOne = false;
         }
       },
+        // UNIQUE GENES AND HEATMAP
       selectedStrand (){
         if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
           this.uniqueGenesTableArray = [];
           this.createUNIQUEGENESTableData();
+        }
+        else if(this.showHeatMap && this.selectedConditionPairData && this.selectedRegulationType && this.selectedStrand) {
+          console.log('in strand if');
         }
       }
     },
