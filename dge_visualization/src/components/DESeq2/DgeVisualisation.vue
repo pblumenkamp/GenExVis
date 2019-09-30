@@ -65,12 +65,24 @@
                 <br><br>
                 All preselected parameters are adjustable afterwards.
               </b-card>
+              <b-card v-if="showHeatMap" style="width:80%; margin: auto">
+                <small>DGE visualisation type Heatmaps.</small>
+                <br><br>
+                Heatmaps are generated for the comparison of feature expression between two
+                conditions. Features are evaluated based on adjuste p-value and log2fold-change
+                thresholds. For the top 20 features found to be significant, normalized counts
+                for the chosen conditions are compared and visualized in the heatmap. Color coding:
+                blue: upregulation, red: downregulation and white: no change in regulation.
+                <br><br>
+                All preselected parameters are adjustable afterwards.
+              </b-card>
               <b-card v-else style="width:80%; margin: auto">
                 DGE visualisation type selection.
-                At this moment, two visualisations are available in GenExVis:
+                At this moment, three visualisations are available in GenExVis:
                 <ul>
                   <li>Display of jointly regulated features as barplots with supporitve tables.</li>
                   <li>Display of uniquely regulated features as tables.</li>
+                  <li>Display of Heatmaps for normalized feature counts evaluated based on adjusted p-value and log2fold change thresholds</li>
                 </ul>
               </b-card>
             </transition>
@@ -470,6 +482,9 @@
           </div>
         </b-row>
       </div>
+      <div v-if="showHeatMap">
+        test
+      </div>
     </b-card>
   </div>
 </template>
@@ -495,7 +510,7 @@
         // graphic/visualisation type selection
         showHelp: false,
         selectedGraphic: '',
-        graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'log2Fold-change heatmap', '3D Scatter plot'],
+        graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'Heatmaps', '3D Scatter plot'],
         showGroup: false,
         show3DScatter: false,
         showUniqueGenes: false,
@@ -601,7 +616,7 @@
           this.showUniqueGenes = false;
           this.show3DScatter = false
         }
-        else if(this.selectedGraphic === 'log2Fold-change heatmap'){
+        else if(this.selectedGraphic === 'Heatmaps'){
           this.showHeatMap = true;
           this.showGroup = false;
           this.showUniqueGenes = false;
