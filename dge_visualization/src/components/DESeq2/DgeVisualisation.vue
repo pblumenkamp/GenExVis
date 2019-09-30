@@ -559,7 +559,7 @@
               <label style="margin-top: 0.4rem;">p-value threshold:</label>
               <b-col style="width: 25%">
                 <b-form-input
-                  v-model="inputPThreshold"
+                  v-model="significantP"
                   type="number"
                   min="0"
                   max="1"
@@ -567,17 +567,6 @@
                   style="width: 10rem; margin-right: 0px"
                 />
               </b-col>
-              <!--<label style="margin-top: 0.4rem;">log2Fold Change threshold:</label>
-              <b-col style="width: 25%">
-                <b-form-input
-                  v-model="inputLog2FoldThreshold"
-                  type="number"
-                  min="-4"
-                  max="4"
-                  step="0.1"
-                  style="width: 10rem; margin-right: 0px"
-                />
-              </b-col>-->
             </b-row>
           </b-container>
         </div>
@@ -653,7 +642,11 @@
         uniqueGenesDataDict:null,
         uniqueGenesTableArray:[],
         uniqueGenesTitles: [],
-        onlyOne: false
+        onlyOne: false,
+        // UNIQUELY END //
+        // HEATMAP START //
+        heatmapTitles: [],
+        heatmapGeneAmount:20
       }
     },
     computed: {
@@ -752,7 +745,7 @@
         this.uniqueGenesTableArray=[];
         this.uniqueGenesTitles=[];
         this.onlyOne=false;
-        this.heatmapLog2FoldThreshold=0.0;
+        this.heatmapTitles=[]
       },
       selectedRegulationType () {
         if(this.selectedRegulationType === "upregulated"){
@@ -812,7 +805,35 @@
           }
         }
         else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand){
+            // eslint-disable-next-line no-console
             console.log('in reguType if');
+
+            if(this.selectedRegulationType === "upregulated"){
+                this.inputLog2FoldThreshold = 1.5;
+            }
+            else if(this.selectedRegulationType === "downregulated"){
+                this.inputLog2FoldThreshold = -1.5;
+            }
+            else if(this.selectedRegulationType === "both"){
+                this.inputLog2FoldThreshold = 1.5;
+            }
+
+            this.conditionPairList=[];
+            this.conditionPairs=[];
+            //list of condition pairs
+            // needed to get DESeq2 analyses data for all chosen conditions
+            // splitting nice string at underscore. niceString[1] = 'vs'
+            for(let niceString of this.selectedConditionPairData){
+                let niceStringArray = niceString.split('_');
+                let firstCondition = niceStringArray[0];
+                let secondCondition = niceStringArray[2];
+                // adding each condition pair to conditionPairList
+                this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+                this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+            }
+            if(this.conditionPairList.length>1){
+                this.getHeatmapStoreData();
+            }
         }
       },
       selectedTableOptions (){
@@ -832,8 +853,8 @@
           this.createUNIQUEGENESTableData();
         }
       },
-        // HEATMAP AND BARCHART
-        inputPThreshold (){
+      // BARCHART ONLY
+      inputPThreshold (){
             if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize) {
                 this.getBARCHARTStoreData();
                 this.formatBARCHARTdata();
@@ -841,11 +862,7 @@
 
                 this.groupCount = this.filteredGroupList.length;
             }
-            else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand){
-                console.log('in pThresh if');
-            }
         },
-      // BARCHART ONLY
       selectedOperonSize (){
         // if the user does not provide a size distinct size
         // the size is set so small, that all putative operons pass
@@ -929,6 +946,26 @@
             }
           }
         }
+        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand){
+            // eslint-disable-next-line no-console
+            console.log('in conPairData if');
+            this.conditionPairList=[];
+            this.conditionPairs=[];
+            //list of condition pairs
+            // needed to get DESeq2 analyses data for all chosen conditions
+            // splitting nice string at underscore. niceString[1] = 'vs'
+            for(let niceString of this.selectedConditionPairData){
+                let niceStringArray = niceString.split('_');
+                let firstCondition = niceStringArray[0];
+                let secondCondition = niceStringArray[2];
+                // adding each condition pair to conditionPairList
+                this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+                this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+            }
+            if(this.conditionPairList.length>1){
+                this.getHeatmapStoreData();
+            }
+        }
       },
       selectedConditionPairs (){
       if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
@@ -957,33 +994,6 @@
           }
         }
       },
-      significantP (){
-        if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
-          this.conditionPairList=[];
-          this.conditionPairs=[];
-          //list of condition pairs
-          // needed to get DESeq2 analyses data for all chosen conditions
-          for(let niceString of this.selectedConditionPairData){
-            // splitting nice string at underscore. niceString[1] = 'vs'
-            let niceStringArray = niceString.split('_');
-            let firstCondition = niceStringArray[0];
-            let secondCondition = niceStringArray[2];
-            // adding each condition pair to conditionPairList
-            this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
-            this.conditionPairs.push(firstCondition+"_"+ secondCondition);
-          }
-          if(this.conditionPairList.length>=1){
-            this.uniqueGenesDataDict=null;
-            this.uniqueGenesTableArray=[];
-            this.uniqueGenesTitles=[];
-            this.onlyOne=false;
-            this.getUNIQUEGENESStoreData();
-            if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
-              this.createUNIQUEGENESTableData();
-            }
-          }
-        }
-      },
       conditionPairList (){
         if(this.conditionPairList.length === 1){
           this.onlyOne = true;
@@ -992,16 +1002,62 @@
           this.onlyOne = false;
         }
       },
-        // UNIQUE GENES AND HEATMAP
+      // UNIQUE GENES AND HEATMAP
       selectedStrand (){
         if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
           this.uniqueGenesTableArray = [];
           this.createUNIQUEGENESTableData();
         }
-        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand) {
+        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType) {
+            // eslint-disable-next-line no-console
           console.log('in strand if');
+          // this.getHeatmapStoreData();
+          //   this.formatHeatmapData();
         }
+      },
+      significantP (){
+        if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
+          this.conditionPairList=[];
+          this.conditionPairs=[];
+          //list of condition pairs
+          // needed to get DESeq2 analyses data for all chosen conditions
+          for(let niceString of this.selectedConditionPairData){
+              // splitting nice string at underscore. niceString[1] = 'vs'
+              let niceStringArray = niceString.split('_');
+              let firstCondition = niceStringArray[0];
+              let secondCondition = niceStringArray[2];
+              // adding each condition pair to conditionPairList
+              this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+              this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+          }
+          if(this.conditionPairList.length>=1){
+              this.uniqueGenesDataDict=null;
+              this.uniqueGenesTableArray=[];
+              this.uniqueGenesTitles=[];
+              this.onlyOne=false;
+              this.getUNIQUEGENESStoreData();
+              if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType && this.selectedConditionPairs){
+                  this.createUNIQUEGENESTableData();
+              }
+          }
       }
+        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand) {
+            // eslint-disable-next-line no-console
+          console.log('in pThresh if');
+          this.conditionPairList=[];
+          this.conditionPairs=[];
+          for(let niceString of this.selectedConditionPairData){
+              // splitting nice string at underscore. niceString[1] = 'vs'
+              let niceStringArray = niceString.split('_');
+              let firstCondition = niceStringArray[0];
+              let secondCondition = niceStringArray[2];
+              // adding each condition pair to conditionPairList
+              this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+              this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+          }
+          this.getHeatmapStoreData();
+        }
+      },
     },
     // barcharts can be drawn only, if the html div already exists with a unique ID to render to
     // nextTick waits for DOM model changes (html div creating) and executes draw barchart afterwards
@@ -1013,6 +1069,7 @@
       }
       else if (this.showHeatMap && this.selectedConditionPairData.length === 2 && this.selectedRegulationType && this.selectedStrand){
           this.$nextTick(()=>{
+              // eslint-disable-next-line no-console
               console.log('heatmap draw function');
           })
       }
@@ -1871,6 +1928,51 @@
         downloadFile(csvContent, this.tableFileName+'.csv')
       },
       // END UNIQUE GENES //
+      // START HEATMAPS //
+      getHeatmapStoreData(){
+          // eslint-disable-next-line no-console
+        console.log('in getHeatmapStoreData');
+         // whole dge data
+         let theDGE= this.$store.state.currentDGE;
+          // list of sets. one set = id list of significant genes for one condition pair
+          let significantGenes = {};
+          for(let conditionPair of this.conditionPairList){
+              significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2]=[];
+          }
+          for(let conditionPair of this.conditionPairList){
+              // converting original data type set to array
+              let onePairGenes = Array.from(theDGE.getNamesOfSignificantGenesFromDESeq2(this.significantP,conditionPair.condition1, conditionPair.condition2,true));
+              // iterating significant IDs and filtering by regulation type and log2fold change value
+              // initializing significant genes dictionary with empty list in order to push to list later (pushed item: featureID, which fullfills adj. p-value and log2fold thresholds
+              for(let featureID of onePairGenes){
+                 if(this.selectedRegulationType === 'both'){
+                     if(Math.abs(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange) >= this.inputLog2FoldThreshold){
+                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
+                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
+                     }
+                 }
+                 else if(this.selectedRegulationType === 'upregulated'){
+                     if(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange >= this.inputLog2FoldThreshold){
+                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
+                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
+                     }
+                 }
+                 else if(this.selectedRegulationType === 'downregulated'){
+                     if(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange <= this.inputLog2FoldThreshold){
+                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
+                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
+                     }
+                 }
+              }
+              // titles for heatmap axes
+              let titleString = conditionPair.condition1 + '_'+ conditionPair.condition2;
+              this.heatmapTitles.push(titleString);
+          }
+          // significant genes now includes: conPair as key, list of sets as value; featureIDs and their log2fold-change, which match the adj p-value and log2fold thresholds
+          // eslint-disable-next-line no-console
+          // console.log(significantGenes);
+
+      },
       thousandSeparator(number){
         return parseFloat(number).toLocaleString('en-us');
         // Info: Die '' sind zwei Hochkommas
