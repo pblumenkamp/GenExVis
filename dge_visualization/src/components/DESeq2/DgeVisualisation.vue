@@ -489,30 +489,7 @@
         </b-row>
       </div>
       <div v-if="showHeatMap">
-        <div style="margin-top: 10px">
-          <b-row style="margin-top: 10px">
-            <b-col>
-              test
-            </b-col>
-          </b-row>
-        </div>
-        <div v-if=" selectedRegulationType && selectedStrand" style="margin-top: 20px">
-          <b-container style="max-width: 100%;">
-            <b-row>
-              <label style="margin-top: 0.4rem;">p-value threshold:</label>
-              <b-col style="width: 25%">
-                <b-form-input
-                  v-model="significantP"
-                  type="number"
-                  min="0"
-                  max="1"
-                  step="0.001"
-                  style="width: 10rem; margin-right: 0px"
-                />
-              </b-col>
-            </b-row>
-          </b-container>
-        </div>
+        
       </div>
     </b-card>
   </div>
@@ -527,6 +504,7 @@
   let Highcharts = require('highcharts');
   require('highcharts/modules/exporting')(Highcharts);
   require('highcharts/modules/offline-exporting')(Highcharts);
+
 
   export default {
     name: 'DgeVisualisation',
@@ -588,8 +566,9 @@
         onlyOne: false,
         // UNIQUELY END //
         // HEATMAP START //
-        heatmapTitles: [],
-        heatmapGeneAmount:20
+          selectedNormalization: '',
+          selectedConditions: [...this.$store.state.registeredConditions],
+          maxValue: 0
       }
     },
     computed: {
@@ -747,37 +726,6 @@
             }
           }
         }
-        else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
-            // eslint-disable-next-line no-console
-            console.log('in reguType if');
-
-            if(this.selectedRegulationType === "upregulated"){
-                this.inputLog2FoldThreshold = 1.5;
-            }
-            else if(this.selectedRegulationType === "downregulated"){
-                this.inputLog2FoldThreshold = -1.5;
-            }
-            else if(this.selectedRegulationType === "both"){
-                this.inputLog2FoldThreshold = 1.5;
-            }
-
-            this.conditionPairList=[];
-            this.conditionPairs=[];
-            //list of condition pairs
-            // needed to get DESeq2 analyses data for all chosen conditions
-            // splitting nice string at underscore. niceString[1] = 'vs'
-            for(let niceString of this.selectedConditionPairData){
-                let niceStringArray = niceString.split('_');
-                let firstCondition = niceStringArray[0];
-                let secondCondition = niceStringArray[2];
-                // adding each condition pair to conditionPairList
-                this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
-                this.conditionPairs.push(firstCondition+"_"+ secondCondition);
-            }
-            if(this.conditionPairList.length>1){
-                this.getHeatmapStoreData();
-            }
-        }
       },
       selectedTableOptions (){
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
@@ -788,7 +736,6 @@
         }
       },
       roundedValues (){
-        // this.createOperonTableData();
         if(this.showGroup){
           this.createGroupTableData();
         }
@@ -889,26 +836,6 @@
             }
           }
         }
-        else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
-            // eslint-disable-next-line no-console
-            console.log('in conPairData if');
-            this.conditionPairList=[];
-            this.conditionPairs=[];
-            //list of condition pairs
-            // needed to get DESeq2 analyses data for all chosen conditions
-            // splitting nice string at underscore. niceString[1] = 'vs'
-            for(let niceString of this.selectedConditionPairData){
-                let niceStringArray = niceString.split('_');
-                let firstCondition = niceStringArray[0];
-                let secondCondition = niceStringArray[2];
-                // adding each condition pair to conditionPairList
-                this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
-                this.conditionPairs.push(firstCondition+"_"+ secondCondition);
-            }
-            if(this.conditionPairList.length>1){
-                this.getHeatmapStoreData();
-            }
-        }
       },
       selectedConditionPairs (){
       if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
@@ -945,17 +872,10 @@
           this.onlyOne = false;
         }
       },
-      // UNIQUE GENES AND HEATMAP
       selectedStrand (){
         if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
           this.uniqueGenesTableArray = [];
           this.createUNIQUEGENESTableData();
-        }
-        else if(this.showHeatMap && this.selectedRegulationType) {
-            // eslint-disable-next-line no-console
-          console.log('in strand if');
-          // this.getHeatmapStoreData();
-          //   this.formatHeatmapData();
         }
       },
       significantP (){
@@ -983,39 +903,25 @@
                   this.createUNIQUEGENESTableData();
               }
           }
-      }
-        else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand) {
-            // eslint-disable-next-line no-console
-          console.log('in pThresh if');
-          this.conditionPairList=[];
-          this.conditionPairs=[];
-          for(let niceString of this.selectedConditionPairData){
-              // splitting nice string at underscore. niceString[1] = 'vs'
-              let niceStringArray = niceString.split('_');
-              let firstCondition = niceStringArray[0];
-              let secondCondition = niceStringArray[2];
-              // adding each condition pair to conditionPairList
-              this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
-              this.conditionPairs.push(firstCondition+"_"+ secondCondition);
-          }
-          this.getHeatmapStoreData();
         }
       },
+        // HEATMAP
+
     },
-    // barcharts can be drawn only, if the html div already exists with a unique ID to render to
-    // nextTick waits for DOM model changes (html div creating) and executes draw barchart afterwards
     updated(){
+        // barcharts can be drawn only, if the html div already exists with a unique ID to render to
+        // nextTick waits for DOM model changes (html div creating) and executes draw barchart afterwards
       if(this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
         this.$nextTick(()=>{
           this.drawBARCHART();
         })
       }
-      else if (this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
+     /* else if (this.showHeatMap){
           this.$nextTick(()=>{
               // eslint-disable-next-line no-console
               console.log('heatmap draw function');
           })
-      }
+      }*/
     },
     methods: {
       // START BARCHART//
@@ -1376,50 +1282,6 @@
           Highcharts.chart(index, options);
         }
       },
-/*      createOperonTableData(){
-        this.tableList=[];
-        this.downloadDict={};
-        for(let i =0; i<this.filteredGroupList.length; i++){
-          let oneTable= [];
-          let oneDownloadTable=[];
-          this.tableHeaders={name: 'Name', start: 'Start', end: 'End', strand: 'Strand', description: 'product', log2fold: 'log2Fold-Change', pValue: 'pValue', pAdj: 'pValue (adjusted)', lfcSE: 'lfcSE', baseMean: 'Base mean', stat: 'Stat'};
-          oneTable.push(this.tableHeaders);
-          let downloadHeaders=['Name', 'Start','End','Strand', 'product','log2Fold-Change','pValue','pValue (adjusted)','lfcSE','Base mean','Stat'];
-          oneDownloadTable.push(downloadHeaders);
-          let oneTableData = this.filteredGroupList[i];
-          for(let k=0; k<oneTableData.length; k++){
-            let oneTableRow;
-            let pAdj;
-            let log2Fold;
-            let pValue;
-            let stat;
-            let baseMean;
-            let lfcSE;
-            if(this.roundedValues){
-              log2Fold= Math.round(oneTableData[k]['log2fold']*100)/100;
-              pAdj = oneTableData[k]['pAdj'].toPrecision(4);
-              pValue = oneTableData[k]['pValue'].toPrecision(4);
-              stat = Math.round(oneTableData[k]['stat']*100)/100;
-              baseMean = Math.round(oneTableData[k]['baseMean']*100)/100;
-              lfcSE = Math.round(oneTableData[k]['lfcSE']*100)/100;
-            }else{
-              log2Fold= oneTableData[k]['log2fold'];
-              pAdj = oneTableData[k]['pAdj'];
-              pValue = oneTableData[k]['pValue'];
-              stat = oneTableData[k]['stat'];
-              baseMean = oneTableData[k]['baseMean'];
-              lfcSE = oneTableData[k]['lfcSE'];
-            }
-            //oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['description'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
-            oneTableRow={value: false, name: oneTableData[k]['name'], start: oneTableData[k]['start'], end: oneTableData[k]['end'], strand: oneTableData[k]['strand'], description: oneTableData[k]['product'], log2fold: log2Fold, pValue: pValue, pAdj: pAdj, lfcSE: lfcSE, baseMean: baseMean, stat: stat};
-            oneTable.push(oneTableRow);
-            let oneDownloadRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['product'], log2Fold, pValue, pAdj, lfcSE, baseMean, stat];
-            oneDownloadTable.push(oneDownloadRow);
-          }
-          this.tableList.push(oneTable);
-          this.downloadDict[i]=oneDownloadTable;
-        }
-      },*/
       createGroupTableData(){
         let oneTable=[];
         this.tableList2 = [];
@@ -1871,73 +1733,11 @@
         downloadFile(csvContent, this.tableFileName+'.csv')
       },
       // END UNIQUE GENES //
-      // START HEATMAPS //
-      getHeatmapStoreData(){
-         /* // eslint-disable-next-line no-console
-        console.log('in getHeatmapStoreData');
-         // whole dge data
-         let theDGE= this.$store.state.currentDGE;
-          // list of sets. one set = id list of significant genes for one condition pair
-          let significantGenes = {};
-          for(let conditionPair of this.conditionPairList){
-              significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2]=[];
-          }
-          for(let conditionPair of this.conditionPairList){
-              // converting original data type set to array
-              let onePairGenes = Array.from(theDGE.getNamesOfSignificantGenesFromDESeq2(this.significantP,conditionPair.condition1, conditionPair.condition2,true));
-              // iterating significant IDs and filtering by regulation type and log2fold change value
-              // initializing significant genes dictionary with empty list in order to push to list later (pushed item: featureID, which fullfills adj. p-value and log2fold thresholds
-              for(let featureID of onePairGenes){
-                 if(this.selectedRegulationType === 'both'){
-                     if(Math.abs(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange) >= this.inputLog2FoldThreshold){
-                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
-                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
-                     }
-                 }
-                 else if(this.selectedRegulationType === 'upregulated'){
-                     if(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange >= this.inputLog2FoldThreshold){
-                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
-                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
-                     }
-                 }
-                 else if(this.selectedRegulationType === 'downregulated'){
-                     if(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange <= this.inputLog2FoldThreshold){
-                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
-                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
-                     }
-                 }
-              }
-              // titles for heatmap axes
-              let titleString = conditionPair.condition1 + '_'+ conditionPair.condition2;
-              this.heatmapTitles.push(titleString);
-          }
-          // significant genes now includes: conPair as key, list of sets as value; featureIDs and their log2fold-change, which match the adj p-value and log2fold thresholds
-          // eslint-disable-next-line no-console
-          // console.log(significantGenes);*/
-          let theDGE= this.$store.state.currentDGE;
-          console.log(theDGE);
-
-
-      },
       thousandSeparator(number){
         return parseFloat(number).toLocaleString('en-us');
-        // Info: Die '' sind zwei Hochkommas
-      /*  number = '' + number;
-        if (number.length > 3) {
-          let mod = number.length % 3;
-          let output = (mod > 0 ? (number.substring(0,mod)) : '');
-          for (let i=0 ; i < Math.floor(number.length / 3); i++) {
-            if ((mod === 0) && (i === 0)) {
-              output += number.substring(mod + 3 * i, mod + 3 * i + 3);
-            }else{
-        // setting thousand separator as '
-          output+= "'" + number.substring(mod + 3 * i, mod + 3 * i + 3);
-            }
-          }
-          return output;
-        } else{ return number }*/
-        // return number.toLocaleString('en-us');
-      }
+      },
+        // HEATMAPS
+
     }
   }
 
