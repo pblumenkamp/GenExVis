@@ -69,11 +69,17 @@
                 <small>DGE visualisation type Heatmaps.</small>
                 <br><br>
                 Heatmaps are generated for the comparison of feature expression between two
-                conditions. Features are evaluated based on adjuste p-value and log2fold-change
-                thresholds. For the top 20 features found to be significant, normalized counts
-                for the chosen conditions are compared and visualized in the heatmap. Color coding:
-                blue: upregulation, red: downregulation and white: no change in regulation.
-                <br><br>
+                conditions. The read count is taken as measure of expression. In order to
+                generate a heatmap, each feature's condition-specific z-score is calculated
+                for the mean of specific read counts against the mean of all read counts
+                throughout all conditions for that feature.
+                Color coding is:
+                <ul>
+                  <li>blue: upregulation</li>
+                  <li>red: downregulation</li>
+                  <li>white: no change</li>
+                </ul>
+                <br>
                 All preselected parameters are adjustable afterwards.
               </b-card>
               <b-card v-else style="width:80%; margin: auto">
@@ -82,7 +88,7 @@
                 <ul>
                   <li>Display of jointly regulated features as barplots with supporitve tables.</li>
                   <li>Display of uniquely regulated features as tables.</li>
-                  <li>Display of Heatmaps for normalized feature counts evaluated based on adjusted p-value and log2fold change thresholds</li>
+                  <li>Display of Heatmaps based on z-scores</li>
                 </ul>
               </b-card>
             </transition>
@@ -483,77 +489,14 @@
         </b-row>
       </div>
       <div v-if="showHeatMap">
-        <b-col>
-          <b-row style="margin-top: 10px;">
-            <!-- Select DESeq2 data to display uniquely regulated genes for -->
-            <multiselect
-              v-model="selectedConditionPairData"
-              :options="uniquelyConditions"
-              :multiple="true"
-              :close-on-select="false"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :show-labels="true"
-              :preselect-first="false"
-              :max="2"
-              placeholder="Choose data"
-              selected-label="Selected"
-              select-label="Click to select"
-              deselect-label="Click to remove"
-            >
-              <template slot="selection" slot-scope="{ values, search, isOpen }">
-                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-              </template>
-            </multiselect>
-          </b-row>
-        </b-col>
-        <div v-if="selectedConditionPairData.length>1" style="margin-top: 10px">
+        <div style="margin-top: 10px">
           <b-row style="margin-top: 10px">
             <b-col>
-              <p>Filter by log2fold change </p>
-              <multiselect
-                v-model="selectedRegulationType"
-                :options="regulationDirections"
-                :multiple="false"
-                :close-on-select="true"
-                :clear-on-select="false"
-                :preserve-search="true"
-                :show-labels="true"
-                :preselect-first="true"
-                placeholder="Choose regulation"
-                selected-label="Selected"
-                select-label="Click to select"
-                deselect-label="Click to remove"
-              >
-                <template slot="selection" slot-scope="{ values, search, isOpen }">
-                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                </template>
-              </multiselect>
-            </b-col>
-            <b-col>
-              <p>Filter by strand</p>
-              <multiselect
-                v-model="selectedStrand"
-                :options="strandOptions"
-                :multiple="false"
-                :close-on-select="true"
-                :clear-on-select="false"
-                :preserve-search="true"
-                :show-labels="true"
-                :preselect-first="true"
-                placeholder="Choose strand"
-                selected-label="Selected"
-                select-label="Click to select"
-                deselect-label="Click to remove"
-              >
-                <template slot="selection" slot-scope="{ values, search, isOpen }">
-                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                </template>
-              </multiselect>
+              test
             </b-col>
           </b-row>
         </div>
-        <div v-if="selectedConditionPairData.length>1 && selectedRegulationType && selectedStrand" style="margin-top: 20px">
+        <div v-if=" selectedRegulationType && selectedStrand" style="margin-top: 20px">
           <b-container style="max-width: 100%;">
             <b-row>
               <label style="margin-top: 0.4rem;">p-value threshold:</label>
@@ -804,7 +747,7 @@
             }
           }
         }
-        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand){
+        else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
             // eslint-disable-next-line no-console
             console.log('in reguType if');
 
@@ -946,7 +889,7 @@
             }
           }
         }
-        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand){
+        else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
             // eslint-disable-next-line no-console
             console.log('in conPairData if');
             this.conditionPairList=[];
@@ -1008,7 +951,7 @@
           this.uniqueGenesTableArray = [];
           this.createUNIQUEGENESTableData();
         }
-        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType) {
+        else if(this.showHeatMap && this.selectedRegulationType) {
             // eslint-disable-next-line no-console
           console.log('in strand if');
           // this.getHeatmapStoreData();
@@ -1041,7 +984,7 @@
               }
           }
       }
-        else if(this.showHeatMap && this.selectedConditionPairData.length>1 && this.selectedRegulationType && this.selectedStrand) {
+        else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand) {
             // eslint-disable-next-line no-console
           console.log('in pThresh if');
           this.conditionPairList=[];
@@ -1067,7 +1010,7 @@
           this.drawBARCHART();
         })
       }
-      else if (this.showHeatMap && this.selectedConditionPairData.length === 2 && this.selectedRegulationType && this.selectedStrand){
+      else if (this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
           this.$nextTick(()=>{
               // eslint-disable-next-line no-console
               console.log('heatmap draw function');
@@ -1930,7 +1873,7 @@
       // END UNIQUE GENES //
       // START HEATMAPS //
       getHeatmapStoreData(){
-          // eslint-disable-next-line no-console
+         /* // eslint-disable-next-line no-console
         console.log('in getHeatmapStoreData');
          // whole dge data
          let theDGE= this.$store.state.currentDGE;
@@ -1970,7 +1913,10 @@
           }
           // significant genes now includes: conPair as key, list of sets as value; featureIDs and their log2fold-change, which match the adj p-value and log2fold thresholds
           // eslint-disable-next-line no-console
-          // console.log(significantGenes);
+          // console.log(significantGenes);*/
+          let theDGE= this.$store.state.currentDGE;
+          console.log(theDGE);
+
 
       },
       thousandSeparator(number){
