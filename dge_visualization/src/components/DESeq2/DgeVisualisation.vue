@@ -541,7 +541,7 @@
         // graphic/visualisation type selection
         showHelp: false,
         selectedGraphic: '',
-        graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'Heatmaps', '3D Scatter plot'],
+        graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'Heatmap', '3D Scatter plot'],
         showGroup: false,
         show3DScatter: false,
         showUniqueGenes: false,
@@ -592,7 +592,11 @@
         // HEATMAP START //
           selectedNormalization: '',
           selectedConditions: [...this.$store.state.registeredConditions],
-          conditionMapping: this.$store.state.currentDGE.seqRuns[this.selectedNormalization]
+          conditionMapping: this.$store.state.currentDGE.seqRuns[this.selectedNormalization],
+          plotGeneNames:[],
+          plotCategories:[],
+          zScoreDict:null,
+          heatmapData:[]
       }
     },
     computed: {
@@ -657,7 +661,7 @@
           this.showUniqueGenes = false;
           this.show3DScatter = false
         }
-        else if(this.selectedGraphic === 'Heatmaps'){
+        else if(this.selectedGraphic === 'Heatmap'){
           this.showHeatMap = true;
           this.showGroup = false;
           this.showUniqueGenes = false;
@@ -697,7 +701,6 @@
         this.uniqueGenesTableArray=[];
         this.uniqueGenesTitles=[];
         this.onlyOne=false;
-        this.heatmapTitles=[]
       },
       selectedRegulationType () {
         if(this.selectedRegulationType === "upregulated"){
@@ -939,6 +942,7 @@
         selectedNormalization (){
           if(this.showHeatMap){
               this.getHeatmapStoreData();
+              this.formatHeatmapData();
           }
         }
 
@@ -1825,6 +1829,9 @@
                 if (this.selectedConditions.indexOf(condition) === -1) {
                     continue
                 }else{
+                    if(!this.plotCategories.includes(condition)){
+                        this.plotCategories.push(condition);
+                    }
                     // dict sorted by treatments at top level
                     conditionDict[condition]={};
                     for(let [key,value] of Object.entries(genes)){
@@ -1858,6 +1865,8 @@
                         geneDict[key]={'populationMean': populationMean, 'sigma': sigma};
                     }
                     // Z-score will be: (sampleMean - populationMean)/(sigma-sqrt(sampleN))
+                    // options.xAxis.categories = seqRunNames;
+                    // options.yAxis.categories = geneNames;
                     var zScoreDict={};
                     for(let [key,value] of Object.entries(conditionDict)){
                         if(!zScoreDict[key]){
@@ -1869,11 +1878,37 @@
                             }
                             let zScore = (innerValue['sampleMean'] - geneDict[innerKey]['populationMean'])/(geneDict[innerKey]['sigma']/innerValue['sampleN'])
                             zScoreDict[key][innerKey]=zScore;
+                            if(!this.plotGeneNames.includes(innerKey)){
+                                this.plotGeneNames.push(innerKey);
+                            }
                         }
                     }
                 }
             }
-            console.log(zScoreDict);
+            this.zScoreDict=zScoreDict;
+            // console.log(this.plotCategories);
+        },
+        // formatting plotData; axis are formatted already; needed format of z-scores to correclty plot is:
+        // array=[cds1_con1, cds1_con2, cds1_con3, cds2_con1, cds2_con2, cds2_con3, etc] -> for correct assignment to axis labels, which are conditions (y) and feature IDs(x)
+        formatHeatmapData(){
+          let heatmapDataDict={};
+            // eslint-disable-next-line no-unused-vars
+          for(let [key,value] of Object.entries(this.zScoreDict)){
+              for(let[innerKey, innerValue] of Object.entries(value)){
+                  if(!heatmapDataDict[innerKey]){
+                      // initialization
+                      heatmapDataDict[innerKey]=[];
+                  }
+                  heatmapDataDict[innerKey].push(innerValue);
+              }
+          }
+            // eslint-disable-next-line no-unused-vars
+          for(let[key,value] of Object.entries(heatmapDataDict)){
+              for(let innerValue of Object.values(value)){
+                  this.heatmapData.push(innerValue);
+              }
+          }
+            console.log(this.heatmapData);
         }
     }
   }
