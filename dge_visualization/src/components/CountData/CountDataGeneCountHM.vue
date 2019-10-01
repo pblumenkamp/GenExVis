@@ -133,16 +133,15 @@
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
   import {faPlusCircle, faMinusCircle} from '@fortawesome/free-solid-svg-icons'
 
-  let Highcharts = require('highcharts/highmaps')
-  require('highcharts/modules/exporting')(Highcharts)
-  require('highcharts/modules/offline-exporting')(Highcharts)
+  let Highcharts = require('highcharts/highmaps');
+  require('highcharts/modules/exporting')(Highcharts);
+  require('highcharts/modules/offline-exporting')(Highcharts);
 
-  let debounce = require('lodash.debounce')
+  let debounce = require('lodash.debounce');
+  const CHART_ID = 'countdatagenecounthm_highcharts';
 
-  const CHART_ID = 'countdatagenecounthm_highcharts'
-
-  let chart = {}
-  let conditionMapping = {}
+  let chart = {};
+  let conditionMapping = {};
 
   export default {
     name: 'CountDataGeneCountHM',
@@ -184,13 +183,13 @@
       selectedConditions (newVal) {
         // Handle changes in individual flavour checkboxes
         if (newVal.length === 0) {
-          this.indeterminate = false
+          this.indeterminate = false;
           this.allConditionsSelected = false
         } else if (newVal.length === this.registeredConditions.length) {
-          this.indeterminate = false
+          this.indeterminate = false;
           this.allConditionsSelected = true
         } else {
-          this.indeterminate = true
+          this.indeterminate = true;
           this.allConditionsSelected = false
         }
         this.drawData()
@@ -216,7 +215,7 @@
         if (!this.selectedNormalization) {
           return
         }
-        conditionMapping = this.$store.state.currentDGE.seqRuns[this.selectedNormalization]
+        conditionMapping = this.$store.state.currentDGE.seqRuns[this.selectedNormalization];
         let options = {
           chart: {
             type: 'heatmap',
@@ -289,36 +288,36 @@
             boostThreshold: 100,
             data: [[0, 0, 10], [0, 1, 100], [1, 0, 20], [1, 1, 200]]
           }]
-        }
+        };
 
-        let series = options.series
+        let series = options.series;
 
-        series[0].data = []
+        series[0].data = [];
 
         if (this.maxValue !== 0) {
           options.colorAxis['max'] = this.maxValue
         }
 
-        let seqRunNamesMap = {}
-        let seqRunNames = []
-        let seqRunIndex = 0
+        let seqRunNamesMap = {};
+        let seqRunNames = [];
+        let seqRunIndex = 0;
         for (let cond of this.selectedConditions) {
           for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.currentDGE.seqRuns[this.selectedNormalization])) {
             if (seqRunCond === cond) {
-              seqRunNames.push(seqRun)
+              seqRunNames.push(seqRun);
               seqRunNamesMap[seqRun] = seqRunIndex++
             }
           }
         }
-        let geneNames = Array.from(this.$store.state.currentDGE.geneNames).sort()
-        let geneNamesMapping = {}
+        let geneNames = Array.from(this.$store.state.currentDGE.geneNames).sort();
+        let geneNamesMapping = {};
         for (let [index, geneName] of geneNames.entries()) {
           geneNamesMapping[geneName] = index
         }
 
         let countData = (this.selectedNormalization === 'unnormalized')
           ? this.$store.state.currentDGE.getAllUnnormalizedCountData()
-          : this.$store.state.currentDGE.getAllDeseq2CountData()
+          : this.$store.state.currentDGE.getAllDeseq2CountData();
         for (let [condition, genes] of Object.entries(countData)) {
           if (this.selectedConditions.indexOf(condition) === -1) {
             continue
@@ -329,20 +328,20 @@
                 seqRunNamesMap[seqRun],
                 geneNamesMapping[geneName],
                 value
-              ]
+              ];
               series[0].data.push(dataPoint)
             }
           }
         }
-        options.xAxis.categories = seqRunNames
-        options.yAxis.categories = geneNames
+        options.xAxis.categories = seqRunNames;
+        options.yAxis.categories = geneNames;
 
-        chart = Highcharts.chart(CHART_ID, options)
+        chart = Highcharts.chart(CHART_ID, options);
         chart.hideLoading()
       },
       clearChart () {
-        this.selectedNormalization = ''
-        let node = this.$refs[CHART_ID]
+        this.selectedNormalization = '';
+        let node = this.$refs[CHART_ID];
         while (node.firstChild) {
           node.removeChild(node.firstChild)
         }
