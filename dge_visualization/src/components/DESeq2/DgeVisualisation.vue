@@ -532,6 +532,7 @@
   let Highcharts = require('highcharts');
   require('highcharts/modules/exporting')(Highcharts);
   require('highcharts/modules/offline-exporting')(Highcharts);
+
   import Heatmap from 'highcharts/modules/heatmap.js';
   Heatmap(Highcharts);
 
@@ -601,7 +602,7 @@
           conditionMapping: this.$store.state.currentDGE.seqRuns[this.selectedNormalization],
           plotGeneNames:[],
           plotCategories:[],
-          zScoreDict:null,
+          // zScoreDict:null,
           heatmapData:[],
           color1: '#FFFFFF',
           color2: '#276dff',
@@ -965,11 +966,6 @@
           this.drawBARCHART();
         })
       }
-     /* else if (this.showHeatMap && this.selectedNormalization){
-          this.$nextTick(()=>{
-              this.drawHEATMAP();
-          })
-      }*/
     },
     methods: {
       // START BARCHART//
@@ -1791,20 +1787,14 @@
             }
             return total / numbers.length;
         },
-        sum(numbers) {
-            let total = 0, i;
-            for (i = 0; i < numbers.length; i += 1) {
-                total += numbers[i];
-            }
-            return total;
-        },
         variance: function(array) {
             let mean = this.mean(array);
             return this.mean(array.map(function(num) {
                 return Math.pow(num - mean, 2);
             }));
         },
-        // HEATMAPS
+        // HEATMAPS //
+        // getting storeData and formatting it for highcharts
         getHeatmapStoreData(){
           // read counts for genes with condition
           var conditionDict={};
@@ -1867,7 +1857,6 @@
                         let dummyMean= this.mean(dummyArray);
                         let sampleN = dummyArray.length;
                         let sampleMean = Math.round(dummyMean*100)/100;
-                        // dummyArray.push(myMean);
                         // adding mean and number of initial values the mean was calculated of for specific counts at right gene and condition
                         conditionDict[condition][key]={'sampleMean':sampleMean,'sampleN': sampleN} ;
                         heatmapDict[key][condition]={'sampleMean':sampleMean,'sampleN': sampleN};
@@ -1883,31 +1872,19 @@
                         let sigma = Math.round((Math.sqrt(populationVariance))*100)/100;
                         geneDict[key]={'populationMean': populationMean, 'sigma': sigma};
                     }
-                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // heatmapDict={cds1:{clindamycin:{sampleMean: x, sampleN:y}, erythromycin:{sampleMean: x2, sampleN:y2},..}...}
-                    // needed: {cds1:{clindamycin:z-score, erythromycin: z-score,...}}
 
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     // FORMATTING HEATMAP DATA //
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                     // Z-score will be: (sampleMean - populationMean)/(sigma-sqrt(sampleN))
-                    // options.xAxis.categories = seqRunNames;
-                    // options.yAxis.categories = geneNames;
-                    var zScoreDict={};
                     var zScoreList=[];
                     var index=0;
                     var innerIndex=0;
                     for(let [key,value] of Object.entries(heatmapDict)){
-                        if(!zScoreDict[key]){
-                            zScoreDict[key]={};
-                        }
+                        // eslint-disable-next-line no-unused-vars
                         for (let [innerKey, innerValue] of Object.entries(value)){
-                            if(!zScoreDict[key][innerKey]){
-                                zScoreDict[key][innerKey]={};
-                            }
                             let zScore = (innerValue['sampleMean'] - geneDict[key]['populationMean'])/(geneDict[key]['sigma']/innerValue['sampleN']);
-                            zScoreDict[key][innerKey]=zScore;
                             zScoreList.push([index, innerIndex,zScore]);
                             if(!this.plotGeneNames.includes(key)){
                                 this.plotGeneNames.push(key);
@@ -1921,11 +1898,7 @@
                     }
                 }
             }
-            this.zScoreDict=zScoreDict;
             this.heatmapData=zScoreList;
-            // console.log(this.plotCategories);
-            // console.log(this.plotGeneNames);
-            // console.log(this.heatmapData);
         },
         // formatting plotData; axis are formatted already; needed format of z-scores to correclty plot is:
         // array=[cds1_con1, cds1_con2, cds1_con3, cds2_con1, cds2_con2, cds2_con3, etc] -> for correct assignment to axis labels, which are conditions (y) and feature IDs(x)
@@ -1933,28 +1906,27 @@
         // highcharts heatmap
         drawHEATMAP(){
             Highcharts.chart('heatmapdisplay', {
-
                 chart: {
                     type: 'heatmap',
                     marginTop: 40,
                     marginBottom: 80,
-                    plotBorderWidth: 1
+                    plotBorderWidth: 1,
+                    zoomType:'xy',
+                    overflow:'none'
                 },
-
-
                 title: {
                     text: 'z-scores per gene and condition'
                 },
-
                 xAxis: {
-                    categories: this.plotGeneNames
+                    categories: this.plotGeneNames,
+                    scrollbar:{
+                        enabled:true
+                    },
                 },
-
                 yAxis: {
                     categories: this.plotCategories,
                     title: null
                 },
-
                 colorAxis: {
                     min: 0,
                     stops:[
@@ -1963,7 +1935,6 @@
                         [1, this.color3]
                     ]
                 },
-
                 legend: {
                     align: 'right',
                     layout: 'vertical',
@@ -1973,7 +1944,7 @@
                     symbolHeight: 280
                 },
                 series: [{
-                    name: 'Foobar',
+                    name: 'z-score',
                     turboThreshold: 0,
                     borderWidth: 1,
                     data: this.heatmapData,
