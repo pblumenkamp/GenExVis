@@ -516,6 +516,10 @@
         </b-col>
       </div>
     </b-card>
+    <!-- HEATMAP DISPLAY -->
+    <div
+      id="heatmapdisplay"
+      style="margin-top: 20px"></div>
   </div>
 </template>
 
@@ -528,6 +532,8 @@
   let Highcharts = require('highcharts');
   require('highcharts/modules/exporting')(Highcharts);
   require('highcharts/modules/offline-exporting')(Highcharts);
+  import Heatmap from 'highcharts/modules/heatmap.js';
+  Heatmap(Highcharts);
 
 
   export default {
@@ -596,7 +602,11 @@
           plotGeneNames:[],
           plotCategories:[],
           zScoreDict:null,
-          heatmapData:[]
+          heatmapData:[],
+          color1: '#FFFFFF',
+          color2: '#276dff',
+          color3: '#ff3a44',
+          intermediateColorStop: 0.1
       }
     },
     computed: {
@@ -943,6 +953,7 @@
           if(this.showHeatMap){
               this.getHeatmapStoreData();
               this.formatHeatmapData();
+              this.drawHEATMAP();
           }
         }
 
@@ -955,10 +966,9 @@
           this.drawBARCHART();
         })
       }
-     /* else if (this.showHeatMap){
+     /* else if (this.showHeatMap && this.selectedNormalization){
           this.$nextTick(()=>{
-              // eslint-disable-next-line no-console
-              console.log('heatmap draw function');
+              this.drawHEATMAP();
           })
       }*/
     },
@@ -1795,8 +1805,6 @@
                 return Math.pow(num - mean, 2);
             }));
         },
-
-
         // HEATMAPS
         getHeatmapStoreData(){
           // read counts for genes with condition
@@ -1908,7 +1916,58 @@
                   this.heatmapData.push(innerValue);
               }
           }
-            console.log(this.heatmapData);
+        },
+        // highcharts heatmap
+        drawHEATMAP(){
+            Highcharts.chart('heatmapdisplay', {
+
+                chart: {
+                    type: 'heatmap',
+                    marginTop: 40,
+                    marginBottom: 80,
+                    plotBorderWidth: 1
+                },
+
+
+                title: {
+                    text: 'z-scores per gene and condition'
+                },
+
+                xAxis: {
+                    categories: this.plotCategories
+                },
+
+                yAxis: {
+                    categories: this.plotGeneNames,
+                    title: null
+                },
+
+                colorAxis: {
+                    min: 0,
+                    stops:[
+                        [0, this.color1],
+                        [this.intermediateColorStop, this.color2],
+                        [1, this.color3]
+                    ]
+                },
+
+                legend: {
+                    align: 'right',
+                    layout: 'vertical',
+                    margin: 0,
+                    verticalAlign: 'middle',
+                    y: 25,
+                    symbolHeight: 280
+                },
+                series: [{
+                    name: 'Foobar',
+                    turboThreshold: 0,
+                    boostThreshold:100,
+                    borderWidth: 1,
+                    data: this.heatmapData,
+                }]
+
+            });
         }
     }
   }
