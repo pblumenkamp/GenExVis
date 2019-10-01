@@ -1771,11 +1771,34 @@
       thousandSeparator(number){
         return parseFloat(number).toLocaleString('en-us');
       },
+        mean(numbers) {
+            let total = 0, i;
+            for (i = 0; i < numbers.length; i += 1) {
+                total += numbers[i];
+            }
+            return total / numbers.length;
+        },
+        sum(numbers) {
+            let total = 0, i;
+            for (i = 0; i < numbers.length; i += 1) {
+                total += numbers[i];
+            }
+            return total;
+        },
+        variance: function(array) {
+            let mean = this.mean(array);
+            return this.mean(array.map(function(num) {
+                return Math.pow(num - mean, 2);
+            }));
+        },
+
+
         // HEATMAPS
         getHeatmapStoreData(){
           // read counts for genes with condition
           var conditionDict={};
           // all read counts for gene throughout all conditions
+          var geneCountDict={};
           var geneDict={};
           let seqRunNamesMap = {};
           let seqRunNames = [];
@@ -1807,22 +1830,41 @@
                     for(let [key,value] of Object.entries(genes)){
                         conditionDict[condition][key]=[];
                         // geneDict contains counts for genes throughout all conditions
+                        if(!geneCountDict[key]){
+                            geneCountDict[key]=[];
+                        }
+                        let dummyArray=[];
+                        // eslint-disable-next-line no-unused-vars
+                        for(let [innerKey, innerValue] of Object.entries(value)){
+                            dummyArray.push(innerValue);
+                            // adding count for gene
+                            geneCountDict[key].push(innerValue);
+                        }
+                        let dummyMean= this.mean(dummyArray);
+                        let sampleLen = dummyArray.length;
+                        let sampleMean = Math.round(dummyMean*100)/100;
+                        // dummyArray.push(myMean);
+                        // adding mean and number of initial values the mean was calculated of for specific counts at right gene and condition
+                        conditionDict[condition][key]=[sampleMean,sampleLen] ;
+                    }
+                    // calculating mean and sigma for genes throught all conditions
+                    for(let[key,value] of Object.entries(geneCountDict)){
                         if(!geneDict[key]){
                             geneDict[key]=[];
                         }
-                        // eslint-disable-next-line no-unused-vars
-                        for(let [innerKey, innerValue] of Object.entries(value)){
-                            // adding count at right gene and condition
-                            conditionDict[condition][key].push(innerValue);
-                            // adding count for gene
-                            geneDict[key].push(innerValue);
-                        }
+                        let populationMean = this.mean(value);
+                        let populationVariance = this.variance(value);
+                        let sigma = Math.sqrt(populationVariance);
                     }
                 }
             }
-          //   console.log(conditionDict);
-          //   console.log(geneDict);
-            
+            console.log(conditionDict);
+          //   (conditionDict)={untreated:{cds1:[count1,count2,count3]},...}, clinda:{cds1:[count4,count5,count6]...}...}
+          //   (geneDict)={cds1:[count1,count2,count3,count4,count5,count6]}
+        /*  for (let [key,value] of Object.entries(conditionDict)){
+
+          }*/
+
 
 
         }
