@@ -952,7 +952,6 @@
         selectedNormalization (){
           if(this.showHeatMap){
               this.getHeatmapStoreData();
-              this.formatHeatmapData();
               this.drawHEATMAP();
           }
         }
@@ -1812,6 +1811,7 @@
           // all read counts for gene throughout all conditions
           var geneCountDict={};
           var geneDict={};
+          var heatmapDict={};
           let seqRunNamesMap = {};
           let seqRunNames = [];
           let seqRunIndex = 0;
@@ -1848,20 +1848,31 @@
                         if(!geneCountDict[key]){
                             geneCountDict[key]=[];
                         }
+                        if(!heatmapDict[key]){
+                            heatmapDict[key]={};
+                        }
+                        if(!heatmapDict[key][condition]){
+                            heatmapDict[key][condition]=[];
+                        }
                         let dummyArray=[];
                         // eslint-disable-next-line no-unused-vars
                         for(let [innerKey, innerValue] of Object.entries(value)){
                             dummyArray.push(innerValue);
                             // adding count for gene
                             geneCountDict[key].push(innerValue);
+                            heatmapDict[key][condition].push(innerValue);
                         }
+
+
                         let dummyMean= this.mean(dummyArray);
                         let sampleN = dummyArray.length;
                         let sampleMean = Math.round(dummyMean*100)/100;
                         // dummyArray.push(myMean);
                         // adding mean and number of initial values the mean was calculated of for specific counts at right gene and condition
                         conditionDict[condition][key]={'sampleMean':sampleMean,'sampleN': sampleN} ;
+                        heatmapDict[key][condition]={'sampleMean':sampleMean,'sampleN': sampleN};
                     }
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     // calculating mean and sigma for genes throught all conditions
                     for(let[key,value] of Object.entries(geneCountDict)){
                         if(!geneDict[key]){
@@ -1872,11 +1883,22 @@
                         let sigma = Math.round((Math.sqrt(populationVariance))*100)/100;
                         geneDict[key]={'populationMean': populationMean, 'sigma': sigma};
                     }
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // heatmapDict={cds1:{clindamycin:{sampleMean: x, sampleN:y}, erythromycin:{sampleMean: x2, sampleN:y2},..}...}
+                    // needed: {cds1:{clindamycin:z-score, erythromycin: z-score,...}}
+
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // FORMATTING HEATMAP DATA //
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
                     // Z-score will be: (sampleMean - populationMean)/(sigma-sqrt(sampleN))
                     // options.xAxis.categories = seqRunNames;
                     // options.yAxis.categories = geneNames;
                     var zScoreDict={};
-                    for(let [key,value] of Object.entries(conditionDict)){
+                    var zScoreList=[];
+                    var index=0;
+                    var innerIndex=0;
+                    for(let [key,value] of Object.entries(heatmapDict)){
                         if(!zScoreDict[key]){
                             zScoreDict[key]={};
                         }
@@ -1884,39 +1906,30 @@
                             if(!zScoreDict[key][innerKey]){
                                 zScoreDict[key][innerKey]={};
                             }
-                            let zScore = (innerValue['sampleMean'] - geneDict[innerKey]['populationMean'])/(geneDict[innerKey]['sigma']/innerValue['sampleN'])
+                            let zScore = (innerValue['sampleMean'] - geneDict[key]['populationMean'])/(geneDict[key]['sigma']/innerValue['sampleN']);
                             zScoreDict[key][innerKey]=zScore;
-                            if(!this.plotGeneNames.includes(innerKey)){
-                                this.plotGeneNames.push(innerKey);
+                            zScoreList.push([index, innerIndex,zScore]);
+                            if(!this.plotGeneNames.includes(key)){
+                                this.plotGeneNames.push(key);
+                            }
+                            innerIndex= innerIndex+1;
+                            if(innerIndex>this.plotCategories.length-1){
+                                innerIndex=0;
                             }
                         }
+                        index=index+1;
                     }
                 }
             }
             this.zScoreDict=zScoreDict;
+            this.heatmapData=zScoreList;
             // console.log(this.plotCategories);
+            // console.log(this.plotGeneNames);
+            // console.log(this.heatmapData);
         },
         // formatting plotData; axis are formatted already; needed format of z-scores to correclty plot is:
         // array=[cds1_con1, cds1_con2, cds1_con3, cds2_con1, cds2_con2, cds2_con3, etc] -> for correct assignment to axis labels, which are conditions (y) and feature IDs(x)
-        formatHeatmapData(){
-          let heatmapDataDict={};
-            // eslint-disable-next-line no-unused-vars
-          for(let [key,value] of Object.entries(this.zScoreDict)){
-              for(let[innerKey, innerValue] of Object.entries(value)){
-                  if(!heatmapDataDict[innerKey]){
-                      // initialization
-                      heatmapDataDict[innerKey]=[];
-                  }
-                  heatmapDataDict[innerKey].push(innerValue);
-              }
-          }
-            // eslint-disable-next-line no-unused-vars
-          for(let[key,value] of Object.entries(heatmapDataDict)){
-              for(let innerValue of Object.values(value)){
-                  this.heatmapData.push(innerValue);
-              }
-          }
-        },
+
         // highcharts heatmap
         drawHEATMAP(){
             Highcharts.chart('heatmapdisplay', {
@@ -1934,11 +1947,11 @@
                 },
 
                 xAxis: {
-                    categories: this.plotCategories
+                    categories: this.plotGeneNames
                 },
 
                 yAxis: {
-                    categories: this.plotGeneNames,
+                    categories: this.plotCategories,
                     title: null
                 },
 
@@ -1962,7 +1975,6 @@
                 series: [{
                     name: 'Foobar',
                     turboThreshold: 0,
-                    boostThreshold:100,
                     borderWidth: 1,
                     data: this.heatmapData,
                 }]
