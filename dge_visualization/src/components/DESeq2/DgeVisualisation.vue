@@ -489,7 +489,31 @@
         </b-row>
       </div>
       <div v-if="showHeatMap">
-        
+        <b-col style="max-width: 50%;">
+          <b-row style="margin-top: 20px;">
+            <p style="margin-left: 5px"> Chose Normalization </p>
+          </b-row>
+          <b-row>
+            <multiselect
+              v-model="selectedNormalization"
+              :options="registeredNormalizationMethods"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="true"
+              placeholder="Choose normalization"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-row>
+        </b-col>
       </div>
     </b-card>
   </div>
@@ -568,7 +592,7 @@
         // HEATMAP START //
           selectedNormalization: '',
           selectedConditions: [...this.$store.state.registeredConditions],
-          maxValue: 0
+          conditionMapping: this.$store.state.currentDGE.seqRuns[this.selectedNormalization]
       }
     },
     computed: {
@@ -616,7 +640,13 @@
       },
       faQuestionCircle(){
         return faQuestionCircle
-      }
+      },
+        registeredNormalizationMethods () {
+            return this.$store.state.currentDGE.normalizationMethods
+        },
+        registeredConditions () {
+            return this.$store.state.registeredConditions
+        },
     },
     watch: {
       // concerning all plots
@@ -906,6 +936,11 @@
         }
       },
         // HEATMAP
+        selectedNormalization (){
+          if(this.showHeatMap){
+              this.getHeatmapStoreData();
+          }
+        }
 
     },
     updated(){
@@ -1737,7 +1772,60 @@
         return parseFloat(number).toLocaleString('en-us');
       },
         // HEATMAPS
+        getHeatmapStoreData(){
+          // read counts for genes with condition
+          var conditionDict={};
+          // all read counts for gene throughout all conditions
+          var geneDict={};
+          let seqRunNamesMap = {};
+          let seqRunNames = [];
+          let seqRunIndex = 0;
+          for (let cond of this.selectedConditions) {
+              for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.currentDGE.seqRuns[this.selectedNormalization])) {
+                  if (seqRunCond === cond) {
+                      seqRunNames.push(seqRun);
+                      seqRunNamesMap[seqRun] = seqRunIndex++
+                  }
+              }
+            }
+            let geneNames = Array.from(this.$store.state.currentDGE.geneNames).sort();
+            let geneNamesMapping = {};
+            for (let [index, geneName] of geneNames.entries()) {
+                geneNamesMapping[geneName] = index
+            }
 
+            let countData = (this.selectedNormalization === 'unnormalized')
+                ? this.$store.state.currentDGE.getAllUnnormalizedCountData()
+                : this.$store.state.currentDGE.getAllDeseq2CountData();
+
+            for (let [condition, genes] of Object.entries(countData)) {
+                if (this.selectedConditions.indexOf(condition) === -1) {
+                    continue
+                }else{
+                    // dict sorted by treatments at top level
+                    conditionDict[condition]={};
+                    for(let [key,value] of Object.entries(genes)){
+                        conditionDict[condition][key]=[];
+                        // geneDict contains counts for genes throughout all conditions
+                        if(!geneDict[key]){
+                            geneDict[key]=[];
+                        }
+                        // eslint-disable-next-line no-unused-vars
+                        for(let [innerKey, innerValue] of Object.entries(value)){
+                            // adding count at right gene and condition
+                            conditionDict[condition][key].push(innerValue);
+                            // adding count for gene
+                            geneDict[key].push(innerValue);
+                        }
+                    }
+                }
+            }
+          //   console.log(conditionDict);
+          //   console.log(geneDict);
+            
+
+
+        }
     }
   }
 
