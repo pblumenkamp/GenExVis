@@ -1828,7 +1828,7 @@
                     // dict sorted by treatments at top level
                     conditionDict[condition]={};
                     for(let [key,value] of Object.entries(genes)){
-                        conditionDict[condition][key]=[];
+                        conditionDict[condition][key]={};
                         // geneDict contains counts for genes throughout all conditions
                         if(!geneCountDict[key]){
                             geneCountDict[key]=[];
@@ -1841,32 +1841,39 @@
                             geneCountDict[key].push(innerValue);
                         }
                         let dummyMean= this.mean(dummyArray);
-                        let sampleLen = dummyArray.length;
+                        let sampleN = dummyArray.length;
                         let sampleMean = Math.round(dummyMean*100)/100;
                         // dummyArray.push(myMean);
                         // adding mean and number of initial values the mean was calculated of for specific counts at right gene and condition
-                        conditionDict[condition][key]=[sampleMean,sampleLen] ;
+                        conditionDict[condition][key]={'sampleMean':sampleMean,'sampleN': sampleN} ;
                     }
                     // calculating mean and sigma for genes throught all conditions
                     for(let[key,value] of Object.entries(geneCountDict)){
                         if(!geneDict[key]){
-                            geneDict[key]=[];
+                            geneDict[key]={};
                         }
-                        let populationMean = this.mean(value);
+                        let populationMean = Math.round(this.mean(value)*100)/100;
                         let populationVariance = this.variance(value);
-                        let sigma = Math.sqrt(populationVariance);
+                        let sigma = Math.round((Math.sqrt(populationVariance))*100)/100;
+                        geneDict[key]={'populationMean': populationMean, 'sigma': sigma};
+                    }
+                    // Z-score will be: (sampleMean - populationMean)/(sigma-sqrt(sampleN))
+                    var zScoreDict={};
+                    for(let [key,value] of Object.entries(conditionDict)){
+                        if(!zScoreDict[key]){
+                            zScoreDict[key]={};
+                        }
+                        for (let [innerKey, innerValue] of Object.entries(value)){
+                            if(!zScoreDict[key][innerKey]){
+                                zScoreDict[key][innerKey]={};
+                            }
+                            let zScore = (innerValue['sampleMean'] - geneDict[innerKey]['populationMean'])/(geneDict[innerKey]['sigma']/innerValue['sampleN'])
+                            zScoreDict[key][innerKey]=zScore;
+                        }
                     }
                 }
             }
-            console.log(conditionDict);
-          //   (conditionDict)={untreated:{cds1:[count1,count2,count3]},...}, clinda:{cds1:[count4,count5,count6]...}...}
-          //   (geneDict)={cds1:[count1,count2,count3,count4,count5,count6]}
-        /*  for (let [key,value] of Object.entries(conditionDict)){
-
-          }*/
-
-
-
+            console.log(zScoreDict);
         }
     }
   }
