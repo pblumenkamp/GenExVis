@@ -518,6 +518,7 @@
     </b-card>
     <!-- HEATMAP DISPLAY -->
     <div
+      v-if="showHeatMap"
       id="heatmapdisplay"
       style="margin-top: 20px"></div>
   </div>
@@ -953,7 +954,6 @@
         selectedNormalization (){
           if(this.showHeatMap){
               this.getHeatmapStoreData();
-              this.drawHEATMAP();
           }
         }
 
@@ -965,6 +965,11 @@
         this.$nextTick(()=>{
           this.drawBARCHART();
         })
+      }
+      else if(this.showHeatMap && this.selectedNormalization){
+          this.$nextTick(()=>{
+              this.drawHEATMAP();
+          })
       }
     },
     methods: {
