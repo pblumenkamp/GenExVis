@@ -605,9 +605,9 @@
           plotCategories:[],
           // zScoreDict:null,
           heatmapData:[],
-          color1: '#276dff',
+          color1: '#ff3a44',
           color2: '#FFFFFF',
-          color3: '#ff3a44',
+          color3: '#276dff',
           intermediateColorStop: 0.5
       }
     },
@@ -1857,8 +1857,6 @@
                             geneCountDict[key].push(innerValue);
                             heatmapDict[key][condition].push(innerValue);
                         }
-
-
                         let dummyMean= this.mean(dummyArray);
                         let sampleN = dummyArray.length;
                         let sampleMean = Math.round(dummyMean*100)/100;
@@ -1877,11 +1875,9 @@
                         let sigma = Math.round((Math.sqrt(populationVariance))*100)/100;
                         geneDict[key]={'populationMean': populationMean, 'sigma': sigma};
                     }
-
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     // FORMATTING HEATMAP DATA //
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
                     // Z-score will be: (sampleMean - populationMean)/(sigma-sqrt(sampleN))
                     var zScoreList=[];
                     var index=0;
@@ -1889,7 +1885,7 @@
                     for(let [key,value] of Object.entries(heatmapDict)){
                         // eslint-disable-next-line no-unused-vars
                         for (let [innerKey, innerValue] of Object.entries(value)){
-                            let zScore = (innerValue['sampleMean'] - geneDict[key]['populationMean'])/(geneDict[key]['sigma']/innerValue['sampleN']);
+                            let zScore = (innerValue['sampleMean'] - geneDict[key]['populationMean'])/(geneDict[key]['sigma']/Math.sqrt(innerValue['sampleN']));
                             zScoreList.push([index, innerIndex,zScore]);
                             if(!this.plotGeneNames.includes(key)){
                                 this.plotGeneNames.push(key);
@@ -1901,8 +1897,6 @@
                         }
                         index=index+1;
                     }
-
-
                 }
             }
             this.heatmapData=zScoreList;
@@ -1934,11 +1928,6 @@
                 },
                 xAxis: {
                     categories: this.plotGeneNames,
-                   /* scrollbar:{
-                        enabled:true
-                    },
-                    min:0,
-                    max:100*/
                 },
                 yAxis: {
                     categories: this.plotCategories,
@@ -1947,8 +1936,6 @@
                 colorAxis: {
                     min: -4,
                     max:4,
-               /*     min:this.zMin,
-                    max:this.zMax,*/
                     stops:[
                         [0, this.color1],
                         [this.intermediateColorStop, this.color2],
@@ -1968,8 +1955,8 @@
                     turboThreshold: 0,
                     borderWidth: 1,
                     data: this.heatmapData,
-                }]
-
+                    borderWidth:0
+                }],
             });
         }
     }
