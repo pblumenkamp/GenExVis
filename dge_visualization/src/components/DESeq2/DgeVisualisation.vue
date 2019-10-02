@@ -604,10 +604,10 @@
           plotCategories:[],
           // zScoreDict:null,
           heatmapData:[],
-          color1: '#FFFFFF',
-          color2: '#276dff',
+          color1: '#276dff',
+          color2: '#FFFFFF',
           color3: '#ff3a44',
-          intermediateColorStop: 0.1
+          intermediateColorStop: 0.5
       }
     },
     computed: {
@@ -1896,6 +1896,8 @@
                         }
                         index=index+1;
                     }
+
+
                 }
             }
             this.heatmapData=zScoreList;
@@ -1912,23 +1914,36 @@
                     marginBottom: 80,
                     plotBorderWidth: 1,
                     zoomType:'xy',
-                    overflow:'none'
+                   /* scrollablePlotArea: {
+                        minWidth: 700,
+                        scrollPositionX: 1
+                    }*/
                 },
                 title: {
                     text: 'z-scores per gene and condition'
                 },
+                tooltip: {
+                    formatter: function() {
+                        return 'z-score: '+ this.point.value;
+                    }
+                },
                 xAxis: {
                     categories: this.plotGeneNames,
-                    scrollbar:{
+                   /* scrollbar:{
                         enabled:true
                     },
+                    min:0,
+                    max:100*/
                 },
                 yAxis: {
                     categories: this.plotCategories,
                     title: null
                 },
                 colorAxis: {
-                    min: 0,
+                    min: -4,
+                    max:4,
+               /*     min:this.zMin,
+                    max:this.zMax,*/
                     stops:[
                         [0, this.color1],
                         [this.intermediateColorStop, this.color2],
@@ -1938,9 +1953,9 @@
                 legend: {
                     align: 'right',
                     layout: 'vertical',
-                    margin: 0,
+                    margin: 10,
                     verticalAlign: 'middle',
-                    y: 25,
+                    y: -15,
                     symbolHeight: 280
                 },
                 series: [{
