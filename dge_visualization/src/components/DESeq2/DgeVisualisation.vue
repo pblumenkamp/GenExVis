@@ -1828,6 +1828,7 @@
                 ? this.$store.state.currentDGE.getAllUnnormalizedCountData()
                 : this.$store.state.currentDGE.getAllDeseq2CountData();
 
+            console.log(countData);
             for (let [condition, genes] of Object.entries(countData)) {
                 if (this.selectedConditions.indexOf(condition) === -1) {
                     continue
@@ -1865,7 +1866,7 @@
                         heatmapDict[key][condition]={'sampleMean':sampleMean,'sampleN': sampleN};
                     }
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // calculating mean and sigma for genes throught all conditions
+                    // calculating mean and sigma for genes throughout all conditions
                     for(let[key,value] of Object.entries(geneCountDict)){
                         if(!geneDict[key]){
                             geneDict[key]={};
@@ -1875,6 +1876,10 @@
                         let sigma = Math.round((Math.sqrt(populationVariance))*100)/100;
                         geneDict[key]={'populationMean': populationMean, 'sigma': sigma};
                     }
+                    // console.log('heatmapDict');
+                    // console.log(heatmapDict);
+                    // console.log('geneDict');
+                    // console.log(geneDict);
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     // FORMATTING HEATMAP DATA //
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1900,6 +1905,7 @@
                 }
             }
             this.heatmapData=zScoreList;
+            // console.log(zScoreList);
         },
         // formatting plotData; axis are formatted already; needed format of z-scores to correclty plot is:
         // array=[cds1_con1, cds1_con2, cds1_con3, cds2_con1, cds2_con2, cds2_con3, etc] -> for correct assignment to axis labels, which are conditions (y) and feature IDs(x)
@@ -1910,16 +1916,16 @@
                 chart: {
                     type: 'heatmap',
                     marginTop: 40,
-                    marginBottom: 80,
+                    marginBottom: 100,
                     plotBorderWidth: 1,
                     zoomType:'xy',
-                   /* scrollablePlotArea: {
+                    /* scrollablePlotArea: {
                         minWidth: 700,
                         scrollPositionX: 1
                     }*/
                 },
                 title: {
-                    text: 'z-scores per gene and condition'
+                    text: 'z-scores per feature and condition'
                 },
                 tooltip: {
                     formatter: function() {
@@ -1953,7 +1959,6 @@
                 series: [{
                     name: 'z-score',
                     turboThreshold: 0,
-                    borderWidth: 1,
                     data: this.heatmapData,
                     borderWidth:0
                 }],
