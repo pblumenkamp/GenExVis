@@ -1887,10 +1887,42 @@
                     var zScoreList=[];
                     var index=0;
                     var innerIndex=0;
+                    var nanList=[];
+                    var ypList=[];
+                    var gnlList=[];
+                    var npList=[];
+                    var restList=[];
+                    var ypListno=[];
+                    var npListno=[];
+                    var gnlListno=[];
                     for(let [key,value] of Object.entries(heatmapDict)){
                         // eslint-disable-next-line no-unused-vars
                         for (let [innerKey, innerValue] of Object.entries(value)){
                             let zScore = (innerValue['sampleMean'] - geneDict[key]['populationMean'])/(geneDict[key]['sigma']/Math.sqrt(innerValue['sampleN']));
+                            if(Number.isNaN(zScore)){
+                                nanList.push(key);
+                                if(key.includes("YP")){
+                                    ypList.push(key);
+                                }
+                                else if(key.includes("gnl")){
+                                    gnlList.push(key);
+                                }
+                                else if(key.includes("NP")){
+                                    npList.push(key);
+                                }else{
+                                   restList.push(key);
+                                }
+                            }else{
+                                if(key.includes("YP")){
+                                    ypListno.push(key);
+                                }
+                                else if(key.includes("gnl")){
+                                    gnlListno.push(key);
+                                }
+                                else if(key.includes("NP")){
+                                    npListno.push(key);
+                                }
+                            }
                             zScoreList.push([index, innerIndex,zScore]);
                             if(!this.plotGeneNames.includes(key)){
                                 this.plotGeneNames.push(key);
@@ -1906,6 +1938,23 @@
             }
             this.heatmapData=zScoreList;
             // console.log(zScoreList);
+            console.log("nanList");
+            console.log(nanList);
+            console.log("ypList");
+            console.log(ypList);
+            console.log("ypListno");
+            console.log(ypListno);
+            console.log("gnlList");
+            console.log(gnlList);
+            console.log("gnlListno");
+            console.log(gnlListno);
+            console.log("npList");
+            console.log(npList);
+            console.log("npListno");
+            console.log(npListno);
+            console.log("restList");
+            console.log(restList);
+
         },
         // formatting plotData; axis are formatted already; needed format of z-scores to correclty plot is:
         // array=[cds1_con1, cds1_con2, cds1_con3, cds2_con1, cds2_con2, cds2_con3, etc] -> for correct assignment to axis labels, which are conditions (y) and feature IDs(x)
