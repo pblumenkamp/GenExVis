@@ -237,12 +237,12 @@
         console.log('>>> checkSelections');
 
         let condKey = cond1 + cond2;
-        let condKeyReversed = cond2 + cond1;
+        // let condKeyReversed = cond2 + cond1;
 
         if (this.FINALSTORAGE.hasOwnProperty(condKey)) {
           this.selectedCondKey = condKey;
-        } else if (this.FINALSTORAGE.hasOwnProperty(condKeyReversed)) {
-          this.selectedCondKey = condKeyReversed;
+        // } else if (this.FINALSTORAGE.hasOwnProperty(condKeyReversed)) {
+        //   this.selectedCondKey = condKeyReversed;
         } else {
           this.selectedCondKey = null;
         }
@@ -274,67 +274,45 @@
       },
       collectAnalysisData (cond1, cond2) {
         console.log('>>> collectAnalysisData');
-        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2);
-        // cond1, cond2 || cond2, cond1 does not matter
+
         let basicDistributionDict = {'pValue': ['pValue', true], 'pAdj': ['pAdj', true], 'log2FoldChange': ['log2FoldChange', false], 'log2FoldChange_reverse': ['log2FoldChange', true]};
-        //  basicDistributionDict = {'OPTION': ['inversion (invert ranking?)', 'additional reversion, (provide additional reversion option?)']}
+        //  basicDistributionDict = {<chosen option>: [<data source>, <reverse data>]}
+        let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2)
+        let chosenKey = this.optionsDict[this.selectedDistributionType];
+        let trueKey = basicDistributionDict[chosenKey][0]
+        let trueKeyInversion = basicDistributionDict[chosenKey][1]
 
-        let trueKey = this.optionsDict[this.selectedDistributionType];
-        let distributionDict = {};
-        distributionDict[trueKey] = basicDistributionDict[trueKey];
-        let collectedDataDict = this.collectDataByKey(dge, distributionDict, cond1, cond2);
+        let valueDict = {}
+        let valueList = []
 
-        return (collectedDataDict)
-      },
-      collectDataByKey (dge, distributionDictionary, cond1, cond2) {
-        console.log('>>> collectDataByKey');
+        for (let geneName of dge.geneNames) {
+          let gene = dge.getGene(geneName)
+          let value = gene.getDESEQ2Analysis(new ConditionPair(cond1, cond2))[trueKey]
+          if (!isNaN(value)) {
+            valueList.push(value)
+            valueDict = this.insertAnalysisData(valueDict, geneName, value)
+          }
+        }
+
+        this.checkMaxCount(valueList.length);
+        let mainList = valueList.sort(function (a, b) { return b - a });
+        if (trueKeyInversion) {
+          mainList.reverse()
+        }
 
         let collectedDataDict = {};
+        collectedDataDict[chosenKey] = this.createRankingDict(valueDict, mainList)
 
-        for (let key in distributionDictionary) {
-          let dataSourceKey = distributionDictionary[key][0];
-          let dataInversion = distributionDictionary[key][1];
-
-          let dataLists = this.collectData(dge, cond1, cond2, dataSourceKey);
-          let valueDict = dataLists[0];
-          let valueList = dataLists[1];
-
-          this.checkMaxCount(valueList.length);
-
-          let mainList = valueList.sort(function (a, b) { return b - a });
-          let reverseList = valueList.sort(function (a, b) { return b - a });
-
-          if (dataInversion === true) {
-            mainList.reverse()
-          }
-
-          collectedDataDict[key] = this.createRankingDict(valueDict, mainList)
-        }
         return (collectedDataDict)
       },
-      collectData (dge, cond1, cond2, key) {
-        let valueDict = {};
-        let valueList = [];
-        for (let geneName of dge.geneNames) {
-          let value = dge.getGene(geneName).getDESEQ2Analysis(new ConditionPair(cond1, cond2))[key];
-          if (isNaN(value)) {
-            // console.log('Found NaN value in: ' + geneName)
-          } else {
-            valueDict = this.insertAnalysisData(valueDict, geneName, value);
-            valueList.push(value)
-          }
-        }
-        return ([valueDict, valueList])
-      },
       insertAnalysisData (dict, geneName, value) {
-        let optionDict = dict;
         let key = geneName;
-        if (optionDict[value] === undefined) {
-          optionDict[value] = [key] // if no key for a value: Open new key-list (key always in a list (for multiple entries))
+        if (dict[value] === undefined) {
+          dict[value] = [key] // if no key for a value: Open new key-list (key always in a list (for multiple entries))
         } else {
-          optionDict[value].push(key) // if key-list existing: Add current key.
+          dict[value].push(key) // if key-list existing: Add current key.
         }
-        return (optionDict)
+        return (dict)
       },
       checkMaxCount (length) {
         this.maxcount = length;
@@ -354,6 +332,7 @@
 
         for (let counter = 0; counter < maxcount;) {
           let value = valueList[counter];
+          // value can show up more than once: index needs to be pushed
           if (value === previousValue) {
             indexcount++
           } else {
@@ -529,7 +508,6 @@
       },
       generateKey (index) {
         let data = this.FINALSTORAGE[this.selectedCondKey][this.selectedTrueDistributionType];
-
         let object = Object.keys(data);
         return (object[index])
       },
@@ -591,7 +569,7 @@
       }
     },
     updated () {
-      console.log('VUE.updated');
+      console.log('>>> VUE.updated');
       if (this.updateCheck === true) {
         this.showMainPage = true;
         this.amountNegotiator();
