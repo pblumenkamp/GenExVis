@@ -220,19 +220,228 @@
                       write.table(res, file = 'treated_vs_untreated.tsv', sep = "\t", row.names = TRUE, col.names = NA)
                     </span>
                   </div>
-                  <br>
-                  <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Read less...</a>
+
+                  In the current version of GenExVis, the DESeq2 result file must be tab-separated and must contain exactly 7 columns (feature name, base mean, log2 fold change, log2 fold change standard error [lfcSE], Wald statistic [stat], Wald test p-value [pvalue], and Benjamini-Hochberg adjusted p-value [padj]).
+                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Show less...</a>
                 </span>
-                <span v-else>
-                  <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Read more...</a>
-                </span>
+                <div v-else>
+                  <a href="#" style="white-space: nowrap" @click="longHelp_overview = !longHelp_overview">Show more...</a>
+                </div>
+                -->
               </small>
             </b-card>
-            <deseq2-import />
-          </b-card-body>
-        </b-collapse>
-      </b-card>
-    </div>
+          </div>
+          <b-row style="margin-top: 1rem">
+            <div style="width:90%; margin: auto;" role="tablist">
+              <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                  <b-btn
+                    v-b-toggle="'accordion_conditions'"
+                    block
+                    href="#"
+                    variant="secondary"
+                  >
+                    1. {{ labels["registerConditionsTab"] }}
+                  </b-btn>
+                </b-card-header>
+                <b-collapse
+                  id="accordion_conditions"
+                  visible
+                  accordion="my-accordion"
+                  role="tabpanel"
+                  style="padding-bottom: 1rem"
+                >
+                  <b-card-body>
+                    <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                      <small>Please register all the conditions you want to use. Try to use unambiguous names, which can also be found inside of the sample names, to benefit from autocomplete in the next steps.
+                        <span v-if="longHelp_condition">
+                          <br>
+                          There are at the moment three ways to register the conditions:
+                          <ul>
+                            <li>One at a time via the input field.</li>
+                            <li>As a comma-separated list via the input field.</li>
+                            <li>As a file via Browse button. The file contains just the conditions, one in each line.</li>
+                          </ul>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Show less...</a>
+                        </span>
+                        <span v-else>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_condition = !longHelp_condition">Show more...</a>
+                        </span>
+                      </small>
+                    </b-card>
+                    <b-row>
+                      <b-col sm="4">
+                        <label for="conditionName" style="margin-top: 0.4rem; float: right">Register condition:</label>
+                      </b-col>
+                      <b-col sm="5">
+                        <b-input-group>
+                          <b-form-input
+                            id="conditionName"
+                            v-model="conditionName"
+                            :state="validCondition"
+                            type="text"
+                            placeholder="Condition name"
+                            style="width: auto"
+                            @input="validCondition = null"
+                            @keydown.enter.native="registerCondition"
+                          />
+                          <b-input-group-append>
+                            <b-button @click="registerCondition">+</b-button>
+                          </b-input-group-append>
+                        </b-input-group>
+                      </b-col>
+                      <b-col sm="1">
+                        <label class="btn btn-secondary btn-file">
+                          Browse... <input type="file" style="display: none;" @change="readConditionFile">
+                        </label>
+                      </b-col>
+                    </b-row>
+                    <b-row v-if="validCondition != null" style="margin-top: 0.1rem">
+                      <b-col sm="4" />
+                      <b-col sm="6">
+                        <span v-if="conditionName === ''" style="color: red">Condition must contain at least one character</span>
+                        <span v-if="conditionName !== ''" style="color: red">Condition "{{ conditionName }}" already registered</span>
+                      </b-col>
+                    </b-row>
+                    <b-row style="margin-top: 0.5rem">
+                      <b-col sm="2" />
+                      <b-col class="text-center">
+                        <span v-if="!showCollapsedConditions" style="cursor: pointer" @click="showCollapsedConditions = true">
+                          <font-awesome-icon :icon="faPlusCircle" />
+                        </span>
+                        <span v-else style="cursor: pointer" @click="showCollapsedConditions = false">
+                          <font-awesome-icon :icon="faMinusCircle" />
+                        </span>
+                        {{ registeredConditions.length }} conditions registered (Click on condition to remove it)
+
+                        <b-collapse id="registeredConditions" v-model="showCollapsedConditions" class="mt-2">
+                          <transition name="fade">
+                            <b-card v-if="registeredConditions.length > 0" style="width:80%; margin: auto">
+                              <transition-group name="conditionList" tag="ul" class="conditionList">
+                                <li v-for="cond of registeredConditions" :key="cond" @click="removeCondition">
+                                  {{ cond }}
+                                </li>
+                              </transition-group>
+                            </b-card>
+                          </transition>
+                        </b-collapse>
+                      </b-col>
+                    </b-row>
+                  </b-card-body>
+                </b-collapse>
+              </b-card>
+              <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                  <b-btn
+                    v-b-toggle="'accordion_counttable'"
+                    block
+                    href="#"
+                    variant="secondary"
+                  >
+                    2. Import Count Table
+                  </b-btn>
+                </b-card-header>
+                <b-collapse
+                  id="accordion_counttable"
+                  accordion="my-accordion"
+                  role="tabpanel"
+                  style="padding-bottom: 1rem"
+                >
+                  <b-card-body>
+                    <b-card style="width:80%; margin: auto; margin-bottom: 1rem">
+                      <small>Import your normalized and/or unnormalized count tables. Every tab-separated count table format is supported.
+                        <span v-if="longHelp_counts">
+                          <br><br>
+                          A count table is a standard file format in differential expression analysis. It contains - on a one feature per line base - the number of reads mapped to a specific feature per sample.
+                          Typical tools for creating this table are <a href="http://subread.sourceforge.net/">featureCounts</a> and <a href="https://htseq.readthedocs.io">HTSeq-Count</a>.
+                          <br><br>
+                          After selecting a file, you will get a summary of the count table columns. You can check if all columns got the correct condition assigned,
+                          select a normalization type (only for metadata, no functionality at the moment), and you must select the column with the unique feature identifiers.
+                          For selecting the correct feature identifier column, just assign <b>'--Feature name--'</b> to this column.
+                          <br>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Show less...</a>
+                        </span>
+                        <span v-else>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_counts = !longHelp_counts">Show more...</a>
+                        </span>
+                      </small>
+                    </b-card>
+                    <count-table-import />
+                  </b-card-body>
+                </b-collapse>
+              </b-card>
+              <b-card no-body class="mb-1">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                  <b-btn
+                    v-b-toggle="'accordion_deseq2'"
+                    block
+                    href="#"
+                    variant="secondary"
+                  >
+                    3. Import DESeq2 Data
+                  </b-btn>
+                </b-card-header>
+                <b-collapse
+                  id="accordion_deseq2"
+                  accordion="my-accordion"
+                  role="tabpanel"
+                  style="padding-bottom: 1rem"
+                >
+                  <b-card-body>
+                    <b-card style="width:80%; margin: auto auto 1rem;">
+                      <small>
+                        Import your DESeq2 result tables. If the file name contains the pattern '&lt;conditionA&gt;_vs_&lt;conditionB&gt;', the condition will be automatically assigned to the correct result table.
+                        <span v-if="longHelp_deseq">
+                          <br><br>
+                          A DESeq2 result table has exactly 7 columns and is tab-separated. It must contain the feature name, the base mean, the log2 fold change, the log2 fold change standard error (lfcSE),
+                          the Wald statistic (stat), the Wald test p-value (pvalue), and the Benjamini-Hochberg adjusted p-value (padj) in precisely this order. The fastest way to create this file is with the following command:
+                          <div style="text-align: center; padding: 0.5rem; background-color: #eee; margin-top: 1rem; margin-bottom: 1rem">
+                            <span style="font-family: 'Courier New', 'Roboto Mono', monospace">
+                              res &lt;- results(dds, contrast=c("condition","treated","untreated"))
+                              <br>
+                              write.table(res, file = 'treated_vs_untreated.tsv', sep = "\t", row.names = TRUE, col.names = NA)
+                            </span>
+                          </div>
+                          <br>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Show less...</a>
+                        </span>
+                        <span v-else>
+                          <a href="#" style="white-space: nowrap" @click="longHelp_deseq = !longHelp_deseq">Show more...</a>
+                        </span>
+                      </small>
+                    </b-card>
+                    <deseq2-import />
+                  </b-card-body>
+                </b-collapse>
+              </b-card>
+            </div>
+          </b-row>
+        </b-col>
+
+        <b-col cols="2">
+          <b-card v-if="this.$store.state.deseqlist.length > 0" class="filesBox">
+            DESeq2 Files:
+            <li
+              v-for="fileName in this.$store.state.deseqlist"
+              :key="fileName"
+              style="margin-left: 0.5rem"
+            >
+              <small>{{ fileName }}</small>
+            </li>
+          </b-card>
+          <b-card v-if="this.$store.state.countlist.length > 0" class="filesBox">
+            Count files:
+            <li
+              v-for="fileName in this.$store.state.countlist"
+              :key="fileName"
+              style="margin-left: 0.5rem"
+            >
+              <small>{{ fileName }}</small>
+            </li>
+          </b-card>
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
 
