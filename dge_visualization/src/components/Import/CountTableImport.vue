@@ -148,7 +148,7 @@
         this.readCountTable(vueData.file)
           .then(({table, colNames}) => {
             for (let colName of colNames) {
-              if (colName.toLowerCase() === 'geneid') {
+              if (['geneid', 'gene', 'feature'].includes(colName.toLowerCase())) {
                 vueData.headerConditionMapping.push({
                   header: colName,
                   condition: '$$FEATURE_NAME$$'
@@ -182,7 +182,7 @@
             while (content[content.length - 1] === '') {
               content.pop()
             }
-            let header = content[0].split('\t')
+            let header = content[0].split('\t').map(entry => entry.replace(/^"|"$/g, ''))
             let results = {table: [], colNames: header}
 
             for (let i = 1, contentLength = content.length; i < contentLength; i++) {

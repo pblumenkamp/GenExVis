@@ -1,5 +1,11 @@
 <template>
   <b-container>
+    <b-row style="margin: 0.5rem">
+      <b-col sm="5" />
+      <b-col sm="3" style="text-align: center"><b>Condition 1</b></b-col>
+      <b-col sm="3" style="text-align: center"><b>Condition 2</b></b-col>
+      <b-col sm="1" />
+    </b-row>
     <b-row
       v-for="{file, index, conditions, validEntry, errorText} in dataObject"
       :key="file.name"
@@ -184,9 +190,13 @@
       },
       validate (data) {
         let valid = true
-        for (let i = 0; i < data.length - 1; i++) {
+        for (let i = 0; i < data.length; i++) {
           let entry = data[i]
-          if (entry.conditions[0] === entry.conditions[1]) {
+          if (entry.conditions[0] === '' || entry.conditions[1] === '') {
+            valid = false
+            entry.validEntry = false
+            data[i].errorText = 'Please select a condition'
+          } else if (entry.conditions[0] === entry.conditions[1]) {
             valid = false
             entry.validEntry = false
             data[i].errorText = 'Conditions must differ in a DESeq2 comparison'
@@ -196,6 +206,9 @@
         }
         for (let i = 0; i < data.length - 1; i++) {
           let entryA = data[i]
+          if (entryA.validEntry === false) {
+            continue
+          }
           let sameConds = []
           for (let j = i + 1; j < data.length; j++) {
             let entryB = data[j]

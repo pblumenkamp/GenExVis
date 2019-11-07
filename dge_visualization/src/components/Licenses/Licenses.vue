@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 style="text-align: center"><b>Licenses</b></h1>
+    <h1 class="header">Licenses</h1>
     <b-container fluid>
       <b-row>
         <b-col v-for="(module, name) in jsonData" :key="name" cols="6">
