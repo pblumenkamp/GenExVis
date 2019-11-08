@@ -1,6 +1,6 @@
 /* eslint-disable */
 <template>
-  <div style="margin: 0 auto;">
+  <div>
     <h1 class="header" style="text-align: left">Changelogs</h1>
     <h2 id="03" class="changelog">0.3</h2>
     <h3 id="added6changes" class="changelog">Added (6 changes)</h3>

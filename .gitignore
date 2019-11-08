@@ -5,6 +5,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 dge_visualization/test/unit/coverage/
+dge_visualization/about/build_date.json
 
 # Editor directories and files
 .idea
