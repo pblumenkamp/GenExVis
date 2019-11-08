@@ -1,10 +1,6 @@
 <template>
-  <div style="width: 100%; height: 600px">
-    <div style="text-align: center">
-      <h1>
-        DESeq2 - Downloads
-      </h1>
-    </div>
+  <div>
+    <h1 class="header">Downloads</h1>
     <div>
       <!-- Table with two cols: Options and select files -->
       <b-card class="downloadCard">

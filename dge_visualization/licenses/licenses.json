@@ -1,5 +1,5 @@
 {
-  "@fortawesome/fontawesome-svg-core@1.2.18": {
+  "@fortawesome/fontawesome-svg-core@1.2.21": {
     "email": "dave@fontawesome.com",
     "licenseContent": "Font Awesome Free License\n-------------------------\n\nFont Awesome Free is free, open source, and GPL friendly. You can use it for\ncommercial projects, open source projects, or really almost whatever you want.\nFull Font Awesome Free license: https://fontawesome.com/license/free.\n\n# Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)\nIn the Font Awesome Free download, the CC BY 4.0 license applies to all icons\npackaged as SVG and JS file types.\n\n# Fonts: SIL OFL 1.1 License (https://scripts.sil.org/OFL)\nIn the Font Awesome Free download, the SIL OFL license applies to all icons\npackaged as web and desktop font files.\n\n# Code: MIT License (https://opensource.org/licenses/MIT)\nIn the Font Awesome Free download, the MIT license applies to all non-font and\nnon-icon files.\n\n# Attribution\nAttribution is required by MIT, SIL OFL, and CC BY licenses. Downloaded Font\nAwesome Free files already contain embedded comments with sufficient\nattribution, so you shouldn't need to do anything additional when using these\nfiles normally.\n\nWe've kept attribution comments terse, so we ask that you do not actively work\nto remove them from files, especially code. They're a great way for folks to\nlearn about Font Awesome.\n\n# Brand Icons\nAll brand icons are trademarks of their respective owners. The use of these\ntrademarks does not indicate endorsement of the trademark holder by Font\nAwesome, nor vice versa. **Please do not use brand logos for any purpose except\nto represent the company, product, or service to which they refer.**\n",
     "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/fontawesome-svg-core/LICENSE.txt",
@@ -9,7 +9,7 @@
     "repository": "https://github.com/FortAwesome/Font-Awesome",
     "url": "http://twitter.com/davegandy"
   },
-  "@fortawesome/free-solid-svg-icons@5.8.2": {
+  "@fortawesome/free-solid-svg-icons@5.10.1": {
     "email": "dave@fontawesome.com",
     "licenseContent": "Font Awesome Free License\n-------------------------\n\nFont Awesome Free is free, open source, and GPL friendly. You can use it for\ncommercial projects, open source projects, or really almost whatever you want.\nFull Font Awesome Free license: https://fontawesome.com/license/free.\n\n# Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)\nIn the Font Awesome Free download, the CC BY 4.0 license applies to all icons\npackaged as SVG and JS file types.\n\n# Fonts: SIL OFL 1.1 License (https://scripts.sil.org/OFL)\nIn the Font Awesome Free download, the SIL OFL license applies to all icons\npackaged as web and desktop font files.\n\n# Code: MIT License (https://opensource.org/licenses/MIT)\nIn the Font Awesome Free download, the MIT license applies to all non-font and\nnon-icon files.\n\n# Attribution\nAttribution is required by MIT, SIL OFL, and CC BY licenses. Downloaded Font\nAwesome Free files already contain embedded comments with sufficient\nattribution, so you shouldn't need to do anything additional when using these\nfiles normally.\n\nWe've kept attribution comments terse, so we ask that you do not actively work\nto remove them from files, especially code. They're a great way for folks to\nlearn about Font Awesome.\n\n# Brand Icons\nAll brand icons are trademarks of their respective owners. The use of these\ntrademarks does not indicate endorsement of the trademark holder by Font\nAwesome, nor vice versa. **Please do not use brand logos for any purpose except\nto represent the company, product, or service to which they refer.**\n",
     "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/free-solid-svg-icons/LICENSE.txt",
@@ -44,7 +44,7 @@
     "publisher": "Sean Landsman",
     "repository": "https://github.com/ag-grid/ag-grid"
   },
-  "bootstrap-vue@2.0.0-rc.19": {
+  "bootstrap-vue@2.0.0-rc.28": {
     "licenseContent": "The MIT License (MIT)\n\nCopyright (c) 2016-2019 - BootstrapVue\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
     "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/bootstrap-vue/LICENSE",
     "licenses": "MIT",
@@ -122,6 +122,15 @@
     "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-router",
     "publisher": "Evan You",
     "repository": "https://github.com/vuejs/vue-router"
+  },
+  "vue-sidebar-menu@4.0.0": {
+    "email": "yaminncco@gmail.com",
+    "licenseContent": "MIT License\n\nCopyright (c) 2018 yaminncco\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-sidebar-menu/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-sidebar-menu",
+    "publisher": "yaminncco",
+    "repository": "https://github.com/yaminncco/vue-sidebar-menu"
   },
   "vue-switches@2.0.1": {
     "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-switches/README.md",

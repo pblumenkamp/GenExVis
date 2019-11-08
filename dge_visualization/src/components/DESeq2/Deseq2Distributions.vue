@@ -1,7 +1,7 @@
 /*eslint-env node*/
 <template>
   <div style="text-align: center">
-    <h1>DESeq2 - Statistics Distribution</h1>
+    <h1 class="header">DESeq2 Statistics Distribution</h1>
 
     <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
       <template slot="first">
@@ -53,12 +53,10 @@
       </option>
     </b-form-select>
 
-    <hr>
-
     <div
       id="deseq2_pvalue_distribution_highcharts"
       ref="deseq2_pvalue_distribution_highcharts"
-      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 1rem auto 0;"
     ></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
@@ -271,6 +269,17 @@
           }
         }
         return data
+      },
+      selectedDistributionTypeLabel () {
+        if (this.selectedDistributionType === 'p-value') {
+          return 'P-Value'
+        } else if (this.selectedDistributionType === 'p-value (adjusted)') {
+          return 'Adjusted P-Value'
+        } else if (this.selectedDistributionType === 'log2 fold change') {
+          return 'Log2 Fold Change'
+        } else {
+          return this.selectedDistributionType
+        }
       }
     },
     watch: {
@@ -320,7 +329,7 @@
           },
           xAxis: {
             title: {
-              text: this.selectedDistributionType,
+              text: this.selectedDistributionTypeLabel,
               style: {
                 color: AXIS_COLOR
               }
@@ -409,9 +418,11 @@
 
         options.series[0].data = data.data
         options.xAxis.categories = data.categories
-        options.subtitle.text = `${data.usedCounts} of ${data.maxCounts} counts`
+        options.subtitle.text = `${data.usedCounts} of ${data.maxCounts} features`
 
         chart = Highcharts.chart(CHART_ID, options)
+        vue.$charts.length = 0
+        vue.$charts.push(chart)
       },
       createHistogram (minValue, maxValue, stepsize, data) {
         let stepsizeDecimals = (Math.floor(stepsize) === stepsize) ? 0 : stepsize.toString().split('.')[1].length

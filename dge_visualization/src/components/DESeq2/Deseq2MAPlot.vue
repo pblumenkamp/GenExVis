@@ -1,11 +1,9 @@
 /*eslint-env node*/
 <template>
   <div style="text-align: center">
-    <h1>
-      DESeq2 - MA Plot
-    </h1>
+    <h1 class="header">MA Plot</h1>
 
-    <b-form-select v-model="selectedCondition1" style="width: auto" @change="selectedCondition2 = ''">
+    <b-form-select v-model="selectedCondition1" style="width: auto; margin-right: 0.5rem" @change="selectedCondition2 = ''">
       <template slot="first">
         <option :value="''" disabled>
           -- Please select the first condition --
@@ -22,7 +20,7 @@
 
     <b-form-select
       v-model="selectedCondition2"
-      style="width: auto"
+      style="width: auto; margin-left: 0.5rem"
       :disabled="selectedCondition1 === ''"
       @input="drawData"
     >
@@ -43,7 +41,7 @@
     <div
       id="deseq2maplot_highcharts"
       ref="deseq2maplot_highcharts"
-      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 0 auto"
+      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 1rem auto 0;"
     ></div>
 
     <div v-if="selectedCondition1 && selectedCondition2">
@@ -75,49 +73,16 @@
           </b-col>
         </b-row>
       </b-container>
-
       <hr>
-
-      <b-container fluid border="1" style="margin-bottom: 2rem">
-        <b-row align="left">
-          <b-col sm="12">
-            <span>
-              <button type="button" class="btn btn-default table-button" @click="sortGenes">Sort Genes</button>
-              <button type="button" class="btn btn-default table-button" @click="clearTable">Clear Table</button>
-              <button class="btn btn-primary table-button" @click="createSubset()">Create Subset</button>
-            </span>
-          </b-col>
-        </b-row>
-        <b-row align="left">
-          <b-col sm="12">
-            <b-card>
-              <table width="100%">
-                <thead>
-                  <tr>
-                    <th v-for="key in tableHeader" :key="key" width="14%">
-                      {{ key }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="entry of tableData" :key="entry.name">
-                    <td v-for="key of tableHeader" :key="key" width="14%">
-                      {{ entry[key] }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </b-card>
-          </b-col>
-        </b-row>
-      </b-container>
+      <gene-table :features="rowNames" :condition-a="selectedCondition1" :condition-b="selectedCondition2" />
     </div>
   </div>
 </template>
 
 <script>
   import {ConditionPair} from '../../utilities/dge'
-  import {SET_SUBDGE} from '../../store/action_constants'
+  import GeneTable from '../Utils/GeneTable'
+
 
   let Highcharts = require('highcharts')
   require('highcharts/modules/exporting')(Highcharts)
@@ -128,15 +93,16 @@
 
   export default {
     name: 'Deseq2MAPlot',
+    components: {
+      GeneTable
+    },
     data () {
       return {
         selectedCondition1: '',
         selectedCondition2: '',
         inputPThreshold: '0.001',
         useAdjPValue: true,
-        tableHeader: ['name', 'baseMean', 'log2FoldChange', 'lfcSE', 'stat', 'pValue', 'pAdj'],
         rowNames: [],
-        tableData: []
       }
     },
     computed: {
@@ -159,35 +125,6 @@
       }
     },
     methods: {
-      clearTable () {
-        this.rowNames = []
-        this.tableData = []
-      },
-      sortGenes () {
-        this.rowNames.sort()
-        this.collectData()
-      },
-      collectData () {
-        this.tableData = []
-        let storage = this.$store.state.currentDGE
-        for (let geneName of this.rowNames) {
-          let tableRow = {}
-          let deseq2Analysis = storage.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2))
-          for (let colName of this.tableHeader) {
-            tableRow[colName] = deseq2Analysis[colName]
-          }
-          tableRow.name = geneName
-          this.tableData.push(tableRow)
-        }
-      },
-      createSubset () {
-        let geneNames = []
-        for (let geneName of this.rowNames) {
-          geneNames.push(geneName)
-        }
-        geneNames.sort()
-        this.$store.dispatch(SET_SUBDGE, {geneList: geneNames})
-      },
       drawData () {
         if (!(this.selectedCondition1 && this.selectedCondition2)) {
           return
@@ -220,7 +157,7 @@
             type: 'logarithmic',
             min: 1,
             title: {
-              text: 'base mean count',
+              text: 'Base Mean Count',
               style: {
                 color: AXIS_COLOR
               }
@@ -239,7 +176,7 @@
           },
           yAxis: {
             title: {
-              text: 'log2 (fold change)',
+              text: 'Log2 Fold Change',
               style: {
                 color: AXIS_COLOR
               }
@@ -267,18 +204,12 @@
               point: {
                 events: {
                   click: function (event) {
-                    if (vue.rowNames.length !== 0) {
-                      if (event.ctrlKey === true || event.shiftKey === true) {
-                        vue.rowNames.push(this.gene)
-                      } else {
-                        vue.rowNames = []
-                        vue.rowNames.push(this.gene)
-                      }
+                    if (event.ctrlKey === true || event.shiftKey === true) {
+                      vue.rowNames.push(this.gene)
                     } else {
-                      vue.tableData = []
+                      vue.rowNames = []
                       vue.rowNames.push(this.gene)
                     }
-                    vue.collectData()
                   }
                 }
               }
@@ -322,7 +253,7 @@
             data: [{gene: 'abc', x: 1, y: 1, pValue: 1, adjPValue: 1}]
           },
           {
-            name: 'Rest',
+            name: ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ' > ' + this.pThreshold.toExponential(2),
             color: '#000000',
             id: 1,
             zIndex: 0,
@@ -355,7 +286,9 @@
           }
         }
 
-        Highcharts.chart(CHART_ID, options)
+        const chart = Highcharts.chart(CHART_ID, options)
+        vue.$charts.length = 0
+        vue.$charts.push(chart)
       },
       clearChart () {
         this.selectedCondition1 = ''
@@ -371,16 +304,7 @@
     }
   }
 </script>
+
 <style scoped>
-  tr, th, td {
-    border: 1px solid lightgrey;
-    border-collapse: collapse;
-    padding-left: 0.4rem;
-  }
-  th {
-    background-color: #F6F8F7;
-  }
-  .table-button {
-    margin: 0.2rem 0.2rem 0.4rem;
-  }
+
 </style>
