@@ -10,15 +10,18 @@ cData <- data.frame(row.names=colnames(d), condition)
 dds <- DESeqDataSetFromMatrix(countData=d, colData=cData, design=~condition)
 d.deseq <- DESeq(object=dds)
 
-dds <- estimateSizeFactors(dds)
+miriTest2 <- DESeq(dds, betaPrior=FALSE)
+
+# dds <- estimateSizeFactors(dds)
 write.csv(counts(dds, normalized=TRUE), file="counts_normalized.txt")
 
 res <- results(d.deseq, contrast=c("condition", "Untreated", "Erythromycin"))
 res <- res[complete.cases(res),]
 rownames(res[res[,6] < 0.01,])
 
-write.csv(as.data.frame(results(d.deseq, contrast=c("condition", "Untreated", "Erythromycin"))
-
+write.csv(as.data.frame(results(d.deseq, contrast=c("condition", "Untreated", "Erythromycin"))))
+# write.csv(as.data.frame(results(d.deseq, contrast=c("condition", "Untreated", "Erythromycin"))), file="MiriTest.txt")
+                      
 plotMA(res, ylim=c(-10,10))
 
 library(calibrate)
