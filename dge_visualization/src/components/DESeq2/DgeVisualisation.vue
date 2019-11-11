@@ -988,8 +988,48 @@
         // value-Dict for e.g. gene (if DESeq2Type was gene)
         let deseq2_gff3Match = (theGFF3[deseq2Type]);
         var keys = Object.keys(deseq2_gff3Match);
+
         var geneNames = theDGE.geneNames; //set !
+          // DESeq2 data check for suf operon with Untreated vs Erythromycin
+/*          for(let geneName of geneNames){
+              // console.log('in for');
+              if(geneName === 'cds-NP_416194.1' || geneName==='cds-NP_416195.1' || geneName==='cds-NP_416196.1' || geneName==='cds-NP_416197.1' || geneName==='cds-NP_416198.1' || geneName==='cds-NP_416199.1'){
+                  if(geneName === 'cds-NP_416194.1'){
+                      console.log('cds-NP_416194.1');
+                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
+                      console.log(analysis);
+                  }
+                  else if(geneName === 'cds-NP_416195.1'){
+                      console.log('cds-NP_416195.1');
+                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
+                      console.log(analysis);
+                  }
+                  else if(geneName === 'cds-NP_416196.1'){
+                      console.log('cds-NP_416196.1');
+                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
+                      console.log(analysis);
+                  }
+                  else if(geneName === 'cds-NP_416197.1'){
+                      console.log('cds-NP_416197.1');
+                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
+                      console.log(analysis);
+                  }
+                 else if(geneName === 'cds-NP_416198.1'){
+                      console.log('cds-NP_416198.1');
+                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
+                      console.log(analysis);
+                  }
+                  else if(geneName === 'cds-NP_416199.1'){
+                      console.log('cds-NP_416199.1');
+                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
+                      console.log(analysis);
+                  }
+              }
+          }*/
+
+
         var uniqueKeys = [];
+
         for (let key of keys) {
           if (!geneNames.has(key)) {
             uniqueKeys.push(key);
@@ -999,7 +1039,6 @@
         keys = keys.filter(function (el) {
           return !uniqueKeys.includes(el);
         });
-
 
         //////////////////////////////////////////////////////////////////////////////
         for (let key of keys) {
@@ -1865,6 +1904,8 @@
                         conditionDict[condition][key]={'sampleMean':sampleMean,'sampleN': sampleN} ;
                         heatmapDict[key][condition]={'sampleMean':sampleMean,'sampleN': sampleN};
                     }
+                    console.log('geneCountDict');
+                    console.log(geneCountDict);
                     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                     // calculating mean and sigma for genes throughout all conditions
                     for(let[key,value] of Object.entries(geneCountDict)){
@@ -1938,22 +1979,22 @@
             }
             this.heatmapData=zScoreList;
             // console.log(zScoreList);
-            console.log("nanList");
-            console.log(nanList);
-            console.log("ypList");
-            console.log(ypList);
-            console.log("ypListno");
-            console.log(ypListno);
-            console.log("gnlList");
-            console.log(gnlList);
-            console.log("gnlListno");
-            console.log(gnlListno);
-            console.log("npList");
-            console.log(npList);
-            console.log("npListno");
-            console.log(npListno);
-            console.log("restList");
-            console.log(restList);
+            // console.log("nanList");
+            // console.log(nanList);
+            // console.log("ypList");
+            // console.log(ypList);
+            // console.log("ypListno");
+            // console.log(ypListno);
+            // console.log("gnlList");
+            // console.log(gnlList);
+            // console.log("gnlListno");
+            // console.log(gnlListno);
+            // console.log("npList");
+            // console.log(npList);
+            // console.log("npListno");
+            // console.log(npListno);
+            // console.log("restList");
+            // console.log(restList);
 
         },
         // formatting plotData; axis are formatted already; needed format of z-scores to correclty plot is:
