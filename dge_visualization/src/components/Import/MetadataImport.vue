@@ -1,139 +1,135 @@
 <template>
-  <div>
-    <div style="width: 100%; margin: 2rem auto 0">
-      <b-row>
-        <b-col>
-          <h4>Select DESeq2 Type</h4>
-          <multiselect
-            v-model="DESeq2Type"
-            :options="sofa2"
-            :multiple="false"
-            :close-on-select="true"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="true"
-            :preselect-first="false"
-            selected-label="Selected"
-            select-label="Click to select"
-            deselect-label="Click to remove"
-            placeholder="Choose DESeq2 type"
-          >
-            <template slot="selection" slot-scope="{ values, search, isOpen }">
-              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-            </template>
-          </multiselect>
-        </b-col>
-        <!-- Questionmark with Deseq2Type help -->
-        <b-col sm="2" style="padding-left: 0">
-          <span style="cursor: pointer; float: left" @click="showDeseq2TypeHelp = !showDeseq2TypeHelp">
-            <font-awesome-icon :icon="faQuestionCircle" />
-          </span>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col>
-          <b-collapse id="helpDeseq2Type" v-model="showDeseq2TypeHelp" class="mt-2">
-            <transition name="fade">
-              <b-card style="width:80%; margin: auto">
-                Chose the type of feature, the Deseq2 Analysis was performed for. This value is relevant for the subsequent analysis of the metadata. If the type is
-                unknown, chose "CDS".
-              </b-card>
-            </transition>
-          </b-collapse>
-        </b-col>
-      </b-row>
-    </div>
-    <!-- GFF3 upload -->
-    <div style="width: 100%; margin: 2rem auto 0">
-      <div style="text-align: center">
-        <file-chooser @change="loadFiles" />
+  <!-- Top level flex container (parent) -->
+  <div class="parent-container">
+    <!-- one flex row = one 1st level child div due to flex:column at parent -->
+    <div class="first-level-child">
+      <div class="second-level-child2">
+        <h4>Select DESeq2 Type</h4>
+        <multiselect
+          v-model="DESeq2Type"
+          :options="sofa2"
+          :multiple="false"
+          :close-on-select="true"
+          :clear-on-select="false"
+          :preserve-search="true"
+          :show-labels="true"
+          :preselect-first="false"
+          selected-label="Selected"
+          select-label="Click to select"
+          deselect-label="Click to remove"
+          placeholder="Choose DESeq2 type"
+        >
+          <template slot="selection" slot-scope="{ values, search, isOpen }">
+            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+          </template>
+        </multiselect>
       </div>
-      <b-container style="max-width: 100%">
-        <b-row>
-          <div style="width: 10rem; margin: 1rem auto 0;">
-            <b-button
-              :disabled="disabledScanButton"
-              style="margin-bottom: 0.7rem; margin-right: 0.5rem"
-              @click="scanGFF3"
-            >
-              Scan file
-            </b-button>
-          </div>
-          <div style="width: 10rem; margin: 1rem auto 0;">
-            <b-button
-              :disabled="disabledImportButton"
-              style="margin-bottom: 0.7rem; margin-right: 0.5rem"
-              @click="integrateGFF3"
-            >
-              Import file
-            </b-button>
-          </div>
-        </b-row>
-        <font-awesome-icon
-          v-if="importingFiles"
-          :icon="faSpinner"
-          pulse
-          size="2x"
-          class="text-secondary"
-          style="margin-top: 0.1rem"
-        />
-        <font-awesome-icon
-          v-if="importingDone"
-          :icon="faCheckCircle"
-          size="2x"
-          class="text-secondary"
-          style="margin-top: 0.1rem"
-        />
-      </b-container>
+      <!-- Questionmark of Deseq2Type help -->
+      <div class="second-level-child1">
+        <span style="cursor: pointer; float: left; margin: 1rem" @click="showDeseq2TypeHelp = !showDeseq2TypeHelp">
+          <font-awesome-icon :icon="faQuestionCircle" />
+        </span>
+      </div>
+    </div>
+    <div class="first-level-child">
+      <!-- DESeq2Type help text -->
+      <b-collapse id="helpDeseq2Type" v-model="showDeseq2TypeHelp" class="mt-2">
+        <transition name="fade">
+          <b-card style="width:80%; margin: 2rem">
+            Chose the type of feature, the Deseq2 Analysis was performed for. This value is relevant for the subsequent analysis of the metadata. If the type is
+            unknown, chose "CDS".
+          </b-card>
+        </transition>
+      </b-collapse>
+    </div>
+
+    <!-- GFF3 upload -->
+    <div class="first-level-child">
+      <file-chooser @change="loadFiles" />
+    </div>
+    <div class="first-level-child">
+      <div class="second-level-child1">
+        <b-button
+          :disabled="disabledScanButton"
+          style="margin-bottom: 0.7rem; margin-right: 0.5rem;"
+          @click="scanGFF3"
+        >
+          Scan file
+        </b-button>
+      </div>
+      <div class="second-level-child1">
+        <b-button
+          :disabled="disabledImportButton"
+          style="margin-bottom: 0.7rem; margin-right: 0.5rem;"
+          @click="integrateGFF3"
+        >
+          Import file
+        </b-button>
+      </div>
+      <font-awesome-icon
+        v-if="importingFiles"
+        :icon="faSpinner"
+        pulse
+        size="2x"
+        class="text-secondary"
+        style="margin-top: 0.1rem"
+      />
+    </div>
+    <div class="first-level-child">
+      <font-awesome-icon
+        v-if="importingDone"
+        :icon="faCheckCircle"
+        size="2x"
+        class="text-secondary"
+        style="margin-top: 0.1rem"
+      />
     </div>
     <!-- GFF3 parameter select. Only shows, If gff3 file was uploaded-->
-    <div v-if="fileScanned && idMatch" style="width: 100%; margin: 2rem auto 0">
-      <b-row>
-        <b-col>
-          <h4>Select additional Features</h4>
-          <multiselect
-            v-model="deseq2Features"
-            :options="sofa"
-            :multiple="true"
-            :max="3"
-            :close-on-select="false"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="true"
-            :preselect-first="false"
-            selected-label="Selected"
-            select-label="Click to select"
-            deselect-label="Click to remove"
-            placeholder="Choose features to analyze"
-          >
-            <template slot="selection" slot-scope="{ values, search, isOpen }">
-              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-            </template>
-          </multiselect>
-        </b-col>
-        <!-- Questionmark with Metadata Feature help -->
-        <b-col sm="2" style="padding-left: 0">
-          <span style="cursor: pointer; float: left" @click="showMetadataFeatureHelp = !showMetadataFeatureHelp">
-            <font-awesome-icon :icon="faQuestionCircle" />
-          </span>
-        </b-col>
-      </b-row>
-      <b-row>
-        <b-col>
-          <b-collapse id="helpConditions" v-model="showMetadataFeatureHelp" class="mt-2">
-            <transition name="fade">
-              <b-card style="width:80%; margin: auto">
-                Chose up to three additional types of features to investigate the GFF3 for. Note, that the DESeq2 Analysis Type cannot be chosen again.
-              </b-card>
-            </transition>
-          </b-collapse>
-        </b-col>
-      </b-row>
+    <div v-if="fileScanned && idMatch" class="first-level-child">
+      <div class="second-level-child2">
+        <h4>Select additional Features</h4>
+        <multiselect
+          v-model="deseq2Features"
+          :options="sofa"
+          :multiple="true"
+          :max="3"
+          :close-on-select="false"
+          :clear-on-select="false"
+          :preserve-search="true"
+          :show-labels="true"
+          :preselect-first="false"
+          selected-label="Selected"
+          select-label="Click to select"
+          deselect-label="Click to remove"
+          placeholder="Choose features to analyze"
+        >
+          <template slot="selection" slot-scope="{ values, search, isOpen }">
+            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+          </template>
+        </multiselect>
+      </div>
+      <!-- Questionmark with Metadata Feature help -->
+      <div v-if="fileScanned && idMatch" class="second-level-child1">
+        <span style="cursor: pointer; float: left" @click="showMetadataFeatureHelp = !showMetadataFeatureHelp">
+          <font-awesome-icon :icon="faQuestionCircle" />
+        </span>
+      </div>
     </div>
-    <div v-if="!idMatch && fileScanned">
-      <p style="color: red">Please note: DESeq2-IDs could NOT be matched with GFF3 IDs. Please import an adequate GFF3. </p>
+
+    <div class="first-level-child">
+      <b-collapse id="helpConditions" v-model="showMetadataFeatureHelp" class="mt-2">
+        <transition name="fade">
+          <b-card style="width:80%; margin: auto">
+            Chose up to three additional types of features to investigate the GFF3 for. Note, that the DESeq2 Analysis Type cannot be chosen again.
+          </b-card>
+        </transition>
+      </b-collapse>
     </div>
-    <b-row>
+
+    <div class="first-level-child">
+      <div v-if="!idMatch && fileScanned">
+        <p style="color: red">Please note: DESeq2-IDs could NOT be matched with GFF3 IDs. Please import an adequate GFF3. </p>
+      </div>
       <div v-if="showRemovedFeatures && fileScanned && idMatch" style="width: 100%; margin: 2rem auto 0">
         <h4 style="margin-top: 20px">
           GFF3 counts for chosen features & all parent features:
@@ -145,7 +141,7 @@
           :bordered="bordered"
         />
       </div>
-    </b-row>
+    </div>
   </div>
 </template>
 
@@ -565,5 +561,31 @@
 </script>
 
 <style scoped>
+
+  .parent-container{
+    /*background-color: crimson;*/
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  .first-level-child{
+    /*background-color: greenyellow;*/
+  }
+
+  .second-level-child1{
+    width: 10rem;
+    /*background-color: palevioletred;*/
+    display: inline-block;
+  }
+
+  .second-level-child2{
+    float: left;
+    width: calc(100% - 200px);
+    margin-bottom: 20px;
+    display: inline-block;
+  }
+
 
 </style>
