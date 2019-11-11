@@ -145,7 +145,6 @@
   </div>
 </template>
 
-
 <script>
   import FileChooser from '../Misc/FileChooser'
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
@@ -567,7 +566,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
   }
 
   .first-level-child{
