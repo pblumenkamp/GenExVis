@@ -1,299 +1,22 @@
 /*eslint-env node*/
 <template>
-  <div class="parent-container">
+  <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center; border: 0px solid black">
     <h1>Differential Gene Expression - Visualisations</h1>
-    <div class="first-level-child">
-      <!-- REGULATION TYPE SINGLE SELECT-->
-      <h4>Select graphic to display</h4>
-      <div class="second-level-child2">
-        <multiselect
-          v-model="selectedGraphic"
-          :options="graphicTypes"
-          :multiple="false"
-          :close-on-select="true"
-          :clear-on-select="false"
-          :preserve-search="true"
-          :show-labels="true"
-          :preselect-first="false"
-          placeholder="Choose graphic"
-          selected-label="Selected"
-          select-label="Click to select"
-          deselect-label="Click to remove"
-        >
-          <template slot="selection" slot-scope="{ values, search, isOpen }">
-            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-          </template>
-        </multiselect>
-      </div>
-      <!-- Questionmark with Metadata Feature help -->
-      <div class="second-level-child1">
-        <span style="cursor: pointer; float: left" @click="showHelp = !showHelp">
-          <font-awesome-icon :icon="faQuestionCircle" />
-        </span>
-      </div>
-    </div>
-    <div class="first-level-child">
-      <b-collapse id="helpConditions" v-model="showHelp" class="mt-2">
-        <transition name="fade">
-          <b-card v-if="showGroup" style="width:80%; margin: auto">
-            <small>DGE visualisation type jointly regulated features.</small>
-            <br><br>
-            Upon provision of the DESeq2 condition pair of interest,
-            consequently regulated features are shown as barplot of the log2fold change against a discrete x-axis
-            of feature names. For the initial display, regulation type (upregulated, downregulated, both)and feature
-            group size as well as log2fold change and adjusted p-value thresholds are preset with the allowance of
-            adjustments afterwards.
-            <br><br>
-            Feature grouping is carried out based on the strand and the start and end positions of features. Thus,
-            GenExVis allows to inspect the feature environments. Since co-localization is not mandatory for co-
-            regulation, feature groups without functional context might be shown. Yet, for bacterial data, it is
-            possible that some of the shown groups can be operons, hence operons are characterized by co-localization.
-            <br><br>
-            For the selected regulation type, it has to be taken into account, that a feature group shown for upregulation
-            or downregulation only might be a group of mixed regulation, which is fully displayed at a selected regulation type
-            of 'both' only.
-          </b-card>
-          <b-card v-if="showUniqueGenes" style="width:80%; margin: auto">
-            <small>DGE visualisation type uniquely regulated features.</small>
-            <br><br>
-            Uniquely regulated features are found based on the adjusted p-value. If a feature has a significant
-            p-value in one dataset and in no other dataset, it is considered to be uniquely regualted for this
-            respective dataset. If only one condition pair is chosen, all significant features are displayed,
-            since there is nothing to compare to.
-            <br><br>
-            All preselected parameters are adjustable afterwards.
-          </b-card>
-          <b-card v-if="showHeatMap" style="width:80%; margin: auto">
-            <small>DGE visualisation type Heatmaps.</small>
-            <br><br>
-            Heatmaps are generated for the comparison of feature expression between two
-            conditions. The read count is taken as measure of expression. In order to
-            generate a heatmap, each feature's condition-specific z-score is calculated
-            for the mean of specific read counts against the mean of all read counts
-            throughout all conditions for that feature.
-            Color coding is:
-            <ul>
-              <li>blue: upregulation</li>
-              <li>red: downregulation</li>
-              <li>white: no change</li>
-            </ul>
-            <br>
-            All preselected parameters are adjustable afterwards.
-          </b-card>
-          <b-card v-else style="width:80%; margin: auto">
-            DGE visualisation type selection.
-            At this moment, three visualisations are available in GenExVis:
-            <ul>
-              <li>Display of jointly regulated features as barplots with supporitve tables.</li>
-              <li>Display of uniquely regulated features as tables.</li>
-              <li>Display of Heatmaps based on z-scores</li>
-            </ul>
-          </b-card>
-        </transition>
-      </b-collapse>
-    </div>
-    <!--########################################################################################################################### -->
-    <div v-if="showGroup" class="first-level-child">
-      <!-- Select first condition -->
-      <div class="second-level-child2">
-        <multiselect
-          v-model="selectedCondition1"
-          :options="dgeConditions[0]"
-          :multiple="false"
-          :close-on-select="true"
-          :clear-on-select="false"
-          :preserve-search="true"
-          :show-labels="true"
-          :preselect-first="false"
-          placeholder="Choose first condition"
-          selected-label="Selected"
-          select-label="Click to select"
-          deselect-label="Click to remove"
-        >
-          <template slot="selection" slot-scope="{ values, search, isOpen }">
-            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-          </template>
-        </multiselect>
-      </div>
-      <!-- Select second condition -->
-      <div class="second-level-child2">
-        <multiselect
-          v-model="selectedCondition2"
-          :options="dgeConditions[1]"
-          :multiple="false"
-          :close-on-select="true"
-          :clear-on-select="false"
-          :preserve-search="true"
-          :show-labels="true"
-          :preselect-first="false"
-          placeholder="Choose second condition"
-          selected-label="Selected"
-          select-label="Click to select"
-          deselect-label="Click to remove"
-        >
-          <template slot="selection" slot-scope="{ values, search, isOpen }">
-            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-          </template>
-        </multiselect>
-      </div>
-
-      <div v-if="selectedCondition1 && selectedCondition2">
-        <h4>Specify barchart properties</h4>
+    <b-card style="height: 60%; border: 1px solid darkgrey; width: 100%; background: white; border-radius: 15px; -webkit-box-shadow: inset 0 0 40px 15px darkgrey; box-shadow: inset 0 0 40px 15px darkgrey">
+      <b-row>
         <!-- REGULATION TYPE SINGLE SELECT-->
-        <div class="second-level-child2">
-          <small>Select log2fold change type</small>
+        <b-col>
+          <h4>Select graphic to display</h4>
           <multiselect
-            v-model="selectedRegulationType"
-            :options="regulationDirections"
+            v-model="selectedGraphic"
+            :options="graphicTypes"
             :multiple="false"
             :close-on-select="true"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="true"
-            :preselect-first="true"
-            placeholder="Choose regulation"
-            selected-label="Selected"
-            select-label="Click to select"
-            deselect-label="Click to remove"
-          >
-            <template slot="selection" slot-scope="{ values, search, isOpen }">
-              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-            </template>
-          </multiselect>
-        </div>
-        <!-- OPERON SIZE SINGLE SELECT -->
-        <div class="second-level-child2">
-          <small>Select minimum group size</small>
-          <multiselect
-            v-model="selectedOperonSize"
-            :options="operonSizes"
-            :multiple="false"
-            :close-on-select="true"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="true"
-            :preselect-first="true"
-            placeholder="Choose minimum group size"
-            selected-label="Selected"
-            select-label="Click to select"
-            deselect-label="Click to remove"
-          >
-            <template slot="selection" slot-scope="{ values, search, isOpen }">
-              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-            </template>
-          </multiselect>
-        </div>
-      </div>
-
-      <!-- P-VALUE and LOG2FOLD THRESHOLD INPUTS -->
-      <div v-if="selectedRegulationType && selectedOperonSize">
-        <div class="second-level-child4">
-          <label style="margin-top: 0.4rem;">p-value threshold:</label>
-          <b-form-input
-            v-model="inputPThreshold"
-            type="number"
-            min="0"
-            max="1"
-            step="0.001"
-            style="width: 10rem; margin-right: 0px"
-          />
-        </div>
-        <div class="second-level-child4">
-          <label style="margin-top: 0.4rem;">log2Fold Change threshold:</label>
-          <b-form-input
-            v-model="inputLog2FoldThreshold"
-            type="number"
-            min="-4"
-            max="4"
-            step="0.1"
-            style="width: 10rem; margin-right: 0px"
-          />
-        </div>
-        <div class="second-level-child4">Biggest putative group: {{ biggestOperon }}</div>
-        <div class="second-level-child4">Putative groups (total): {{ groupCount }}</div>
-      </div>
-
-      <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" class="first-level-child">
-        <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
-        <!-- index is also used to get table data-->
-        <table style="width: auto; max-width: 100%; display: inline-block; border: 0px solid darkviolet">
-          <tr v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; display: inline-block; border: 1px solid darkgrey; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px; background: white; border-radius: 10px; -webkit-box-shadow: inset 0 0 40px 20px darkgrey; box-shadow: inset 0 0 40px 20px darkgrey">
-            <td>
-              <!-- Element for Highchart graphic -->
-              <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid green"></div>
-            </td>
-            <td>
-              <!--Table in the column for selection, table and buttons -->
-              <!--<div style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 2px solid red"> -->
-              <table style="width: auto; max-width: 100%; border: 0px solid red">
-                <tr>
-                  <!-- first column table properties selection menu-->
-                  <td style="vertical-align: top">
-                    <h4 style="white-space: nowrap">Select table data</h4>
-                    <multiselect
-                      v-model="selectedTableOptions"
-                      :options="tableOptions"
-                      :multiple="true"
-                      :close-on-select="false"
-                      :clear-on-select="false"
-                      :preserve-search="true"
-                      :show-labels="true"
-                      :preselect-first="false"
-                      placeholder="Select table data"
-                      selected-label="Selected"
-                      select-label="Click to select"
-                      deselect-label="Click to remove"
-                    >
-                      <template slot="selection" slot-scope="{ values, search, isOpen }">
-                        <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                      </template>
-                    </multiselect>
-                  </td>
-                  <!-- feature table  -->
-                  <td>
-                    <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
-                      <table style="width: 100%; margin-left: 20px;">
-                        <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
-                        <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
-                          <td v-for="(info, index_k) in gene" :key="index_k" style="border: 1px solid black; background: white; white-space: nowrap">{{ info }}</td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
-                              Rounded Values
-                            </b-form-checkbox>
-                          </td>
-                          <td>
-                            <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadOperonTable($event)">
-                              <font-awesome-icon :icon="faDownload" /> Download table
-                            </div>
-                          </td>
-                        </tr>
-                      </table>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <!--########################################################################################################################### -->
-    <div v-if="showUniqueGenes" class="first-level-child">
-      <b-col>
-        <b-row style="margin-top: 10px;">
-          <!-- Select DESeq2 data to display uniquely regulated genes for -->
-          <multiselect
-            v-model="selectedConditionPairData"
-            :options="uniquelyConditions"
-            :multiple="true"
-            :close-on-select="false"
             :clear-on-select="false"
             :preserve-search="true"
             :show-labels="true"
             :preselect-first="false"
-            placeholder="Choose data"
+            placeholder="Choose graphic"
             selected-label="Selected"
             select-label="Click to select"
             deselect-label="Click to remove"
@@ -302,110 +25,221 @@
               <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
             </template>
           </multiselect>
-        </b-row>
-      </b-col>
-      <div v-if="selectedConditionPairData" style="margin-top: 10px">
-        <b-row style="margin-top: 10px">
-          <b-col>
-            <p>Filter by log2fold change </p>
-            <multiselect
-              v-model="selectedRegulationType"
-              :options="regulationDirections"
-              :multiple="false"
-              :close-on-select="true"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :show-labels="true"
-              :preselect-first="true"
-              placeholder="Choose regulation"
-              selected-label="Selected"
-              select-label="Click to select"
-              deselect-label="Click to remove"
-            >
-              <template slot="selection" slot-scope="{ values, search, isOpen }">
-                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-              </template>
-            </multiselect>
-          </b-col>
-          <b-col>
-            <p>Filter by strand</p>
-            <multiselect
-              v-model="selectedStrand"
-              :options="strandOptions"
-              :multiple="false"
-              :close-on-select="true"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :show-labels="true"
-              :preselect-first="true"
-              placeholder="Choose strand"
-              selected-label="Selected"
-              select-label="Click to select"
-              deselect-label="Click to remove"
-            >
-              <template slot="selection" slot-scope="{ values, search, isOpen }">
-                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-              </template>
-            </multiselect>
-          </b-col>
-        </b-row>
-        <div v-if="selectedConditionPairData && selectedRegulationType" style="margin-top: 10px">
-          <b-row style="margin-top: 10px">
-            <table>
-              <tr>
-                <td>
-                  <p>Select condition pairs to display uniquely regulated features for</p>
-                  <multiselect
-                    v-model="selectedConditionPairs"
-                    :options="conditionPairs"
-                    :multiple="true"
-                    :close-on-select="true"
-                    :clear-on-select="false"
-                    :preserve-search="true"
-                    :show-labels="true"
-                    :preselect-first="true"
-                    placeholder="Choose regulation"
-                    selected-label="Selected"
-                    select-label="Click to select"
-                    deselect-label="Click to remove"
-                  >
-                    <template slot="selection" slot-scope="{ values, search, isOpen }">
-                      <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-                    </template>
-                  </multiselect>
-                </td>
-                <td v-if="selectedConditionPairData && selectedRegulationType && selectedConditionPairs">
-                  <label style="margin-top: 0.4rem;">p-value threshold:</label>
-
-                  <b-form-input
-                    v-model="significantP"
-                    type="number"
-                    min="0"
-                    max="1"
-                    step="0.001"
-                    style="width: 10rem; margin-right: 0px"
-                  />
-                </td>
-                <td v-if="onlyOne && selectedConditionPairData && selectedRegulationType && selectedConditionPairs">
-                  Please note: Only one condition pair was chosen. All significant features are shown, not the uniquely regulated features, since there was nothing chosen to compare to.
-                </td>
-              </tr>
-            </table>
-          </b-row>
-        </div>
-      </div>
+        </b-col>
+        <!-- Questionmark with Metadata Feature help -->
+        <b-col sm="2" style="padding-left: 0">
+          <span style="cursor: pointer; float: left" @click="showHelp = !showHelp">
+            <font-awesome-icon :icon="faQuestionCircle" />
+          </span>
+        </b-col>
+      </b-row>
       <b-row>
-        <!-- START OF TABLE DISPLAY-->
-        <div v-if="selectedConditionPairData && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue; ">
-          <table style="width: 100%; margin-left: 20px; display: inline-block;">
-            <!-- one row for each table -->
-            <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid darkgrey; margin-bottom: 20px; padding: 10px; background: white; border-radius: 15px;  -webkit-box-shadow: inset 0 0 30px 10px darkgrey; box-shadow: inset 0 0 30px 10px darkgrey">
-              <!-- one td for each table selection menu and table-->
-              <td style="vertical-align: top">
-                <h4>{{ uniqueGenesTitles[index] }}</h4>
-                <table>
+        <b-col>
+          <b-collapse id="helpConditions" v-model="showHelp" class="mt-2">
+            <transition name="fade">
+              <b-card v-if="showGroup" style="width:80%; margin: auto">
+                <small>DGE visualisation type jointly regulated features.</small>
+                <br><br>
+                Upon provision of the DESeq2 condition pair of interest,
+                consequently regulated features are shown as barplot of the log2fold change against a discrete x-axis
+                of feature names. For the initial display, regulation type (upregulated, downregulated, both)and feature
+                group size as well as log2fold change and adjusted p-value thresholds are preset with the allowance of
+                adjustments afterwards.
+                <br><br>
+                Feature grouping is carried out based on the strand and the start and end positions of features. Thus,
+                GenExVis allows to inspect the feature environments. Since co-localization is not mandatory for co-
+                regulation, feature groups without functional context might be shown. Yet, for bacterial data, it is
+                possible that some of the shown groups can be operons, hence operons are characterized by co-localization.
+                <br><br>
+                For the selected regulation type, it has to be taken into account, that a feature group shown for upregulation
+                or downregulation only might be a group of mixed regulation, which is fully displayed at a selected regulation type
+                of 'both' only.
+              </b-card>
+              <b-card v-if="showUniqueGenes" style="width:80%; margin: auto">
+                <small>DGE visualisation type uniquely regulated features.</small>
+                <br><br>
+                Uniquely regulated features are found based on the adjusted p-value. If a feature has a significant
+                p-value in one dataset and in no other dataset, it is considered to be uniquely regualted for this
+                respective dataset. If only one condition pair is chosen, all significant features are displayed,
+                since there is nothing to compare to.
+                <br><br>
+                All preselected parameters are adjustable afterwards.
+              </b-card>
+              <b-card v-if="showHeatMap" style="width:80%; margin: auto">
+                <small>DGE visualisation type Heatmaps.</small>
+                <br><br>
+                Heatmaps are generated for the comparison of feature expression between two
+                conditions. The read count is taken as measure of expression. In order to
+                generate a heatmap, each feature's condition-specific z-score is calculated
+                for the mean of specific read counts against the mean of all read counts
+                throughout all conditions for that feature.
+                Color coding is:
+                <ul>
+                  <li>blue: upregulation</li>
+                  <li>red: downregulation</li>
+                  <li>white: no change</li>
+                </ul>
+                <br>
+                All preselected parameters are adjustable afterwards.
+              </b-card>
+              <b-card v-else style="width:80%; margin: auto">
+                DGE visualisation type selection.
+                At this moment, three visualisations are available in GenExVis:
+                <ul>
+                  <li>Display of jointly regulated features as barplots with supporitve tables.</li>
+                  <li>Display of uniquely regulated features as tables.</li>
+                  <li>Display of Heatmaps based on z-scores</li>
+                </ul>
+              </b-card>
+            </transition>
+          </b-collapse>
+        </b-col>
+      </b-row>
+      <div v-if="showGroup">
+        <b-row style="margin-top: 10px;">
+          <!-- Select first condition -->
+          <b-col>
+            <multiselect
+              v-model="selectedCondition1"
+              :options="dgeConditions[0]"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              placeholder="Choose first condition"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-col>
+          <!-- Select second condition -->
+          <b-col>
+            <multiselect
+              v-model="selectedCondition2"
+              :options="dgeConditions[1]"
+              :multiple="false"
+              :close-on-select="true"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              placeholder="Choose second condition"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-col>
+        </b-row>
+        <div v-if="selectedCondition1 && selectedCondition2" style="margin-top: 10px">
+          <h4>Specify barchart properties</h4>
+          <b-container>
+            <b-row>
+              <!-- REGULATION TYPE SINGLE SELECT-->
+              <b-col>
+                <h4>Select log2Fold Change type</h4>
+                <multiselect
+                  v-model="selectedRegulationType"
+                  :options="regulationDirections"
+                  :multiple="false"
+                  :close-on-select="true"
+                  :clear-on-select="false"
+                  :preserve-search="true"
+                  :show-labels="true"
+                  :preselect-first="true"
+                  placeholder="Choose regulation"
+                  selected-label="Selected"
+                  select-label="Click to select"
+                  deselect-label="Click to remove"
+                >
+                  <template slot="selection" slot-scope="{ values, search, isOpen }">
+                    <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                  </template>
+                </multiselect>
+              </b-col>
+              <!-- OPERON SIZE SINGLE SELECT -->
+              <b-col>
+                <h4>Select minimum group size</h4>
+                <multiselect
+                  v-model="selectedOperonSize"
+                  :options="operonSizes"
+                  :multiple="false"
+                  :close-on-select="true"
+                  :clear-on-select="false"
+                  :preserve-search="true"
+                  :show-labels="true"
+                  :preselect-first="true"
+                  placeholder="Choose minimum group size"
+                  selected-label="Selected"
+                  select-label="Click to select"
+                  deselect-label="Click to remove"
+                >
+                  <template slot="selection" slot-scope="{ values, search, isOpen }">
+                    <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                  </template>
+                </multiselect>
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <!-- P-VALUE and LOG2FOLD THRESHOLD INPUTS -->
+        <div v-if="selectedRegulationType && selectedOperonSize" style="margin-top: 20px; margin-bottom: 20px; width: 100%">
+          <hr>
+          <b-container style="max-width: 100%;">
+            <b-row>
+              <label style="margin-top: 0.4rem;">p-value threshold:</label>
+              <b-col style="width: 25%">
+                <b-form-input
+                  v-model="inputPThreshold"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.001"
+                  style="width: 10rem; margin-right: 0px"
+                />
+              </b-col>
+              <label style="margin-top: 0.4rem;">log2Fold Change threshold:</label>
+              <b-col style="width: 25%">
+                <b-form-input
+                  v-model="inputLog2FoldThreshold"
+                  type="number"
+                  min="-4"
+                  max="4"
+                  step="0.1"
+                  style="width: 10rem; margin-right: 0px"
+                />
+              </b-col>
+              <b-col style="width: 25%;">Biggest putative group: {{ biggestOperon }}</b-col>
+              <b-col style="width: 25%;">Putative groups (total): {{ groupCount }}</b-col>
+            </b-row>
+          </b-container>
+        </div>
+        <!-- overflow: hidden in blue div works but table not scrollable-->
+        <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" style="margin-top: 90px; width: 1300px; border: 0px solid blue;">
+          <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
+          <!-- index is also used to get table data-->
+          <table style="width: auto; max-width: 100%; display: inline-block; border: 0px solid darkviolet">
+            <tr v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; display: inline-block; border: 1px solid darkgrey; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px; background: white; border-radius: 10px; -webkit-box-shadow: inset 0 0 40px 20px darkgrey; box-shadow: inset 0 0 40px 20px darkgrey">
+              <td>
+                <!-- Element for Highchart graphic -->
+                <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid green"></div>
+              </td>
+              <td>
+                <!--Table in the column for selection, table and buttons -->
+                <!--<div style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 2px solid red"> -->
+                <table style="width: auto; max-width: 100%; border: 0px solid red">
                   <tr>
-                    <td>
+                    <!-- first column table properties selection menu-->
+                    <td style="vertical-align: top">
                       <h4 style="white-space: nowrap">Select table data</h4>
                       <multiselect
                         v-model="selectedTableOptions"
@@ -426,93 +260,261 @@
                         </template>
                       </multiselect>
                     </td>
-                  </tr>
-                  <tr>
-                    <table>
-                      <tr>
-                        <!-- ROUNDED VALUES AND DOWNLOAD BUTTON-->
-                        <td>
-                          <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
-                            Rounded Values
-                          </b-form-checkbox>
-                        </td>
-                        <td>
-                          <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadUniqueGenesTable($event)">
-                            <font-awesome-icon :icon="faDownload" /> Download table
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
-                  </tr>
-                </table>
-              </td>
-              <td>
-                <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
-                  <table style="width: 100%; margin-left: 20px;">
+                    <!-- feature table  -->
                     <td>
-                      <!--This is the table I want scrollable! -->
-                      <div class="scrollableTable">
-                        <table class="tableWrapper">
-                          <tr v-for="(oneRow, index_j) in oneTable" :key="index_j" style="border: 1px solid black; background: white; white-space: nowrap">
-                            <td
-                              v-for="(info, index_k) in oneRow"
-                              :key="index_k"
-                              class="tableWrapper"
-                              style="border: 1px solid black; white-space: nowrap"
-                            >
-                              {{ info }}
+                      <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
+                        <table style="width: 100%; margin-left: 20px;">
+                          <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
+                          <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
+                            <td v-for="(info, index_k) in gene" :key="index_k" style="border: 1px solid black; background: white; white-space: nowrap">{{ info }}</td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
+                                Rounded Values
+                              </b-form-checkbox>
+                            </td>
+                            <td>
+                              <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadOperonTable($event)">
+                                <font-awesome-icon :icon="faDownload" /> Download table
+                              </div>
                             </td>
                           </tr>
                         </table>
                       </div>
                     </td>
-                    <td>
-                      <!-- -1 for header of table-->
-                      total features found: {{ oneTable.length -1 }}
-                    </td>
-                  </table>
-                </div>
+                  </tr>
+                </table>
               </td>
             </tr>
           </table>
         </div>
-      </b-row>
-    </div>
-    <!--########################################################################################################################### -->
-    <div v-if="showHeatMap" class="first-level-child">
-      <b-col style="max-width: 50%;">
-        <b-row style="margin-top: 20px;">
-          <p style="margin-left: 5px"> Chose Normalization </p>
-        </b-row>
-        <b-row>
-          <multiselect
-            v-model="selectedNormalization"
-            :options="registeredNormalizationMethods"
-            :multiple="false"
-            :close-on-select="true"
-            :clear-on-select="false"
-            :preserve-search="true"
-            :show-labels="true"
-            :preselect-first="true"
-            placeholder="Choose normalization"
-            selected-label="Selected"
-            select-label="Click to select"
-            deselect-label="Click to remove"
-          >
-            <template slot="selection" slot-scope="{ values, search, isOpen }">
-              <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-            </template>
-          </multiselect>
-        </b-row>
-      </b-col>
-    </div>
+      </div>
+      <div v-if="showUniqueGenes">
+        <b-col>
+          <b-row style="margin-top: 10px;">
+            <!-- Select DESeq2 data to display uniquely regulated genes for -->
+            <multiselect
+              v-model="selectedConditionPairData"
+              :options="uniquelyConditions"
+              :multiple="true"
+              :close-on-select="false"
+              :clear-on-select="false"
+              :preserve-search="true"
+              :show-labels="true"
+              :preselect-first="false"
+              placeholder="Choose data"
+              selected-label="Selected"
+              select-label="Click to select"
+              deselect-label="Click to remove"
+            >
+              <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+              </template>
+            </multiselect>
+          </b-row>
+        </b-col>
+        <div v-if="selectedConditionPairData" style="margin-top: 10px">
+          <b-row style="margin-top: 10px">
+            <b-col>
+              <p>Filter by log2fold change </p>
+              <multiselect
+                v-model="selectedRegulationType"
+                :options="regulationDirections"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :show-labels="true"
+                :preselect-first="true"
+                placeholder="Choose regulation"
+                selected-label="Selected"
+                select-label="Click to select"
+                deselect-label="Click to remove"
+              >
+                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                </template>
+              </multiselect>
+            </b-col>
+            <b-col>
+              <p>Filter by strand</p>
+              <multiselect
+                v-model="selectedStrand"
+                :options="strandOptions"
+                :multiple="false"
+                :close-on-select="true"
+                :clear-on-select="false"
+                :preserve-search="true"
+                :show-labels="true"
+                :preselect-first="true"
+                placeholder="Choose strand"
+                selected-label="Selected"
+                select-label="Click to select"
+                deselect-label="Click to remove"
+              >
+                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                  <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                </template>
+              </multiselect>
+            </b-col>
+          </b-row>
+          <div v-if="selectedConditionPairData && selectedRegulationType" style="margin-top: 10px">
+            <b-row style="margin-top: 10px">
+              <table>
+                <tr>
+                  <td>
+                    <p>Select condition pairs to display uniquely regulated features for</p>
+                    <multiselect
+                      v-model="selectedConditionPairs"
+                      :options="conditionPairs"
+                      :multiple="true"
+                      :close-on-select="true"
+                      :clear-on-select="false"
+                      :preserve-search="true"
+                      :show-labels="true"
+                      :preselect-first="true"
+                      placeholder="Choose regulation"
+                      selected-label="Selected"
+                      select-label="Click to select"
+                      deselect-label="Click to remove"
+                    >
+                      <template slot="selection" slot-scope="{ values, search, isOpen }">
+                        <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                      </template>
+                    </multiselect>
+                  </td>
+                  <td v-if="selectedConditionPairData && selectedRegulationType && selectedConditionPairs">
+                    <label style="margin-top: 0.4rem;">p-value threshold:</label>
 
-    <!-- HEATMAP DISPLAY -->
-    <div
-      v-if="showHeatMap"
-      id="heatmapdisplay"
-      style="margin-top: 20px"
-    ></div>
+                    <b-form-input
+                      v-model="significantP"
+                      type="number"
+                      min="0"
+                      max="1"
+                      step="0.001"
+                      style="width: 10rem; margin-right: 0px"
+                    />
+                  </td>
+                  <td v-if="onlyOne && selectedConditionPairData && selectedRegulationType && selectedConditionPairs">
+                    Please note: Only one condition pair was chosen. All significant features are shown, not the uniquely regulated features, since there was nothing chosen to compare to.
+                  </td>
+                </tr>
+              </table>
+            </b-row>
+          </div>
+        </div>
+        <b-row>
+          <!-- START OF TABLE DISPLAY-->
+          <div v-if="selectedConditionPairData && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue; ">
+            <table style="width: 100%; margin-left: 20px; display: inline-block;">
+              <!-- one row for each table -->
+              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid darkgrey; margin-bottom: 20px; padding: 10px; background: white; border-radius: 15px;  -webkit-box-shadow: inset 0 0 30px 10px darkgrey; box-shadow: inset 0 0 30px 10px darkgrey">
+                <!-- one td for each table selection menu and table-->
+                <td style="vertical-align: top">
+                  <h4>{{ uniqueGenesTitles[index] }}</h4>
+                  <table>
+                    <tr>
+                      <td>
+                        <h4 style="white-space: nowrap">Select table data</h4>
+                        <multiselect
+                          v-model="selectedTableOptions"
+                          :options="tableOptions"
+                          :multiple="true"
+                          :close-on-select="false"
+                          :clear-on-select="false"
+                          :preserve-search="true"
+                          :show-labels="true"
+                          :preselect-first="false"
+                          placeholder="Select table data"
+                          selected-label="Selected"
+                          select-label="Click to select"
+                          deselect-label="Click to remove"
+                        >
+                          <template slot="selection" slot-scope="{ values, search, isOpen }">
+                            <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                          </template>
+                        </multiselect>
+                      </td>
+                    </tr>
+                    <tr>
+                      <table>
+                        <tr>
+                          <!-- ROUNDED VALUES AND DOWNLOAD BUTTON-->
+                          <td>
+                            <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
+                              Rounded Values
+                            </b-form-checkbox>
+                          </td>
+                          <td>
+                            <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadUniqueGenesTable($event)">
+                              <font-awesome-icon :icon="faDownload" /> Download table
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </tr>
+                  </table>
+                </td>
+                <td>
+                  <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
+                    <table style="width: 100%; margin-left: 20px;">
+                      <td>
+                        <!--This is the table I want scrollable! -->
+                        <div class="scrollableTable">
+                          <table class="tableWrapper">
+                            <tr v-for="(oneRow, index_j) in oneTable" :key="index_j" style="border: 1px solid black; background: white; white-space: nowrap">
+                              <td
+                                v-for="(info, index_k) in oneRow"
+                                :key="index_k"
+                                class="tableWrapper"
+                                style="border: 1px solid black; white-space: nowrap"
+                              >
+                                {{ info }}
+                              </td>
+                            </tr>
+                          </table>
+                        </div>
+                      </td>
+                      <td>
+                        <!-- -1 for header of table-->
+                        total features found: {{ oneTable.length -1 }}
+                      </td>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </b-row>
+      </div>
+      <div v-if="showHeatMap">
+        <div style="margin-top: 10px">
+          <b-row style="margin-top: 10px">
+            <b-col>
+              test
+            </b-col>
+          </b-row>
+        </div>
+        <div v-if=" selectedRegulationType && selectedStrand" style="margin-top: 20px">
+          <b-container style="max-width: 100%;">
+            <b-row>
+              <label style="margin-top: 0.4rem;">p-value threshold:</label>
+              <b-col style="width: 25%">
+                <b-form-input
+                  v-model="significantP"
+                  type="number"
+                  min="0"
+                  max="1"
+                  step="0.001"
+                  style="width: 10rem; margin-right: 0px"
+                />
+              </b-col>
+            </b-row>
+          </b-container>
+        </div>
+      </div>
+    </b-card>
   </div>
 </template>
 
@@ -526,10 +528,6 @@
   require('highcharts/modules/exporting')(Highcharts);
   require('highcharts/modules/offline-exporting')(Highcharts);
 
-  import Heatmap from 'highcharts/modules/heatmap.js';
-  Heatmap(Highcharts);
-
-
   export default {
     name: 'DgeVisualisation',
     components: {
@@ -541,7 +539,7 @@
         // graphic/visualisation type selection
         showHelp: false,
         selectedGraphic: '',
-        graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'Heatmap', '3D Scatter plot'],
+        graphicTypes:['Jointly regulated features', 'Uniquely regulated features', 'Heatmaps', '3D Scatter plot'],
         showGroup: false,
         show3DScatter: false,
         showUniqueGenes: false,
@@ -590,17 +588,8 @@
         onlyOne: false,
         // UNIQUELY END //
         // HEATMAP START //
-          selectedNormalization: '',
-          selectedConditions: [...this.$store.state.registeredConditions],
-          conditionMapping: this.$store.state.currentDGE.seqRuns[this.selectedNormalization],
-          plotGeneNames:[],
-          plotCategories:[],
-          // zScoreDict:null,
-          heatmapData:[],
-          color1: '#ff3a44',
-          color2: '#FFFFFF',
-          color3: '#276dff',
-          intermediateColorStop: 0.5
+        heatmapTitles: [],
+        heatmapGeneAmount:20
       }
     },
     computed: {
@@ -648,13 +637,7 @@
       },
       faQuestionCircle(){
         return faQuestionCircle
-      },
-        registeredNormalizationMethods () {
-            return this.$store.state.currentDGE.normalizationMethods
-        },
-        registeredConditions () {
-            return this.$store.state.registeredConditions
-        },
+      }
     },
     watch: {
       // concerning all plots
@@ -665,7 +648,8 @@
           this.showUniqueGenes = false;
           this.show3DScatter = false
         }
-        else if(this.selectedGraphic === 'Heatmap'){
+        else if(this.selectedGraphic === 'Heatmaps'){
+            this.getHeatmapStoreData();
           this.showHeatMap = true;
           this.showGroup = false;
           this.showUniqueGenes = false;
@@ -705,6 +689,7 @@
         this.uniqueGenesTableArray=[];
         this.uniqueGenesTitles=[];
         this.onlyOne=false;
+        this.heatmapTitles=[]
       },
       selectedRegulationType () {
         if(this.selectedRegulationType === "upregulated"){
@@ -763,6 +748,37 @@
             }
           }
         }
+        /*else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
+            // eslint-disable-next-line no-console
+            console.log('in reguType if');
+
+            if(this.selectedRegulationType === "upregulated"){
+                this.inputLog2FoldThreshold = 1.5;
+            }
+            else if(this.selectedRegulationType === "downregulated"){
+                this.inputLog2FoldThreshold = -1.5;
+            }
+            else if(this.selectedRegulationType === "both"){
+                this.inputLog2FoldThreshold = 1.5;
+            }
+
+            this.conditionPairList=[];
+            this.conditionPairs=[];
+            //list of condition pairs
+            // needed to get DESeq2 analyses data for all chosen conditions
+            // splitting nice string at underscore. niceString[1] = 'vs'
+            for(let niceString of this.selectedConditionPairData){
+                let niceStringArray = niceString.split('_');
+                let firstCondition = niceStringArray[0];
+                let secondCondition = niceStringArray[2];
+                // adding each condition pair to conditionPairList
+                this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+                this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+            }
+            if(this.conditionPairList.length>1){
+                this.getHeatmapStoreData();
+            }
+        }*/
       },
       selectedTableOptions (){
         if(this.showGroup && this.selectedCondition1 && this.selectedCondition2 && this.selectedRegulationType && this.selectedOperonSize){
@@ -773,6 +789,7 @@
         }
       },
       roundedValues (){
+        // this.createOperonTableData();
         if(this.showGroup){
           this.createGroupTableData();
         }
@@ -873,6 +890,26 @@
             }
           }
         }
+    /*    else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
+            // eslint-disable-next-line no-console
+            console.log('in conPairData if');
+            this.conditionPairList=[];
+            this.conditionPairs=[];
+            //list of condition pairs
+            // needed to get DESeq2 analyses data for all chosen conditions
+            // splitting nice string at underscore. niceString[1] = 'vs'
+            for(let niceString of this.selectedConditionPairData){
+                let niceStringArray = niceString.split('_');
+                let firstCondition = niceStringArray[0];
+                let secondCondition = niceStringArray[2];
+                // adding each condition pair to conditionPairList
+                this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+                this.conditionPairs.push(firstCondition+"_"+ secondCondition);
+            }
+            if(this.conditionPairList.length>1){
+                this.getHeatmapStoreData();
+            }
+        }*/
       },
       selectedConditionPairs (){
       if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
@@ -914,6 +951,12 @@
           this.uniqueGenesTableArray = [];
           this.createUNIQUEGENESTableData();
         }
+        /*else if(this.showHeatMap && this.selectedRegulationType) {
+            // eslint-disable-next-line no-console
+          console.log('in strand if');
+          // this.getHeatmapStoreData();
+          //   this.formatHeatmapData();
+        }*/
       },
       significantP (){
         if(this.showUniqueGenes && this.selectedConditionPairData && this.selectedRegulationType){
@@ -940,15 +983,24 @@
                   this.createUNIQUEGENESTableData();
               }
           }
-        }
-      },
-        // HEATMAP
-        selectedNormalization (){
-          if(this.showHeatMap){
-              this.getHeatmapStoreData();
+      }
+        /*else if(this.showHeatMap && this.selectedRegulationType && this.selectedStrand) {
+            // eslint-disable-next-line no-console
+          console.log('in pThresh if');
+          this.conditionPairList=[];
+          this.conditionPairs=[];
+          for(let niceString of this.selectedConditionPairData){
+              // splitting nice string at underscore. niceString[1] = 'vs'
+              let niceStringArray = niceString.split('_');
+              let firstCondition = niceStringArray[0];
+              let secondCondition = niceStringArray[2];
+              // adding each condition pair to conditionPairList
+              this.conditionPairList.push(new ConditionPair(firstCondition, secondCondition));
+              this.conditionPairs.push(firstCondition+"_"+ secondCondition);
           }
-        }
-
+          this.getHeatmapStoreData();
+        }*/
+      },
     },
     updated(){
         // barcharts can be drawn only, if the html div already exists with a unique ID to render to
@@ -958,11 +1010,12 @@
           this.drawBARCHART();
         })
       }
-      else if(this.showHeatMap && this.selectedNormalization){
+     /* else if (this.showHeatMap && this.selectedRegulationType && this.selectedStrand){
           this.$nextTick(()=>{
-              this.drawHEATMAP();
+              // eslint-disable-next-line no-console
+              console.log('heatmap draw function');
           })
-      }
+      }*/
     },
     methods: {
       // START BARCHART//
@@ -980,48 +1033,8 @@
         // value-Dict for e.g. gene (if DESeq2Type was gene)
         let deseq2_gff3Match = (theGFF3[deseq2Type]);
         var keys = Object.keys(deseq2_gff3Match);
-
         var geneNames = theDGE.geneNames; //set !
-          // DESeq2 data check for suf operon with Untreated vs Erythromycin
-/*          for(let geneName of geneNames){
-              // console.log('in for');
-              if(geneName === 'cds-NP_416194.1' || geneName==='cds-NP_416195.1' || geneName==='cds-NP_416196.1' || geneName==='cds-NP_416197.1' || geneName==='cds-NP_416198.1' || geneName==='cds-NP_416199.1'){
-                  if(geneName === 'cds-NP_416194.1'){
-                      console.log('cds-NP_416194.1');
-                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
-                      console.log(analysis);
-                  }
-                  else if(geneName === 'cds-NP_416195.1'){
-                      console.log('cds-NP_416195.1');
-                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
-                      console.log(analysis);
-                  }
-                  else if(geneName === 'cds-NP_416196.1'){
-                      console.log('cds-NP_416196.1');
-                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
-                      console.log(analysis);
-                  }
-                  else if(geneName === 'cds-NP_416197.1'){
-                      console.log('cds-NP_416197.1');
-                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
-                      console.log(analysis);
-                  }
-                 else if(geneName === 'cds-NP_416198.1'){
-                      console.log('cds-NP_416198.1');
-                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
-                      console.log(analysis);
-                  }
-                  else if(geneName === 'cds-NP_416199.1'){
-                      console.log('cds-NP_416199.1');
-                      let analysis = (theDGE.getGene(geneName).getDESEQ2Analysis(new ConditionPair(this.selectedCondition1, this.selectedCondition2)));
-                      console.log(analysis);
-                  }
-              }
-          }*/
-
-
         var uniqueKeys = [];
-
         for (let key of keys) {
           if (!geneNames.has(key)) {
             uniqueKeys.push(key);
@@ -1031,6 +1044,7 @@
         keys = keys.filter(function (el) {
           return !uniqueKeys.includes(el);
         });
+
 
         //////////////////////////////////////////////////////////////////////////////
         for (let key of keys) {
@@ -1362,6 +1376,50 @@
           Highcharts.chart(index, options);
         }
       },
+/*      createOperonTableData(){
+        this.tableList=[];
+        this.downloadDict={};
+        for(let i =0; i<this.filteredGroupList.length; i++){
+          let oneTable= [];
+          let oneDownloadTable=[];
+          this.tableHeaders={name: 'Name', start: 'Start', end: 'End', strand: 'Strand', description: 'product', log2fold: 'log2Fold-Change', pValue: 'pValue', pAdj: 'pValue (adjusted)', lfcSE: 'lfcSE', baseMean: 'Base mean', stat: 'Stat'};
+          oneTable.push(this.tableHeaders);
+          let downloadHeaders=['Name', 'Start','End','Strand', 'product','log2Fold-Change','pValue','pValue (adjusted)','lfcSE','Base mean','Stat'];
+          oneDownloadTable.push(downloadHeaders);
+          let oneTableData = this.filteredGroupList[i];
+          for(let k=0; k<oneTableData.length; k++){
+            let oneTableRow;
+            let pAdj;
+            let log2Fold;
+            let pValue;
+            let stat;
+            let baseMean;
+            let lfcSE;
+            if(this.roundedValues){
+              log2Fold= Math.round(oneTableData[k]['log2fold']*100)/100;
+              pAdj = oneTableData[k]['pAdj'].toPrecision(4);
+              pValue = oneTableData[k]['pValue'].toPrecision(4);
+              stat = Math.round(oneTableData[k]['stat']*100)/100;
+              baseMean = Math.round(oneTableData[k]['baseMean']*100)/100;
+              lfcSE = Math.round(oneTableData[k]['lfcSE']*100)/100;
+            }else{
+              log2Fold= oneTableData[k]['log2fold'];
+              pAdj = oneTableData[k]['pAdj'];
+              pValue = oneTableData[k]['pValue'];
+              stat = oneTableData[k]['stat'];
+              baseMean = oneTableData[k]['baseMean'];
+              lfcSE = oneTableData[k]['lfcSE'];
+            }
+            //oneTableRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['description'], oneTableData[k]['log2fold'], oneTableData[k]['pValue'], oneTableData[k]['pAdj'], oneTableData[k]['lfcSE'], oneTableData[k]['baseMean'], oneTableData[k]['stat']];
+            oneTableRow={value: false, name: oneTableData[k]['name'], start: oneTableData[k]['start'], end: oneTableData[k]['end'], strand: oneTableData[k]['strand'], description: oneTableData[k]['product'], log2fold: log2Fold, pValue: pValue, pAdj: pAdj, lfcSE: lfcSE, baseMean: baseMean, stat: stat};
+            oneTable.push(oneTableRow);
+            let oneDownloadRow=[oneTableData[k]['name'], oneTableData[k]['start'], oneTableData[k]['end'], oneTableData[k]['strand'], oneTableData[k]['product'], log2Fold, pValue, pAdj, lfcSE, baseMean, stat];
+            oneDownloadTable.push(oneDownloadRow);
+          }
+          this.tableList.push(oneTable);
+          this.downloadDict[i]=oneDownloadTable;
+        }
+      },*/
       createGroupTableData(){
         let oneTable=[];
         this.tableList2 = [];
@@ -1813,239 +1871,72 @@
         downloadFile(csvContent, this.tableFileName+'.csv')
       },
       // END UNIQUE GENES //
+      // START HEATMAPS //
+      getHeatmapStoreData(){
+         /* // eslint-disable-next-line no-console
+        console.log('in getHeatmapStoreData');
+         // whole dge data
+         let theDGE= this.$store.state.currentDGE;
+          // list of sets. one set = id list of significant genes for one condition pair
+          let significantGenes = {};
+          for(let conditionPair of this.conditionPairList){
+              significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2]=[];
+          }
+          for(let conditionPair of this.conditionPairList){
+              // converting original data type set to array
+              let onePairGenes = Array.from(theDGE.getNamesOfSignificantGenesFromDESeq2(this.significantP,conditionPair.condition1, conditionPair.condition2,true));
+              // iterating significant IDs and filtering by regulation type and log2fold change value
+              // initializing significant genes dictionary with empty list in order to push to list later (pushed item: featureID, which fullfills adj. p-value and log2fold thresholds
+              for(let featureID of onePairGenes){
+                 if(this.selectedRegulationType === 'both'){
+                     if(Math.abs(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange) >= this.inputLog2FoldThreshold){
+                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
+                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
+                     }
+                 }
+                 else if(this.selectedRegulationType === 'upregulated'){
+                     if(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange >= this.inputLog2FoldThreshold){
+                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
+                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
+                     }
+                 }
+                 else if(this.selectedRegulationType === 'downregulated'){
+                     if(theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange <= this.inputLog2FoldThreshold){
+                         // pushing set of feature ID and feature's log2foldChange for later selection of top regulated genes
+                         significantGenes[conditionPair.condition1 + '_'+ conditionPair.condition2].push(new Set(featureID, theDGE.getGene(featureID).getDESEQ2Analysis(conditionPair).log2FoldChange));
+                     }
+                 }
+              }
+              // titles for heatmap axes
+              let titleString = conditionPair.condition1 + '_'+ conditionPair.condition2;
+              this.heatmapTitles.push(titleString);
+          }
+          // significant genes now includes: conPair as key, list of sets as value; featureIDs and their log2fold-change, which match the adj p-value and log2fold thresholds
+          // eslint-disable-next-line no-console
+          // console.log(significantGenes);*/
+
+
+
+      },
       thousandSeparator(number){
         return parseFloat(number).toLocaleString('en-us');
-      },
-        mean(numbers) {
-            let total = 0, i;
-            for (i = 0; i < numbers.length; i += 1) {
-                total += numbers[i];
+        // Info: Die '' sind zwei Hochkommas
+      /*  number = '' + number;
+        if (number.length > 3) {
+          let mod = number.length % 3;
+          let output = (mod > 0 ? (number.substring(0,mod)) : '');
+          for (let i=0 ; i < Math.floor(number.length / 3); i++) {
+            if ((mod === 0) && (i === 0)) {
+              output += number.substring(mod + 3 * i, mod + 3 * i + 3);
+            }else{
+        // setting thousand separator as '
+          output+= "'" + number.substring(mod + 3 * i, mod + 3 * i + 3);
             }
-            return total / numbers.length;
-        },
-        variance: function(array) {
-            let mean = this.mean(array);
-            return this.mean(array.map(function(num) {
-                return Math.pow(num - mean, 2);
-            }));
-        },
-        // HEATMAPS //
-        // getting storeData and formatting it for highcharts
-        getHeatmapStoreData(){
-          // read counts for genes with condition
-          var conditionDict={};
-          // all read counts for gene throughout all conditions
-          var geneCountDict={};
-          var geneDict={};
-          var heatmapDict={};
-          let seqRunNamesMap = {};
-          let seqRunNames = [];
-          let seqRunIndex = 0;
-          for (let cond of this.selectedConditions) {
-              for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.currentDGE.seqRuns[this.selectedNormalization])) {
-                  if (seqRunCond === cond) {
-                      seqRunNames.push(seqRun);
-                      seqRunNamesMap[seqRun] = seqRunIndex++
-                  }
-              }
-            }
-            let geneNames = Array.from(this.$store.state.currentDGE.geneNames).sort();
-            let geneNamesMapping = {};
-            for (let [index, geneName] of geneNames.entries()) {
-                geneNamesMapping[geneName] = index
-            }
-
-            let countData = (this.selectedNormalization === 'unnormalized')
-                ? this.$store.state.currentDGE.getAllUnnormalizedCountData()
-                : this.$store.state.currentDGE.getAllDeseq2CountData();
-
-            // console.log(countData);
-            for (let [condition, genes] of Object.entries(countData)) {
-                if (this.selectedConditions.indexOf(condition) === -1) {
-                    continue
-                }else{
-                    if(!this.plotCategories.includes(condition)){
-                        this.plotCategories.push(condition);
-                    }
-                    // dict sorted by treatments at top level
-                    conditionDict[condition]={};
-                    for(let [key,value] of Object.entries(genes)){
-                        conditionDict[condition][key]={};
-                        // geneDict contains counts for genes throughout all conditions
-                        if(!geneCountDict[key]){
-                            geneCountDict[key]=[];
-                        }
-                        if(!heatmapDict[key]){
-                            heatmapDict[key]={};
-                        }
-                        if(!heatmapDict[key][condition]){
-                            heatmapDict[key][condition]=[];
-                        }
-                        let dummyArray=[];
-                        // eslint-disable-next-line no-unused-vars
-                        for(let [innerKey, innerValue] of Object.entries(value)){
-                            dummyArray.push(innerValue);
-                            // adding count for gene
-                            geneCountDict[key].push(innerValue);
-                            heatmapDict[key][condition].push(innerValue);
-                        }
-                        let dummyMean= this.mean(dummyArray);
-                        let sampleN = dummyArray.length;
-                        let sampleMean = Math.round(dummyMean*100)/100;
-                        // adding mean and number of initial values the mean was calculated of for specific counts at right gene and condition
-                        conditionDict[condition][key]={'sampleMean':sampleMean,'sampleN': sampleN} ;
-                        heatmapDict[key][condition]={'sampleMean':sampleMean,'sampleN': sampleN};
-                    }
-                    // console.log('geneCountDict');
-                    // console.log(geneCountDict);
-                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // calculating mean and sigma for genes throughout all conditions
-                    for(let[key,value] of Object.entries(geneCountDict)){
-                        if(!geneDict[key]){
-                            geneDict[key]={};
-                        }
-                        let populationMean = Math.round(this.mean(value)*100)/100;
-                        let populationVariance = this.variance(value);
-                        let sigma = Math.round((Math.sqrt(populationVariance))*100)/100;
-                        geneDict[key]={'populationMean': populationMean, 'sigma': sigma};
-                    }
-                    // console.log('heatmapDict');
-                    // console.log(heatmapDict);
-                    // console.log('geneDict');
-                    // console.log(geneDict);
-                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // FORMATTING HEATMAP DATA //
-                    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // Z-score will be: (sampleMean - populationMean)/(sigma-sqrt(sampleN))
-                    var zScoreList=[];
-                    var index=0;
-                    var innerIndex=0;
-                    var nanList=[];
-                    var ypList=[];
-                    var gnlList=[];
-                    var npList=[];
-                    var restList=[];
-                    var ypListno=[];
-                    var npListno=[];
-                    var gnlListno=[];
-                    for(let [key,value] of Object.entries(heatmapDict)){
-                        // eslint-disable-next-line no-unused-vars
-                        for (let [innerKey, innerValue] of Object.entries(value)){
-                            let zScore = (innerValue['sampleMean'] - geneDict[key]['populationMean'])/(geneDict[key]['sigma']/Math.sqrt(innerValue['sampleN']));
-                            if(Number.isNaN(zScore)){
-                                nanList.push(key);
-                                if(key.includes("YP")){
-                                    ypList.push(key);
-                                }
-                                else if(key.includes("gnl")){
-                                    gnlList.push(key);
-                                }
-                                else if(key.includes("NP")){
-                                    npList.push(key);
-                                }else{
-                                   restList.push(key);
-                                }
-                            }else{
-                                if(key.includes("YP")){
-                                    ypListno.push(key);
-                                }
-                                else if(key.includes("gnl")){
-                                    gnlListno.push(key);
-                                }
-                                else if(key.includes("NP")){
-                                    npListno.push(key);
-                                }
-                            }
-                            zScoreList.push([index, innerIndex,zScore]);
-                            if(!this.plotGeneNames.includes(key)){
-                                this.plotGeneNames.push(key);
-                            }
-                            innerIndex= innerIndex+1;
-                            if(innerIndex>this.plotCategories.length-1){
-                                innerIndex=0;
-                            }
-                        }
-                        index=index+1;
-                    }
-                }
-            }
-            this.heatmapData=zScoreList;
-            // console.log(zScoreList);
-            // console.log("nanList");
-            // console.log(nanList);
-            // console.log("ypList");
-            // console.log(ypList);
-            // console.log("ypListno");
-            // console.log(ypListno);
-            // console.log("gnlList");
-            // console.log(gnlList);
-            // console.log("gnlListno");
-            // console.log(gnlListno);
-            // console.log("npList");
-            // console.log(npList);
-            // console.log("npListno");
-            // console.log(npListno);
-            // console.log("restList");
-            // console.log(restList);
-
-        },
-        // formatting plotData; axis are formatted already; needed format of z-scores to correclty plot is:
-        // array=[cds1_con1, cds1_con2, cds1_con3, cds2_con1, cds2_con2, cds2_con3, etc] -> for correct assignment to axis labels, which are conditions (y) and feature IDs(x)
-
-        // highcharts heatmap
-        drawHEATMAP(){
-            Highcharts.chart('heatmapdisplay', {
-                chart: {
-                    type: 'heatmap',
-                    marginTop: 40,
-                    marginBottom: 100,
-                    plotBorderWidth: 1,
-                    zoomType:'xy',
-                    /* scrollablePlotArea: {
-                        minWidth: 700,
-                        scrollPositionX: 1
-                    }*/
-                },
-                title: {
-                    text: 'z-scores per feature and condition'
-                },
-                tooltip: {
-                    formatter: function() {
-                        return 'z-score: '+ this.point.value;
-                    }
-                },
-                xAxis: {
-                    categories: this.plotGeneNames,
-                },
-                yAxis: {
-                    categories: this.plotCategories,
-                    title: null
-                },
-                colorAxis: {
-                    min: -4,
-                    max:4,
-                    stops:[
-                        [0, this.color1],
-                        [this.intermediateColorStop, this.color2],
-                        [1, this.color3]
-                    ]
-                },
-                legend: {
-                    align: 'right',
-                    layout: 'vertical',
-                    margin: 10,
-                    verticalAlign: 'middle',
-                    y: -15,
-                    symbolHeight: 280
-                },
-                series: [{
-                    name: 'z-score',
-                    turboThreshold: 0,
-                    data: this.heatmapData,
-                    borderWidth:0
-                }],
-            });
-        }
+          }
+          return output;
+        } else{ return number }*/
+        // return number.toLocaleString('en-us');
+      }
     }
   }
 
@@ -2062,41 +1953,6 @@
 
   .tableWrapper {
     border-collapse: collapse;
-  }
-
-  .parent-container{
-    /*background-color: crimson;*/
-    width: 80%;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    margin-left: 100px;
-  }
-
-  .first-level-child{
-    /*background-color: greenyellow;*/
-  }
-
-  .second-level-child1{
-    /*background-color: palevioletred;*/
-    width: 10rem;
-    display: inline-block;
-  }
-
-  .second-level-child2{
-    /*background-color: palevioletred;*/
-    float: left;
-    width: calc(100%/2 - 20px);
-    margin: 10px;
-    display: inline-block;
-  }
-
-  .second-level-child4{
-    /*background-color: palevioletred;*/
-    float: left;
-    width: calc(100%/4 - 10px);
-    margin: 10px;
-    display: inline-block;
   }
 
 </style>
