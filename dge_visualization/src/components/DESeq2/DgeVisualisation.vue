@@ -136,7 +136,9 @@
           </template>
         </multiselect>
       </div>
+
       <div v-if="selectedCondition1 && selectedCondition2">
+        <h4>Specify barchart properties</h4>
         <!-- REGULATION TYPE SINGLE SELECT-->
         <div class="second-level-child2">
           <small>Select log2fold change type</small>
@@ -211,62 +213,70 @@
         <div class="second-level-child4">Putative groups (total): {{ groupCount }}</div>
       </div>
 
-      <!--########################################################################################################################### -->
-      <!--START OF VISUALISATION-->
-
-      <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2">
+      <div v-if="selectedRegulationType && selectedOperonSize && selectedCondition1 && selectedCondition2" class="first-level-child">
         <!-- index is the for-loop index used to generate unique keys. Highcharts will render to the unique key, since the charts are generated in a for-loop aswell -->
         <!-- index is also used to get table data-->
-        <div v-for="(item, index) in filteredGroupList" :key="index">
-          <!-- Element for Highchart barchart graphic -->
-          <div :id="index" class="barchart-container"></div>
-          <!-- barchart supportive table options selection menu -->
-          <div style="width: 80%">
-            <h4 style="white-space: nowrap">Select table data</h4>
-            <multiselect
-              v-model="selectedTableOptions"
-              :options="tableOptions"
-              :multiple="true"
-              :close-on-select="false"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :show-labels="true"
-              :preselect-first="false"
-              placeholder="Select table data"
-              selected-label="Selected"
-              select-label="Click to select"
-              deselect-label="Click to remove"
-            >
-              <template slot="selection" slot-scope="{ values, search, isOpen }">
-                <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
-              </template>
-            </multiselect>
-          </div>
-
-          <div v-if="selectedTableOptions.length !== 0">
-            <div class="table-container">
-              <table class="table-wrapper">
-                <tbody>
-                  <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
-                  <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
-                    <td v-for="(info, index_k) in gene" :key="index_k" class="td-wrapper">{{ info }}</td>
-                  </tr>
-                </tbody>
+        <table style="width: auto; max-width: 100%; display: inline-block; border: 0px solid darkviolet">
+          <tr v-for="(item, index) in filteredGroupList" :key="index" style="width: 100%; display: inline-block; border: 1px solid darkgrey; overflow-x: scroll; overflow-y: auto; margin-bottom: 20px; padding: 10px; background: white; border-radius: 10px; -webkit-box-shadow: inset 0 0 40px 20px darkgrey; box-shadow: inset 0 0 40px 20px darkgrey">
+            <td>
+              <!-- Element for Highchart graphic -->
+              <div :id="index" style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 0px solid green"></div>
+            </td>
+            <td>
+              <!--Table in the column for selection, table and buttons -->
+              <!--<div style="height: auto; width: auto; max-width: 100%; margin-top: 10px; border: 2px solid red"> -->
+              <table style="width: auto; max-width: 100%; border: 0px solid red">
+                <tr>
+                  <!-- first column table properties selection menu-->
+                  <td style="vertical-align: top">
+                    <h4 style="white-space: nowrap">Select table data</h4>
+                    <multiselect
+                      v-model="selectedTableOptions"
+                      :options="tableOptions"
+                      :multiple="true"
+                      :close-on-select="false"
+                      :clear-on-select="false"
+                      :preserve-search="true"
+                      :show-labels="true"
+                      :preselect-first="false"
+                      placeholder="Select table data"
+                      selected-label="Selected"
+                      select-label="Click to select"
+                      deselect-label="Click to remove"
+                    >
+                      <template slot="selection" slot-scope="{ values, search, isOpen }">
+                        <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
+                      </template>
+                    </multiselect>
+                  </td>
+                  <!-- feature table  -->
+                  <td>
+                    <div v-if="selectedTableOptions.length !== 0" style="margin-right: 2rem">
+                      <table style="width: 100%; margin-left: 20px;">
+                        <!-- tableList2 is an array of arrays of arrays. 1st inner array = one table; 2nd level inner arrays = table rows-->
+                        <tr v-for="(gene, index_j) in tableList2[index]" :key="index_j" style="border: 1px solid black; white-space: nowrap">
+                          <td v-for="(info, index_k) in gene" :key="index_k" style="border: 1px solid black; background: white; white-space: nowrap">{{ info }}</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
+                              Rounded Values
+                            </b-form-checkbox>
+                          </td>
+                          <td>
+                            <div :id="index" style="margin-top: 10px;padding: 0.1rem; text-align: left; margin-left: 10px; white-space: nowrap; border: 1px solid #CCC;background: #CCC; text-align: center; cursor: pointer; border-radius: 5px" @click="downloadOperonTable($event)">
+                              <font-awesome-icon :icon="faDownload" /> Download table
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
               </table>
-            </div>
-          </div>
-
-          <div class="second-level-child1">
-            <b-form-checkbox v-model="roundedValues" style="margin-top: 10px; white-space: nowrap">
-              Rounded Values
-            </b-form-checkbox>
-          </div>
-          <div class="download-table-button">
-            <div :id="index" @click="downloadOperonTable($event)">
-              <font-awesome-icon :icon="faDownload" /> Download table
-            </div>
-          </div>
-        </div>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
     <!--########################################################################################################################### -->
@@ -2060,34 +2070,26 @@
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
+    margin-left: 100px;
   }
 
   .first-level-child{
     /*background-color: greenyellow;*/
-   }
+  }
 
   .second-level-child1{
     /*background-color: palevioletred;*/
     width: 10rem;
     display: inline-block;
-    float: left;
   }
 
   .second-level-child2{
     /*background-color: palevioletred;*/
     float: left;
-    width: calc(80%/2 - 20px);
+    width: calc(100%/2 - 20px);
     margin: 10px;
     display: inline-block;
   }
-
-/*  .second-level-child2-right{
-    background-color: green;
-    float: right;
-    width: calc(90%/2 - 10px);
-    margin: 10px;
-    display: inline-block;
-  }*/
 
   .second-level-child4{
     /*background-color: palevioletred;*/
@@ -2095,62 +2097,6 @@
     width: calc(100%/4 - 10px);
     margin: 10px;
     display: inline-block;
-  }
-
-  .download-table-button{
-    /*background-color: palevioletred;*/
-    float: left;
-    width: calc(100%/2 - 20px);
-    display: inline-block;
-    margin: 10px;
-    padding: 0.1rem;
-    white-space: nowrap;
-    border: 1px solid #CCC;
-    background: #CCC;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 5px
-  }
-
-  .barchart-container{
-    height: auto;
-    width: auto;
-    max-width: 80%;
-    min-width:80%;
-    margin: 10px;
-    /*border: 0px solid green*/
-  }
-
-  .table-container{
-    /*background-color: palevioletred;*/
-    display: flex;
-    flex-flow: row;
-    align-items: stretch;
-    width: 80%;
-    max-width:80%
-  }
-
-  .table-wrapper{
-    /*background-color: green;*/
-    display: inline-block;
-    flex-flow: row;
-    margin: 10px;
-    overflow-x: scroll;
-    width: 100%;
-  }
-
-  .td-wrapper{
-    border: 1px solid black;
-    background: white;
-    white-space: nowrap;
-    width: auto;
-    text-align: center;
-    padding: 2px;
-  }
-
-  tbody{
-    display:block;
-    margin: 0 auto;
   }
 
 </style>
