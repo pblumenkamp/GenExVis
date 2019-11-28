@@ -2,7 +2,8 @@
 <template>
   <div style="width: 98%; height: 600px; margin-left: 48px; text-align: center; border: 0px solid black">
     <h1>Differential Gene Expression - Visualisations</h1>
-    <b-card style="height: 60%; border: 1px solid darkgrey; width: 100%; background: white; border-radius: 15px; -webkit-box-shadow: inset 0 0 40px 15px darkgrey; box-shadow: inset 0 0 40px 15px darkgrey">
+<!--    <b-card style="height: 60%; border: 1px solid darkgrey; width: 100%; background: white; border-radius: 15px; -webkit-box-shadow: inset 0 0 40px 15px darkgrey; box-shadow: inset 0 0 40px 15px darkgrey">-->
+    <b-card style="height: 60%; border: 1px solid black; width: 100%; background: white">
       <b-row>
         <!-- REGULATION TYPE SINGLE SELECT-->
         <b-col>
@@ -359,12 +360,12 @@
               </multiselect>
             </b-col>
           </b-row>
-          <div v-if="selectedConditionPairData && selectedRegulationType" style="margin-top: 10px">
+          <div v-if="selectedConditionPairData && selectedRegulationType" style="margin-top: 10px; margin-left: 15px">
             <b-row style="margin-top: 10px">
               <table>
                 <tr>
                   <td>
-                    <p>Select condition pairs to display uniquely regulated features for</p>
+                    <p>Select condition pairs to display uniquely significant features for</p>
                     <multiselect
                       v-model="selectedConditionPairs"
                       :options="conditionPairs"
@@ -397,7 +398,7 @@
                     />
                   </td>
                   <td v-if="onlyOne && selectedConditionPairData && selectedRegulationType && selectedConditionPairs">
-                    Please note: Only one condition pair was chosen. All significant features are shown, not the uniquely regulated features, since there was nothing chosen to compare to.
+                    Please note: Only one condition pair was chosen. All significant features are shown, not the uniquely significant features, since there was nothing chosen to compare to.
                   </td>
                 </tr>
               </table>
@@ -409,8 +410,9 @@
           <div v-if="selectedConditionPairData && selectedRegulationType && selectedConditionPairs" style="margin-top: 90px; width: 1300px; height: 600px; border: 0px solid blue; ">
             <table style="width: 100%; margin-left: 20px; display: inline-block;">
               <!-- one row for each table -->
-              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid darkgrey; margin-bottom: 20px; padding: 10px; background: white; border-radius: 15px;  -webkit-box-shadow: inset 0 0 30px 10px darkgrey; box-shadow: inset 0 0 30px 10px darkgrey">
-                <!-- one td for each table selection menu and table-->
+<!--              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid darkgrey; margin-bottom: 20px; padding: 10px; background: white; border-radius: 15px;  -webkit-box-shadow: inset 0 0 30px 10px darkgrey; box-shadow: inset 0 0 30px 10px darkgrey">-->
+              <tr v-for="(oneTable, index) in uniqueGenesTableArray" :key="index" style="width: 100%; height: 300px; display: inline-block; border: 1px solid black; margin-bottom: 20px; padding: 10px; background: white">
+              <!-- one td for each table selection menu and table-->
                 <td style="vertical-align: top">
                   <h4>{{ uniqueGenesTitles[index] }}</h4>
                   <table>
