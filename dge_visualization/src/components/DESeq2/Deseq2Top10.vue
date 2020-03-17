@@ -437,13 +437,6 @@
                 }
               }
             },
-            exporting: {
-              buttons: {
-                contextButton: {
-                  menuItems: ['downloadPNG', 'downloadSVG', 'separator']
-                }
-              }
-            },
             series: [{
               name: 'READS',
               color: 'rgba(223, 83, 83, .5)'
