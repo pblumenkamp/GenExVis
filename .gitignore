@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 genexvis/test/unit/coverage/
 genexvis/about/build_date.json
+genexvis/ressources/
+genexvis/dist_nwjs/
 
 # Editor directories and files
 .idea
