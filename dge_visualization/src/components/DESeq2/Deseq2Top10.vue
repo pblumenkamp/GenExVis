@@ -458,8 +458,6 @@
         }
       },
       createData (element, categories) {
-        console.log('>>> createData');
-
         let dataList = [];
         let geneCountData = null;
         if (this.selectedNormalization === 'deseq2') {
@@ -562,7 +560,6 @@
       }
     },
     updated () {
-      console.log('>>> VUE.updated');
       if (this.updateCheck === true) {
         this.showMainPage = true;
         this.amountNegotiator();
