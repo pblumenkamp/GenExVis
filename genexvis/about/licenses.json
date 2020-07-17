@@ -1,0 +1,157 @@
+{
+  "@fortawesome/fontawesome-svg-core@1.2.21": {
+    "email": "dave@fontawesome.com",
+    "licenseContent": "Font Awesome Free License\n-------------------------\n\nFont Awesome Free is free, open source, and GPL friendly. You can use it for\ncommercial projects, open source projects, or really almost whatever you want.\nFull Font Awesome Free license: https://fontawesome.com/license/free.\n\n# Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)\nIn the Font Awesome Free download, the CC BY 4.0 license applies to all icons\npackaged as SVG and JS file types.\n\n# Fonts: SIL OFL 1.1 License (https://scripts.sil.org/OFL)\nIn the Font Awesome Free download, the SIL OFL license applies to all icons\npackaged as web and desktop font files.\n\n# Code: MIT License (https://opensource.org/licenses/MIT)\nIn the Font Awesome Free download, the MIT license applies to all non-font and\nnon-icon files.\n\n# Attribution\nAttribution is required by MIT, SIL OFL, and CC BY licenses. Downloaded Font\nAwesome Free files already contain embedded comments with sufficient\nattribution, so you shouldn't need to do anything additional when using these\nfiles normally.\n\nWe've kept attribution comments terse, so we ask that you do not actively work\nto remove them from files, especially code. They're a great way for folks to\nlearn about Font Awesome.\n\n# Brand Icons\nAll brand icons are trademarks of their respective owners. The use of these\ntrademarks does not indicate endorsement of the trademark holder by Font\nAwesome, nor vice versa. **Please do not use brand logos for any purpose except\nto represent the company, product, or service to which they refer.**\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/fontawesome-svg-core/LICENSE.txt",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/fontawesome-svg-core",
+    "publisher": "Dave Gandy",
+    "repository": "https://github.com/FortAwesome/Font-Awesome",
+    "url": "http://twitter.com/davegandy"
+  },
+  "@fortawesome/free-solid-svg-icons@5.10.1": {
+    "email": "dave@fontawesome.com",
+    "licenseContent": "Font Awesome Free License\n-------------------------\n\nFont Awesome Free is free, open source, and GPL friendly. You can use it for\ncommercial projects, open source projects, or really almost whatever you want.\nFull Font Awesome Free license: https://fontawesome.com/license/free.\n\n# Icons: CC BY 4.0 License (https://creativecommons.org/licenses/by/4.0/)\nIn the Font Awesome Free download, the CC BY 4.0 license applies to all icons\npackaged as SVG and JS file types.\n\n# Fonts: SIL OFL 1.1 License (https://scripts.sil.org/OFL)\nIn the Font Awesome Free download, the SIL OFL license applies to all icons\npackaged as web and desktop font files.\n\n# Code: MIT License (https://opensource.org/licenses/MIT)\nIn the Font Awesome Free download, the MIT license applies to all non-font and\nnon-icon files.\n\n# Attribution\nAttribution is required by MIT, SIL OFL, and CC BY licenses. Downloaded Font\nAwesome Free files already contain embedded comments with sufficient\nattribution, so you shouldn't need to do anything additional when using these\nfiles normally.\n\nWe've kept attribution comments terse, so we ask that you do not actively work\nto remove them from files, especially code. They're a great way for folks to\nlearn about Font Awesome.\n\n# Brand Icons\nAll brand icons are trademarks of their respective owners. The use of these\ntrademarks does not indicate endorsement of the trademark holder by Font\nAwesome, nor vice versa. **Please do not use brand logos for any purpose except\nto represent the company, product, or service to which they refer.**\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/free-solid-svg-icons/LICENSE.txt",
+    "licenses": "(CC-BY-4.0 AND MIT)",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/free-solid-svg-icons",
+    "publisher": "Dave Gandy",
+    "repository": "https://github.com/FortAwesome/Font-Awesome",
+    "url": "http://twitter.com/davegandy"
+  },
+  "@fortawesome/vue-fontawesome@0.1.6": {
+    "licenseContent": "Copyright 2018 Fonticons, Inc.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies\nof the Software, and to permit persons to whom the Software is furnished to do\nso, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/vue-fontawesome/LICENSE.txt",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/@fortawesome/vue-fontawesome",
+    "repository": "https://github.com/FortAwesome/vue-fontawesome"
+  },
+  "ag-grid-community@20.2.0": {
+    "email": "niall.crosby@ag-grid.com",
+    "licenseContent": "The MIT License\n\nCopyright (c) 2015-2016 AG GRID LTD\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/ag-grid-community/LICENSE.txt",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/ag-grid-community",
+    "publisher": "Niall Crosby",
+    "repository": "https://github.com/ag-grid/ag-grid"
+  },
+  "ag-grid-vue@20.2.0": {
+    "email": "sean@thelandsmans.com",
+    "licenseContent": "The MIT License\n\nCopyright (c) 2015-2016 AG GRID LTD\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/ag-grid-vue/LICENSE.txt",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/ag-grid-vue",
+    "publisher": "Sean Landsman",
+    "repository": "https://github.com/ag-grid/ag-grid"
+  },
+  "bootstrap-vue@2.0.0-rc.28": {
+    "licenseContent": "The MIT License (MIT)\n\nCopyright (c) 2016-2019 - BootstrapVue\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/bootstrap-vue/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/bootstrap-vue",
+    "repository": "https://github.com/bootstrap-vue/bootstrap-vue"
+  },
+  "bootstrap@4.3.1": {
+    "licenseContent": "The MIT License (MIT)\n\nCopyright (c) 2011-2019 Twitter, Inc.\nCopyright (c) 2011-2019 The Bootstrap Authors\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/bootstrap/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/bootstrap",
+    "publisher": "The Bootstrap Authors",
+    "repository": "https://github.com/twbs/bootstrap",
+    "url": "https://github.com/twbs/bootstrap/graphs/contributors"
+  },
+  "highcharts@7.1.1": {
+    "email": "support@highcharts.com",
+    "licenseContent": "Custom: https://www.npmjs.com/package/highcharts-export-server",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/highcharts/README.md",
+    "licenses": "Custom: https://www.npmjs.com/package/highcharts-export-server",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/highcharts",
+    "publisher": "Highsoft AS",
+    "repository": "https://github.com/highcharts/highcharts-dist",
+    "url": "http://www.highcharts.com/about"
+  },
+  "jquery@3.4.1": {
+    "licenseContent": "Copyright JS Foundation and other contributors, https://js.foundation/\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/jquery/LICENSE.txt",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/jquery",
+    "publisher": "JS Foundation and other contributors",
+    "repository": "https://github.com/jquery/jquery",
+    "url": "https://github.com/jquery/jquery/blob/3.4.1/AUTHORS.txt"
+  },
+  "lodash.debounce@4.0.8": {
+    "email": "john.david.dalton@gmail.com",
+    "licenseContent": "Copyright jQuery Foundation and other contributors <https://jquery.org/>\n\nBased on Underscore.js, copyright Jeremy Ashkenas,\nDocumentCloud and Investigative Reporters & Editors <http://underscorejs.org/>\n\nThis software consists of voluntary contributions made by many\nindividuals. For exact contribution history, see the revision history\navailable at https://github.com/lodash/lodash\n\nThe following license applies to all parts of this software except as\ndocumented below:\n\n====\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n====\n\nCopyright and related rights for sample code are waived via CC0. Sample\ncode is defined as all source code displayed within the prose of the\ndocumentation.\n\nCC0: http://creativecommons.org/publicdomain/zero/1.0/\n\n====\n\nFiles located in the node_modules and vendor directories are externally\nmaintained libraries used by this software which have their own\nlicenses; we recommend you read them, as their terms may differ from the\nterms above.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/lodash.debounce/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/lodash.debounce",
+    "publisher": "John-David Dalton",
+    "repository": "https://github.com/lodash/lodash",
+    "url": "http://allyoucanleet.com/"
+  },
+  "v-tooltip@2.0.2": {
+    "email": "guillaume.b.chau@gmail.com",
+    "licenseContent": "MIT License\n\nCopyright (c) 2018 Guillaume Chau (alias Akryum)\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/v-tooltip/LICENSE",
+    "licenses": "ISC",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/v-tooltip",
+    "publisher": "Guillaume Chau",
+    "repository": "https://github.com/Akryum/vue-tooltip"
+  },
+  "vue-multiselect@2.1.6": {
+    "email": "damian.dulisz@gmail.com",
+    "licenseContent": "MIT License\n\nCopyright (c) 2016 Damian Dulisz\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-multiselect/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-multiselect",
+    "publisher": "Damian Dulisz",
+    "repository": "https://github.com/shentao/vue-multiselect"
+  },
+  "vue-property-decorator@8.1.1": {
+    "licenseContent": "The MIT License (MIT)\n\nCopyright (c) 2018 kaorun343\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-property-decorator/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-property-decorator",
+    "publisher": "kaorun343",
+    "repository": "https://github.com/kaorun343/vue-property-decorator"
+  },
+  "vue-router@3.0.6": {
+    "licenseContent": "MIT License\n\nCopyright (c) 2013-present Evan You\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-router/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-router",
+    "publisher": "Evan You",
+    "repository": "https://github.com/vuejs/vue-router"
+  },
+  "vue-sidebar-menu@4.0.0": {
+    "email": "yaminncco@gmail.com",
+    "licenseContent": "MIT License\n\nCopyright (c) 2018 yaminncco\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-sidebar-menu/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-sidebar-menu",
+    "publisher": "yaminncco",
+    "repository": "https://github.com/yaminncco/vue-sidebar-menu"
+  },
+  "vue-switches@2.0.1": {
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-switches/README.md",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue-switches",
+    "publisher": "Drew J Bartlett"
+  },
+  "vue@2.6.10": {
+    "licenseContent": "The MIT License (MIT)\n\nCopyright (c) 2013-present, Yuxi (Evan) You\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vue",
+    "publisher": "Evan You",
+    "repository": "https://github.com/vuejs/vue"
+  },
+  "vuex@3.1.0": {
+    "licenseContent": "The MIT License (MIT)\n\nCopyright (c) 2015-present Evan You\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n",
+    "licenseFile": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vuex/LICENSE",
+    "licenses": "MIT",
+    "path": "/home/patrick/Arbeit/Promotion/Pipeline/dge_visualization_site/dge_visualization/node_modules/vuex",
+    "publisher": "Evan You",
+    "repository": "https://github.com/vuejs/vuex"
+  }
+}
