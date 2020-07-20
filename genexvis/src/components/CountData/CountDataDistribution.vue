@@ -359,6 +359,13 @@
         chart = Highcharts.chart(CHART_ID, options)
         vue.$charts.length = 0
         vue.$charts.push(chart)
+
+        const delay = ms => new Promise(res => setTimeout(res, ms))
+        delay(1000).then(() => {
+          for (const chart of vue.$charts) {
+            chart.reflow()
+          }
+        })
       },
       createHistogram (minValue, maxValue, stepsize, data) {
         let stepsizeDecimals = (Math.floor(stepsize) === stepsize) ? 0 : stepsize.toString().split('.')[1].length

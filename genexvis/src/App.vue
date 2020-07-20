@@ -233,7 +233,7 @@
       reflow_charts () {
         const vue = this
         const delay = ms => new Promise(res => setTimeout(res, ms))
-        delay(1500).then(() => {
+        delay(1250).then(() => {
           for (const chart of vue.$charts) {
             chart.reflow()
           }

@@ -122,7 +122,7 @@
     <div
       id="countdatagenecounthm_highcharts"
       ref="countdatagenecounthm_highcharts"
-      style="min-width: 60%; max-width: 60%; margin: 1rem auto 0"
+      style="min-width: 60%; max-width: 90%; margin: 1rem auto 0;"
     ></div>
   </div>
 </template>
@@ -225,14 +225,14 @@
           },
           navigation: {
             buttonOptions: {
-              align: 'left',
-              height: 40,
-              width: 48,
+              align: 'right',
+              height: 30,
+              width: 36,
               symbolStroke: '#ffffff',
-              symbolSize: 24,
-              symbolX: 24,
-              symbolY: 20,
-              symbolStrokeWidth: 2,
+              symbolSize: 18,
+              symbolX: 18,
+              symbolY: 15,
+              symbolStrokeWidth: 1.5,
               theme: {
                 fill: '#7d7d7d'
               }
@@ -346,6 +346,13 @@
         chart.hideLoading()
         this.$charts.length = 0
         this.$charts.push(chart)
+
+        const delay = ms => new Promise(res => setTimeout(res, ms))
+        delay(5000).then(() => {
+          for (const chart of vue.$charts) {
+            chart.reflow()
+          }
+        })
       },
       clearChart () {
         this.selectedNormalization = ''

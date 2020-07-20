@@ -3,77 +3,79 @@
   <div style="text-align: center">
     <h1 class="header">Volcano Plot</h1>
 
-    <b-form-select v-model="selectedCondition1" style="width: auto; margin-right: 0.5rem" @change="selectedCondition2 = ''">
-      <template slot="first">
-        <option :value="''" disabled>
-          -- Please select the first condition --
+    <div style="margin: 0 auto; width: 60%">
+      <b-form-select v-model="selectedCondition1" style="width: auto; margin-right: 0.5rem" @change="selectedCondition2 = ''">
+        <template slot="first">
+          <option :value="''" disabled>
+            -- Please select the first condition --
+          </option>
+        </template>
+        <option
+          v-for="cond in conditions"
+          :key="cond"
+          :value="cond"
+        >
+          {{ cond }}
         </option>
-      </template>
-      <option
-        v-for="cond in conditions"
-        :key="cond"
-        :value="cond"
-      >
-        {{ cond }}
-      </option>
-    </b-form-select>
+      </b-form-select>
 
-    <b-form-select
-      v-model="selectedCondition2"
-      style="width: auto; margin-left: 0.5rem"
-      :disabled="selectedCondition1 === ''"
-      @input="drawData"
-    >
-      <template slot="first">
-        <option :value="''" disabled>
-          -- Please select the second condition --
+      <b-form-select
+        v-model="selectedCondition2"
+        style="width: auto; margin-left: 0.5rem"
+        :disabled="selectedCondition1 === ''"
+        @input="drawData"
+      >
+        <template slot="first">
+          <option :value="''" disabled>
+            -- Please select the second condition --
+          </option>
+        </template>
+        <option
+          v-for="cond in conditionMate"
+          :key="cond"
+          :value="cond"
+        >
+          {{ cond }}
         </option>
-      </template>
-      <option
-        v-for="cond in conditionMate"
-        :key="cond"
-        :value="cond"
-      >
-        {{ cond }}
-      </option>
-    </b-form-select>
+      </b-form-select>
 
-    <div
-      id="deseq2volcanoplot_highcharts"
-      ref="deseq2volcanoplot_highcharts"
-      style="height: 40rem; min-width: 60%; max-width: 90%; margin: 1rem auto 0;"
-    ></div>
+      <div
+        id="deseq2volcanoplot_highcharts"
+        ref="deseq2volcanoplot_highcharts"
+        style="height: 40rem; min-width: 60%; max-width: 90%; margin: 1rem auto 0;"
+      ></div>
 
-    <div v-if="selectedCondition1 && selectedCondition2">
-      <hr>
-      <b-container fluid border="1">
-        <b-row class="my-1">
-          <b-col sm="3">
-            <label style="margin-top: 0.4rem;">p-value threshold</label>
-          </b-col>
-          <b-col sm="9">
-            <b-form-input
-              v-model="inputPThreshold"
-              type="number"
-              min="0"
-              max="1"
-              step="0.001"
-              style="width: 10rem;"
-              @change="updatePThreshold"
-            />
-          </b-col>
-        </b-row>
-        <b-row class="my-1">
-          <b-col sm="3">
-            <label>use adjusted p-value</label>
-          </b-col>
-          <b-col sm="9">
-            <b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData" />
-          </b-col>
-        </b-row>
-      </b-container>
-      <hr>
-      <gene-table :features="rowNames" :condition-a="selectedCondition1" :condition-b="selectedCondition2" />
+      <div v-if="selectedCondition1 && selectedCondition2">
+        <hr>
+        <b-container fluid border="1">
+          <b-row class="my-1">
+            <b-col sm="3">
+              <label style="margin-top: 0.4rem;">p-value threshold</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-input
+                v-model="inputPThreshold"
+                type="number"
+                min="0"
+                max="1"
+                step="0.001"
+                style="width: 10rem;"
+                @change="updatePThreshold"
+              />
+            </b-col>
+          </b-row>
+          <b-row class="my-1">
+            <b-col sm="3">
+              <label>use adjusted p-value</label>
+            </b-col>
+            <b-col sm="9">
+              <b-form-checkbox v-model="useAdjPValue" style="float: left;" @input="drawData" />
+            </b-col>
+          </b-row>
+        </b-container>
+        <hr>
+        <gene-table :features="rowNames" :condition-a="selectedCondition1" :condition-b="selectedCondition2" />
+      </div>
     </div>
   </div>
 </template>
@@ -339,6 +341,13 @@
         const chart = Highcharts.chart(CHART_ID, options)
         vue.$charts.length = 0
         vue.$charts.push(chart)
+
+        const delay = ms => new Promise(res => setTimeout(res, ms))
+        delay(1000).then(() => {
+          for (const chart of vue.$charts) {
+            chart.reflow()
+          }
+        })
       },
       clearChart () {
         this.selectedCondition1 = ''
