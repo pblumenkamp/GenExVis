@@ -245,6 +245,13 @@
               }
             }
           },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ["printChart", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG"]
+              }
+            }
+          },
           series: [{
             name: ((this.useAdjPValue) ? 'adjusted p-value' : 'p-value') + ' <= ' + this.pThreshold.toExponential(2),
             color: '#ba0001',

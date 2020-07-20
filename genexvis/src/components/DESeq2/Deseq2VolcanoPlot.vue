@@ -258,6 +258,13 @@
               }
             }
           },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ["printChart", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG"]
+              }
+            }
+          },
           series: [{
             //name: '|log2 fold change >= 2 AND p-value <= ' + vue.pThreshold.toExponential(2),
             name: 'Statistically significant AND highly expressed',

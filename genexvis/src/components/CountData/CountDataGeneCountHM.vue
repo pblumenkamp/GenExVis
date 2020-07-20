@@ -281,6 +281,13 @@
                 '</b><br>Counts: <b>' + this.point.value + '</b>'
             }
           },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ["printChart", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG"]
+              }
+            }
+          },
           series: [{
             name: 'count per gene',
             turboThreshold: Number.MAX_VALUE,

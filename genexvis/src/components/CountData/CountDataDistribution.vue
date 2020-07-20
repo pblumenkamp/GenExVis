@@ -321,6 +321,13 @@
               pointPadding: 0
             }
           },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ["printChart", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG"]
+              }
+            }
+          },
           series: [
             {
               name: 'distribution',

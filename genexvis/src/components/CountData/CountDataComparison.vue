@@ -310,6 +310,13 @@
             footerFormat: '</table>',
             followPointer: true
           },
+          exporting: {
+            buttons: {
+              contextButton: {
+                menuItems: ["printChart", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG"]
+              }
+            }
+          },
           series: [{
             name: 'Genes',
             color: '#000000',
