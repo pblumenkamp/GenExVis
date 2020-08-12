@@ -3,7 +3,7 @@
   <div>
     <h1 class="header">Gene Counts Heat Map</h1>
 
-    <div style="margin: 0 auto; width: 60%">
+    <div>
       <div>
         <span v-if="!showCollapsedConditions" style="cursor: pointer" @click="showCollapsedConditions = true">
           <font-awesome-icon :icon="faPlusCircle" />

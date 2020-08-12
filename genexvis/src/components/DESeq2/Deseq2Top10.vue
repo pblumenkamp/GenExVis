@@ -382,6 +382,21 @@
               type: 'scatter',
               zoomType: 'xy'
             },
+            navigation: {
+              buttonOptions: {
+                align: 'right',
+                height: 30,
+                width: 36,
+                symbolStroke: '#ffffff',
+                symbolSize: 18,
+                symbolX: 18,
+                symbolY: 15,
+                symbolStrokeWidth: 1.5,
+                theme: {
+                  fill: '#7d7d7d'
+                }
+              }
+            },
             title: {
               text: plotTitle
             },
