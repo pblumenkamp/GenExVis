@@ -1,6 +1,6 @@
 <template>
   <div>
-    <router-view id="main_view" :class="[{'collapsed_sidebar_left' : collapsed_sidebar, 'collapsed_sidebar_right' : collapsed_data}]" />
+    <router-view id="main_view" :class="[{'collapsed_sidebar_left' : collapsed_sidebar, 'collapsed_sidebar_right' : collapsed_data}]"  style="padding-top: 1rem; padding-bottom: 5rem" />
     <div :class="[{'data_sidebar': !collapsed_data, 'dsb_collapsed': collapsed_data}]">
       <b-card v-if="!collapsed_data" class="dsb_card dsb" body-class="no-padding">
         <h4>
