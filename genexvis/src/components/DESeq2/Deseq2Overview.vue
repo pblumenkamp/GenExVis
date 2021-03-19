@@ -4,8 +4,7 @@
       <h1 class="header">Overview</h1>
     </div>
 
-    <div>
-
+    <div v-if="!this.isTableTooBig">
       <div class="structureFlex">
         <div class="structureFlexCell topStructureFlexCell">
 
@@ -114,72 +113,57 @@
           </div>
         </div>
       </div>
+      <p></p>
 
-    </div><p></p>
+      <div style="border: 5px solid white; border-radius: 5px">
+        <ag-grid-vue
+          id="main-table"
+          class="main-table ag-theme-fresh"
+          align="left"
 
-    <div style="border: 5px solid white; border-radius: 5px" v-if="this.excessLength === false">
-      <ag-grid-vue
-        id="main-table"
-        class="main-table ag-theme-fresh"
-        align="left"
+          :gridOptions="gridOptions"
+          :columnDefs="columnDefs"
+          :rowData="rowData"
+          :icons="icons"
 
-        :gridOptions="gridOptions"
-        :columnDefs="columnDefs"
-        :rowData="rowData"
-        :icons="icons"
+          :groupHeaders="true"
 
-        :groupHeaders="true"
-
-        @modelUpdated="onModelUpdated"
-        @selectionChanged="onSelectionChanged"
-        @columnVisible="onVisionChanged"
-        @columnMoved="onPositionChanged"
-        @gridReady="onReady"
-      />
+          @modelUpdated="onModelUpdated"
+          @selectionChanged="onSelectionChanged"
+          @columnVisible="onVisionChanged"
+          @columnMoved="onPositionChanged"
+          @gridReady="onReady"
+        />
+      </div>
     </div>
-    <div v-else class="main-table" >
-      <br>
-      <table width="100%">
-        <tr align="center">
-          <th></th>
-          <th><h2>Unfortunately the table was too large to display</h2></th>
-          <th></th>
-        </tr>
-        <tr align="center">
-          <th></th>
-          <th><h3>You can download the full table below</h3></th>
-          <th></th>
-        </tr>
-        <tr align="center">
-          <th></th>
-          <th>
-            <table layout="fixed">
-              <td width="33%">
+
+    <div v-else class="main-no-table" style="height: 80vh">
+      <div>
+        <h2 style="text-align: center">Unfortunately the table was too large to display.</h2>
+        <h3 style="text-align: center">You can try working with an subset or you can save the full table below:</h3>
+        <table style="width: 100%">
+          <tr style="text-align: center">
+            <td style="width: 25%"></td>
+            <td>
                 <button
-                  id = 'downloadCSV'
-                  class="btn btn-dark btn-sm"
-                  title="Download table as .csv"
-                  @click="downloadCSV"
-                  style = "width: 100%"
+                    id = 'downloadCSV'
+                    class="btn btn-dark btn-sm"
+                    title="Download table as .csv"
+                    @click="downloadCSV"
                 >
                   <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
                 </button>
               </td>
-              <td width="33%">
+              <td style="width: 10%"></td>
+              <td>
+                <b-form-checkbox v-model="roundedValues2" @change="toggleRoundingChange2">
+                  Rounded Values
+                </b-form-checkbox>
               </td>
-              <td width="33%">
-                <div>
-                  <b-form-checkbox v-model="roundedValues2"
-                                   @change="toggleRoundingChange2">
-                    Rounded Values
-                  </b-form-checkbox>
-                </div>
-              </td>
-            </table>
-          </th>
-          <th></th>
-        </tr>
-      </table>
+              <td style="width: 25%"></td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 </template>
@@ -202,7 +186,6 @@
         rowData: null,
         icons: null,
 
-        excessLength: false,
         log2foldlist: [],
         log2foldmin: 0,
         log2foldmax: 0,
@@ -253,15 +236,6 @@
           }
           geneList.sort();
           this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
-        }
-      },
-      checkGeneAmount () {
-        let fileList = this.$store.state.deseqlist.length;
-        let fileLength = this.$store.state.dgeData.length;
-        this.rowTotalAmount = fileLength;
-
-        if (fileList * 6 * fileLength > 2000000) {
-          this.excessLength = true
         }
       },
       checkStorage () {
@@ -649,7 +623,6 @@
       clearSubset () {
         this.$store.dispatch(SET_SUBDGE, {geneList: []})
       },
-      // Miri
       downloadCSV () {
         // first row with file names
         let topColumns = [];
@@ -740,7 +713,7 @@
             document.body.removeChild(link)
           }
         }
-        downloadFile(csvContent, 'testDeseqOverview.csv')
+        downloadFile(csvContent, 'GenExVis_Table.csv')
       }
     },
     computed: {
@@ -771,30 +744,42 @@
       },
       faArrowCircleLeft () {
         return faArrowCircleLeft
+      },
+      maxRowAmount () {
+        return this.$store.state.currentDGE.length;
+      },
+      maxColAmount () {
+        return this.$store.state.deseqlist.length;
+      },
+      isTableTooBig () {
+        var vue = this
+        // each field has 6 values
+        return (vue.maxRowAmount * 6 * vue.maxColAmount) > 1500000
       }
     },
     beforeMount () {
-      this.checkGeneAmount();
-
-      if (this.excessLength === false) {
-        this.checkStorage();
-        this.createRowData();
-        this.minmaxdefine();
-        this.createColumnDefs();
-        this.insertGridOptions();
-        this.createIcons()
+      var vue = this
+      if (vue.isTableTooBig === false) {
+        vue.checkStorage();
+        vue.createRowData();
+        vue.minmaxdefine();
+        vue.createColumnDefs();
+        vue.insertGridOptions();
+        vue.createIcons()
       }
     },
     mounted () {
-      if (this.excessLength === false) {
-        this.selectionNegotiator(0);
-        this.chooseDesign()
+      var vue = this
+      if (vue.isTableTooBig === false) {
+        vue.selectionNegotiator(0);
+        vue.chooseDesign()
       }
     },
     beforeDestroy () {
-      if (this.excessLength === false) {
-        this.readStructure();
-        this.pushStructure()
+      var vue = this
+      if (vue.isTableTooBig === false) {
+        vue.readStructure();
+        vue.pushStructure()
       }
     }
   }
@@ -928,6 +913,12 @@
     /*adjustments for the main ag-grid table*/
     width: 100%;
     height: 30rem;
+  }
+  .main-no-table {
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center;
   }
   .button-balham {
     background-color: lightgrey;
