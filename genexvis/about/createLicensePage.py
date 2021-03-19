@@ -22,6 +22,7 @@ def main(package_json_path):
                     values['licenseContent'] = license.read()
             if module.startswith('highcharts'):
                 values['licenseContent'] = values['licenses']
+            del values['path']
 
     json_string = json.dumps(new_json, sort_keys=True, indent=2)
     print(json_string)
