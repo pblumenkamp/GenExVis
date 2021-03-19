@@ -211,6 +211,7 @@
         this.selectedConditions = checked ? this.registeredConditions.slice(0) : []
       },
       drawData () {
+        let vue = this
         if (!this.selectedNormalization) {
           return
         }
