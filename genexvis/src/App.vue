@@ -7,13 +7,13 @@
           <u>DESeq2 Files:</u>
         </h4>
         <div class="dsb_filelist">
-          <li
+          <small
             v-for="fileName in this.$store.state.deseqlist"
             :key="fileName"
-            style="margin-left: 0.5rem;"
+            class="sidebar_list"
           >
-            <small>{{ fileName }}</small>
-          </li>
+            <li>{{ fileName }}</li>
+          </small>
         </div>
       </b-card>
 
@@ -22,13 +22,13 @@
           <u>Count files:</u>
         </h4>
         <div class="dsb_filelist">
-          <li
+          <small
             v-for="fileName in this.$store.state.countlist"
             :key="fileName"
-            style="margin-left: 0.5rem;"
+            class="sidebar_list"
           >
-            <small>{{ fileName }}</small>
-          </li>
+            <li>{{ fileName }}</li>
+          </small>
         </div>
       </b-card>
 
@@ -307,6 +307,8 @@
     font-weight: bold;
     padding-bottom: 1rem;
   }
+
+  .sidebar_list {}
 
   .v-sidebar-menu {
     transition: width 0.5s;
