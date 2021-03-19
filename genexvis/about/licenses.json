@@ -118,6 +118,7 @@
     "repository": "https://github.com/yaminncco/vue-sidebar-menu"
   },
   "vue-switches@2.0.1": {
+    "licenseContent": "Published under \"MIT\"",
     "licenseFile": "node_modules/vue-switches/README.md",
     "licenses": "MIT",
     "publisher": "Drew J Bartlett"

@@ -20,8 +20,10 @@ def main(package_json_path):
             if 'licenseFile' in values and 'license' in values['licenseFile'].lower():
                 with open(values['licenseFile']) as license:
                     values['licenseContent'] = license.read()
-            if module.startswith('highcharts'):
+            elif module.startswith('highcharts'):
                 values['licenseContent'] = values['licenses']
+            else:
+                values['licenseContent'] = 'Published under "{}"'.format(values['licenses'])
             del values['path']
 
     json_string = json.dumps(new_json, sort_keys=True, indent=2)
