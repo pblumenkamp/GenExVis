@@ -1,27 +1,3 @@
-# dge_visualization
+# GenExVis (Gene Expression Visualizer)
 
-> A Vue.js project
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run all tests
-npm test
-```
-
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+The gene expression visualizer (GenExVis) is an application for exploring and visualizing differential gene expression data created with DESeq2. It can create various charts and tables from simple count tables and Deseq2 result files without the necessity of uploading any data or installing any packages. 
