@@ -12,8 +12,8 @@
             :key="fileName"
             class="sidebar_list"
           >
-            <li>{{ fileName }}</li>
-          </small>
+            <small>{{ fileName }}</small>
+          </li>
         </div>
       </b-card>
 
@@ -27,8 +27,8 @@
             :key="fileName"
             class="sidebar_list"
           >
-            <li>{{ fileName }}</li>
-          </small>
+            <small>{{ fileName }}</small>
+          </li>
         </div>
       </b-card>
 
