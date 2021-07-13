@@ -1,8 +1,7 @@
 <template>
   <div>
     <div style="text-align: center">
-      <!--<b-form-file id="inputCountTable" v-model="file" placeholder="Choose a file..." @input="importCountTable" style="width: 50%"></b-form-file>-->
-      <file-chooser @change="loadFiles" />
+      <file-chooser :clear_value="clear_value" @change="loadFiles" />
     </div>
 
     <div v-if="headerConditionMapping.length !== 0" style="margin-top: 3rem">
@@ -81,6 +80,8 @@
   import {STORE_COUNT_TABLE} from '@/store/action_constants'
   import {ADD_COUNT} from '@/store/mutation_constants'
 
+  import {EventBus, Events} from '../../utilities/event_bus.js'
+
   import FileChooser from '../Misc/FileChooser'
 
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
@@ -102,7 +103,9 @@
         missingGeneColumn: false,
         normalization: ['Unnormalized', 'DESeq2'],
         selectedNormalization: 'unnormalized',
-        headerConditionMapping: []      // [{header: <string>, condition: <string>}, ...]
+        headerConditionMapping: [],      // [{header: <string>, condition: <string>}, ...],
+        clear_value: 0,
+        event_bus_callbacks: {}
       }
     },
     computed: {
@@ -249,6 +252,31 @@
         }
         return suggestion
       }
+    },
+    mounted () {
+      const vue = this
+      vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT] = () => {
+        vue.clear_value += 1
+        vue.selectedNormalization = 'unnormalized'
+        vue.file = null
+        console.log('items')
+        console.log(vue.items)
+        vue.items.splice(0, vue.items.length)
+        console.log(vue.items)
+        vue.importingFiles = false
+        vue.importingDone = false
+        vue.disabledImportButton = false
+        vue.missingGeneColumn = false
+        console.log('headerCond')
+        console.log(vue.headerConditionMapping)
+        vue.headerConditionMapping.splice(0, vue.headerConditionMapping.length)
+        console.log(vue.headerConditionMapping)
+      }
+      EventBus.$on(Events.CLEAR_ALL_IMPORT, vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT])
+    },
+    destroyed () {
+      const vue = this
+      EventBus.$off(Events.CLEAR_ALL_IMPORT, vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT])
     }
   }
 </script>

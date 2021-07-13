@@ -2,6 +2,7 @@
   <div>
     <input
       :id="id"
+      :ref="id"
       type="file"
       class="inputfile"
       :multiple="multiple"
@@ -28,7 +29,12 @@
     name: 'FileChooser',
     props: {
       multiple: {
-        type: Boolean
+        type: Boolean,
+        default: false
+      },
+      clear_value: {
+        type: Number,
+        default: 0
       }
     },
     data () {
@@ -55,6 +61,13 @@
         }
       }
     },
+    watch: {
+      clear_value (new_value, old_value) {
+        if (new_value !== old_value) {
+          this.clear_file_input()
+        }
+      }
+    },
     mounted () {
       this.id = this._uid
     },
@@ -62,6 +75,19 @@
       loadFiles (event) {
         this.files = event.target.files
         this.$emit('change', event)
+      },
+      clear_file_input () {
+        console.log('FileChooser clear')
+        if (this.multiple) {
+          console.log(this.$refs[this.id])
+          console.log(this.$refs[this.id].value)
+          console.log(this.$refs[this.id].values)
+          this.$refs[this.id].value = ''
+        } else {
+          this.$refs[this.id].value = ''
+
+        }
+        this.files = []
       }
     }
   }

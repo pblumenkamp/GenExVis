@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE, SET_CHARTS} from './action_constants'
-import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE, ADD_CHART, REMOVE_ALL_CHARTS} from './mutation_constants'
+import {EventBus, Events} from '../utilities/event_bus'
+
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE, SET_CHARTS, RESET_DGE} from './action_constants'
+import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE, ADD_CHART, REMOVE_ALL_CHARTS, CLEAR_DGE, CLEAR_LISTS, CLEAR_CONDITIONS} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -82,6 +84,18 @@ const store = new Vuex.Store({
         state.useSubDGE = false
         state.currentDGE = state.dgeData
       }
+    },
+    [CLEAR_DGE] (state, {}) {
+      state.subDGE.clear()
+      mainDGE.clear()
+      state.currentDGE = mainDGE
+    },
+    [CLEAR_LISTS] (state, {}) {
+      state.countlist.splice(0, state.countlist.length)
+      state.deseqlist.splice(0, state.deseqlist.length)
+    },
+    [CLEAR_CONDITIONS] (state, {}) {
+      state.registeredConditions.splice(0, state.registeredConditions.length)
     }
   },
   actions: {
@@ -156,6 +170,15 @@ const store = new Vuex.Store({
       return new Promise((resolve, reject) => {
         let subsetDGE = state.dgeData.getSubset(geneList)
         commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
+        resolve()
+      })
+    },
+    [RESET_DGE] ({commit, state}, {}) {
+      return new Promise((resolve, reject) => {
+        commit(CLEAR_DGE, {})
+        commit(CLEAR_LISTS, {})
+        commit(CLEAR_CONDITIONS, {})
+        EventBus.$emit(Events.CLEAR_ALL_IMPORT)
         resolve()
       })
     }

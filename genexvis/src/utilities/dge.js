@@ -69,6 +69,14 @@ export class DGE {
     return Array.from(this._normalizationMethods)
   }
 
+  clear () {
+    this._geneNames.clear()
+    this._conditionPairs.splice(0, this._conditionPairs.length)
+    this._data = {}
+    this._seqRunConditionMapping = {}
+    this._normalizationMethods.clear()
+  }
+
   /**
    * Get Gene object to gene name
    * @param {string} geneName

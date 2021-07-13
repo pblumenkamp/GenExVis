@@ -1,14 +1,14 @@
 <template>
   <div>
-    <router-view id="main_view" :class="[{'collapsed_sidebar_left' : collapsed_sidebar, 'collapsed_sidebar_right' : collapsed_data}]"  style="padding-top: 1rem; padding-bottom: 5rem" />
+    <router-view id="main_view" :class="[{'collapsed_sidebar_left' : collapsed_sidebar, 'collapsed_sidebar_right' : collapsed_data}]" style="padding-top: 1rem; padding-bottom: 5rem"/>
     <div :class="[{'data_sidebar': !collapsed_data, 'dsb_collapsed': collapsed_data}]">
       <b-card v-if="!collapsed_data" class="dsb_card dsb" body-class="no-padding">
         <h4>
           <u>DESeq2 Files:</u>
         </h4>
         <div class="dsb_filelist">
-          <small
-            v-for="fileName in this.$store.state.deseqlist"
+          <li
+            v-for="fileName in deseq_files"
             :key="fileName"
             class="sidebar_list"
           >
@@ -22,8 +22,8 @@
           <u>Count files:</u>
         </h4>
         <div class="dsb_filelist">
-          <small
-            v-for="fileName in this.$store.state.countlist"
+          <li
+            v-for="fileName in count_files"
             :key="fileName"
             class="sidebar_list"
           >
@@ -61,6 +61,7 @@
           </button>
         </div>
       </b-card>
+      <b-button @click="clearDGE">Clear All</b-button>
       <div v-if="!collapsed_data" class="dsb_use_subset">
         All Data
         <b-form-checkbox v-model="useSubset" name="subset-sutton" switch />
@@ -90,7 +91,7 @@
 </template>
 
 <script>
-  import {SET_SUBDGE} from './store/action_constants'
+  import {SET_SUBDGE, RESET_DGE} from './store/action_constants'
   import {SWITCH_DGE} from './store/mutation_constants'
 
   import {library} from '@fortawesome/fontawesome-svg-core'
@@ -218,6 +219,14 @@
         useSubset: false
       }
     },
+    computed: {
+      deseq_files () {
+        return this.$store.state.deseqlist
+      },
+      count_files () {
+        return this.$store.state.countlist
+      }
+    },
     watch: {
       useSubset (useSubset) {
         this.$store.commit(SWITCH_DGE, {useSubDGE: useSubset})
@@ -253,6 +262,10 @@
       },
       clearSubset () {
         this.$store.dispatch(SET_SUBDGE, {geneList: []})
+      },
+      clearDGE () {
+        console.log("clearDGEButton")
+        this.$store.dispatch(RESET_DGE, {})
       },
       onToggleCollapse (collapsed) {
         this.collapsed_sidebar = collapsed

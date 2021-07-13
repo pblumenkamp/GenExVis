@@ -212,10 +212,10 @@
       },
       drawData () {
         let vue = this
-        if (!this.selectedNormalization) {
+        if (!vue.selectedNormalization) {
           return
         }
-        conditionMapping = this.$store.state.currentDGE.seqRuns[this.selectedNormalization]
+        conditionMapping = vue.$store.state.currentDGE.seqRuns[vue.selectedNormalization]
         let options = {
           chart: {
             type: 'heatmap',
@@ -263,9 +263,9 @@
           colorAxis: {
             min: 0,
             stops: [
-              [0, this.color1],
-              [this.intermediateColorStop, this.color2],
-              [1, this.color3]]
+              [0, vue.color1],
+              [vue.intermediateColorStop, vue.color2],
+              [1, vue.color3]]
           },
           legend: {
             layout: 'vertical',
@@ -302,27 +302,27 @@
         series[0].data = []
 
         if (this.maxValue !== 0) {
-          options.colorAxis['max'] = this.maxValue
+          options.colorAxis['max'] = vue.maxValue
         }
 
         let seqRunNamesMap = {}
         let seqRunNames = []
         let seqRunIndex = 0
-        for (let cond of this.selectedConditions) {
-          for (let [seqRun, seqRunCond] of Object.entries(this.$store.state.currentDGE.seqRuns[this.selectedNormalization])) {
+        for (let cond of vue.selectedConditions) {
+          for (let [seqRun, seqRunCond] of Object.entries(vue.$store.state.currentDGE.seqRuns[vue.selectedNormalization])) {
             if (seqRunCond === cond) {
               seqRunNames.push(seqRun)
               seqRunNamesMap[seqRun] = seqRunIndex++
             }
           }
         }
-        let geneNames = Array.from(this.$store.state.currentDGE.geneNames).sort()
+        let geneNames = Array.from(vue.$store.state.currentDGE.geneNames).sort()
         let geneNamesMapping = {}
         for (let [index, geneName] of geneNames.entries()) {
           geneNamesMapping[geneName] = index
         }
 
-        let countData = (this.selectedNormalization === 'unnormalized')
+        let countData = (vue.selectedNormalization === 'unnormalized')
           ? this.$store.state.currentDGE.getAllUnnormalizedCountData()
           : this.$store.state.currentDGE.getAllDeseq2CountData()
         for (let [condition, genes] of Object.entries(countData)) {
@@ -345,8 +345,8 @@
 
         chart = Highcharts.chart(CHART_ID, options)
         chart.hideLoading()
-        this.$charts.length = 0
-        this.$charts.push(chart)
+        vue.$charts.length = 0
+        vue.$charts.push(chart)
 
         const delay = ms => new Promise(res => setTimeout(res, ms))
         delay(5000).then(() => {

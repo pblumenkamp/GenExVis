@@ -96,7 +96,7 @@
                 </b-col>
                 <b-col sm="1">
                   <label class="btn btn-secondary btn-file" style="cursor: pointer">
-                    Browse... <input type="file" style="display: none;" @change="readConditionFile">
+                    Browse... <input id='condition_input' ref='condition_input' type="file" style="display: none;" @input="readConditionFile">
                   </label>
                 </b-col>
               </b-row>
@@ -289,7 +289,6 @@
         let file = event.target.files[0]
 
         const reader = new FileReader()
-
         let readFile = new Promise((resolve, reject) => {
           reader.onerror = () => {
             reader.abort()
@@ -299,7 +298,6 @@
           reader.onload = () => {
             resolve({content: reader.result})
           }
-
           reader.readAsText(file)
         })
 
@@ -310,6 +308,7 @@
               vueData.$store.dispatch(REGISTER_CONDITION, {conditionName: cond.trim()}).catch(() => {})
             }
           }
+          vueData.$refs.condition_input.value = ''
         })
       },
       registerCondition () {
