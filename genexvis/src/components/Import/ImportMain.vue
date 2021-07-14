@@ -59,7 +59,7 @@
               <small>Please register all the conditions you want to use. Try to use unambiguous names, which can also be found inside of the sample names, to benefit from autocomplete in the next steps.
                 <span v-if="longHelp_condition">
                   <br>
-                  There are at the moment three ways to register the conditions:
+                  There are three ways to register the conditions:
                   <ul>
                     <li>One at a time via the input field.</li>
                     <li>As a comma-separated list via the input field.</li>
@@ -171,7 +171,7 @@
                 <span v-if="longHelp_counts">
                   <br><br>
                   A count table is a standard file format in differential expression analysis. It contains - on a one feature per line base - the number of reads mapped to a specific feature per sample.
-                  Typical tools for creating this table are <a href="http://subread.sourceforge.net/">featureCounts</a> and <a href="https://htseq.readthedocs.io">HTSeq-Count</a>.
+                  Typical tools for creating this table are <a href="http://subread.sourceforge.net/" @click="openInBrowser('http://subread.sourceforge.net/', $event)">featureCounts</a> and <a href="https://htseq.readthedocs.io" @click="openInBrowser('https://htseq.readthedocs.io', $event)">HTSeq-Count</a>.
                   <br><br>
                   After selecting a file, you will get a summary of the count table columns. You can check if all columns got the correct condition assigned,
                   select a normalization type (only for metadata, no functionality at the moment), and you must select the column with the unique feature identifiers.
@@ -331,11 +331,12 @@
           }
         }
       },
-      importConditionFile () {
-
-      },
       removeCondition (event) {
         this.$store.commit(REMOVE_CONDITION, event.target.textContent.trim())
+      },
+      openInBrowser: function(url, event) {
+        nw.Shell.openExternal(url);
+        event.preventDefault()
       }
     }
   }
