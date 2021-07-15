@@ -56,7 +56,7 @@
           </button>
         </div>
         <div>
-          <button class="btn btn-dark " style="float: right; margin-top: 1rem; margin-right: 1rem; background-color: #343438" @click="clearSubset()">
+          <button class="btn btn-dark " style="float: right; margin-top: 1rem; margin-right: 1rem; background-color: #343438" @click="clearSubset">
             <font-awesome-icon icon="trash-alt" style="margin-right: 0.2rem" /> Clear
           </button>
         </div>
@@ -92,7 +92,7 @@
 </template>
 
 <script>
-  import {SET_SUBDGE, RESET_DGE} from './store/action_constants'
+  import {SET_SUBDGE, RESET_DGE, CLEAR_SUBDGE} from './store/action_constants'
   import {SWITCH_DGE} from './store/mutation_constants'
 
   import {library} from '@fortawesome/fontawesome-svg-core'
@@ -275,10 +275,9 @@
         this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
       clearSubset () {
-        this.$store.dispatch(SET_SUBDGE, {geneList: []})
+        this.$store.dispatch(CLEAR_SUBDGE)
       },
       clearDGE () {
-        console.log("clearDGEButton")
         this.$store.dispatch(RESET_DGE, {})
       },
       onToggleCollapse (collapsed) {

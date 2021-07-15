@@ -3,8 +3,8 @@ import Vuex from 'vuex'
 
 import {EventBus, Events} from '../utilities/event_bus'
 
-import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE, SET_CHARTS, RESET_DGE} from './action_constants'
-import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE, ADD_CHART, REMOVE_ALL_CHARTS, CLEAR_DGE, CLEAR_LISTS, CLEAR_CONDITIONS} from './mutation_constants'
+import {STORE_DESEQ2_STATISTICS, EXTEND_FILE_LIST, REGISTER_CONDITION, SEARCH_REGEX, STORE_COUNT_TABLE, SET_SUBDGE, CLEAR_SUBDGE, RESET_DGE} from './action_constants'
+import {ADD_DATA, ADD_DESEQ, ADD_COUNT, ADD_CONDITION, REMOVE_CONDITION, ADD_COUNT_DATA, ADD_GENE, DEL_GENE, ADD_STRUC, ADD_SEQRUN_MAPPING, ADD_SUBSET_DGE, SWITCH_DGE, CLEAR_DGE, CLEAR_LISTS, CLEAR_CONDITIONS} from './mutation_constants'
 import {DGE} from '../utilities/dge'
 import {parseDeseq2} from '../utilities/deseq2'
 
@@ -169,6 +169,13 @@ const store = new Vuex.Store({
     [SET_SUBDGE] ({commit, state}, {geneList}) {
       return new Promise((resolve, reject) => {
         let subsetDGE = state.dgeData.getSubset(geneList)
+        commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
+        resolve()
+      })
+    },
+    [CLEAR_SUBDGE] ({commit, state}) {
+      return new Promise((resolve, reject) => {
+        let subsetDGE = state.dgeData.getSubset([])
         commit(ADD_SUBSET_DGE, {subsetDGE: subsetDGE})
         resolve()
       })

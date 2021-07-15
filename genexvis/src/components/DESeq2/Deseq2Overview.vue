@@ -73,7 +73,7 @@
               <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
               add</button>
             <button title="Adds a gene to a existing subset"
-                    class="btn btn-dark main-control-button" @click="clearSubset()"
+                    class="btn btn-dark main-control-button" @click="clearSubset"
                     :disabled="isDisabled">
               <font-awesome-icon icon="trash-alt" style="margin-right: 0.2rem" />
               delete
@@ -170,7 +170,7 @@
 
 <script>
   import {ADD_STRUC} from '../../store/mutation_constants'
-  import {SET_SUBDGE} from '../../store/action_constants'
+  import {SET_SUBDGE, CLEAR_SUBDGE} from '../../store/action_constants'
   import {AgGridVue} from 'ag-grid-vue'
 
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
@@ -225,7 +225,6 @@
               geneList.push(entry.name)
             }
           }
-          console.log(geneList)
           vue.$store.dispatch(SET_SUBDGE, {geneList: geneList})
         }
       },
@@ -236,6 +235,9 @@
           geneList.push(element.name)
         }
         this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
+      },
+      clearSubset () {
+        this.$store.dispatch(CLEAR_SUBDGE)
       },
       checkStorage () {
         let strucStorage = this.$store.state.strucStorage;
@@ -610,9 +612,6 @@
       pushStructure () {
         let strucStorage = this.strucStorage;
         this.$store.commit(ADD_STRUC, strucStorage)
-      },
-      clearSubset () {
-        this.$store.dispatch(SET_SUBDGE, {geneList: []})
       },
       downloadCSV () {
         // first row with file names
