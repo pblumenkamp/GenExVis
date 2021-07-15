@@ -79,9 +79,10 @@
     <sidebar-menu
       :menu="menu"
       :collapsed="collapsed_sidebar"
-      :show-one-child="true"
+      show-one-child
       width="15vw"
       @toggle-collapse="onToggleCollapse"
+      @item-click="onItemClick"
     >
       <div v-if="!collapsed_sidebar" slot="header" style="text-align: center; color: white; margin-top: 0.5rem; margin-bottom: 2rem"><h3><b>{{ $name }} {{ $version }}</b></h3></div>
       <font-awesome-icon slot="dropdown-icon" icon="chevron-right" size="lg" />
@@ -96,8 +97,9 @@
 
   import {library} from '@fortawesome/fontawesome-svg-core'
   import {faCode, faArrowsAltH, faUpload, faDownload, faFileAlt, faBalanceScaleLeft, faChartBar, faChevronRight, faPlusCircle, faMinusCircle, faTrashAlt} from '@fortawesome/free-solid-svg-icons'
+  import {faGithub} from '@fortawesome/free-brands-svg-icons'
 
-  library.add(faCode, faArrowsAltH, faUpload, faDownload, faFileAlt, faBalanceScaleLeft, faChartBar, faChevronRight, faPlusCircle, faMinusCircle, faTrashAlt)
+  library.add(faGithub, faCode, faArrowsAltH, faUpload, faDownload, faFileAlt, faBalanceScaleLeft, faChartBar, faChevronRight, faPlusCircle, faMinusCircle, faTrashAlt)
 
   const separator = {
     template: `<hr style="border-color: rgba(255,255,255,0.2); margin:20px;">`
@@ -212,6 +214,18 @@
               }
             },
           },
+          {
+            href: '#',
+            title: 'GitHub   ↗',
+            icon: {
+              element: 'font-awesome-icon',
+              attributes: {
+                'icon': ['fab', 'github']
+              }
+            },
+            openInBrowser: true,
+            browserURL: "https://github.com/pblumenkamp/genexvis"
+          }
         ],
         collapsed_sidebar: false,
         collapsed_data: false,
@@ -269,6 +283,13 @@
       },
       onToggleCollapse (collapsed) {
         this.collapsed_sidebar = collapsed
+      },
+      onItemClick (event, item) {
+        console.log(item)
+        if (item.openInBrowser) {
+          nw.Shell.openExternal(item.browserURL);
+          event.preventDefault()
+        }
       }
     }
   }
