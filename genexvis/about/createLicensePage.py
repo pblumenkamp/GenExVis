@@ -21,7 +21,9 @@ def main(package_json_path):
                 with open(values['licenseFile']) as license:
                     values['licenseContent'] = license.read()
             elif module.startswith('highcharts'):
-                values['licenseContent'] = values['licenses']
+                values['customLicenseDescription'] = 'Highsoft Non-Commercial License'
+                values['customLicenseContent'] = 'CC BY-NC 3.0 US'
+                values['customLicenseURL'] = "https://creativecommons.org/licenses/by-nc/3.0/us/"
             else:
                 values['licenseContent'] = 'Published under "{}"'.format(values['licenses'])
             del values['path']

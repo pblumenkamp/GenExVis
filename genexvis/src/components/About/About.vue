@@ -15,22 +15,15 @@
         Funded by <br> e:Bio – Modul II – Verbundprojekt: HotSysAPP (BMBF grant 031L0078D)
       </b-card>
     </div>
-    <div style="display: flex; flex-direction: column; align-items: center;">
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-around;">
       <h1 class="header">Licenses</h1>
-      <b-card style="width: 90%; background-color: #ffbfbf; font-size: large">
-        Due to the usage of <a href="https://www.highcharts.com/">Highcharts</a>, the charts are free to use for:
-        <ul style="margin: 0">
-          <li>governmentally funded schools</li>
-          <li>universities</li>
-          <li>non-profit organizations</li>
-          <li>students</li>
-          <li>individuals using the software for personal use, testing and demonstration (<a href="https://shop.highsoft.com/faq#Non-Commercial">Highcharts-Non-Commercial FAQ</a> )</li>
-        </ul>
-      </b-card>
       <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
         <b-card v-for="(module, name) in jsonData" :key="name" style="background-color: #b4c4e3; margin-top: 2rem; margin-bottom: 2rem; margin-left: 2rem; min-width: 40rem; max-width: 45rem;">
           <h5 style="margin-bottom: 1rem;"><b>{{ name }}</b></h5>
-          <b-card v-if="module.licenseContent" style="white-space: pre-line;">
+          <b-card v-if="module.publisher == 'Highsoft AS'">
+            {{ module.customLicenseDescription }}: <a class="card-link" :href="module.customLicenseURL" @click="openInBrowser(module.customLicenseURL, $event)">{{ module.customLicenseContent }}</a>
+          </b-card>
+          <b-card v-else style="white-space: pre-line;">
             {{ module.licenseContent }}
           </b-card>
         </b-card>
@@ -53,6 +46,12 @@
       return {
         jsonData: data,
         date: build_date,
+      }
+    },
+    methods: {
+      openInBrowser: function(url, event) {
+        nw.Shell.openExternal(url);
+        event.preventDefault()
       }
     }
   }
