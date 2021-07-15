@@ -285,7 +285,6 @@
         this.collapsed_sidebar = collapsed
       },
       onItemClick (event, item) {
-        console.log(item)
         if (item.openInBrowser) {
           nw.Shell.openExternal(item.browserURL);
           event.preventDefault()
