@@ -65,11 +65,11 @@
         <div style="flex: 1;" class="structureFlexCell">
           <div class="btn-group-vertical basic-button flexButtonGroup">
             <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
-                    class="btn btn-dark main-control-button" @click="toggleSubsetCreation()">
+                    class="btn btn-dark main-control-button" @click="createAndFillNewSubset">
               <font-awesome-icon :icon="faCube"></font-awesome-icon>
               create</button>
             <button title="Adds a gene to a existing subset" id="addGenesButton"
-                    class="btn btn-dark main-control-button" @click="addGene()">
+                    class="btn btn-dark main-control-button" @click="addSelectedGenesToSubset">
               <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
               add</button>
             <button title="Adds a gene to a existing subset"
@@ -209,34 +209,33 @@
       FontAwesomeIcon
     },
     methods: {
-      changeDesign (element) {
-        let design = 'main-table ag-theme-' + element;
-        document.getElementById('main-table').className = design;
-        this.design = design
-      },
-      addGene () {
-        let genesToAdd = this.gridOptions.api.getSelectedRows();
+      addSelectedGenesToSubset () {
+        let vue = this
+        let currentSubDGE = vue.$store.state.subDGE.geneNames;
+        let genesToAdd = vue.gridOptions.api.getSelectedRows();
         let geneList = [];
-        let currentSubDGE = this.$store.state.subDGE.geneNames;
         if (currentSubDGE.size === 0) {
-          this.toggleSubsetCreation()
+          vue.createAndFillNewSubset()
         } else {
           for (let entry of currentSubDGE) {
-            let check = true;
-            for (let coentry of genesToAdd) {
-              if (entry === coentry) {
-                check = false
-              } else {
-                geneList.push(coentry.name)
-              }
-            }
-            if (check === true) {
-              geneList.push(entry)
+            geneList.push(entry)
+          }
+          for (let entry of genesToAdd) {
+            if (!geneList.includes(entry.name)) {
+              geneList.push(entry.name)
             }
           }
-          geneList.sort();
-          this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
+          console.log(geneList)
+          vue.$store.dispatch(SET_SUBDGE, {geneList: geneList})
         }
+      },
+      createAndFillNewSubset () {
+        let genesToAdd = this.gridOptions.api.getSelectedRows();
+        let geneList = [];
+        for (let element of genesToAdd) {
+          geneList.push(element.name)
+        }
+        this.$store.dispatch(SET_SUBDGE, {geneList: geneList})
       },
       checkStorage () {
         let strucStorage = this.$store.state.strucStorage;
@@ -501,14 +500,6 @@
       toggleTableReset () {
         this.createStrucStorage();
         this.createColumnDefs()
-      },
-      toggleSubsetCreation () {
-        let temparray = [];
-        let genestaken = this.gridOptions.api.getSelectedRows();
-        for (let element of genestaken) {
-          temparray.push(element.name)
-        }
-        this.$store.dispatch(SET_SUBDGE, {geneList: temparray})
       },
       pad (num, totalStringSize) {
         let asString = num + '';
