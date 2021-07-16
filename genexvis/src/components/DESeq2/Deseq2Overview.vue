@@ -398,15 +398,13 @@
       },
       negotiateShowValue (params) {
         let value = params.value;
-        if (value === null || value === 0) {
-          // real 0s are ag-grid-conform saved as string text
-          // Therefore, int 0s are "wrong"
+        if (value === null) {
           return ('no data')
         } else {
           if (params.colDef.headerName === 'p value' || params.colDef.headerName === 'p value (adjusted)') {
-            return (this.returnExponentialValue(value))
+            return (this.useRoundedValues) ? this.returnExponentialValue(value) : value
           } else {
-            return (this.useRoundedValues) ? this.returnRoundValue(value) : value;
+            return (this.useRoundedValues) ? this.returnRoundValue(value) : value
           }
         }
       },
@@ -484,11 +482,7 @@
         }
       },
       returnExponentialValue (rawValue) {
-        if (this.useRoundedValues) {
-          return rawValue.toExponential(2)
-        } else {
-          return rawValue
-        }
+        return rawValue.toExponential(2)
       },
       returnRoundValue (value) {
         return Math.round(value * 100) / 100
@@ -712,12 +706,6 @@
         vue.createColumnDefs();
         vue.insertGridOptions();
         vue.createIcons()
-      }
-    },
-    mounted () {
-      var vue = this
-      if (!vue.isTableTooBig) {
-        vue.chooseDesign()
       }
     },
     beforeDestroy () {
