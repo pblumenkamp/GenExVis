@@ -35,12 +35,14 @@
             <div class="btn-group-vertical basic-button flexButtonGroup">
               <button title="Selects all genes" id="selectAllButton"
                       class="btn flexButtonType1 main-control-button"
+                      :disabled="isDisabledSelectAllButton"
                       @click="gridOptions.api.selectAllFiltered()">
                 <font-awesome-icon :icon="faGlobe"></font-awesome-icon>
                 select all
               </button>
               <button title="Undoes the current selection of genes" id="deselectAllButton"
                       class="btn flexButtonType1 main-control-button"
+                      :disabled="isDisabledDeselectAllButton"
                       @click="gridOptions.api.deselectAll()">
                 <font-awesome-icon icon="trash-alt" style="margin-right: 0.2rem" />
                 clear
@@ -65,16 +67,19 @@
         <div style="flex: 1;" class="structureFlexCell">
           <div class="btn-group-vertical basic-button flexButtonGroup">
             <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
-                    class="btn btn-dark main-control-button" @click="createAndFillNewSubset">
+                    class="btn btn-dark main-control-button" :disabled="isDisabledCreateSubset"
+                    @click="createAndFillNewSubset">
               <font-awesome-icon :icon="faCube"></font-awesome-icon>
               create</button>
             <button title="Adds a gene to a existing subset" id="addGenesButton"
-                    class="btn btn-dark main-control-button" @click="addSelectedGenesToSubset">
+                    class="btn btn-dark main-control-button" :disabled="isDisabledAddGeneToSubset"
+                    @click="addSelectedGenesToSubset">
               <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
               add</button>
             <button title="Adds a gene to a existing subset"
-                    class="btn btn-dark main-control-button" @click="clearSubset"
-                    :disabled="isDisabled">
+                    class="btn btn-dark main-control-button" 
+                    :disabled="isDisabledClearSubset"
+                    @click="clearSubset">
               <font-awesome-icon icon="trash-alt" style="margin-right: 0.2rem" />
               delete
             </button>
@@ -525,36 +530,15 @@
         this.calculateRowCount()
       },
       onSelectionChanged () {
-        let selectedRows = this.gridOptions.api.getSelectedRows();
-        let selectedRowsString = [];
+        let selectedRows = this.gridOptions.api.getSelectedRows()
+        let selectedRowsString = []
         selectedRows.forEach(function (selectedRow) {
           selectedRowsString.push(selectedRow.name)
-        });
-        let rawRowAmount = selectedRowsString.length;
-        let rowChosenAmount = this.numberWithCommas(rawRowAmount);
-        this.rowChosenAmount = rowChosenAmount;
-        this.selectionNegotiator(rawRowAmount);
-        this.rowChosenList = selectedRowsString;
+        })
+        let rawRowAmount = selectedRowsString.length
+        this.rowChosenAmount = this.numberWithCommas(rawRowAmount)
+        this.rowChosenList = selectedRowsString
         document.querySelector('#selectedRows').innerHTML = selectedRowsString
-      },
-      selectionNegotiator (rowChosenAmount) {
-        // select all: id="selectAllButton"; clear selection: id="deselectAllButton"; create a subset: id="createSubsetButton"; add genes: id="addGenesButton"
-        if (rowChosenAmount === this.rowTotalAmount) {
-          document.getElementById('selectAllButton').disabled = true;
-          document.getElementById('deselectAllButton').disabled = false;
-          document.getElementById('createSubsetButton').disabled = false;
-          document.getElementById('addGenesButton').disabled = false
-        } else if (rowChosenAmount < this.rowTotalAmount && rowChosenAmount !== 0) {
-          document.getElementById('selectAllButton').disabled = false;
-          document.getElementById('deselectAllButton').disabled = false;
-          document.getElementById('createSubsetButton').disabled = false;
-          document.getElementById('addGenesButton').disabled = false
-        } else if (rowChosenAmount === 0) {
-          document.getElementById('selectAllButton').disabled = false;
-          document.getElementById('deselectAllButton').disabled = true;
-          document.getElementById('createSubsetButton').disabled = true;
-          document.getElementById('addGenesButton').disabled = true
-        }
       },
       onVisionChanged () {
         this.readStructure();
@@ -707,12 +691,20 @@
       }
     },
     computed: {
-      isDisabled () {
-        let disabled = true;
-        if (this.$store.state.subDGE.geneNames.size > 0) {
-          disabled = false;
-        }
-        return disabled
+      isDisabledClearSubset () {
+        return !(this.$store.state.subDGE.geneNames.size > 0)
+      },
+      isDisabledCreateSubset () {
+        return !(this.rowChosenList.length > 0)
+      },
+      isDisabledAddGeneToSubset () {
+        return !(this.rowChosenList.length > 0)
+      },
+      isDisabledSelectAllButton () {
+        return this.rowChosenList.length === this.rowTotalAmount
+      },
+      isDisabledDeselectAllButton () {
+        return !(this.rowChosenList.length > 0)
       },
       faUndoAlt () {
         return faUndoAlt
@@ -761,7 +753,6 @@
     mounted () {
       var vue = this
       if (vue.isTableTooBig === false) {
-        vue.selectionNegotiator(0);
         vue.chooseDesign()
       }
     },
