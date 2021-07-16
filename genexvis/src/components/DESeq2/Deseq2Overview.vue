@@ -37,7 +37,7 @@
                       class="btn flexButtonType1 main-control-button"
                       :disabled="isDisabledSelectAllButton"
                       @click="gridOptions.api.selectAllFiltered()">
-                <font-awesome-icon :icon="faGlobe"></font-awesome-icon>
+                <font-awesome-icon icon="globe"></font-awesome-icon>
                 select all
               </button>
               <button title="Undoes the current selection of genes" id="deselectAllButton"
@@ -69,12 +69,12 @@
             <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
                     class="btn btn-dark main-control-button" :disabled="isDisabledCreateSubset"
                     @click="createAndFillNewSubset">
-              <font-awesome-icon :icon="faCube"></font-awesome-icon>
+              <font-awesome-icon icon="cube"></font-awesome-icon>
               create</button>
             <button title="Adds a gene to a existing subset" id="addGenesButton"
                     class="btn btn-dark main-control-button" :disabled="isDisabledAddGeneToSubset"
                     @click="addSelectedGenesToSubset">
-              <font-awesome-icon :icon="faPlusCircle"></font-awesome-icon>
+              <font-awesome-icon icon="plus-circle"></font-awesome-icon>
               add</button>
             <button title="Adds a gene to a existing subset"
                     class="btn btn-dark main-control-button" 
@@ -109,7 +109,7 @@
                 <button class="btn resetTableButton"
                         title="Resets the table, with all columns and column groups"
                         @click="toggleTableReset()">
-                  <font-awesome-icon :icon="faUndoAlt"></font-awesome-icon> Reset Table
+                  <font-awesome-icon icon="undo-alt"></font-awesome-icon> Reset Table
                 </button>
               </div>
 
@@ -155,7 +155,7 @@
                     title="Download table as .csv"
                     @click="downloadCSV"
                 >
-                  <font-awesome-icon :icon="faDownload"></font-awesome-icon> Download .csv
+                  <font-awesome-icon icon="download"></font-awesome-icon> Download .csv
                 </button>
               </td>
               <td style="width: 10%"></td>
@@ -178,7 +178,9 @@
   import {AgGridVue} from 'ag-grid-vue'
 
   import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-  import {faUndoAlt, faDownload, faGlobe, faTrashAlt, faArrowCircleRight, faArrowCircleLeft, faCube, faPlusCircle} from '@fortawesome/free-solid-svg-icons'
+  import {library} from '@fortawesome/fontawesome-svg-core'
+  import {faUndoAlt, faDownload, faGlobe, faTrashAlt, faCube, faPlusCircle} from '@fortawesome/free-solid-svg-icons'
+  library.add(faUndoAlt, faDownload, faGlobe, faTrashAlt, faCube, faPlusCircle)
 
   export default {
     data () {
@@ -187,7 +189,10 @@
         gridOptions: null,
         columnDefs: null,
         rowData: null,
-        icons: null,
+        icons: {
+          columnGroupOpened: ' >',
+          columnGroupClosed: ' <',
+        },
 
         log2foldlist: [],
         log2foldmin: 0,
@@ -554,13 +559,6 @@
           }
         }
       },
-      createIcons () {
-        this.icons = {
-          groupExpanded: '<font-awesome-icon    :icon="this.faArrowCircleRight"></font-awesome-icon>',
-          groupContracted: '<font-awesome-icon  :icon="this.faArrowCircleRight"></font-awesome-icon>',
-          // font-awesome-icons not working
-        }
-      },
       readStructure () {
         let strucStorage = {};
         let strucArray = [];
@@ -692,27 +690,6 @@
       },
       isDisabledDeselectAllButton () {
         return !(this.rowChosenList.length > 0)
-      },
-      faUndoAlt () {
-        return faUndoAlt
-      },
-      faDownload () {
-        return faDownload
-      },
-      faGlobe () {
-        return faGlobe
-      },
-      faCube () {
-        return faCube
-      },
-      faPlusCircle () {
-        return faPlusCircle
-      },
-      faArrowCircleRight () {
-        return faArrowCircleRight
-      },
-      faArrowCircleLeft () {
-        return faArrowCircleLeft
       },
       maxRowAmount () {
         return this.$store.state.currentDGE.length;
