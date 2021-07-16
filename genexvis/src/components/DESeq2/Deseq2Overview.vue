@@ -97,8 +97,7 @@
             <div class="structureFlexOptions">
 
               <div class="flexOptionsWrapper">
-                <b-form-checkbox v-model="roundedValues"
-                                 @change="toggleRoundingChange">
+                <b-form-checkbox v-model="useRoundedValues" @change="toggleRoundingChange">
                   Rounded Values
                 </b-form-checkbox>
               </div>
@@ -131,7 +130,7 @@
           :rowData="rowData"
           :icons="icons"
 
-          :groupHeaders="true"
+          groupHeaders
 
           @modelUpdated="onModelUpdated"
           @selectionChanged="onSelectionChanged"
@@ -161,7 +160,7 @@
               </td>
               <td style="width: 10%"></td>
               <td>
-                <b-form-checkbox v-model="roundedValues2" @change="toggleRoundingChange2">
+                <b-form-checkbox v-model="useRoundedValues">
                   Rounded Values
                 </b-form-checkbox>
               </td>
@@ -184,8 +183,7 @@
   export default {
     data () {
       return {
-        roundedValues2: true,
-        roundedValues: true,
+        useRoundedValues: true,
         gridOptions: null,
         columnDefs: null,
         rowData: null,
@@ -276,12 +274,12 @@
       },
       createRowData () {
         const rowData = [];
-        let store = this.$store.state.dgeData;
+        let dge = this.$store.state.dgeData;
 
         let rowCounter = 0;
 
-        for (let geneName of store.geneNames) {
-          let gene = store.getGene(geneName);
+        for (let geneName of dge.geneNames) {
+          let gene = dge.getGene(geneName);
           let dict = {};
           dict.name = gene.name;
           let analysescounter = 1;
@@ -378,7 +376,7 @@
 
         return testValue
 
-        // if (this.roundedValues === true) {
+        // if (this.useRoundedValues === true) {
         //   if (number.colDef.headerName === 'p value' || number.colDef.headerName === 'p value (adjusted)') {
         //     if (number.value !== null) {
         //       return (number.value.toExponential(2))
@@ -403,7 +401,7 @@
           if (params.colDef.headerName === 'p value' || params.colDef.headerName === 'p value (adjusted)') {
             return (this.returnExponentialValue(value))
           } else {
-            return (this.returnRoundedValue(value))
+            return (this.useRoundedValues) ? this.returnRoundValue(value) : value;
           }
         }
       },
@@ -461,7 +459,7 @@
         div2.style.height = 100 + '%';
         div2.align = 'center';
         // x!
-        div1.innerHTML = this.returnRoundedValue(showvalue);
+        div1.innerHTML = (this.useRoundedValues) ? this.returnRoundValue(showvalue) : showvalue;
         div1.style.cssText = 'text-align:right';
         div2.append(table);
         let parent = document.createElement('div');
@@ -480,15 +478,8 @@
           return ('no data')
         }
       },
-      returnRoundedValue (rawValue) {
-        if (this.roundedValues === true) {
-          return this.returnRoundValue(rawValue)
-        } else {
-          return rawValue
-        }
-      },
       returnExponentialValue (rawValue) {
-        if (this.roundedValues === true) {
+        if (this.useRoundedValues) {
           return rawValue.toExponential(2)
         } else {
           return rawValue
@@ -498,11 +489,7 @@
         return Math.round(value * 100) / 100
       },
       toggleRoundingChange () {
-        this.roundedValues = false;
         this.createRowData()
-      },
-      toggleRoundingChange2 () {
-        this.roundedValues2 = false
       },
       toggleTableReset () {
         this.createStrucStorage();
@@ -650,7 +637,7 @@
             let myStat = analysis.stat;
             let mypValue = analysis.pValue;
             let mypAdj = analysis.pAdj;
-            if (this.roundedValues2 === true) {
+            if (this.useRoundedValues) {
               myMean = Math.round(myMean * 100) / 100;
               mylog2fold = Math.round(mylog2fold * 100) / 100;
               mylfcSE = Math.round(mylfcSE * 100) / 100;
@@ -741,7 +728,7 @@
     },
     beforeMount () {
       var vue = this
-      if (vue.isTableTooBig === false) {
+      if (!vue.isTableTooBig) {
         vue.checkStorage();
         vue.createRowData();
         vue.minmaxdefine();
@@ -752,13 +739,13 @@
     },
     mounted () {
       var vue = this
-      if (vue.isTableTooBig === false) {
+      if (!vue.isTableTooBig) {
         vue.chooseDesign()
       }
     },
     beforeDestroy () {
       var vue = this
-      if (vue.isTableTooBig === false) {
+      if (!vue.isTableTooBig) {
         vue.readStructure();
         vue.pushStructure()
       }
