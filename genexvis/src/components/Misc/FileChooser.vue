@@ -79,9 +79,6 @@
       clear_file_input () {
         console.log('FileChooser clear')
         if (this.multiple) {
-          console.log(this.$refs[this.id])
-          console.log(this.$refs[this.id].value)
-          console.log(this.$refs[this.id].values)
           this.$refs[this.id].value = ''
         } else {
           this.$refs[this.id].value = ''
