@@ -8,8 +8,9 @@ const baseWebpackConfig = require('./webpack.base.conf')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
-const OptimizeCSSPlugin = require("optimize-css-assets-webpack-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+//const OptimizeCSSPlugin = require("optimize-css-assets-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+//const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 const env = process.env.NODE_ENV === 'testing'
   ? require('../config/test.env')
@@ -31,17 +32,12 @@ const webpackConfig = merge(baseWebpackConfig, {
     chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
   },
   optimization: {
+    // Module names are hashed into small numeric values.
+    moduleIds: 'deterministic',
     minimizer: [
-      // UglifyJs do not support ES6+, you can also use babel-minify for better treeshaking: https://github.com/babel/minify
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          compress: {
-            warnings: true
-          }
-        },
-        sourceMap: config.build.productionSourceMap,
-        parallel: true
-      })],
+      `...`,
+      new CssMinimizerPlugin()  
+    ],
     splitChunks: {
       cacheGroups: {
         commons: {
@@ -65,11 +61,11 @@ const webpackConfig = merge(baseWebpackConfig, {
     }),
     // Compress extracted CSS. We are using this plugin so that possible
     // duplicated CSS from different components can be deduped.
-    new OptimizeCSSPlugin({
-      cssProcessorOptions: config.build.productionSourceMap
-      ? { safe: true, map: { inline: false } }
-      : { safe: true }
-    }),
+    //new OptimizeCSSPlugin({
+    //  cssProcessorOptionscssProcessorOptions: config.build.productionSourceMap
+    //  ? { safe: true, map: { inline: false } }
+    //  : { safe: true }
+    //}),
     // generate dist index.html with correct asset hash for caching.
     // you can customize output by editing /index.html
     // see https://github.com/ampedandwired/html-webpack-plugin
@@ -87,10 +83,8 @@ const webpackConfig = merge(baseWebpackConfig, {
         // https://github.com/kangax/html-minifier#options-quick-reference
       },
       // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-      chunksSortMode: 'dependency'
+      //chunksSortMode: 'dependency'
     }),
-    // keep module.id stable when vendor modules does not change
-    new webpack.HashedModuleIdsPlugin(),
     // enable scope hoisting
     new webpack.optimize.ModuleConcatenationPlugin(),
     // split vendor js into its own file
