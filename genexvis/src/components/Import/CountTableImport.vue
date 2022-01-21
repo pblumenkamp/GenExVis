@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="text-align: center">
-      <file-chooser :clear_value="clear_value" @change="loadFiles" />
+      <file-chooser :clear-value="clear_value" @change="loadFiles" />
     </div>
 
     <div v-if="headerConditionMapping.length !== 0" style="margin-top: 3rem">
@@ -132,6 +132,31 @@
         }
       }
     },
+    mounted () {
+      const vue = this
+      vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT] = () => {
+        vue.clear_value += 1
+        vue.selectedNormalization = 'unnormalized'
+        vue.file = null
+        console.log('items')
+        console.log(vue.items)
+        vue.items.splice(0, vue.items.length)
+        console.log(vue.items)
+        vue.importingFiles = false
+        vue.importingDone = false
+        vue.disabledImportButton = false
+        vue.missingGeneColumn = false
+        console.log('headerCond')
+        console.log(vue.headerConditionMapping)
+        vue.headerConditionMapping.splice(0, vue.headerConditionMapping.length)
+        console.log(vue.headerConditionMapping)
+      }
+      EventBus.$on(Events.CLEAR_ALL_IMPORT, vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT])
+    },
+    destroyed () {
+      const vue = this
+      EventBus.$off(Events.CLEAR_ALL_IMPORT, vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT])
+    },
     methods: {
       validate (value) {
         if (value === '$$FEATURE_NAME$$') {
@@ -252,31 +277,6 @@
         }
         return suggestion
       }
-    },
-    mounted () {
-      const vue = this
-      vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT] = () => {
-        vue.clear_value += 1
-        vue.selectedNormalization = 'unnormalized'
-        vue.file = null
-        console.log('items')
-        console.log(vue.items)
-        vue.items.splice(0, vue.items.length)
-        console.log(vue.items)
-        vue.importingFiles = false
-        vue.importingDone = false
-        vue.disabledImportButton = false
-        vue.missingGeneColumn = false
-        console.log('headerCond')
-        console.log(vue.headerConditionMapping)
-        vue.headerConditionMapping.splice(0, vue.headerConditionMapping.length)
-        console.log(vue.headerConditionMapping)
-      }
-      EventBus.$on(Events.CLEAR_ALL_IMPORT, vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT])
-    },
-    destroyed () {
-      const vue = this
-      EventBus.$off(Events.CLEAR_ALL_IMPORT, vue.event_bus_callbacks[Events.CLEAR_ALL_IMPORT])
     }
   }
 </script>

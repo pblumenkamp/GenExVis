@@ -68,7 +68,7 @@
                 select-label="Click to select"
                 deselect-label="Click to remove"
               >
-                <template slot="selection" slot-scope="{ values, search, isOpen }">
+                <template slot="selection" slot-scope="{ values, _, isOpen }">
                   <span v-if="values.length && !isOpen" class="multiselect__single">{{ values.length }} options selected</span>
                 </template>
               </multiselect>
@@ -105,23 +105,6 @@
     </div>
   </div>
 </template>
-
-<style src="vue-multiselect/dist/vue-multiselect.min.css">
-</style>
-<style type="text/css">
-  .downloadButtonWrapper {
-    text-align: right;
-  }
-  #downloadButton {
-    font-size: 1rem;
-    width: 15rem;
-    height: 3rem;
-  }
-  .downloadCard {
-    height: 50%;
-    border: 1px solid lightslategray;
-  }
-</style>
 
 <script>
   // imports
@@ -304,3 +287,21 @@
     }
   }
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+
+<style type="text/css">
+  .downloadButtonWrapper {
+    text-align: right;
+  }
+  #downloadButton {
+    font-size: 1rem;
+    width: 15rem;
+    height: 3rem;
+  }
+  .downloadCard {
+    height: 50%;
+    border: 1px solid lightslategray;
+  }
+</style>
+

@@ -16,6 +16,9 @@ module.exports = {
       'eslint:recommended',
       'plugin:vue/recommended'
   ],
+  globals: {
+    "nw": "readonly"
+  },
   // required to lint *.vue files
   plugins: [
     'html'
@@ -34,7 +37,8 @@ module.exports = {
       { ignoreEOLComments: true }],
     'object-curly-spacing': ["error", "never"],
     'no-console': "warn",
-    'vue/max-attributes-per-line': ["error", {
+    'no-prototype-builtins': "off",
+    'vue/max-attributes-per-line': ["warn", {
         "singleline": 3
     }],
     "vue/singleline-html-element-content-newline": "off",
@@ -47,7 +51,11 @@ module.exports = {
       "svg": "always",
       "math": "always"
     }],
+    "vue/multi-word-component-names": ["error", {
+      "ignores": ["Licenses", "Changelogs"]
+    }],
     "vue/name-property-casing": ["error", "PascalCase"],
+    "vue/no-unused-vars": "warn",
     "vue/no-side-effects-in-computed-properties": "warn"
 
   }

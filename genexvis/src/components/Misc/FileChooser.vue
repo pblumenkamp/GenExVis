@@ -32,7 +32,7 @@
         type: Boolean,
         default: false
       },
-      clear_value: {
+      clearValue: {
         type: Number,
         default: 0
       }
@@ -62,7 +62,7 @@
       }
     },
     watch: {
-      clear_value (new_value, old_value) {
+      clearValue (new_value, old_value) {
         if (new_value !== old_value) {
           this.clear_file_input()
         }
@@ -77,7 +77,6 @@
         this.$emit('change', event)
       },
       clear_file_input () {
-        console.log('FileChooser clear')
         if (this.multiple) {
           this.$refs[this.id].value = ''
         } else {

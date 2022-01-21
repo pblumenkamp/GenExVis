@@ -96,7 +96,7 @@
                 </b-col>
                 <b-col sm="1">
                   <label class="btn btn-secondary btn-file" style="cursor: pointer">
-                    Browse... <input id='condition_input' ref='condition_input' type="file" style="display: none;" @input="readConditionFile">
+                    Browse... <input id="condition_input" ref="condition_input" type="file" style="display: none;" @input="readConditionFile">
                   </label>
                 </b-col>
               </b-row>
