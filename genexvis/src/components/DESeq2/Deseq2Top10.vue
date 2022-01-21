@@ -197,15 +197,11 @@
         this.$forceUpdate()
       },
       updateHighcharts() {
-        console.log('>>> updateHighcharts');
-
         if (this.showPlotTitle === true) {
           this.drawHighcharts();
         }
       },
       statusUpdate () {
-        console.log('>>> statusUpdate');
-
         if (this.selectedCondition1 !== '' && this.selectedCondition2 !== '' && this.selectedNormalization !== '') {
           this.updateCheck = true;
           this.negotiateData();
@@ -214,8 +210,6 @@
         }
       },
       negotiateData () {
-        console.log('>>> negotiateData');
-
         let cond1 = this.selectedCondition1;
         let cond2 = this.selectedCondition2;
 
@@ -234,8 +228,6 @@
         this.selectedTrueDistributionType = this.optionsDict[this.selectedDistributionType]
       },
       checkSelections (cond1, cond2) {
-        console.log('>>> checkSelections');
-
         let condKey = cond1 + cond2;
         // let condKeyReversed = cond2 + cond1;
 
@@ -248,7 +240,6 @@
         }
       },
       checkDistriExistence (cond1, cond2) {
-        console.log('>>> checkForDistribution');
         let conditionKey = this.selectedCondKey;
         let finalStorage = this.FINALSTORAGE[conditionKey];
         let distributionKey = this.selectedTrueDistributionType;
@@ -265,16 +256,12 @@
         }
       },
       generateCondEntry (cond1, cond2) {
-        console.log('>>> generateCondEntry');
-
         let conditionKey = cond1 + cond2;
         this.selectedCondKey = conditionKey;
 
         this.FINALSTORAGE[conditionKey] = this.collectAnalysisData(cond1, cond2);
       },
       collectAnalysisData (cond1, cond2) {
-        console.log('>>> collectAnalysisData');
-
         let basicDistributionDict = {'pValue': ['pValue', true], 'pAdj': ['pAdj', true], 'log2FoldChange': ['log2FoldChange', false], 'log2FoldChange_reverse': ['log2FoldChange', true]};
         //  basicDistributionDict = {<chosen option>: [<data source>, <reverse data>]}
         let dge = this.$store.state.currentDGE.getAllGenesFromDESeq2(cond1, cond2)
@@ -346,7 +333,6 @@
         return (tempDict)
       },
       drawHighcharts () {
-        console.log('>>> drawHighcharts');
         this.$charts.length = 0;
         this.updateCheck = false;
         let categories = this.registeredConditions;
