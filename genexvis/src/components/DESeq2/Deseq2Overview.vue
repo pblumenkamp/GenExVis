@@ -705,7 +705,6 @@
         vue.minmaxdefine();
         vue.createColumnDefs();
         vue.insertGridOptions();
-        vue.createIcons()
       }
     },
     beforeDestroy () {
