@@ -7,7 +7,6 @@
     <div v-if="!this.isTableTooBig">
       <div class="structureFlex">
         <div class="structureFlexCell topStructureFlexCell">
-
           <div class="tableWrapper">
             <table class="geneAmountTable">
               <tr style="color: #ffffff">
@@ -28,8 +27,8 @@
               </tr>
             </table>
           </div>
-
         </div>
+
         <div class="structureFlexCell" style="flex: 1">
           <div class="flexButtonWrapper">
             <div class="btn-group-vertical basic-button flexButtonGroup">
@@ -50,20 +49,20 @@
             </div>
           </div>
         </div>
-        <div class="structureFlexCell">
 
+        <div class="structureFlexCell">
           <div class="chosenCellWrapper">
             <div style="height: 20%">
               Currently chosen:
             </div>
             <div class="well selectedRowsflexWell">
-              <template v-for="(element, index) in this.rowChosenList">
-                <a>{{ index+1 }}. {{ element }}</a><br>
+              <template v-for="(element, index) in rowChosenList">
+                <p :key=element style="margin-bottom: 6px; font-size: 0.85rem;">{{ index+1 }}. {{ element }}</p>
               </template>
             </div>
           </div>
-
         </div>
+
         <div style="flex: 1;" class="structureFlexCell">
           <div class="btn-group-vertical basic-button flexButtonGroup">
             <button title="Creates a new subset of the currently chosen genes" id="createSubsetButton"
@@ -85,14 +84,13 @@
             </button>
           </div>
         </div>
+
         <div class="structureFlexCell bottomStructureFlexCell">
           <div class="tableWrapper divWrapper">
             <div class="structureFlexOptions">
-
               <div class="flexOptionsWrapper">
                 <input @keyup="onQuickFilterChanged" type="text" id="quickFilterInput" placeholder="Type text to filter..."/>
               </div>
-
             </div>
             <div class="structureFlexOptions">
 
@@ -117,6 +115,7 @@
           </div>
         </div>
       </div>
+
       <p></p>
 
       <div style="border: 5px solid white; border-radius: 5px">
@@ -417,7 +416,7 @@
         let max = this.log2foldmax;
 
         let table = document.createElement('table');
-        table.align = 'center';
+        table.style.textAlign = 'center';
         table.style.width = 100 + '%';
         table.style.height = 100 + '%';
         let firstrow = document.createElement('tr');
@@ -460,7 +459,7 @@
         div2.style.position = 'absolute';
         div2.style.width = 100 + '%';
         div2.style.height = 100 + '%';
-        div2.align = 'center';
+        div2.style.textAlign = 'center';
         // x!
         div1.innerHTML = (this.useRoundedValues) ? this.returnRoundValue(showvalue) : showvalue;
         div1.style.cssText = 'text-align:right';
@@ -471,7 +470,7 @@
         parent.style.position = 'relative';
         parent.style.width = 100 + '%';
         parent.style.height = 100 + '%';
-        parent.align = 'center';
+        parent.style.textAlign = 'center';
         // x!
         parent.append(div2);
         parent.append(div1);
@@ -502,10 +501,6 @@
       calculateRowCount () {
         if (this.gridOptions.api && this.rowData) {
           let totalRows = this.rowData.length;
-          // let model = this.gridOptions.api.getModel()
-          // let processedRows = model.getRowCount()
-          // this.rowTotalAmount = processedRows.toLocaleString() + ' / ' + totalRows.toLocaleString()
-          // this.rowTotalAmount = totalRows.toLocaleString()
           this.rowTotalAmount = totalRows
         }
       },
@@ -524,7 +519,6 @@
         let rawRowAmount = selectedRowsString.length
         this.rowChosenAmount = this.numberWithCommas(rawRowAmount)
         this.rowChosenList = selectedRowsString
-        document.querySelector('#selectedRows').innerHTML = selectedRowsString
       },
       onVisionChanged () {
         this.readStructure();
@@ -837,9 +831,6 @@
     border: 1px solid dimgrey;
     border-radius: 5px;
   }
-
-
-
 
   .main-table {
     /*adjustments for the main ag-grid table*/
