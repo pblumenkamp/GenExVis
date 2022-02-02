@@ -3,6 +3,8 @@
   <div>
     <b-card>
       <h1 class="header" style="text-align: left">Changelogs</h1>
+      <h2 id="03" class="changelog">0.4</h2>
+      <h3>Revamp of the whole software. Many fixes and additions to prepare GenExVis for public release.</h3>
       <h2 id="03" class="changelog">0.3</h2>
       <h3 id="added6changes" class="changelog">Added (6 changes)</h3>
       <ul>
