@@ -6,8 +6,7 @@
   "private": true,
   "scripts": {
     "licenses": "license-checker --production --relativeLicensePath --json | python3 about/createLicensePage.py package.json > about/licenses.json",
-    "write_date": "date '+{\"build_date\": \"%B %d, %Y\"}' > about/build_date.json",
-    "preparations": "npm run licenses && npm run write_date",
+    "preparations": "npm run licenses",
     "start": "npm run dev",
     "unit": "jest --config test/unit/jest.conf.js",
     "test": "npm run unit",

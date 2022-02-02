@@ -3,7 +3,7 @@
     <div style="display: flex; flex-direction: column; align-items: center;">
       <h1 class="header">About</h1>
       <b-card style="font-size: large; margin-bottom: 4rem; width: 90%;">
-        <b>{{ $name }} {{ $version }}</b> built on {{ date }}<br>
+        <b>{{ $name }} {{ $version }}</b><br>
         Developed by Patrick Blumenkamp<br>
         <font-awesome-icon icon="envelope-open-text" />
         <a href="mailto:patrick.blumenkamp@computational.bio">patrick.blumenkamp@computational.bio</a>
@@ -33,7 +33,6 @@
 </template>
 
 <script>
-  import {build_date} from '../../../about/build_date.json'
   import data from '../../../about/licenses.json'
 
   import {library} from '@fortawesome/fontawesome-svg-core'
@@ -45,7 +44,6 @@
     data () {
       return {
         jsonData: data,
-        date: build_date,
       }
     },
     methods: {
