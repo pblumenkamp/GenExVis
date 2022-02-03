@@ -64,13 +64,13 @@
       <b-button @click="clearDGE">Clear All</b-button>
       <div v-if="!collapsed_data" class="dsb_use_subset">
         All Data
-        <b-form-checkbox v-model="useSubset" name="subset-sutton" switch />
+        <b-form-checkbox v-model="useSubset" name="subset-sutton" switch :disabled="disableSubsetSwitch" />
         Subset
       </div>
       <div v-else class="dsb_use_subset_collapsed">
         <span v-if="useSubset" style="padding-right: 0.5rem">Sub</span>
         <span v-else style="padding-right: 0.5rem">All</span>
-        <b-form-checkbox v-model="useSubset" name="subset-sutton" switch />
+        <b-form-checkbox v-model="useSubset" name="subset-sutton" switch :disabled="disableSubsetSwitch" />
       </div>
       <button class="dsb_toggle_btn" @click="collapsed_data = !collapsed_data">
         <font-awesome-icon slot="toggle-icon" icon="arrows-alt-h" size="lg" />
@@ -239,6 +239,15 @@
       },
       count_files () {
         return this.$store.state.countlist
+      },
+      disableSubsetSwitch () {
+        if (this.$store.state.subDGE !== undefined) {
+          let subsetHasElements = this.$store.state.subDGE.geneNames.size > 0
+          this.useSubset = false
+          return !subsetHasElements
+        } else {
+          return true
+        }
       }
     },
     watch: {
