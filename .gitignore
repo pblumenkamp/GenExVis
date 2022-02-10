@@ -2,9 +2,13 @@
 node_modules/
 dist/
 npm-debug.log*
+.pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-dge_visualization/test/unit/coverage/
+genexvis/test/unit/coverage/
+genexvis/about/build_date.json
+genexvis/ressources/
+genexvis/dist_nwjs/
 
 # Editor directories and files
 .idea

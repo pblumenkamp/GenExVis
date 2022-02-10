@@ -1,0 +1,8 @@
+/build/
+/config/
+/dist/
+/*.js
+/test/unit/coverage/
+/src/store/store.js
+/src/components/DESeq2/Deseq2Top10.vue
+/src/components/DESeq2/Deseq2Overview.vue

@@ -1,0 +1,36 @@
+import sys
+import json
+
+def main(package_json_path):
+    json_input = []
+    for line in sys.stdin:
+        json_input.append(line)
+    json_string = "".join(json_input)
+
+    production_depend = []
+    depend_json = json.loads(open(package_json_path).read())
+    for dependency in depend_json['dependencies'].keys():
+        production_depend.append(dependency)
+
+    new_json = {}
+    json_parsed = json.loads(json_string)
+    for module, values in json_parsed.items():
+        if module.rsplit('@', 1)[0] in production_depend:
+            new_json[module] = values
+            if 'licenseFile' in values and 'license' in values['licenseFile'].lower():
+                with open(values['licenseFile']) as license:
+                    values['licenseContent'] = license.read()
+            elif module.startswith('highcharts'):
+                values['customLicenseDescription'] = 'Highsoft Non-Commercial License'
+                values['customLicenseContent'] = 'CC BY-NC 3.0 US'
+                values['customLicenseURL'] = "https://creativecommons.org/licenses/by-nc/3.0/us/"
+            else:
+                values['licenseContent'] = 'Published under "{}"'.format(values['licenses'])
+            del values['path']
+
+    json_string = json.dumps(new_json, sort_keys=True, indent=2)
+    print(json_string)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])

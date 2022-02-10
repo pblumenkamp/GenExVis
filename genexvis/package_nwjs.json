@@ -1,0 +1,15 @@
+{
+  "name": "GenExVis",
+  "version": "0.4.0",
+  "description": "GenExVis (Gene Expression Visualizer)",
+  "author": "Patrick Blumenkamp <genexvis@computational.uni-giessen.de>",
+  "private": true,
+  "main": "index.html",
+  "window": {
+    "title": "GenExVis",
+    "width": 1920,
+    "height": 1080,
+    "position": "center"
+  },
+  "js-flags": "--max-old-space-size=8000"
+}
