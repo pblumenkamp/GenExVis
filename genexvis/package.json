@@ -1,8 +1,8 @@
 {
   "name": "GenExVis",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "GenExVis (Gene Expression Visualizer)",
-  "author": "Patrick Blumenkamp <patrick.blumenkamp@computational.uni-giessen.de>",
+  "author": "Patrick Blumenkamp <genexvis@computational.uni-giessen.de>",
   "private": true,
   "scripts": {
     "licenses": "license-checker --production --relativeLicensePath --json | python3 about/createLicensePage.py package.json > about/licenses.json",
