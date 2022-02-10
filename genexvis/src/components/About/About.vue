@@ -6,7 +6,7 @@
         <b>{{ $name }} {{ $version }}</b><br>
         Developed by Patrick Blumenkamp<br>
         <font-awesome-icon icon="envelope-open-text" />
-        <a href="mailto:patrick.blumenkamp@computational.bio">patrick.blumenkamp@computational.bio</a>
+        <a href="mailto:genexvis@computational.bio.uni-giessen.de">genexvis@computational.bio.uni-giessen.de</a>
         <br><br>
         Justus Liebig University Giessen<br>
         Bioinformatics and Systems Biology<br>
