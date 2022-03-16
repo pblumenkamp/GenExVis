@@ -28,7 +28,7 @@ Vue.use(VTooltip)
 Vue.use(VueSidebarMenu)
 
 Vue.prototype.$name = 'GenExVis'
-Vue.prototype.$version = '0.4.0'
+Vue.prototype.$version = '0.4.1'
 Vue.prototype.$charts = []
 
 /* eslint-disable no-new */
