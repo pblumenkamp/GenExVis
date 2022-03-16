@@ -1,5 +1,6 @@
 ![Javascript](https://img.shields.io/badge/Language-Javascript-blue.svg)
 ![Vue.js](https://img.shields.io/badge/Language-Vue.js-blue.svg)
+![NW.js](https://img.shields.io/badge/Framework-NW.js-blue.svg)
 ![Release](https://img.shields.io/github/release/pblumenkamp/genexvis.svg)
 
 # GenExVis (Gene Expression Visualizer)
