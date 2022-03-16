@@ -285,7 +285,7 @@
         let vue = this
         vue.$charts.length = 0
         vue.updateCheck = false
-        let categories = this.registeredConditions
+        let categories = this.conditions
         let conditionKey = vue.getConditionKey(cond1, cond2)
 
         let fontSize = '1rem'
@@ -409,7 +409,8 @@
           geneCountData = this.dge.getAllUnnormalizedCountDataByGene(element)
         }
 
-        for (let entry in geneCountData) {
+        let conditions = Object.keys(geneCountData).sort()
+        for (let entry of conditions) {
           let index = categories.indexOf(entry);
           let entryList = geneCountData[entry];
           for (let subentry in entryList) {
@@ -422,7 +423,8 @@
             dataList.push(pointDict);
           }
         }
-        return (dataList)
+        console.log(dataList)
+        return dataList
       },
       getGeneName (index, deseq2Stat) {
         let conditionKey = this.getConditionKey(this.selectedCondition1, this.selectedCondition2)
