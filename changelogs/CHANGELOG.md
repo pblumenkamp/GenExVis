@@ -1,7 +1,7 @@
 ## 0.4.1
 ### Changed
 - Columns in TopX charts are now sorted for a more constant experience.
-- Default of file name changed to 'genexvis_export.csv'.
+- File name default changed to 'genexvis_export.csv' when exporting data.
 
 ### Fixed
 - Fixed a crash when opening the overview table with large datasets.
