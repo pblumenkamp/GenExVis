@@ -193,7 +193,7 @@
           columnGroupClosed: ' <',
         },
 
-        log2foldlist: [],
+        log2foldlist: [], //List with all log2 fold changes
         log2foldmin: 0,
         log2foldmax: 0,
         rowTotalAmount: null,
@@ -311,10 +311,22 @@
       // visualisation of log2FoldChange
       minmaxdefine () {
         let log2foldlist = this.log2foldlist;
-        let min = Math.min(...log2foldlist);
-        let max = Math.max(...log2foldlist);
-        this.log2foldmin = min;
-        this.log2foldmax = max
+        if (log2foldlist.length > 0) {
+          let min = log2foldlist[0]
+          let max = log2foldlist[0]
+          for (let element of log2foldlist) {
+            if (element > max) {
+              max = element
+            } else if (element < min) {
+              min = element
+            }
+          }
+          this.log2foldmin = min
+          this.log2foldmax = max
+        } else {
+          this.log2foldmin = null
+          this.log2foldmax = null
+        }
       },
       chooseDesign () {
         // designStorage is simply the string name of the design
