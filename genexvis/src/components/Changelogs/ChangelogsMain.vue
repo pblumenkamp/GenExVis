@@ -7,6 +7,7 @@
       <h3 class="changelog">Changed</h3>
       <ul>
         <li>Columns in TopX charts are now sorted for a more constant experience.</li>
+        <li>Default of file name changed to 'genexvis_export.csv'.</li>
       </ul>
       <h3 class="changelog">Fixed</h3>
       <ul>

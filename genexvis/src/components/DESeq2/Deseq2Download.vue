@@ -282,7 +282,7 @@
           }
         }
 
-        downloadFile(csvContent, 'testDeseqOverview.csv')
+        downloadFile(csvContent, 'genexvis_export.csv')
       }
     }
   }
