@@ -56,7 +56,7 @@ WP_001102391.1	1.21713032581618	-1.10175048525465	1.50339386731804	-0.7328422106
 ```
 
 ## Citation
-In preparation.
+Blumenkamp, P., Pfister, M., Diedrich, S., Brinkrolf, K., Jaenicke, S., Goesmann, A. - Curare and GenExVis: a versatile toolkit for analyzing and visualizing RNA-Seq data. BMC Bioinformatics 25, 138 (2024). https://doi.org/10.1186/s12859-024-05761-2
 
 ## FAQ
 1. Contact and support: genexvis@computational.bio.uni-giessen.de
